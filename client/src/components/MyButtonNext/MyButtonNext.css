@@ -1,0 +1,17 @@
+.block_button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.my_batton_next {
+    background-color: #fbcb00;
+    border-radius: 20px;
+    border: solid black 1px;
+    margin: 10px;
+}
+
+#submit {
+    margin: 0;
+    padding: 10px 20px;
+}
