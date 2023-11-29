@@ -1,20 +1,3 @@
-// import { observer } from 'mobx-react-lite';
-// import React, {useContext, useState} from 'react';
-// import { Context } from '..';
-
-// function AuthVkButton() {
-//     const {store} = useContext(Context)
-//     return (
-//         <div>
-//             <button  className="button_login" onClick={() => store.registrationVk()}>
-//                 Регистрация ВК
-//             </button>
-//         </div>
-//     );
-// }
-
-// export default observer(AuthVkButton);
-
 import {useRef, useEffect} from 'react';
 import { Config, Connect, ConnectEvents, VKAuthButtonCallbackResult } from '@vkontakte/superappkit'; 
 import { useNavigate } from 'react-router-dom';
@@ -42,6 +25,8 @@ function AuthVkButton(): any {
         useEffect(() => {
           ref.current.appendChild(oneTapButton?.getFrame());
         });
+
+        
   
 const oneTapButton = Connect.buttonOneTapAuth({
   callback: (event: VKAuthButtonCallbackResult) => {
@@ -66,7 +51,6 @@ const oneTapButton = Connect.buttonOneTapAuth({
     showAgreements: true,
     displayMode: 'default',
     langId: 0,
-    // buttonSkin: 'primary',
     buttonStyles: {
       borderRadius: 10,
       height: 40,
@@ -85,7 +69,7 @@ const oneTapButton = Connect.buttonOneTapAuth({
         
 
         return (
-          <div ref={ref} id="my-element"></div >
+          <p ref={ref} id="my-element"></p >
         );
         
       }
