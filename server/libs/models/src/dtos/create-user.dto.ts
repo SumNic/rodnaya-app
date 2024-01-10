@@ -3,19 +3,23 @@ import { IsEmail, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
-    example: 'test@mail.ru',
-    description: 'Электронная почта',
-  })
-  @IsEmail({ allow_utf8_local_part: false }, { message: 'Некорректный email' })
-  email: string;
-
-  @ApiProperty({
-    example: 'pass0550',
-    description: 'Пароль (длина от 6 до 24 символов)',
+    example: '12345345',
+    description: 'ID VK',
   })
   @IsString({ message: 'Должно быть строкой' })
-  @Length(6, 24, {
-    message: 'Длина пароля должна быть не меньше 6 и не больше 24',
+  vk_id: string;
+
+  @ApiProperty({
+    example: 'sdfsdfsd',
+    description: 'uuid VK',
   })
-  password: string;
+  @IsString({ message: 'Должно быть строкой' })
+  uuid: string;
+
+  @ApiProperty({
+    example: 'sdfsdfsdf',
+    description: 'Silent token',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  token: string; 
 }

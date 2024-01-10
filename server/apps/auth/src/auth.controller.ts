@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Res } from '@nestjs/common';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import {
@@ -15,6 +15,7 @@ import { HttpStatusCode } from 'axios';
 import { LocationUser } from '@app/models/models/users/location.model';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { RmqService } from '@app/common'; 
+import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 
 @Controller()
 export class AuthController {
@@ -27,20 +28,20 @@ export class AuthController {
    * @param {CreateRoleDto} dto - DTO для создания пользователя.
    * @returns TokenResponseDto - JWT токен.
    */
-  @MessagePattern('registration')
-  async registration(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-    return await this.authService.registration(dto);
-  }
+  // @MessagePattern('registration')
+  // async registration(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
+  //   return await this.authService.registration(dto);
+  // }
 
   /**
    * Авторизация пользователя.
    * @param {CreateRoleDto} dto - DTO для создания пользователя.
    * @returns TokenResponseDto - JWT токен.
    */
-  @MessagePattern('login')
-  async login(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-    return await this.authService.login(dto);
-  }
+  // @MessagePattern('login')
+  // async login(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
+  //   return await this.authService.login(dto);
+  // }
 
   /**
    * Разлогинить пользователя.
@@ -98,12 +99,12 @@ export class AuthController {
    * @param {CreateUserDto} dto - DTO для создания пользователя.
    * @returns TokenResponseDto - JWT токен.
    */
-  @MessagePattern('createSuperUser')
-  async createSuperUser(
-    @Payload() dto: CreateUserDto,
-  ): Promise<TokenResponseDto> {
-    return await this.authService.createSuperUser(dto);
-  }
+  // @MessagePattern('createSuperUser')
+  // async createSuperUser(
+  //   @Payload() dto: CreateUserDto,
+  // ): Promise<TokenResponseDto> {
+  //   return await this.authService.createSuperUser(dto);
+  // }
 
   /**
    * Получить пользователя.
@@ -118,21 +119,21 @@ export class AuthController {
   /**
    * OAuth через Google
    */
-  @MessagePattern('googleAuthRedirect')
-  async googleAuthRedirect(@Payload() user: any) {
-    return await this.authService.googleLogin(user);
-  }
+  // @MessagePattern('googleAuthRedirect')
+  // async googleAuthRedirect(@Payload() user: any) {
+  //   return await this.authService.googleLogin(user);
+  // }
 
-  @MessagePattern('googleLoginViaDto')
-  async googleLoginViaDto(@Payload() user: any) {
-      return await this.authService.googleLoginViaDto(user);
-  }
+  // @MessagePattern('googleLoginViaDto')
+  // async googleLoginViaDto(@Payload() user: any) {
+  //     return await this.authService.googleLoginViaDto(user);
+  // }
 
   /**
    * OAuth через vk
    */
   @MessagePattern('loginByVk')
-  async vkLogin(@Payload() query: VkLoginDto) {
+  async vkLogin(@Res() res: any, @Payload() query: VkLoginSdkDto) {
     return await this.authService.vkLogin(query);
   }
 

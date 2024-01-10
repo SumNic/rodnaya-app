@@ -16,4 +16,4 @@ export const WORLD_ROUTE = '/world'
 export const NEXT_REGISTR_STEP_ROUTE = '/next'
 
 export const VK_ROUTE = '/vk'
-export const VK_CALLBACK_ROUTE = '/vk/callback'
+export const VK_CALLBACK_ROUTE = '/vk-auth'

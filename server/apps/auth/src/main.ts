@@ -9,7 +9,7 @@ async function bootstrap() {
   const rmqService = app.get<RmqService>(RmqService);
 
   app.enableCors();
-  app.connectMicroservice<RmqOptions>(rmqService.getOptions('AUTH', false));
+  app.connectMicroservice<RmqOptions>(rmqService.getOptions('AUTH', true));
   app.useGlobalPipes(new ValidationPipe());
 
   await app.startAllMicroservices();

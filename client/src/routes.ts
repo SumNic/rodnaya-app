@@ -6,7 +6,6 @@ import Home from "./pages/Home"
 import Messages from "./pages/Messages"
 import Registration from "./pages/Registration"
 import NextStepRegistr from "./pages/NextStepRegistr"
-import RegistrationVK from "./pages/RegistrationVK"
 import VkCallback from "./pages/VkCallback"
 
 export const authRoutes = [
@@ -29,10 +28,10 @@ export const authRoutes = [
 ]
 
 export const conditionRoutes = [
-    {
-        path: VK_ROUTE,
-        Component: RegistrationVK
-    },
+    // {
+    //     path: VK_ROUTE,
+    //     Component: RegistrationVK
+    // },
     {
         path: NEXT_REGISTR_STEP_ROUTE,
         Component: NextStepRegistr

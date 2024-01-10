@@ -84,9 +84,24 @@ export class UsersService {
    * @param {string} email - Email пользователя.
    * @returns User - Найденный пользователь.
    */
-  async getUserByEmail(email: string): Promise<User> {
+  async getUserByUserId(id: string): Promise<User> {
+    console.log(id, 'getUserByUserId - id')
     const user = await this.usersRepository.findOne({
-      where: { email },
+      where: { vk_id: id },
+      include: { all: true },
+    });
+
+    return user;
+  }
+
+  /**
+   * Получить пользователя по Email.
+   * @param {string} email - Email пользователя.
+   * @returns User - Найденный пользователь.
+   */
+   async getUserByEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { vk_id: email },
       include: { all: true },
     });
 

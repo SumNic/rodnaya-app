@@ -1,59 +1,60 @@
-import React, { Component } from 'react';
+import { observer } from 'mobx-react-lite';
+import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoPc from '../components/HeaderLogoPc';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
-import LoginForm from '../components/LoginForm/LoginForm';
-import Nav_registr from '../components/Nav_header/Nav_registr';
-import Nav from '../components/Nav_header/Nav_registr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-import logo from '../images/svg/logo.svg';
+import { REGISTRATION_ROUTE } from '../utils/consts';
 
-class Auth extends Component {
-    render() {
-        return (
-            <div>
-                <header className="header">
-                    < HeaderLogoRegistr />
-                </header>
+function Auth() {
 
-                <div className="middle">
-                    <div className="middle__wrapper">
-                        <nav className="middle__menu" style={{visibility: "hidden"}}>
-                            <input id="menu-toggle" type="checkbox" />
-                            <label className='menu-button-container' htmlFor="menu-toggle">
-                                <div className='menu-button'></div>
-                            </label>
+    return (
+        <div>
+            <header className="header">
+                < HeaderLogoRegistr />
+            </header>
 
-                            <NavMiddle />
+            <div className="middle">
+                <div className="middle__wrapper">
+                    <nav className="middle__menu" style={{visibility: "hidden"}}>
+                        <input id="menu-toggle" type="checkbox" />
+                        <label className='menu-button-container' htmlFor="menu-toggle">
+                            <div className='menu-button'></div>
+                        </label>
 
-                            <div className="logo">
-                                <Link to="/home" className="header__logo-link">
-                                    <img src="../images/svg/Logotip-Rodnoj-parti-40x40.svg" alt="Родная партия" className=""></img>
-                                </Link>
-			                </div>
-		                </nav>
-                        <div className="main__screen main__screen_home">
-                            <div>
-                                <h1>Авторизация</h1>
-                                <LoginForm />
-                            </div>
+                        <NavMiddle />
 
-                            <div className="main__screen-flag">
+                        <div className="logo">
+                            <Link to="/home" className="header__logo-link">
+                                <img src="../images/svg/Logotip-Rodnoj-parti-40x40.svg" alt="Родная партия" className=""></img>
+                            </Link>
+                        </div>
+                    </nav>
+                    <div className="main__screen main__screen_home">
+                        <div id="list_founders">
                             
-                            </div>
-		                </div>
-	                </div>
+                            <h2 style={{fontSize: "20px"}}>
+                                Если вы зарегистрированы на сайте, то для входа нажмите кнопку:	 		
+                            </h2>
+                            <AuthVkButton />
+                            <h2 style={{fontSize: "20px"}}>
+                                Для регистрации перейдите по ссылке <Link to={REGISTRATION_ROUTE} className="registr__link">Регистрация</Link>
+                            </h2>
+                        </div>
+
+                        <div className="main__screen-flag">
+                        
+                        </div>
+                    </div>
                 </div>
-
-                <Footer />
-
             </div>
-            
-        );
-    }
+
+            <Footer />
+
+        </div>
+        
+    );
 }
 
-export default Auth;
+export default observer(Auth);

@@ -1,5 +1,4 @@
 import { JwtAuthGuard, JwtRefreshGuard, ROLES } from '@app/common';
-import { GoogleAuthGuard } from '@app/common/auth/google-auth.decorator';
 import { Roles } from '@app/common/auth/roles-auth.decorator';
 import { RolesGuard } from '@app/common/auth/roles.guard';
 import { AUTH_SERVICE } from '@app/common/auth/service';
@@ -13,6 +12,7 @@ import {
   VkLoginDto,
 } from '@app/models';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
+import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import {
     BadRequestException,
   Body,
@@ -319,19 +319,35 @@ export class AppAuthController {
   //   summary: 'Передача пользователя из google в бд',
   // })
 
+  // @Post('/loginByVkCheck')
+  // async registrationVkCheck(@Body() dto: VkLoginSdkDto) {
+  //   console.log(dto.uuid)
+  //   console.log(dto.user)
+  //   return dto
+  // }
+
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'OAuth через VK' })
-  @Get('/vk')
-  async vkAuth(@Res() res: any) {
-    console.log('vk')
-    const VKDATA = {
-      client_id: this.configService.get('VK_CLIENT_ID'),
-      callback: this.configService.get('VK_CALLBACK'),
-      display: 'popup',
-    };
-    const url = `https://oauth.vk.com/authorize?client_id=${VKDATA.client_id}&redirect_uri=${VKDATA.callback}&display=${VKDATA.display}&scope=phone_number&response_type=code&v=5.131`;
-    console.log(url)
-    return res.redirect(url);
+  @Post('/loginByVk')
+  @ApiBody({ type: VkLoginSdkDto })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Успешная регистрация',
+    // type: OutputJwtTokens,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Пользователь с такой электронной почтой уже существует',
+  })
+  @ApiBody({ type: VkLoginSdkDto }) 
+  async registrationVk(@Body() dto: VkLoginSdkDto) {
+    return this.authClient
+      .send('loginByVk', dto)
+      .pipe(
+        catchError((error) =>
+          throwError(() => new RpcException(error.response)),
+        ),
+      );
   }
 
   @ApiTags('Авторизация')
@@ -623,7 +639,7 @@ export class AppAuthController {
         ),
       );
   }
-}
+} 
 
 
 

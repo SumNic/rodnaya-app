@@ -1,7 +1,7 @@
 import React, { Component, useContext, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import store from '../../store/store';
-import { Context } from '../..';
+import store from '../store/store';
+import { Context } from '..';
 
 function OnChangeForm () {
     const [country, setCountry] = useState<string>('')

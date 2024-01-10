@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogoMobile';
 import HeaderLogoPc from '../components/HeaderLogoPc';
+import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
 import Nav_registr from '../components/Nav_header/Nav_registr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 
@@ -12,9 +14,9 @@ class Home extends Component {
             <div>
                 <header className="header">
                     <div className="header__wrapper">
-                        <HeaderLogoPc />
+                        {/* <HeaderLogoPc /> */}
                         <HeaderLogoMobile />
-                        <Nav_registr />
+                        <HeaderLogoRegistr />
                     </div>
                 </header>
 
@@ -44,11 +46,16 @@ class Home extends Component {
                                     Данная Родная партия не нуждается в официальной регистрации.
                                 </h2>
                                 <h2 style={{fontSize: "20px"}}>
-                                    Если вы также считаете себя учредителем своей Родной партии, то можете присоединиться к данному проекту для совместной реализации цели партии. 
-                                    Для этого необходимо пройти несложную регистацию.
+                                    Если ты считаешь себя учредителем своей Родной партии, то присоединяйся. 
+                                    Для этого нажно нажать кнопку ниже и пройти не сложную регистрацию.
                                 </h2>
-                                <Link to="/founders" className="list_founders">Список учредителей своей Родной партии</Link><br></br>
-                                <Link to="https://vk.com/club166722362" className="list_founders">Официальная группа ВК</Link>
+                                <AuthVkButton />
+                                <h2 style={{fontSize: "20px"}}>
+                                    <Link to="/founders" className="list_founders">Посмотреть список учредителей своей Родной партии</Link>
+                                </h2>
+                                <h2 style={{fontSize: "20px"}}>
+                                    <Link to="https://vk.com/club166722362" className="list_founders">Группа ВК</Link>
+                                </h2>
                             </div>
 
                             <div className="main__screen-flag">

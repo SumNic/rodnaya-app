@@ -19,7 +19,7 @@ function ConditionsForm() {
             
             if (store.isCondition === true) {
                 // store.registrationVk()
-                navigate(VK_ROUTE, {replace: true});
+                // navigate(VK_ROUTE, {replace: true});
             }
         }                
 
@@ -57,12 +57,12 @@ function ConditionsForm() {
                         будут размещены в открытом доступе в интернете.
                     </label>
                 </div>
-                <div className="registr__block">
+                {/* <div className="registr__block">
                     <input type="checkbox" className="checkbox" id="registr5" name="registr5" value="person" required />
                     <label htmlFor="registr5">
                         Я согласен(на) на обработку моих персональных данных
                     </label>
-                </div>
+                </div> */}
             </form> 
         );
     

@@ -7,6 +7,9 @@ import AuthService from "../services/AuthService";
 import OAuthVkService from "../services/OAuthVkService";
 import { LocationUser } from "../models/LocationUser";
 import LocationUserService from "../services/LocationUserService";
+import { VkSdkResponse } from "../models/response/VkSdkResponse";
+import { useNavigate } from "react-router-dom";
+import { VK_CALLBACK_ROUTE } from "../utils/consts";
 
 export default class Store {
     user = {} as IUser
@@ -96,13 +99,18 @@ export default class Store {
         }
     }
 
-    async registrationVk() {
+    async registrationVk(payload: any) {
         try {
-            const response = await OAuthVkService.registrationVk()
-            console.log(response);           
-            // localStorage.setItem('token', response.data.accessToken)
+            console.log(JSON.parse(payload))
+            const response = await OAuthVkService.registrationVk(JSON.parse(payload))
+            
+            // console.log(user, 'user')
+          // return user
+          if (response) {
+            console.log(response, 'resp')
             this.setAuthVk(true)
-            // this.setUser(response.data.user)
+            // return await OAuthVkServiceFunction()
+          }
         } catch(e: any) {
             console.log(e.response?.data?.message)
         }

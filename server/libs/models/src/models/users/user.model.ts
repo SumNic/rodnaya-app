@@ -9,8 +9,7 @@ import { Role } from './role.model';
 import { UserRoles } from './user-roles.model';
 
 interface UserCreationAttrs {
-  email: string;
-  password: string;
+  user_id: string;
 }
 
 @Table({ tableName: 'users' })
@@ -24,13 +23,25 @@ export class User extends Model<User, UserCreationAttrs> {
   id: number;
 
   @Column({ type: DataType.STRING, unique: true, allowNull: false })
-  email: string;
-
-  @Column({ type: DataType.STRING, allowNull: false })
-  password: string;
+  vk_id: string;
 
   @Column({ type: DataType.STRING, allowNull: true })
-  refreshToken: string;
+  avatar: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  first_name: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  last_name: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  avatar_base: string;
+
+  @Column({ type: DataType.BOOLEAN, allowNull: true })
+  registr: boolean;
+
+  @Column({ type: DataType.STRING, defaultValue: false }) 
+  refreshToken: string; 
 
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];
