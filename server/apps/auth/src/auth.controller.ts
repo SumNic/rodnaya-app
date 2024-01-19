@@ -1,5 +1,5 @@
-import { Controller, Res } from '@nestjs/common';
-import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Controller, HttpException, Res, UseFilters } from '@nestjs/common';
+import { Ctx, MessagePattern, Payload, RmqContext, RpcException } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import {
   AddRoleDto,
@@ -9,12 +9,12 @@ import {
   Role,
   TokenResponseDto,
   User,
-  VkLoginDto,
+  // VkLoginDto,
 } from '@app/models';
 import { HttpStatusCode } from 'axios';
 import { LocationUser } from '@app/models/models/users/location.model';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
-import { RmqService } from '@app/common'; 
+import { RmqService, RpcExceptionFilter } from '@app/common'; 
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 
 @Controller()
@@ -132,8 +132,9 @@ export class AuthController {
   /**
    * OAuth через vk
    */
+  // @UseFilters(new RpcExceptionFilter())
   @MessagePattern('loginByVk')
-  async vkLogin(@Res() res: any, @Payload() query: VkLoginSdkDto) {
+  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<OutputJwtTokens> {
     return await this.authService.vkLogin(query);
   }
 
@@ -142,7 +143,7 @@ export class AuthController {
    * @param {string} email - Email пользователя.
    */
   @MessagePattern('checkUserEmail')
-  async checkUserEmail(@Payload() email: string): Promise<any> {
+  async checkUserEmail(@Payload() email: number): Promise<any> {
     return await this.authService.checkUserEmail(email);
   }
 

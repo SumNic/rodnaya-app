@@ -4,7 +4,7 @@ import { API_URL } from "../http";
 import { IUser } from "../models/IUser";
 import { AuthResponse } from "../models/response/AuthResponse";
 import AuthService from "../services/AuthService";
-import OAuthVkService from "../services/OAuthVkService";
+import OAuthVkService from "../services/VkAuthService";
 import { LocationUser } from "../models/LocationUser";
 import LocationUserService from "../services/LocationUserService";
 import { VkSdkResponse } from "../models/response/VkSdkResponse";
@@ -16,6 +16,8 @@ export default class Store {
     isAuth = false
     isAuthVk = false
     isCondition = false
+    isError = false
+    isMessageError = ''
     country = [] as LocationUser[]
     region = [] as LocationUser[]
     locality = [] as LocationUser[]
@@ -38,6 +40,13 @@ export default class Store {
 
     setIsCondition(bool: boolean) {
         this.isCondition = bool
+    }
+
+    setError(bool: boolean) {
+        this.isError = bool
+    }
+    setMessageError(str: string) {
+        this.isMessageError = str
     }
 
     setCountry (country: LocationUser[]) {
@@ -101,18 +110,20 @@ export default class Store {
 
     async registrationVk(payload: any) {
         try {
-            console.log(JSON.parse(payload))
-            const response = await OAuthVkService.registrationVk(JSON.parse(payload))
-            
-            // console.log(user, 'user')
-          // return user
-          if (response) {
-            console.log(response, 'resp')
-            this.setAuthVk(true)
-            // return await OAuthVkServiceFunction()
+            const response = await OAuthVkService.registrationVk(payload)
+          
+          if (response.data.error) {
+            console.log(response.data.error, 'react_response_error')
+            return { error: response.data.error }
+          } else if (response.data.response) {
+            console.log(response.data.response[0], 'react_response_data')
+            this.setAuth(true)
+            return { user: response.data.response[0] }
+
           }
         } catch(e: any) {
-            console.log(e.response?.data?.message)
+            return { error: e.response?.data?.message }
+            // console.log(e.response?.data?.message)
         }
     }
 

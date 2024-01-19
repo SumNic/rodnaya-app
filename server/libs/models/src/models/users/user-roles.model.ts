@@ -25,4 +25,5 @@ export class UserRoles extends Model<UserRoles> {
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
   userId: number; 
+  references: { model: User, key: 'id' } 
 }

@@ -16,19 +16,12 @@ export class VkLoginSdkDto {
   @IsString({ message: 'Должно быть строкой' })
   token: string;
 
-//   @ApiProperty({
-//     example: '86400',
-//     description: 'Время действия токена',
-//   })
-//   @IsNumber({}, { message: 'Должно быть целым числом' })
-//   expires_in: number;
-
   @ApiProperty({
     example: '1235092',
     description: 'ID пользователя VK',
   })
   // @IsNumber({}, { message: 'Должно быть целым числом' })
   user: {
-    id: string,
+    id: number,
   };
 }

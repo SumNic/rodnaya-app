@@ -22,11 +22,8 @@ export class User extends Model<User, UserCreationAttrs> {
   })
   id: number;
 
-  @Column({ type: DataType.STRING, unique: true, allowNull: false })
-  vk_id: string;
-
-  @Column({ type: DataType.STRING, allowNull: true })
-  avatar: string;
+  @Column({ type: DataType.INTEGER, unique: true, allowNull: false })
+  vk_id: number;
 
   @Column({ type: DataType.STRING, allowNull: true })
   first_name: string;
@@ -35,12 +32,15 @@ export class User extends Model<User, UserCreationAttrs> {
   last_name: string;
 
   @Column({ type: DataType.STRING, allowNull: true })
-  avatar_base: string;
+  photo_50: string;
 
-  @Column({ type: DataType.BOOLEAN, allowNull: true })
+  @Column({ type: DataType.STRING, allowNull: true })
+  photo_max: string;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
   registr: boolean;
 
-  @Column({ type: DataType.STRING, defaultValue: false }) 
+  @Column({ type: DataType.STRING, allowNull: true }) 
   refreshToken: string; 
 
   @BelongsToMany(() => Role, () => UserRoles)

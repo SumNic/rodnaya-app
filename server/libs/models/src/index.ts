@@ -17,7 +17,7 @@ export * from './dtos/output-jwt-tokens.dto';
 export * from './dtos/exception.dto';
 export * from './dtos/google-response.dto';
 export * from './dtos/token.dto';
-export * from './dtos/vk-login.dto';
+// export * from './dtos/vk-login.dto';
 
 export * from './dtos/refresh-tokens.dto';
 export * from './dtos/user-gmail-oauth.dto';

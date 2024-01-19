@@ -7,19 +7,33 @@ export class CreateUserDto {
     description: 'ID VK',
   })
   @IsString({ message: 'Должно быть строкой' })
-  vk_id: string;
+  vk_id: number;
 
   @ApiProperty({
-    example: 'sdfsdfsd',
-    description: 'uuid VK',
+    example: 'Имя',
+    description: 'Имя пользователя в VK',
   })
   @IsString({ message: 'Должно быть строкой' })
-  uuid: string;
+  first_name: string;
 
   @ApiProperty({
-    example: 'sdfsdfsdf',
-    description: 'Silent token',
+    example: 'Фамилия',
+    description: 'Фамилия пользователя в VK',
   })
   @IsString({ message: 'Должно быть строкой' })
-  token: string; 
+  last_name: string; 
+
+  @ApiProperty({
+    example: 'Фото для аватара',
+    description: 'Фото для аватара в ВК',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  photo_50: string; 
+
+  @ApiProperty({
+    example: 'Фото пользователя',
+    description: 'Фото пользователя в ВК',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  photo_max: string; 
 }

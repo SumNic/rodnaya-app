@@ -6,7 +6,7 @@ import { Context } from '..';
 import * as VKID from '@vkid/sdk'; 
 import { observer } from 'mobx-react-lite';
 
-function AuthVkButton(): any {
+function AuthVkButton() {
 
   function vkLogin() {
     VKID.Auth.login()

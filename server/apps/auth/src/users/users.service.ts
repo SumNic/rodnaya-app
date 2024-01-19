@@ -23,6 +23,8 @@ export class UsersService {
    * @returns User - Созданный пользователь.
    */
   async createUser(dto: CreateUserDto): Promise<User> {
+
+    console.log(dto, 'createUser')
     const user = await this.usersRepository.create(dto);
     let role = await this.roleService.getRoleByValue(ROLES.USER);
 
@@ -84,10 +86,10 @@ export class UsersService {
    * @param {string} email - Email пользователя.
    * @returns User - Найденный пользователь.
    */
-  async getUserByUserId(id: string): Promise<User> {
-    console.log(id, 'getUserByUserId - id')
+  async getUserByUserId(id: number, registr: boolean): Promise<User> {
+    
     const user = await this.usersRepository.findOne({
-      where: { vk_id: id },
+      where: { vk_id: id, registr: registr },
       include: { all: true },
     });
 
@@ -99,7 +101,7 @@ export class UsersService {
    * @param {string} email - Email пользователя.
    * @returns User - Найденный пользователь.
    */
-   async getUserByEmail(email: string): Promise<User> {
+   async getUserByEmail(email: number): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { vk_id: email },
       include: { all: true },

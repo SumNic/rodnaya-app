@@ -1674,12 +1674,20 @@ textarea[name="message"] {
     margin-left: -28px;
   }
 
-  .VkIdWebSdk__button_text {
+  .VkIdWebSdk__button_text, .My__button_text{
     display: flex;
     font-family: -apple-system, system-ui, "Helvetica Neue", Roboto, sans-serif;
     flex: 1;
     justify-content: center;
     color: #ffffff;
+  }
+
+  .My__error_text{
+    display: flex;
+    font-family: -apple-system, system-ui, "Helvetica Neue", Roboto, sans-serif;
+    flex: 1;
+    justify-content: left;
+    color: black;
   }
 
   

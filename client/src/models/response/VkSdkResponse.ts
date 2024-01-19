@@ -1,4 +1,11 @@
 export interface VkSdkResponse {
-    uuid: string;
-    silent_token: string;
+    response: [
+        {
+            id: number
+        }
+    ];
+    error: 
+    {
+        error_msg: string
+    }
 }

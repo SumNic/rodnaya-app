@@ -9,7 +9,6 @@ import {
   GoogleResponseDto,
   OutputJwtTokens,
   UserGmailOAuth,
-  VkLoginDto,
 } from '@app/models';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
@@ -324,16 +323,16 @@ export class AppAuthController {
   //   console.log(dto.uuid)
   //   console.log(dto.user)
   //   return dto
-  // }
+  // }   
 
   @ApiTags('Авторизация')
-  @ApiOperation({ summary: 'OAuth через VK' })
+  @ApiOperation({ summary: 'Auth через VK SDK' })
   @Post('/loginByVk')
   @ApiBody({ type: VkLoginSdkDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Успешная регистрация',
-    // type: OutputJwtTokens,
+    type: OutputJwtTokens,   
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -344,62 +343,62 @@ export class AppAuthController {
     return this.authClient
       .send('loginByVk', dto)
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
+        catchError(async (error) => {
+          console.log(error)
+          return new RpcException(error)}),
+        )
   }
 
-  @ApiTags('Авторизация')
-  @Get('/vk/callback')
-  @ApiOperation({
-    summary: 'Редирект для OAuth через VK (Возвращает данные из VK)',
-  })
-  @ApiResponse({
-    type: VkLoginDto,
-    status: HttpStatus.OK,
-  })
-  async vkAuthRedirect(@Res() res: any, @Query() query: any) {
-    const VKDATA = {
-      client_id: this.configService.get('VK_CLIENT_ID'),
-      client_secret: this.configService.get('VK_CLIENT_SECRET'),
-      callback: this.configService.get('VK_CALLBACK'),
-    };
+  // @ApiTags('Авторизация')  
+  // @Get('/vk/callback')
+  // @ApiOperation({
+  //   summary: 'Редирект для OAuth через VK (Возвращает данные из VK)',
+  // })
+  // @ApiResponse({
+  //   type: VkLoginDto,
+  //   status: HttpStatus.OK,
+  // })
+  // async vkAuthRedirect(@Res() res: any, @Query() query: any) {
+  //   const VKDATA = {
+  //     client_id: this.configService.get('VK_CLIENT_ID'),
+  //     client_secret: this.configService.get('VK_CLIENT_SECRET'),
+  //     callback: this.configService.get('VK_CALLBACK'),
+  //   };
 
-    const url = `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${VKDATA.callback}&code=${query.code}`;
-    res.redirect(url);
-  }
+  //   const url = `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${VKDATA.callback}&code=${query.code}`;
+  //   res.redirect(url);
+  // }
 
-  @ApiTags('Авторизация')
-  @Post('/vk/login')
-  @ApiOperation({
-    summary: 'Принимает данные из VK, возвращает JWT токен',
-  })
-  @ApiBody({
-    type: VkLoginDto,
-  })
-  @ApiResponse({
-      type: OutputJwtTokens,
-      status: HttpStatus.CREATED,
-  })
-  async vkAuthResult(@Body() vkLoginDto: VkLoginDto) {
-    if(!Number(vkLoginDto.user_id)) {
-        throw new BadRequestException('Ошибка ввода user_id');
-    }
-    if(!Number(vkLoginDto.expires_in)) {
-        throw new BadRequestException('Ошибка ввода expires_in');
-    }
-    if(!vkLoginDto.access_token) {
-        throw new BadRequestException('Ошибка ввода expires_in');
-    }
-    return this.authClient
-      .send('loginByVk', vkLoginDto)
-      .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
-  }
+  // @ApiTags('Авторизация')
+  // @Post('/vk/login')
+  // @ApiOperation({
+  //   summary: 'Принимает данные из VK, возвращает JWT токен',
+  // })
+  // @ApiBody({
+  //   type: VkLoginDto,
+  // })
+  // @ApiResponse({
+  //     type: OutputJwtTokens,
+  //     status: HttpStatus.CREATED,
+  // })
+  // async vkAuthResult(@Body() vkLoginDto: VkLoginDto) {
+  //   if(!Number(vkLoginDto.user_id)) {
+  //       throw new BadRequestException('Ошибка ввода user_id');
+  //   }
+  //   if(!Number(vkLoginDto.expires_in)) {
+  //       throw new BadRequestException('Ошибка ввода expires_in');
+  //   }
+  //   if(!vkLoginDto.access_token) {
+  //       throw new BadRequestException('Ошибка ввода expires_in');
+  //   }
+  //   return this.authClient
+  //     .send('loginByVk', vkLoginDto)
+  //     .pipe(
+  //       catchError((error) =>
+  //         throwError(() => new RpcException(error.response)),
+  //       ),
+  //     );
+  // }
 
   @ApiTags('Авторизация')
   @Get('/check-admin')

@@ -17,3 +17,5 @@ export const NEXT_REGISTR_STEP_ROUTE = '/next'
 
 export const VK_ROUTE = '/vk'
 export const VK_CALLBACK_ROUTE = '/vk-auth'
+
+export const ERROR_ROUTE = '/error'

@@ -12,6 +12,7 @@ import { LocationController } from './location/location.controller';
 import { LocationModule } from './location/location.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { LocationUser } from '@app/models/models/users/location.model';
+import { UsersController } from './users/users.controller';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { LocationUser } from '@app/models/models/users/location.model';
     UserModule,
     RolesModule,
     HttpModule,
-    LocationModule,
+    LocationModule
   ],
   controllers: [AuthController, LocationController],
   providers: [AuthService],

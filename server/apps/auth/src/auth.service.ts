@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -19,7 +20,7 @@ import {
   Role,
   TokenResponseDto,
   User,
-  VkLoginDto,
+  // VkLoginDto,
 } from '@app/models';
 import { RolesService } from './roles/roles.service';
 import { ConfigService } from '@nestjs/config';
@@ -27,6 +28,8 @@ import { LocationService } from './location/location.service';
 import { LocationUser } from '@app/models/models/users/location.model';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
+// import { VkLoginTokenSdkDto } from '@app/models/dtos/vk-login-token-sdk.dto';
+import { UsersController } from './users/users.controller';
 
 @Injectable()
 export class AuthService {
@@ -36,13 +39,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly locationService: LocationService,
+    private readonly locationService: LocationService
   ) {}
 
   /**
    * Создание пользователя с правами администратора.
    * @param {CreateUserDto} dto - DTO для создания пользователя.
-   * @returns TokenResponseDto - JWT токен.
+   * @returns TokenResponseDto - JWT токен. 
    */
   // async createSuperUser(dto: CreateUserDto): Promise<OutputJwtTokens> {
   //   const candidate = await this.userService.getUserByUserId(dto.user_id);
@@ -83,28 +86,25 @@ export class AuthService {
 
   /**
    * Регистрация нового пользователя.
-   * @param {CreateUserDto} dto - DTO для создания пользователя.
+   * @param {VkLoginSdkDto} dto - DTO для создания пользователя.
    * @returns TokenResponseDto - JWT токен.
    */
-   async registrationVk(dto: CreateUserDto): Promise<any> {
+   async registrationVk(dto: VkLoginSdkDto): Promise<OutputJwtTokens> {
   // async registrationVk(dto: CreateUserDto): Promise<OutputJwtTokens> {
-    const candidate = await this.userService.getUserByUserId(dto.vk_id);
+    console.log(dto, 'dto registrationVk')
+    const candidate = await this.userService.getUserByUserId(dto.user.id, false);
 
     if (candidate) {
-      throw new RpcException(
-        new BadRequestException(
-          'Пользователь с такой электронной почтой уже существует',
-        ),
-      );
+      console.log('candidat')
+      throw new RpcException('Вам нужно пройти регистрацию')
     }
 
     const DATA = {
-      v: 5.131,
+      v: this.configService.get<string>('VK_VERSION'),
       token: dto.token,
       access_token: this.configService.get<string>('VK_SERVICE_SECRET'),
       uuid: dto.uuid
     }
-    console.log(DATA.token, 'DATA.token')
 
     let response = await fetch('https://api.vk.com/method/auth.exchangeSilentAuthToken', {
             method:"POST",
@@ -117,13 +117,32 @@ export class AuthService {
     if(response.ok) {
         let result = await response.json()
         if (result) {
-          return result 
-            // console.log(result, 'result.response')
-            // let user = await this.getDataUser(result.access_token, result.user_id)
-            // console.log(user, 'user')
-            // return user
+          if (result.response) {
+            console.log(result.response)
+            const arrayUsersFromVk = await this.getDataUser(result.response.access_token, result.response.user_id)
+            const userVk = arrayUsersFromVk.response[0]
+
+            console.log(userVk, 'userVk')
+
+            const user = await this.userService.createUser({
+            vk_id: userVk.id,
+            first_name: userVk.first_name,
+            last_name: userVk.last_name,
+            photo_50: userVk.photo_50,
+            photo_max: userVk.photo_max,
+            });
+            const tokens = await this.generateTokens(user);
+            const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
+            await this.userService.updateRefreshToken(user.id, hashRefreshToken);
+
+            return tokens;
+
+            // return userVk
+          }
+          throw new RpcException('Нет результата.');
+          
         } else {
-            throw new UnauthorizedException();
+            throw new RpcException('Ошибка при регистрации. Повторите попытку позже.');
         }
     } else {
         throw new BadRequestException('Ошибка при получении access token'); 
@@ -148,30 +167,26 @@ export class AuthService {
    * @param {CreateUserDto} dto - DTO для создания пользователя.
    * @returns User - Проверенный пользователь.
    */
-  private async getDataUser(access_token: string, id: string): Promise<User> {
+  private async getDataUser(access_token: string, id: string): Promise<any> {
 
     try {
 
-      console.log(access_token, 'access_token')
-      console.log(id, 'id')
-
-      if (access_token && id) {
-        
+      if (access_token && id) {        
     
         let params = {
+          v: this.configService.get<string>('VK_VERSION'),
           user_ids: id,
-          fields: 'photo_50,first_name,last_name'
+          fields: 'photo_50,photo_max,first_name,last_name',
+          access_token: access_token
       }
-    
-      console.log(`https://api.vk.com/method/users.get?${new URLSearchParams(params).toString()}`)
     
         const response = await fetch(`https://api.vk.com/method/users.get?${new URLSearchParams(params).toString()}`, {
                   method:"GET",
                   headers: {
                       'Content-Type': 'application/json',
-                      'Autorization': `Bearer ${access_token}`
                     },
         });
+
           // Преобразуем полученный ответ в JSON. 
           return response.json();
       } 
@@ -396,37 +411,32 @@ export class AuthService {
   /**
    * OAuth через vk
    */
-  async vkLogin(query: VkLoginSdkDto) {
-
-    console.log(query.uuid, 'uuid ', query.token, 'token', query.user.id, 'query.user.id')
+  async vkLogin(query: VkLoginSdkDto): Promise<OutputJwtTokens> {
 
     if (query.uuid && query.token && query.user.id) {
-      // const password = this.gen_password(15);
-      // const userDto: CreateUserDto = {
-      //   email: `${query.user_id}@vk.com`,
-      //   password,
-      // };
 
-      const candidate = await this.userService.getUserByUserId(query.user.id);
+      const candidateReg = await this.userService.getUserByUserId(query.user.id, true)
 
-      if (candidate) {
-        console.log('GENERATE TOKEN');
-        const tokens = await this.generateTokens(candidate);
-        const hashRefresh = await bcrypt.hash(tokens.refreshToken, 5);
-        candidate.refreshToken = hashRefresh;
-        await candidate.save();
-        return tokens;
+      if (candidateReg) {
+        console.log('GENERATE TOKEN')
+        const tokens = await this.generateTokens(candidateReg)
+        const hashRefresh = await bcrypt.hash(tokens.refreshToken, 5)
+        candidateReg.refreshToken = hashRefresh
+        await candidateReg.save()
+        return tokens
       }
+
+      // if (candidateNotReg) {
+
+      // }
 
       const userDTO = {
         uuid: query.uuid,
         token: query.token,
-        vk_id: query.user.id
+        user: {
+          id: query.user.id
+        }
       }
-
-      console.log(userDTO.uuid, ' ',userDTO.token, ' ',userDTO.vk_id)
-
-      // return query;
 
       return await this.registrationVk(userDTO);
     }
@@ -460,7 +470,7 @@ export class AuthService {
    * Проверка электронной почты.
    * @param {string} email - Электронная почта.
    */
-  async checkUserEmail(email: string) {
+  async checkUserEmail(email: number) {
     const user = await this.userService.getUserByEmail(email);
 
     if (user) {
