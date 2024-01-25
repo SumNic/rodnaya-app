@@ -8,7 +8,7 @@ services:
     env_file:
       - ./apps/main_app/.env
     depends_on:
-      # - film
+      - location
       - auth
       - rabbitmq
     volumes:
@@ -49,20 +49,20 @@ services:
   #   volumes:
   #     - .:/usr/src/app
   #     - /usr/src/app/node_modules
-  # country:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/country/Dockerfile
-  #     target: development
-  #   command: npm run start:dev country
-  #   env_file:
-  #     - ./apps/country/.env
-  #   depends_on:
-  #     - postgres-main
-  #     - rabbitmq
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
+  location:
+    build:
+      context: .
+      dockerfile: ./apps/location/Dockerfile
+      target: development
+    command: npm run start:dev location
+    env_file:
+      - ./apps/location/.env
+    depends_on:
+      - postgres-main
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
   # genre:
   #   build:
   #     context: .
@@ -124,18 +124,18 @@ services:
     ports:
       - '5672:5672'
       - '15672:15672'
-  # postgres-main:
-  #   image: postgres:15
-  #   environment:
-  #     POSTGRES_DB: movie_main
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: root
-  #     PG_DATA: /var/lib/postgresql/data
-  #   ports:
-  #     - '5010:5432'
-  #   volumes:
-  #     - ./docker_postgres_init.sql:/docker-entrypoint initdb.d/docker_postgres_init.sql
-  #   restart: always
+  postgres-main:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: main
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - '5010:5432'
+    volumes:
+      - ./docker_postgres_init.sql:/docker-entrypoint initdb.d/docker_postgres_init.sql
+    restart: always
   postgres-users:
     image: postgres:15
     environment:

@@ -6,14 +6,14 @@ import {
     Table,
   } from 'sequelize-typescript';
   
-  interface LocationCreationAttrs {
+  interface ResidencyCreationAttrs {
     country: string;
     region: string;
     locality: string;
   }
   
-  @Table({ tableName: 'location_users' })
-  export class LocationUser extends Model<LocationUser, LocationCreationAttrs> {
+  @Table({ tableName: 'residency' })
+  export class ResidencyUser extends Model<ResidencyUser, ResidencyCreationAttrs> {
     @Column({
       type: DataType.INTEGER,
       unique: true,

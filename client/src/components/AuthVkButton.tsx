@@ -1,7 +1,7 @@
 import {useRef, useEffect, useContext, useState} from 'react';
 import { Config, Connect, ConnectEvents, VKAuthButtonCallbackResult } from '@vkontakte/superappkit'; 
 import { useNavigate } from 'react-router-dom';
-import { VK_CALLBACK_ROUTE } from '../utils/consts';
+import { LOCALHOST, VK_CALLBACK_ROUTE } from '../utils/consts';
 import { Context } from '..';
 import * as VKID from '@vkid/sdk'; 
 import { observer } from 'mobx-react-lite';
@@ -16,7 +16,7 @@ function AuthVkButton() {
     // Идентификатор приложения.
     app: 51729608,
     // Адрес для перехода после авторизации
-    redirectUrl: `http://localhost${VK_CALLBACK_ROUTE}`,
+    redirectUrl: `${LOCALHOST}${VK_CALLBACK_ROUTE}`,
   });
   
   return (

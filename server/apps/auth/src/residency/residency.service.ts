@@ -1,15 +1,15 @@
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
-import { LocationUser } from '@app/models/models/users/location.model';
+import { ResidencyUser } from '@app/models/models/users/residency.model';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
-export class LocationService {
+export class ResidencyService {
     constructor(
-        @InjectModel(LocationUser) private readonly locationRepository: typeof LocationUser,
-        // private roleService: RolesService,
+        @InjectModel(ResidencyUser) private readonly residencyRepository: typeof ResidencyUser,
+        // private roleService: RolesService, 
       ) {}
 
     /**
@@ -18,7 +18,7 @@ export class LocationService {
    * @returns LocationUser - Созданная место жительства.
    * @throws BadRequetException
    */
-  async createLocation(dto: CreateLocationDto[]): Promise<LocationUser[]> {
+  async createLocation(dto: CreateLocationDto[]): Promise<ResidencyUser[]> {
     // const candidate = await this.locationRepository.findOne({
     //   where: { locality: dto.locality },
     // });
@@ -29,7 +29,7 @@ export class LocationService {
     //   );
     // }
 
-    const locality = await this.locationRepository.bulkCreate(dto); 
+    const locality = await this.residencyRepository.bulkCreate(dto); 
 
     return locality;
   }
@@ -39,7 +39,7 @@ export class LocationService {
    * @returns LocationUser - Список найденных стран.
    */
   async getAllCountry(): Promise<any> {
-    const result = await this.locationRepository.findAll({
+    const result = await this.residencyRepository.findAll({
       attributes: [
         [Sequelize.fn('DISTINCT', Sequelize.col('country')) ,'country'],
       ]
@@ -53,7 +53,7 @@ export class LocationService {
    * @returns LocationUser - Список регионов.
    */
    async getRegions(country: string): Promise<any> {
-    const result = await this.locationRepository.findAll({
+    const result = await this.residencyRepository.findAll({
       attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('region')) ,'region'],],
       where: { country: country }
     });
@@ -66,7 +66,7 @@ export class LocationService {
    * @returns LocationUser - Список районов.
    */
    async getLocality(region: string): Promise<any> {
-    const result = await this.locationRepository.findAll({
+    const result = await this.residencyRepository.findAll({
       attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('locality')) ,'locality'],],
       where: { region: region }
     });

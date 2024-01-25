@@ -2,7 +2,8 @@
 export * from './models/users/role.model';
 export * from './models/users/user.model';
 export * from './models/users/user-roles.model';
-export * from './models/main/country.model';
+export * from './models/main/location.model';
+export * from './models/users/residency.model';
 
 // DTOs
 export * from './dtos/add-role.dto';

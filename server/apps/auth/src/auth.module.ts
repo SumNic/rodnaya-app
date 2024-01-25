@@ -8,10 +8,10 @@ import { DatabaseModule, RmqModule } from '@app/common';
 import { UserModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { HttpModule } from '@nestjs/axios';
-import { LocationController } from './location/location.controller';
-import { LocationModule } from './location/location.module';
+import { ResidencyController } from './residency/residency.controller';
+import { ResidencyModule } from './residency/residency.module';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { LocationUser } from '@app/models/models/users/location.model';
+import { ResidencyUser } from '@app/models/models/users/residency.model';
 import { UsersController } from './users/users.controller';
 
 @Module({
@@ -42,9 +42,9 @@ import { UsersController } from './users/users.controller';
     UserModule,
     RolesModule,
     HttpModule,
-    LocationModule
+    ResidencyModule
   ],
-  controllers: [AuthController, LocationController],
+  controllers: [AuthController, ResidencyController],
   providers: [AuthService],
 })
 export class AuthModule {}

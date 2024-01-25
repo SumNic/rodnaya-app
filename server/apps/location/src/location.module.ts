@@ -1,11 +1,11 @@
 import { DatabaseModule, RmqModule } from '@app/common';
-import { Country } from '@app/models';
+import { Location } from '@app/models';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import * as Joi from 'joi';
-import { CountryController } from './country.controller';
-import { CountryService } from './country.service';
+import { LocationController } from './location.controller';
+import { LocationService } from './location.service';
 
 @Module({
   imports: [
@@ -13,16 +13,16 @@ import { CountryService } from './country.service';
       isGlobal: true,
       validationSchema: Joi.object({
         RABBIT_MQ_URI: Joi.string().required(),
-        RABBIT_MQ_COUNTRY_QUEUE: Joi.string().required(),
+        RABBIT_MQ_LOCATION_QUEUE: Joi.string().required(),
         POSTGRES_URI: Joi.string().required(),
       }),
-      envFilePath: './apps/country/.env',
+      envFilePath: './apps/location/.env',
     }),
     DatabaseModule,
-    SequelizeModule.forFeature([Country]),
+    SequelizeModule.forFeature([Location]),
     RmqModule,
   ],
-  controllers: [CountryController],
-  providers: [CountryService],
+  controllers: [LocationController],
+  providers: [LocationService],
 })
-export class CountryModule {}
+export class LocationModule {}

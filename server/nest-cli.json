@@ -38,6 +38,15 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
+    "location": {
+      "type": "application",
+      "root": "apps/location",
+      "entryFile": "main",
+      "sourceRoot": "apps/location/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/location/tsconfig.app.json"
+      }
+    },
     "models": {
       "type": "library",
       "root": "libs/models",

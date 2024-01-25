@@ -24,12 +24,13 @@ import {
 } from '@app/models';
 import { RolesService } from './roles/roles.service';
 import { ConfigService } from '@nestjs/config';
-import { LocationService } from './location/location.service';
-import { LocationUser } from '@app/models/models/users/location.model';
+import { ResidencyService } from './residency/residency.service';
+import { ResidencyUser } from '@app/models/models/users/residency.model';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 // import { VkLoginTokenSdkDto } from '@app/models/dtos/vk-login-token-sdk.dto';
 import { UsersController } from './users/users.controller';
+import { OutputUserTokens } from '@app/models/dtos/output-user-tokens.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +40,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly locationService: LocationService
+    private readonly locationService: ResidencyService
   ) {}
 
   /**
@@ -89,14 +90,15 @@ export class AuthService {
    * @param {VkLoginSdkDto} dto - DTO для создания пользователя.
    * @returns TokenResponseDto - JWT токен.
    */
-   async registrationVk(dto: VkLoginSdkDto): Promise<OutputJwtTokens> {
+   async signIn(dto: VkLoginSdkDto): Promise<OutputUserTokens> {
   // async registrationVk(dto: CreateUserDto): Promise<OutputJwtTokens> {
-    console.log(dto, 'dto registrationVk')
+    
     const candidate = await this.userService.getUserByUserId(dto.user.id, false);
 
     if (candidate) {
-      console.log('candidat')
-      throw new RpcException('Вам нужно пройти регистрацию')
+      return {token: '', user: candidate}
+      // console.log('candidat')
+      // throw new RpcException('Вам нужно пройти регистрацию')
     }
 
     const DATA = {
@@ -122,8 +124,6 @@ export class AuthService {
             const arrayUsersFromVk = await this.getDataUser(result.response.access_token, result.response.user_id)
             const userVk = arrayUsersFromVk.response[0]
 
-            console.log(userVk, 'userVk')
-
             const user = await this.userService.createUser({
             vk_id: userVk.id,
             first_name: userVk.first_name,
@@ -131,21 +131,20 @@ export class AuthService {
             photo_50: userVk.photo_50,
             photo_max: userVk.photo_max,
             });
-            const tokens = await this.generateTokens(user);
-            const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
-            await this.userService.updateRefreshToken(user.id, hashRefreshToken);
+            // const tokens = await this.generateTokens(user);
+            // const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
+            // await this.userService.updateRefreshToken(user.id, hashRefreshToken); 
 
-            return tokens;
-
-            // return userVk
+            return {token: '', user};
+            
           }
-          throw new RpcException('Нет результата.');
+          throw new RpcException('Нет результата. Повторите попытку регистрации позже.');
           
         } else {
             throw new RpcException('Ошибка при регистрации. Повторите попытку позже.');
         }
     } else {
-        throw new BadRequestException('Ошибка при получении access token'); 
+        throw new BadRequestException('Ошибка при получении access token');
     }
 
 
@@ -411,7 +410,7 @@ export class AuthService {
   /**
    * OAuth через vk
    */
-  async vkLogin(query: VkLoginSdkDto): Promise<OutputJwtTokens> {
+  async vkLogin(query: VkLoginSdkDto): Promise<OutputUserTokens> {
 
     if (query.uuid && query.token && query.user.id) {
 
@@ -423,12 +422,8 @@ export class AuthService {
         const hashRefresh = await bcrypt.hash(tokens.refreshToken, 5)
         candidateReg.refreshToken = hashRefresh
         await candidateReg.save()
-        return tokens
+        return {token: tokens.token, user: candidateReg}
       }
-
-      // if (candidateNotReg) {
-
-      // }
 
       const userDTO = {
         uuid: query.uuid,
@@ -438,7 +433,7 @@ export class AuthService {
         }
       }
 
-      return await this.registrationVk(userDTO);
+      return await this.signIn(userDTO);
     }
 
     throw new RpcException(
@@ -522,7 +517,7 @@ export class AuthService {
    * Добавить место жительства.
    * @param {CreateLocationDto[]} dto - DTO для добавления роли пользоветилю.
    */
-   async createLocation(dto: CreateLocationDto[]): Promise<LocationUser[]> {
+   async createLocation(dto: CreateLocationDto[]): Promise<ResidencyUser[]> {
     return await this.locationService.createLocation(dto);
   }
 
@@ -530,7 +525,7 @@ export class AuthService {
    * Получить список всех стран.
    * @returns LocationUser - Список стран.
    */
-   async getAllCountry(): Promise<LocationUser> {
+   async getAllCountry(): Promise<ResidencyUser> {
     return await this.locationService.getAllCountry();
   } 
 
@@ -538,7 +533,7 @@ export class AuthService {
    * Получить список регионов.
    * @returns LocationUser - Список стран.
    */
-   async getRegions(country: string): Promise<LocationUser> {
+   async getRegions(country: string): Promise<ResidencyUser> {
     return await this.locationService.getRegions(country);
   }
 
@@ -546,7 +541,7 @@ export class AuthService {
    * Получить список районов.
    * @returns LocationUser - Список районов.
    */
-   async getLocality(region: string): Promise<LocationUser> {
+   async getLocality(region: string): Promise<ResidencyUser> {
     return await this.locationService.getLocality(region);
   }
 

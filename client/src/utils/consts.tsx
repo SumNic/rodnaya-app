@@ -19,3 +19,5 @@ export const VK_ROUTE = '/vk'
 export const VK_CALLBACK_ROUTE = '/vk-auth'
 
 export const ERROR_ROUTE = '/error'
+
+export const LOCALHOST = 'http://localhost'

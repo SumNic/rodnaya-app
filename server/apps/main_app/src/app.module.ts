@@ -6,6 +6,9 @@ import {
   import { ConfigModule } from '@nestjs/config';
   import * as Joi from 'joi';
   import { AppAuthController } from './app.auth.controller';
+import { AppLocationController } from './app.location.controller';
+import { LocationModule } from 'apps/location/src/location.module';
+import { LOCATION_SERVICE } from '@app/common/constants/services';
   
   @Module({
     imports: [
@@ -21,10 +24,12 @@ import {
         }),
         envFilePath: './apps/main_app/.env',
       }),
-      forwardRef(() => AuthModule), 
+      forwardRef(() => AuthModule),
+      RmqModule.register({ name: LOCATION_SERVICE }),
     ],
     controllers: [
       AppAuthController,
+      AppLocationController,
     ],
     providers: [],
   })

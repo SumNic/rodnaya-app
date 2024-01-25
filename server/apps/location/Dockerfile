@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build country
+RUN npm run build location
 
 FROM node:alpine as production
 
@@ -25,4 +25,4 @@ COPY . .
 
 COPY --from=development /usr/src/app/dist ./dist
 
-CMD ["node", "dist/apps/country/main"]
+CMD ["node", "dist/apps/location/main"]

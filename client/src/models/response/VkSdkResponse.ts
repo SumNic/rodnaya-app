@@ -1,10 +1,9 @@
+import { IUserVk } from "../IUserVk";
+
 export interface VkSdkResponse {
-    response: [
-        {
-            id: number
-        }
-    ];
-    error: 
+    token: string;
+    user: IUserVk;
+    error?: 
     {
         error_msg: string
     }

@@ -23,8 +23,7 @@ export class UsersService {
    * @returns User - Созданный пользователь.
    */
   async createUser(dto: CreateUserDto): Promise<User> {
-
-    console.log(dto, 'createUser')
+    
     const user = await this.usersRepository.create(dto);
     let role = await this.roleService.getRoleByValue(ROLES.USER);
 

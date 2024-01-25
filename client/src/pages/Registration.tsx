@@ -6,6 +6,9 @@ import Footer from '../components/Footer';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
 import MyButtonNext from '../components/MyButtonInput';
 import OnChangeForm from '../components/OnChangeForm';
+import { observable } from 'mobx';
+import { observer } from 'mobx-react-lite';
+import MyButton from '../components/MyButton';
 
 function Registration() {
 
@@ -22,11 +25,9 @@ function Registration() {
                         <div className="main__screen main__screen__registr" style={{backgroundSize: "491.4px 491.4px"}}>
                             <div className="form__registr" style={{textAlign: "justify"}}>
 
-                                {!store.isCondition && <ConditionsForm />}
+                                {!store.isRegistrationEnd && store.isCondition && <><ConditionsForm /><MyButtonNext /></>}
 
-                                {store.isCondition && <OnChangeForm />}
-
-                                <MyButtonNext />
+                                {store.isRegistrationEnd && <OnChangeForm />}
                                 
                             </div>
                         </div>
@@ -39,4 +40,4 @@ function Registration() {
         );
 }
 
-export default Registration;
+export default observer(Registration);

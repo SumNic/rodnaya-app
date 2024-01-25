@@ -9,13 +9,14 @@ import {
   Role,
   TokenResponseDto,
   User,
-  // VkLoginDto,
+  // VkLoginDto, 
 } from '@app/models';
 import { HttpStatusCode } from 'axios';
-import { LocationUser } from '@app/models/models/users/location.model';
+import { ResidencyUser } from '@app/models/models/users/residency.model';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { RmqService, RpcExceptionFilter } from '@app/common'; 
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
+import { OutputUserTokens } from '@app/models/dtos/output-user-tokens.dto';
 
 @Controller()
 export class AuthController {
@@ -134,13 +135,13 @@ export class AuthController {
    */
   // @UseFilters(new RpcExceptionFilter())
   @MessagePattern('loginByVk')
-  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<OutputJwtTokens> {
+  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<OutputUserTokens> {
     return await this.authService.vkLogin(query);
   }
 
   /**
    * Проверка занятости email.
-   * @param {string} email - Email пользователя.
+   * @param {string} email - Email пользователя. 
    */
   @MessagePattern('checkUserEmail')
   async checkUserEmail(@Payload() email: number): Promise<any> {
@@ -173,52 +174,4 @@ export class AuthController {
   async getAllRoles(): Promise<Role[]> {
     return await this.authService.getAllRoles();
   }
-
-  /**
-   * Добавить место жительства.
-   * @param {CreateLocationDto[]} dto - DTO для добавления роли пользоветилю.
-   */
-   @MessagePattern('createLocation')
-   createLocation(@Payload() dto: CreateLocationDto[],
-    @Ctx() context: RmqContext
-    ): Promise<LocationUser[]> {
-      this.rmqService.ack(context);
-      return this.authService.createLocation(dto);
-   }
-
-  /**
-   * Получить список всех стран.
-   * @returns LocationUser - Список найденных стран.
-   */
-   @MessagePattern('getAllCountry')
-   async getAllCountry(): Promise<LocationUser> {
-     return await this.authService.getAllCountry(); 
-   }
-
-  /**
-   * Получить список регионов.
-   * @returns LocationUser - Список регионов.
-   */
-   @MessagePattern('getRegions')
-   async getRegions(@Payload() country: string): Promise<LocationUser> {
-     return await this.authService.getRegions(country); 
-   }
-
-  /**
-   * Получить список райнов.
-   * @returns LocationUser - Список районов и городв.
-   */
-   @MessagePattern('getLocality')
-   async getLocality(@Payload() region: string): Promise<LocationUser> {
-     return await this.authService.getLocality(region);
-   }
-
-  /**
-   * Сохранить место жительства.
-   * @returns LocationUser - Список районов и городв.
-   */
-   @MessagePattern('saveLocation')
-   async saveLocation(@Payload() dto: CreateLocationDto): Promise<LocationUser> {
-     return await this.authService.saveLocation(dto); 
-   }
 }

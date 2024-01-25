@@ -16,6 +16,7 @@ export default class Store {
     isAuth = false
     isAuthVk = false
     isCondition = false
+    isRegistrationEnd = false
     isError = false
     isMessageError = ''
     country = [] as LocationUser[]
@@ -40,6 +41,10 @@ export default class Store {
 
     setIsCondition(bool: boolean) {
         this.isCondition = bool
+    }
+
+    setRegistrationEnd(bool: boolean) {
+        this.isRegistrationEnd = bool
     }
 
     setError(bool: boolean) {
@@ -111,19 +116,11 @@ export default class Store {
     async registrationVk(payload: any) {
         try {
             const response = await OAuthVkService.registrationVk(payload)
-          
-          if (response.data.error) {
-            console.log(response.data.error, 'react_response_error')
-            return { error: response.data.error }
-          } else if (response.data.response) {
-            console.log(response.data.response[0], 'react_response_data')
-            this.setAuth(true)
-            return { user: response.data.response[0] }
 
-          }
+          return {error: response.data.error, token: response.data.token, user: response.data.user}
+
         } catch(e: any) {
             return { error: e.response?.data?.message }
-            // console.log(e.response?.data?.message)
         }
     }
 
