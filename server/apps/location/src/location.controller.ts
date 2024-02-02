@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { CreateCountryDto, CreateLocationDto, UpdateCountryDto } from '@app/models';
-import { ResidencyUser } from '@app/models/models/users/residency.model';
+import { Residency } from '@app/models/models/users/residency.model';
 import { RmqService } from '@app/common';
 import { Location } from '@app/models/models/main/location.model';
 
@@ -141,12 +141,5 @@ export class LocationController {
      return await this.locationService.getLocality(region);
    }
 
-  /**
-   * Сохранить место жительства.
-   * @returns LocationUser - Список районов и городв.
-   */
-   @MessagePattern('saveLocation')
-   async saveLocation(@Payload() dto: CreateLocationDto): Promise<Location> {
-     return await this.locationService.saveLocation(dto); 
-   }
+  
 }

@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { EXIT_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE } from '../../utils/consts';
+import { Component } from 'react';
 
 class NavHeaderLoad extends Component {
     render() {

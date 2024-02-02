@@ -1,10 +1,16 @@
-import React, { Component, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import store from '../store/store';
 import { Context } from '..';
 import MyButton from './MyButton';
+import { useNavigate } from 'react-router-dom';
+import { LOGIN_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
 
-function OnChangeForm () {
+function OnChangeForm (props: any) {
+
+    const { id } = props
+
+    const navigate = useNavigate()
+
     const [country, setCountry] = useState<string>('')
     const [region, setRegion] = useState<string>('')
     const [locality, setLocality] = useState<string>('')
@@ -60,7 +66,23 @@ function OnChangeForm () {
     function buttonClick() {
         setClickButton(true)
         if(country && region && locality) {
-            store.saveLocation(country, region, locality)
+            const dto = {
+                id, 
+                country, 
+                region, 
+                locality
+            }
+            store.saveResidency(dto)
+                .then(data => {
+                    if (data?.data.id) {
+                        // console.log(data, 'data')
+                        store.loginVk(dto.id)
+                        
+                        navigate(LOGIN_ROUTE)
+                    }
+                })
+                .then()
+            
         }
     }
 

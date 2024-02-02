@@ -1,12 +1,9 @@
-import React, { Component, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Context } from '../..';
-import { EXIT_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE } from '../../utils/consts';
-import MyButtonInput from '../MyButtonInput';
+import { LOGIN_ROUTE } from '../../utils/consts';
 
 function  Nav_registr() {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
 
     function activateButtonVk() {
         // store.setAuth(true)

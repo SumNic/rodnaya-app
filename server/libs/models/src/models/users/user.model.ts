@@ -1,12 +1,18 @@
 import {
+  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
+  ForeignKey,
+  HasMany,
+  HasOne,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Role } from './role.model';
 import { UserRoles } from './user-roles.model';
+import { Residency } from './residency.model';
+import { Token } from './tokens.model';
 
 interface UserCreationAttrs {
   user_id: string;
@@ -38,11 +44,18 @@ export class User extends Model<User, UserCreationAttrs> {
   photo_max: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  registr: boolean;
-
-  @Column({ type: DataType.STRING, allowNull: true }) 
-  refreshToken: string; 
+  isRegistration: boolean;
 
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];
+
+  @ForeignKey(() => Residency)
+  @Column({type: DataType.INTEGER})
+  residencyId: number;
+
+  @BelongsTo(() => Residency)
+  residency: Residency;
+
+  @HasMany(() => Token) 
+  token: Token[];
 }

@@ -4,12 +4,11 @@ import { API_URL } from "../http";
 import { IUser } from "../models/IUser";
 import { AuthResponse } from "../models/response/AuthResponse";
 import AuthService from "../services/AuthService";
-import OAuthVkService from "../services/VkAuthService";
+import VkAuthService from "../services/VkAuthService";
+import { ResidencyUser } from "../models/ResidencyUser";
+import LocationUserService from "../services/LocationService";
 import { LocationUser } from "../models/LocationUser";
-import LocationUserService from "../services/LocationUserService";
 import { VkSdkResponse } from "../models/response/VkSdkResponse";
-import { useNavigate } from "react-router-dom";
-import { VK_CALLBACK_ROUTE } from "../utils/consts";
 
 export default class Store {
     user = {} as IUser
@@ -66,33 +65,33 @@ export default class Store {
         this.locality = locality
     }
 
-    async login(email: string, password: string) {
-        try {
-            const response = await AuthService.login(email, password)
-            console.log(response);
-            localStorage.setItem('token', response.data.accessToken)
-            this.setAuth(true)
-            this.setUser(response.data.user)
-        } catch(e: any) {
-            console.log(e.response?.data?.message)
-        }
-    }
+    // async login(email: string, password: string) {
+    //     try {
+    //         const response = await AuthService.login(email, password)
+    //         console.log(response);
+    //         localStorage.setItem('token', response.data.accessToken)
+    //         this.setAuth(true)
+    //         this.setUser(response.data.user)
+    //     } catch(e: any) {
+    //         console.log(e.response?.data?.message)
+    //     }
+    // }
 
-    async registration(email: string, password: string) {
-        try {
-            const response = await AuthService.registration(email, password)
-            console.log(response);            
-            localStorage.setItem('token', response.data.accessToken)
-            this.setAuth(true)
-            this.setUser(response.data.user)
-        } catch(e: any) {
-            console.log(e.response?.data?.message)
-        }
-    }
+    // async registration(email: string, password: string) {
+    //     try {
+    //         const response = await AuthService.registration(email, password)
+    //         // console.log(response);            
+    //         localStorage.setItem('token', response.data.accessToken)
+    //         this.setAuth(true)
+    //         this.setUser(response.data.user)
+    //     } catch(e: any) {
+    //         console.log(e.response?.data?.message)
+    //     }
+    // }
 
     async logout() {
         try {
-            const response = await AuthService.logout()
+            await AuthService.logout()
             localStorage.removeItem('token')
             this.setAuth(false)
             this.setUser({} as IUser)
@@ -115,18 +114,27 @@ export default class Store {
 
     async registrationVk(payload: any) {
         try {
-            const response = await OAuthVkService.registrationVk(payload)
-
-          return {error: response.data.error, token: response.data.token, user: response.data.user}
+            const response = await VkAuthService.registrationVk(payload)
+            return {data: response.data}
 
         } catch(e: any) {
-            return { error: e.response?.data?.message }
+            return { data: e.response?.data?.message }
+        }
+    }
+
+    async loginVk(id: number) {
+        try {
+            return await AuthService.setRegistration(id)
+
+        } catch(e: any) {
+            return { data: e.response?.data?.message }
         }
     }
 
     async getCondition() {
         try {
-            const response = await AuthService.logout()
+            // const response =  
+            await AuthService.logout()
             localStorage.removeItem('token')
             this.setAuth(false)
             this.setUser({} as IUser)
@@ -165,13 +173,20 @@ export default class Store {
         }
     }
 
-    async saveLocation(country: string, region: string, locality: string) {
+    async saveResidency(dto: ResidencyUser) {
         try {
-            const response = await LocationUserService.fetchLocalitionUsers(country, region, locality)
-            // console.log(response);            
+            const response = await AuthService.createResidencyUsers(dto)
+            console.log(response, 'store response saveResidency');            
             // localStorage.setItem('token', response.data.accessToken)
             // this.setAuth(true)
             // this.setUser(response.data.user)
+
+            // return {error: response.data.error, token: response.data.token, user: response.data.user}
+
+            // if(response.data.error) {
+            //     console.log(response.data.error, 'response.data.error')
+            //     return {error: response.data.error}
+            // }
             return response
             
         } catch(e: any) {

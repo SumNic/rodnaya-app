@@ -1,8 +1,4 @@
-import {useRef, useEffect, useContext, useState} from 'react';
-import { Config, Connect, ConnectEvents, VKAuthButtonCallbackResult } from '@vkontakte/superappkit'; 
-import { useNavigate } from 'react-router-dom';
 import { LOCALHOST, VK_CALLBACK_ROUTE } from '../utils/consts';
-import { Context } from '..';
 import * as VKID from '@vkid/sdk'; 
 import { observer } from 'mobx-react-lite';
 

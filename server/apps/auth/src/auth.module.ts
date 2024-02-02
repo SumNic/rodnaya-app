@@ -11,8 +11,11 @@ import { HttpModule } from '@nestjs/axios';
 import { ResidencyController } from './residency/residency.controller';
 import { ResidencyModule } from './residency/residency.module';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ResidencyUser } from '@app/models/models/users/residency.model';
+import { Residency } from '@app/models/models/users/residency.model';
 import { UsersController } from './users/users.controller';
+// import { TokensController } from './auth/tokens/tokens.controller';
+import { TokensController } from './tokens/tokens.controller';
+import { TokensModule } from './tokens/tokens.module';
 
 @Module({
   imports: [
@@ -42,9 +45,10 @@ import { UsersController } from './users/users.controller';
     UserModule,
     RolesModule,
     HttpModule,
-    ResidencyModule
+    ResidencyModule,
+    TokensModule
   ],
-  controllers: [AuthController, ResidencyController],
+  controllers: [AuthController, ResidencyController, TokensController],
   providers: [AuthService],
 })
 export class AuthModule {}

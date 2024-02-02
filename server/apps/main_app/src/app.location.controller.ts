@@ -59,16 +59,16 @@ export class AppLocationController {
     status: HttpStatus.CREATED,
     description: 'Операция прошла успешно.',
   })
-  // @Roles(ROLES.ADMIN)
-  // @UseGuards(RolesGuard) 
-  // @ApiResponse({
-  //   status: HttpStatus.UNAUTHORIZED,
-  //   description: 'JWT токен не указан в заголовках',
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.FORBIDDEN,
-  //   description: 'Некоректный JWT токен или роль пользователя',
-  // })
+  @Roles(ROLES.ADMIN)
+  @UseGuards(RolesGuard) 
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'JWT токен не указан в заголовках',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Некоректный JWT токен или роль пользователя',
+  })
   async crateLocation(@Body() dto: CreateLocationDto[]) {
     return this.authClient
       .send('createLocation', dto)
@@ -141,37 +141,6 @@ export class AppLocationController {
       );
   } 
 
-  @ApiTags('Локация')
-  @Post('/save-location')
-  @ApiOperation({
-    summary: 'Сохранить место жительства',
-  })
-  @ApiBody({
-    type: CreateLocationDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Операция прошла успешно.',
-  })
-  // @Roles(ROLES.ADMIN)
-  // @UseGuards(RolesGuard)
-  // @ApiResponse({
-  //   status: HttpStatus.UNAUTHORIZED,
-  //   description: 'JWT токен не указан в заголовках',
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.FORBIDDEN,
-  //   description: 'Некоректный JWT токен или роль пользователя',
-  // })
-  async saveLocation(@Body() dto: CreateLocationDto) {
-    return this.authClient
-      .send('saveLocation', dto)
-      .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
-  }
 } 
 
 

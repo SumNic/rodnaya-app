@@ -3,16 +3,16 @@ import { IsInt, IsString } from 'class-validator';
 
 export class RefreshTokensDto {
   @ApiProperty({
-    example: '1',
-    description: 'ID пользователя, которому требуется обновить токены',
+    example: 'alkjSedscjgklxcesdf',
+    description: 'uuid для создания либо обновления refresh token',
   })
-  @IsInt({ message: 'user_id: должно быть целым числом' })
-  user_id: number;
+  @IsString({ message: 'uuid: должно быть строкой' })
+  uuid: string;
 
   @ApiProperty({
     example: 'alkjSedscjgklxcesdf',
     description: 'JWT токен для обновления токенов',
   })
   @IsString({ message: 'refreshToken: должно быть строкой' })
-  refreshToken: string;
+  hashRefreshToken: string;
 }

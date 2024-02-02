@@ -1,10 +1,9 @@
-import { IUserVk } from "../IUserVk";
-
 export interface VkSdkResponse {
+    id: number;
     token: string;
-    user: IUserVk;
-    error?: 
+    refreshToken: string;
+    error: 
     {
-        error_msg: string
+        message: string
     }
 }

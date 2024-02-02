@@ -1,5 +1,5 @@
-import { Controller, HttpException, Res, UseFilters } from '@nestjs/common';
-import { Ctx, MessagePattern, Payload, RmqContext, RpcException } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import {
   AddRoleDto,
@@ -7,31 +7,31 @@ import {
   OutputJwtTokens,
   RefreshTokensDto,
   Role,
-  TokenResponseDto,
   User,
   // VkLoginDto, 
 } from '@app/models';
 import { HttpStatusCode } from 'axios';
-import { ResidencyUser } from '@app/models/models/users/residency.model';
-import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
-import { RmqService, RpcExceptionFilter } from '@app/common'; 
+import { RmqService } from '@app/common'; 
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
-import { OutputUserTokens } from '@app/models/dtos/output-user-tokens.dto';
+import { OutputUserIdAndTokens } from '@app/models/dtos/output-user-id-and-tokens.dto';
+import { ResidencyService } from './residency/residency.service';
+import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService,
-    private readonly rmqService: RmqService,
+              private readonly rmqService: RmqService,
+              private readonly residencyService: ResidencyService,
     ) {}
 
   /**
    * Регистрация нового пользователя.
-   * @param {CreateRoleDto} dto - DTO для создания пользователя.
+   * @param {CreateRoleDto} dto - DTO для создания пользователя. 
    * @returns TokenResponseDto - JWT токен.
    */
   // @MessagePattern('registration')
   // async registration(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-  //   return await this.authService.registration(dto);
+  //   return await this.authService.registration(dto); 
   // }
 
   /**
@@ -49,8 +49,8 @@ export class AuthController {
    * @param {number} user_id - Идентификатор пользователя.
    */
   @MessagePattern('logout')
-  async logout(user_id: number): Promise<any> {
-    await this.authService.logout(user_id);
+  async logout(uuid: string): Promise<any> {
+    await this.authService.logout(uuid);
     return {
       message: 'Операция прошла успешно',
       statusCode: HttpStatusCode.Ok,
@@ -65,7 +65,7 @@ export class AuthController {
   async handleUpdateTokens(
     @Payload() data: RefreshTokensDto,
   ): Promise<OutputJwtTokens> {
-    return await this.authService.updateTokens(data.user_id, data.refreshToken);
+    return await this.authService.updateTokens(data.uuid, data.hashRefreshToken);
   }
 
   /**
@@ -118,35 +118,29 @@ export class AuthController {
   }
 
   /**
-   * OAuth через Google
+   * Auth через vk
    */
-  // @MessagePattern('googleAuthRedirect')
-  // async googleAuthRedirect(@Payload() user: any) {
-  //   return await this.authService.googleLogin(user);
-  // }
-
-  // @MessagePattern('googleLoginViaDto')
-  // async googleLoginViaDto(@Payload() user: any) {
-  //     return await this.authService.googleLoginViaDto(user);
-  // }
+  @MessagePattern('loginByVk')
+  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<OutputUserIdAndTokens> {
+    return await this.authService.vkLogin(query);
+  }
 
   /**
-   * OAuth через vk
+   * Внесение в базу данных информацию о регистрации
    */
-  // @UseFilters(new RpcExceptionFilter())
-  @MessagePattern('loginByVk')
-  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<OutputUserTokens> {
-    return await this.authService.vkLogin(query);
+  @MessagePattern('setRegistration')
+  async setRegistration(@Payload() id: number): Promise<OutputUserIdAndTokens> {
+    return await this.authService.setRegistration(id);
   }
 
   /**
    * Проверка занятости email.
    * @param {string} email - Email пользователя. 
    */
-  @MessagePattern('checkUserEmail')
-  async checkUserEmail(@Payload() email: number): Promise<any> {
-    return await this.authService.checkUserEmail(email);
-  }
+  // @MessagePattern('checkUserEmail') 
+  // async checkUserEmail(@Payload() email: number): Promise<any> {
+  //   return await this.authService.checkUserEmail(email);
+  // }
 
   /**
    * Добавить роль пользователю.
@@ -174,4 +168,14 @@ export class AuthController {
   async getAllRoles(): Promise<Role[]> {
     return await this.authService.getAllRoles();
   }
+
+  /**
+   * Сохранить место жительства.
+   * @returns LocationUser - Список районов и городв.
+   */
+   @MessagePattern('createResidency')
+   async saveLocation(@Payload() dto: CreateResidencyDto): Promise<CreateUserDto> {
+    console.log('auth controller')
+     return await this.authService.createResidency(dto); 
+   }
 }

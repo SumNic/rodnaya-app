@@ -1,18 +1,19 @@
-import React, { Component, useContext } from 'react';
+import { useContext } from 'react';
 import { Context } from '..';
 import ConditionsForm from '../components/ConditionsForm';
 import Footer from '../components/Footer';
-// import FooterCondition from '../components/FooterCondition';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
 import MyButtonNext from '../components/MyButtonInput';
 import OnChangeForm from '../components/OnChangeForm';
-import { observable } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import MyButton from '../components/MyButton';
+import { useLocation } from 'react-router-dom';
 
 function Registration() {
 
     const {store} = useContext(Context)
+
+    const location = useLocation()
+    const { id } = location.state
 
         return (
             <div>
@@ -27,7 +28,7 @@ function Registration() {
 
                                 {!store.isRegistrationEnd && store.isCondition && <><ConditionsForm /><MyButtonNext /></>}
 
-                                {store.isRegistrationEnd && <OnChangeForm />}
+                                {store.isRegistrationEnd && <OnChangeForm id={id} />}
                                 
                             </div>
                         </div>

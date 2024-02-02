@@ -4,20 +4,18 @@ import {
     Column,
     DataType,
     ForeignKey,
-    HasMany,
     Model,
     Table,
   } from 'sequelize-typescript';
 import { User } from './user.model';
   
-  interface ResidencyCreationAttrs {
-    country: string;
-    region: string;
-    locality: string;
+  interface TokenCreationAttrs {
+    uuid: string;
+    refreshToken: string;
   }
   
-  @Table({ tableName: 'residency' })
-  export class Residency extends Model<Residency, ResidencyCreationAttrs> {
+  @Table({ tableName: 'token' })
+  export class Token extends Model<Token, TokenCreationAttrs> {
     @Column({
       type: DataType.INTEGER,
       unique: true,
@@ -27,14 +25,16 @@ import { User } from './user.model';
     id: number;
   
     @Column({ type: DataType.STRING, allowNull: false })
-    country: string;
+    uuid: string;
   
     @Column({ type: DataType.STRING, allowNull: false })
-    region: string;
-  
-    @Column({ type: DataType.STRING, allowNull: true })
-    locality: string;
+    refreshToken: string;
 
-    @HasMany(() => User) 
-    user: User[];
+    @ForeignKey(() => User)
+    @Column({type: DataType.INTEGER})
+    userId: number;
+    references: { model: User, key: 'id' } 
+    
+    @BelongsTo(() => User)
+    user: User;
   }

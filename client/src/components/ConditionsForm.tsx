@@ -1,16 +1,10 @@
 import { observer } from 'mobx-react-lite';
-import React, { Component, useContext, useEffect } from 'react';
-import { render } from 'react-dom';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
 import { Context } from '..';
-import store from '../store/store';
-import { LOGIN_ROUTE, NEXT_REGISTR_STEP_ROUTE, VK_ROUTE } from '../utils/consts';
-import AppRouter from './AppRouter';
 
 function ConditionsForm() {
 
         const {store} = useContext(Context)
-        const navigate = useNavigate();
 
         const Condition = (event: { preventDefault: () => void; }) => {            
 

@@ -1,8 +1,6 @@
 import {
   BadRequestException,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -12,7 +10,7 @@ import { UsersService } from './users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import { Payload, RpcException } from '@nestjs/microservices';
+import { RpcException } from '@nestjs/microservices';
 import {
   AddRoleDto,
   CreateUserDto,
@@ -20,17 +18,14 @@ import {
   Role,
   TokenResponseDto,
   User,
-  // VkLoginDto,
 } from '@app/models';
 import { RolesService } from './roles/roles.service';
 import { ConfigService } from '@nestjs/config';
 import { ResidencyService } from './residency/residency.service';
-import { ResidencyUser } from '@app/models/models/users/residency.model';
-import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
-// import { VkLoginTokenSdkDto } from '@app/models/dtos/vk-login-token-sdk.dto';
-import { UsersController } from './users/users.controller';
-import { OutputUserTokens } from '@app/models/dtos/output-user-tokens.dto';
+import { OutputUserIdAndTokens } from '@app/models/dtos/output-user-id-and-tokens.dto';
+import { TokensService } from './tokens/tokens.service';
+import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +35,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly locationService: ResidencyService
+    private readonly residencyService: ResidencyService,
+    private readonly tokenService: TokensService
+
   ) {}
 
   /**
@@ -86,20 +83,95 @@ export class AuthService {
   // }
 
   /**
+   * Auth через vk
+   */
+  async vkLogin(query: VkLoginSdkDto): Promise<OutputUserIdAndTokens> {
+
+    if (query.uuid && query.token) {
+
+      const dto = {
+        uuid: query.uuid,
+        token: query.token,
+      }
+
+      const candidate = await this.getOrCreateUser(dto)
+
+      if (!candidate) {
+        throw new RpcException(
+          new UnauthorizedException('Во время авторизации произошла ошибка.')
+          );
+      }
+
+      if (candidate.isRegistration) { // Если пользователь зарегистрирован
+        const tokens = await this.generateTokens(candidate) // Создаем пару токен и рефреш токен
+        const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5) // Хешируем рефреш токен
+        const uuid = localStorage.getItem('uuid') ? localStorage.getItem('uuid') : query.uuid
+
+        // Проверяем, есть ли токен для устройства с указанным uuid в базе данных
+        const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid)
+
+        if(!tokenFromDataBase) {
+          const newRefreshToken = await this.tokenService.createRefreshToken({uuid, hashRefreshToken})
+          await candidate.$set('token', [newRefreshToken.id]);
+          candidate.token = [newRefreshToken];
+          await candidate.save()
+        } else {
+          await this.tokenService.updateRefreshToken({uuid, hashRefreshToken});
+        }
+        return {id: candidate.id, ...tokens}
+      }
+
+      return {id: candidate.id}
+    }
+
+    throw new RpcException(
+      new UnauthorizedException('Во время авторизации произошла ошибка.'),
+    );
+  }
+
+  /**
+   * Внесение в базу данных информации о регистрации
+   */
+  async setRegistration(id: number): Promise<any> {
+
+      const candidate = await this.userService.getUser(id)
+
+      if (!candidate) {
+        throw new RpcException(
+          new UnauthorizedException('Данный пользователь не существует.')
+          );
+      }
+
+      if (!candidate.isRegistration) { // Если пользователь зарегистрирован
+      console.log('!candidate.isRegistration')
+        // candidate.update('isRegistration', true)
+        candidate.isRegistration = true;
+        await candidate.save()
+        // const tokens = await this.generateTokens(candidate) // Создаем пару токен и рефреш токен
+        // const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5) // Хешируем рефреш токен
+        // const uuid = localStorage.getItem('uuid') ? localStorage.getItem('uuid') : query.uuid
+
+        // // Проверяем, есть ли токен для устройства с указанным uuid в базе данных
+        // const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid)
+
+        // if(!tokenFromDataBase) {
+        //   const newRefreshToken = await this.tokenService.createRefreshToken({uuid, hashRefreshToken})
+        //   await candidate.$set('token', [newRefreshToken.id]);
+        //   candidate.token = [newRefreshToken];
+        //   await candidate.save()
+        // } else {
+        //   await this.tokenService.updateRefreshToken({uuid, hashRefreshToken});
+        // }
+        // return {id: candidate.id, ...tokens}
+      }
+  }
+
+  /**
    * Регистрация нового пользователя.
    * @param {VkLoginSdkDto} dto - DTO для создания пользователя.
-   * @returns TokenResponseDto - JWT токен.
+   * @returns User - данные пользователя.
    */
-   async signIn(dto: VkLoginSdkDto): Promise<OutputUserTokens> {
-  // async registrationVk(dto: CreateUserDto): Promise<OutputJwtTokens> {
-    
-    const candidate = await this.userService.getUserByUserId(dto.user.id, false);
-
-    if (candidate) {
-      return {token: '', user: candidate}
-      // console.log('candidat')
-      // throw new RpcException('Вам нужно пройти регистрацию')
-    }
+  async getOrCreateUser(dto: VkLoginSdkDto): Promise<User> {
 
     const DATA = {
       v: this.configService.get<string>('VK_VERSION'),
@@ -117,48 +189,28 @@ export class AuthService {
         })
 
     if(response.ok) {
-        let result = await response.json()
-        if (result) {
-          if (result.response) {
-            console.log(result.response)
-            const arrayUsersFromVk = await this.getDataUser(result.response.access_token, result.response.user_id)
-            const userVk = arrayUsersFromVk.response[0]
+      let result = await response.json()
+      if (result.response) {
+        const arrayUsersFromVk = await this.getDataUser(result.response.access_token, result.response.user_id)
+        const userVk = arrayUsersFromVk.response[0]
 
-            const user = await this.userService.createUser({
-            vk_id: userVk.id,
-            first_name: userVk.first_name,
-            last_name: userVk.last_name,
-            photo_50: userVk.photo_50,
-            photo_max: userVk.photo_max,
-            });
-            // const tokens = await this.generateTokens(user);
-            // const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
-            // await this.userService.updateRefreshToken(user.id, hashRefreshToken); 
+        const candidate = await this.userService.getUserByVkId(userVk.id) // Проверяем, есть ли пользователь с данным ID в базе данных
 
-            return {token: '', user};
-            
-          }
-          throw new RpcException('Нет результата. Повторите попытку регистрации позже.');
-          
-        } else {
-            throw new RpcException('Ошибка при регистрации. Повторите попытку позже.');
-        }
-    } else {
-        throw new BadRequestException('Ошибка при получении access token');
+        if (candidate) return candidate
+
+        const newUser = await this.userService.createUser({
+        vk_id: userVk.id,
+        first_name: userVk.first_name,
+        last_name: userVk.last_name,
+        photo_50: userVk.photo_50,
+        photo_max: userVk.photo_max,
+        });
+
+        return newUser
+      }
     }
 
-
-
-    // const hashPassword = await bcrypt.hash(dto.password, 5);
-    // const user = await this.userService.createUser({
-      // email: dto.user_id,
-      // password: hashPassword,
-    // });
-    // const tokens = await this.generateTokens(user);
-    // const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
-    // await this.userService.updateRefreshToken(user.id, hashRefreshToken);
-
-    // return tokens;
+    return
   }
 
   /**
@@ -191,21 +243,7 @@ export class AuthService {
       } 
     } catch {
       throw new BadRequestException('Ошибка при получении данных пользователя');
-    } 
-
-    
-
-    // if(response.ok) { 
-    //     let result = await response.json()
-    //     if (result) {
-    //         console.log(result)
-    //         let user = await this.getDataUser(result.access_token, dto)
-    //     } else {
-    //         throw new UnauthorizedException();
-    //     }
-    // } else {
-    //     throw new BadRequestException('Ошибка при получении access token');
-    // }
+    }
   }
 
   /**
@@ -279,12 +317,9 @@ export class AuthService {
     };
   }
 
-  async updateTokens(
-    user_id: number,
-    refreshToken: string,
-  ): Promise<OutputJwtTokens> {
-    const user = await this.getUser(user_id);
-    const userRefreshToken: string = user.refreshToken;
+  async updateTokens(uuid: string, refreshToken: string): Promise<OutputJwtTokens> {
+    const userRefreshToken = await this.tokenService.getRefreshToken(uuid);
+    const user = await this.userService.getUser(userRefreshToken.userId);
 
     if (!user || !userRefreshToken) {
       throw new RpcException(new ForbiddenException('Доступ запрещен'));
@@ -301,7 +336,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user);
     const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
-    await this.userService.updateRefreshToken(user.id, hashRefreshToken);
+    await this.tokenService.updateRefreshToken({uuid, hashRefreshToken});
     return tokens;
   }
 
@@ -350,48 +385,6 @@ export class AuthService {
   }
 
   /**
-   * OAuth через Google
-   */
-  // async googleLogin(user: any) {
-  //   if (!user) {
-  //     return 'No user from Google';
-  //   }
-
-  //   const userEmail = user.email;
-  //   const candidate = await this.userService.getUserByEmail(userEmail);
-
-  //   if (candidate) {
-  //     return this.generateToken(candidate);
-  //   }
-
-  //   const password = this.gen_password(15);
-
-  //   return await this.registration({ email: userEmail, password });
-  // }
-
-  // async googleLoginViaDto(user: any) {
-  //   if (!user.email || typeof user.email != 'string') {
-  //     throw new RpcException(new BadRequestException('No user from Google'));
-  //   }
-
-  //   const userEmail = user.email;
-  //   const candidate = await this.userService.getUserByEmail(userEmail);
-
-  //   if (candidate) {
-  //     const tokens = await this.generateTokens(candidate);
-  //     const hashRefresh = await bcrypt.hash(tokens.refreshToken, 5);
-  //     candidate.refreshToken = hashRefresh;
-  //     await candidate.save();
-  //     return tokens;
-  //   }
-
-  //   const genPass = this.gen_password(15);
-  //   const password = await bcrypt.hash(genPass, 5);
-
-  //   return await this.registration({ email: userEmail, password });
-  // }
-
-  /**
    * Генерация пароля.
    * @param {number} len - Размер пароля.
    */
@@ -405,40 +398,6 @@ export class AuthService {
     }
 
     return password;
-  }
-
-  /**
-   * OAuth через vk
-   */
-  async vkLogin(query: VkLoginSdkDto): Promise<OutputUserTokens> {
-
-    if (query.uuid && query.token && query.user.id) {
-
-      const candidateReg = await this.userService.getUserByUserId(query.user.id, true)
-
-      if (candidateReg) {
-        console.log('GENERATE TOKEN')
-        const tokens = await this.generateTokens(candidateReg)
-        const hashRefresh = await bcrypt.hash(tokens.refreshToken, 5)
-        candidateReg.refreshToken = hashRefresh
-        await candidateReg.save()
-        return {token: tokens.token, user: candidateReg}
-      }
-
-      const userDTO = {
-        uuid: query.uuid,
-        token: query.token,
-        user: {
-          id: query.user.id
-        }
-      }
-
-      return await this.signIn(userDTO);
-    }
-
-    throw new RpcException(
-      new UnauthorizedException('Пользователь не авторизован'),
-    );
   }
 
   /**
@@ -465,20 +424,20 @@ export class AuthService {
    * Проверка электронной почты.
    * @param {string} email - Электронная почта.
    */
-  async checkUserEmail(email: number) {
-    const user = await this.userService.getUserByEmail(email);
+  // async checkUserEmail(email: number) {
+  //   const user = await this.userService.getUserByEmail(email);
 
-    if (user) {
-      throw new RpcException(
-        new BadRequestException('Электронная почта уже занята'),
-      );
-    }
+  //   if (user) {
+  //     throw new RpcException(
+  //       new BadRequestException('Электронная почта уже занята'),
+  //     );
+  //   }
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Электронная почта свободна',
-    };
-  }
+  //   return {
+  //     statusCode: HttpStatus.OK,
+  //     message: 'Электронная почта свободна',
+  //   };
+  // }
 
   /**
    * Добавить роль пользователю.
@@ -508,48 +467,39 @@ export class AuthService {
    * Разлогинить пользователя.
    * @param {number} user_id - Идентификатор пользователя.
    */
-  async logout(user_id: number): Promise<any> {
-    return await this.userService.removeRefreshToken(user_id);
-  }
-
-
-  /**
-   * Добавить место жительства.
-   * @param {CreateLocationDto[]} dto - DTO для добавления роли пользоветилю.
-   */
-   async createLocation(dto: CreateLocationDto[]): Promise<ResidencyUser[]> {
-    return await this.locationService.createLocation(dto);
-  }
-
-  /**
-   * Получить список всех стран.
-   * @returns LocationUser - Список стран.
-   */
-   async getAllCountry(): Promise<ResidencyUser> {
-    return await this.locationService.getAllCountry();
-  } 
-
-  /**
-   * Получить список регионов.
-   * @returns LocationUser - Список стран.
-   */
-   async getRegions(country: string): Promise<ResidencyUser> {
-    return await this.locationService.getRegions(country);
-  }
-
-  /**
-   * Получить список районов.
-   * @returns LocationUser - Список районов.
-   */
-   async getLocality(region: string): Promise<ResidencyUser> {
-    return await this.locationService.getLocality(region);
+  async logout(uuid: string): Promise<any> {
+    return await this.tokenService.removeRefreshToken(uuid);
   }
 
   /**
    * Сохранить место жительства.
    * @param {CreateLocationDto} dto - DTO для добавления роли пользоветилю.
    */
-   async saveLocation(dto: CreateLocationDto): Promise<any > {
-    return await this.locationService.saveLocation(dto); 
+   async createResidency(dto: CreateResidencyDto): Promise<CreateUserDto> { //CreateLocationDto 
+    console.log(dto, 'dto auth')
+    const residency = await this.residencyService.createResidency(dto)
+    const residencyFromId = await this.residencyService.getResidency(residency.id)
+    await residencyFromId.$set('user', [dto.id]);
+    await residencyFromId.save()
+
+    const user = await this.userService.getUser(dto.id)
+
+    return user
+
+
+    // console.log(residencyFromId.updatedAt, 'updatedAt')
+    // const date = residencyFromId.updatedAt
+    // date.setMonth(date.getMonth() + 3)
+    // console.log(date, 'date')
+    // if (new Date() > date) {
+    //   await residencyFromId.$set('user', [dto.id]);
+    //   await residencyFromId.save()
+
+    //   const user = await this.userService.getUser(dto.id)
+
+    //   return user
+    // }
+  
+    // throw new RpcException(new NotFoundException(`Вы не можете сменить место жительства до ${date}`))
   }
 }

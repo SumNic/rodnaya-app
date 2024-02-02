@@ -11,6 +11,7 @@ import {
   UserGmailOAuth,
 } from '@app/models';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
+import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import {
     BadRequestException,
@@ -86,6 +87,29 @@ export class AppAuthController {
   async login(@Body() dto: CreateUserDto) {
     return this.authClient
       .send('login', dto)
+      .pipe(
+        catchError((error) =>
+          throwError(() => new RpcException(error.response)),
+        ),
+      );
+  }
+
+  @ApiTags('Авторизация')
+  @ApiOperation({ summary: 'Авторизация пользователя' })
+  @Post('/set-registration')
+  @ApiBody({ type: Number })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Успешная регистрация',
+    type: OutputJwtTokens,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неккоректные данные',
+  })
+  async setRegistration(@Body() id: number) {
+    return this.authClient
+      .send('setRegistration', id)
       .pipe(
         catchError((error) =>
           throwError(() => new RpcException(error.response)),
@@ -269,62 +293,6 @@ export class AppAuthController {
       );
   }
 
-  // @ApiTags('Авторизация')
-  // @ApiOperation({ summary: 'OAuth через Google' })
-  // @Get('/google')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleAuth() {}
-
-  // @ApiTags('Авторизация')
-  // @ApiOperation({
-  //   summary: 'Редирект для OAuth через Google (Возвращает JWT токен)',
-  // })
-  // @Get('/google/redirect')
-  // @ApiResponse({
-  //   type: GoogleResponseDto,
-  // })
-  // @UseGuards(GoogleAuthGuard)
-  // async googleAuthRedirect(@Req() req: any) {
-  //   return this.authClient
-  //     .send('googleAuthRedirect', req.user)
-  //     .pipe(
-  //       catchError((error) =>
-  //         throwError(() => new RpcException(error.response)),
-  //       ),
-  //     );
-  // }
-
-  // @ApiTags('Авторизация')
-  // @Post('/google/login')
-  // @ApiResponse({
-  //     type: OutputJwtTokens,
-  //     status: HttpStatus.CREATED,
-  // })
-  // async googleLoginViaDto(@Query() user: UserGmailOAuth) {
-  //   if (!user || !user.email || typeof user.email != 'string') {
-  //     throw new RpcException(new BadRequestException('No user from Google'));
-  //   }
-  //   return this.authClient
-  //     .send('googleLoginViaDto', {email: user.email})
-  //     .pipe(
-  //       catchError((error) =>
-  //         throwError(() => new RpcException(error.response)),
-  //       ),
-  //     );
-  // }
-
-  // @ApiTags('Авторизация')
-  // @ApiOperation({
-  //   summary: 'Передача пользователя из google в бд',
-  // })
-
-  // @Post('/loginByVkCheck')
-  // async registrationVkCheck(@Body() dto: VkLoginSdkDto) {
-  //   console.log(dto.uuid)
-  //   console.log(dto.user)
-  //   return dto
-  // }   
-
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Auth через VK SDK' })
   @Post('/loginByVk')
@@ -336,7 +304,7 @@ export class AppAuthController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Пользователь с такой электронной почтой уже существует',
+    description: 'Пользователь уже существует',
   })
   @ApiBody({ type: VkLoginSdkDto }) 
   async registrationVk(@Body() dto: VkLoginSdkDto) {
@@ -348,57 +316,6 @@ export class AppAuthController {
           return new RpcException(error)}),
         )
   }
-
-  // @ApiTags('Авторизация')  
-  // @Get('/vk/callback')
-  // @ApiOperation({
-  //   summary: 'Редирект для OAuth через VK (Возвращает данные из VK)',
-  // })
-  // @ApiResponse({
-  //   type: VkLoginDto,
-  //   status: HttpStatus.OK,
-  // })
-  // async vkAuthRedirect(@Res() res: any, @Query() query: any) {
-  //   const VKDATA = {
-  //     client_id: this.configService.get('VK_CLIENT_ID'),
-  //     client_secret: this.configService.get('VK_CLIENT_SECRET'),
-  //     callback: this.configService.get('VK_CALLBACK'),
-  //   };
-
-  //   const url = `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${VKDATA.callback}&code=${query.code}`;
-  //   res.redirect(url);
-  // }
-
-  // @ApiTags('Авторизация')
-  // @Post('/vk/login')
-  // @ApiOperation({
-  //   summary: 'Принимает данные из VK, возвращает JWT токен',
-  // })
-  // @ApiBody({
-  //   type: VkLoginDto,
-  // })
-  // @ApiResponse({
-  //     type: OutputJwtTokens,
-  //     status: HttpStatus.CREATED,
-  // })
-  // async vkAuthResult(@Body() vkLoginDto: VkLoginDto) {
-  //   if(!Number(vkLoginDto.user_id)) {
-  //       throw new BadRequestException('Ошибка ввода user_id');
-  //   }
-  //   if(!Number(vkLoginDto.expires_in)) {
-  //       throw new BadRequestException('Ошибка ввода expires_in');
-  //   }
-  //   if(!vkLoginDto.access_token) {
-  //       throw new BadRequestException('Ошибка ввода expires_in');
-  //   }
-  //   return this.authClient
-  //     .send('loginByVk', vkLoginDto)
-  //     .pipe(
-  //       catchError((error) =>
-  //         throwError(() => new RpcException(error.response)),
-  //       ),
-  //     );
-  // }
 
   @ApiTags('Авторизация')
   @Get('/check-admin')
@@ -510,6 +427,39 @@ export class AppAuthController {
         catchError((error) =>
           throwError(() => new RpcException(error.response)), 
         ),
+      );
+  }
+
+
+  @ApiTags('Локация')
+  @Post('/create-residency')
+  @ApiOperation({
+    summary: 'Сохранить место жительства',
+  })
+  @ApiBody({
+    type: CreateResidencyDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Операция прошла успешно.',
+  })
+  // @Roles(ROLES.ADMIN)
+  // @UseGuards(RolesGuard)
+  // @ApiResponse({
+  //   status: HttpStatus.UNAUTHORIZED,
+  //   description: 'JWT токен не указан в заголовках',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.FORBIDDEN,
+  //   description: 'Некоректный JWT токен или роль пользователя',
+  // })
+  async createResidency(@Body() dto: CreateResidencyDto) {
+    return this.authClient
+      .send('createResidency', dto)
+      .pipe(
+        catchError(async (error) => {
+          console.log(error)
+          return new RpcException(error)}),
       );
   }
 } 

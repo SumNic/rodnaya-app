@@ -1,11 +1,9 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoPc from '../components/HeaderLogoPc';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
-import Nav_registr from '../components/Nav_header/Nav_registr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 
 class Home extends Component {

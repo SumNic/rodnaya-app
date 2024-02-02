@@ -1,18 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateUserDto } from './create-user.dto';
 
-export class OutputUserTokens {
+export class OutputUserIdAndTokens {
+  @ApiProperty({
+    example: 1,
+    description: 'ID пользователя в базе данных',
+  })
+  id: number;
+
   @ApiProperty({
     example: 'aksjwelWe4kjldfksjas',
     description: 'JWT токен',
   })
-  token: string;
+  token?: string;
 
   @ApiProperty({
     example: 'aksjwelWe4kjldfksjas',
     description: 'JWT refresh токен',
   })
-  // refreshToken: string;
-  user: CreateUserDto;
-
+  refreshToken?: string;
 }

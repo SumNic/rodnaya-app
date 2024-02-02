@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
-import Nav_regions from '../components/Nav_header/Nav_regions';
-import Nav from '../components/Nav_header/Nav_registr';
+import { Component } from 'react';
+import NAV_REGIONS from '../components/Nav_header/Nav_regions';
 
 class Personale_page extends Component {
     render() {
         return (
             <div>
-                <Nav_regions />
+                <NAV_REGIONS />
                 <h1>Личная страница</h1>
             </div>
         );

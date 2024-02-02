@@ -9,6 +9,7 @@ import {
 import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/sequelize';
 import { RolesService } from '../roles/roles.service';
+import { Token } from '@app/models/models/users/tokens.model';
 
 @Injectable()
 export class UsersService {
@@ -81,18 +82,15 @@ export class UsersService {
   }
 
   /**
-   * Получить пользователя по Email.
-   * @param {string} email - Email пользователя.
+   * Получить пользователя.
+   * @param {number} id - Идентификатор пользователя.
    * @returns User - Найденный пользователь.
    */
-  async getUserByUserId(id: number, registr: boolean): Promise<User> {
-    
-    const user = await this.usersRepository.findOne({
-      where: { vk_id: id, registr: registr },
+  async getUserByVkId(id: number): Promise<User> {
+    return await this.usersRepository.findOne({
+      where: { vk_id: id },
       include: { all: true },
     });
-
-    return user;
   }
 
   /**
@@ -100,9 +98,9 @@ export class UsersService {
    * @param {string} email - Email пользователя.
    * @returns User - Найденный пользователь.
    */
-   async getUserByEmail(email: number): Promise<User> {
+   async getUserByTokenId(tokenId: number): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { vk_id: email },
+      where: { id: tokenId },
       include: { all: true },
     });
 
@@ -149,36 +147,5 @@ export class UsersService {
     );
   }
 
-  /**
-   * Обновить refreshToken у пользователя.
-   * @param {number} user_id - Идентификатор пользователя.
-   * @param {string} hashToken - Захешированный новый refreshToken
-   * @throws RpcException(NotFoundException)
-   */
-  async updateRefreshToken(user_id: number, hashToken: string): Promise<any> {
-    const user = await this.usersRepository.findByPk(user_id);
-
-    if (!user) {
-      throw new RpcException(new NotFoundException('Пользователь не найден'));
-    }
-
-    user.refreshToken = hashToken;
-    await user.save();
-  }
-
-  /**
-   * Удалить refreshToken у пользователя.
-   * @param {number} user_id - Идентификатор пользователя.
-   * @throws RpcException(NotFoundException)
-   */
-  async removeRefreshToken(user_id: number): Promise<any> {
-    const user = await this.usersRepository.findByPk(user_id);
-
-    if (!user) {
-      throw new RpcException(new NotFoundException('Пользователь не найден'));
-    }
-
-    user.refreshToken = null;
-    await user.save();
-  }
+  
 }

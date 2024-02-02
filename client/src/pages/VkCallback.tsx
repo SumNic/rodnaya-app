@@ -20,15 +20,16 @@ function VkCallback() {
     }
     
     async function registration(payload: {}) {
+        
         const registrVk = await store.registrationVk(payload)
         
-        if (registrVk.error) {
+        if (registrVk.data.error) {
             store.setError(true)
-            store.setMessageError(registrVk.error?.message)
-        }else if (!registrVk.token) {
+            store.setMessageError(registrVk.data.error.message)
+        }else if (!registrVk.data.token && registrVk.data.id) {
             store.setIsCondition(true)
-            navigate(REGISTRATION_ROUTE)
-        } else {
+            navigate(REGISTRATION_ROUTE, {state: {id: registrVk.data.id}})
+        } else if (registrVk.data.token && registrVk.data.id){
             navigate(PERSONALE_ROUTE)
         }
     }

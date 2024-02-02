@@ -1,18 +1,22 @@
 import { observer } from 'mobx-react-lite';
-import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 import { REGISTRATION_ROUTE } from '../utils/consts';
+import HeaderLogoMobile from '../components/HeaderLogoMobile';
 
 function Auth() {
 
     return (
         <div>
             <header className="header">
-                < HeaderLogoRegistr />
+                <div className="header__wrapper">
+                    {/* <HeaderLogoPc /> */}
+                    <HeaderLogoMobile />
+                    <HeaderLogoRegistr />
+                </div>
             </header>
 
             <div className="middle">
@@ -33,14 +37,10 @@ function Auth() {
                     </nav>
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
-                            
                             <h2 style={{fontSize: "20px"}}>
-                                Если вы зарегистрированы на сайте, то для входа нажмите кнопку:	 		
+                                Регистрация пройдена. Заходи на сайт:
                             </h2>
                             <AuthVkButton />
-                            <h2 style={{fontSize: "20px"}}>
-                                Для регистрации перейдите по ссылке <Link to={REGISTRATION_ROUTE} className="registr__link">Регистрация</Link>
-                            </h2>
                         </div>
 
                         <div className="main__screen-flag">
@@ -53,8 +53,8 @@ function Auth() {
             <Footer />
 
         </div>
-        
     );
+    
 }
 
 export default observer(Auth);
