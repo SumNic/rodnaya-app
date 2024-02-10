@@ -115,6 +115,15 @@ export class LocationController {
    }
 
   /**
+   * Получить место жительства.
+   * @returns LocationUser - Список найденных стран.
+   */
+   @MessagePattern('getLocation')
+   async getLocation(@Payload() country: string, region: string, locality: string): Promise<Location> {
+     return await this.locationService.getLocation(country, region, locality); 
+   }
+
+  /**
    * Получить список всех стран.
    * @returns LocationUser - Список найденных стран.
    */

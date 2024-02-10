@@ -22,22 +22,30 @@ export class JwtRefreshGuard implements CanActivate {
       const bearer = authHeader.split(' ')[0];
       const token = authHeader.split(' ')[1];
 
+      console.log(bearer, 'bearer')
+      console.log(token, 'token')
+
       if (bearer !== 'Bearer' || !token) {
         throw new UnauthorizedException({
           message: 'Пользователь не авторизован',
         });
       }
 
-      return this.authClient.send('validate_refresh_token', { token }).pipe(
-        tap((res) => {
-          req.user = res;
-          req.refreshToken = token;
-        }),
-        catchError(() => {
-          throw new UnauthorizedException();
-        }),
-      );
+      console.log(token, 'token')
+
+      return this.authClient.send('validate_refresh_token', { token })
+        .pipe(
+          tap((res) => {
+            console.log(res, 'res')
+            req.user = res;
+            req.refreshToken = token;
+          }),
+          catchError(() => {
+            throw new UnauthorizedException();
+          }),
+        );
     } catch (e) {
+      console.log(e, 'exeption')
       throw new UnauthorizedException({
         message: 'Пользователь не авторизован',
       });

@@ -29,4 +29,11 @@ export class CreateResidencyDto {
   })
   @IsString({ message: 'Должно быть строкой' })
   locality: string;
+
+  @ApiProperty({
+    example: 'sdfsfsdgggg',
+    description: 'Проверка состояния',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  secret?: string;
 }

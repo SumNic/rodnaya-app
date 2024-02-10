@@ -1,5 +1,5 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, Post, Req, Res } from '@nestjs/common';
+import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import {
   AddRoleDto,
@@ -16,6 +16,8 @@ import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import { OutputUserIdAndTokens } from '@app/models/dtos/output-user-id-and-tokens.dto';
 import { ResidencyService } from './residency/residency.service';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
+import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
+import { Request, Response } from 'express';
 
 @Controller()
 export class AuthController {
@@ -41,7 +43,7 @@ export class AuthController {
    */
   // @MessagePattern('login')
   // async login(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-  //   return await this.authService.login(dto);
+  //   return await this.authService.login(dto);  
   // }
 
   /**
@@ -62,10 +64,8 @@ export class AuthController {
    * @param {any} data - Объект содержащий token
    */
   @MessagePattern('refreshTokens')
-  async handleUpdateTokens(
-    @Payload() data: RefreshTokensDto,
-  ): Promise<OutputJwtTokens> {
-    return await this.authService.updateTokens(data.uuid, data.hashRefreshToken);
+  async handleUpdateTokens(@Payload() data: RefreshTokensDto): Promise<OutputJwtTokens> {
+    return await this.authService.updateTokens(data.uuid, data.refreshToken);
   }
 
   /**
@@ -104,7 +104,7 @@ export class AuthController {
   // async createSuperUser(
   //   @Payload() dto: CreateUserDto,
   // ): Promise<TokenResponseDto> {
-  //   return await this.authService.createSuperUser(dto);
+  //   return await this.authService.createSuperUser(dto); 
   // }
 
   /**
@@ -121,7 +121,7 @@ export class AuthController {
    * Auth через vk
    */
   @MessagePattern('loginByVk')
-  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<OutputUserIdAndTokens> {
+  async vkLogin(@Payload() query: VkLoginSdkDto): Promise<User> {
     return await this.authService.vkLogin(query);
   }
 
@@ -129,8 +129,8 @@ export class AuthController {
    * Внесение в базу данных информацию о регистрации
    */
   @MessagePattern('setRegistration')
-  async setRegistration(@Payload() id: number): Promise<OutputUserIdAndTokens> {
-    return await this.authService.setRegistration(id);
+  async setRegistration(@Payload() dto: CreateRegistrationDto): Promise<OutputUserIdAndTokens> {
+    return await this.authService.setRegistration(dto)
   }
 
   /**
@@ -139,7 +139,7 @@ export class AuthController {
    */
   // @MessagePattern('checkUserEmail') 
   // async checkUserEmail(@Payload() email: number): Promise<any> {
-  //   return await this.authService.checkUserEmail(email);
+  //   return await this.authService.checkUserEmail(email);  
   // }
 
   /**
@@ -175,7 +175,6 @@ export class AuthController {
    */
    @MessagePattern('createResidency')
    async saveLocation(@Payload() dto: CreateResidencyDto): Promise<CreateUserDto> {
-    console.log('auth controller')
      return await this.authService.createResidency(dto); 
    }
 }

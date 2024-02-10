@@ -3,4 +3,5 @@ export interface ResidencyUser {
     country: string;
     region: string;
     locality: string;
+    secret: string;
 }

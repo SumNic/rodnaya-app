@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import './App.css';
 import { Context } from '.';
 import { observer } from 'mobx-react-lite';
@@ -8,36 +8,21 @@ import LogoLoad from './components/LogoLoad/LogoLoad';
 
 function App() {
   const {store} = useContext(Context)
-  const [load, setLoad] = useState<boolean>(true) 
 
   useEffect(() => {
-    siteLoad()
-  }, [])
-
-  useEffect(() => {
-    if (localStorage.getItem('token')) {
+    if (localStorage.getItem('token') && localStorage.getItem('device')) {
       store.checkAuth()
+    } else {
+      store.setLoad(false)
     }
   }, [])
 
-async function siteLoad() {
-  setLoad(true)
-  setTimeout(() => {
-    setLoad(false)
-  }, 1000)
-}
-
   return (
-    // <div>
-    //   <h1>{store.isAuth ? `Пользователь авторизован ${store.user.email}` : "АВТОРИЗУЙТЕСЬ" }</h1>
-    //   <LoginForm/>
-    // </div>
       <BrowserRouter>
-        {load 
+        {store.load 
         ? <LogoLoad />
         : <AppRouter /> }
-      </BrowserRouter>
-      
+      </BrowserRouter>      
   );
 }
 

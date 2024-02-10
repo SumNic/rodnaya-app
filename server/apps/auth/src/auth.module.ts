@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -16,6 +16,7 @@ import { UsersController } from './users/users.controller';
 // import { TokensController } from './auth/tokens/tokens.controller';
 import { TokensController } from './tokens/tokens.controller';
 import { TokensModule } from './tokens/tokens.module';
+import cookieParser from 'cookie-parser';
 
 @Module({
   imports: [
@@ -37,6 +38,15 @@ import { TokensModule } from './tokens/tokens.module';
         signOptions: {
           expiresIn: `${configService.get('JWT_EXPIRATION')}s`,
         },
+        configure(consumer: MiddlewareConsumer) {
+    consumer.apply(cookieParser()).forRoutes('*');
+        }
+        // consumer: {
+        //   apply(req, res: Response, next) {
+        //     res.cookie('refreshToken', req.refreshToken);
+        //     next();
+        //   },
+        // },
       }),
       inject: [ConfigService],
     }),

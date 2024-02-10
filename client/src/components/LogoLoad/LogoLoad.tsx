@@ -7,7 +7,7 @@ class LogoLoad extends Component {
         return (
             <div className="LogoLoad">
                 <div className="LoadText">
-                    <h3>Загрузка...</h3>
+                    {/* <h3>Загрузка...</h3> */}
                 </div>
             </div>
         )

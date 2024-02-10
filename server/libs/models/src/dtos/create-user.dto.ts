@@ -36,4 +36,11 @@ export class CreateUserDto {
   })
   @IsString({ message: 'Должно быть строкой' })
   photo_max: string; 
+
+  @ApiProperty({
+    example: 'sdrsdf',
+    description: 'Секретная строка',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  secret: string; 
 }

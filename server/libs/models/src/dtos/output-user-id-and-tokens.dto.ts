@@ -8,6 +8,12 @@ export class OutputUserIdAndTokens {
   id: number;
 
   @ApiProperty({
+    example: 'sdfsdf',
+    description: 'uuid',
+  })
+  secret: string;
+
+  @ApiProperty({
     example: 'aksjwelWe4kjldfksjas',
     description: 'JWT токен',
   })

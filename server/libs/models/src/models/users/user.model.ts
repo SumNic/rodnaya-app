@@ -43,6 +43,9 @@ export class User extends Model<User, UserCreationAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   photo_max: string;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  secret: string;
+
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isRegistration: boolean;
 

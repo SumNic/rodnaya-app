@@ -13,14 +13,13 @@ export class TokensService {
 
   /**
    * Получить refreshToken по UUID.
-   * @param {string} email - Email пользователя.
+   * @param {string} uuid - uuid пользователя.
    * @returns User - Найденный пользователь.
    */
   async getRefreshToken(uuid: string): Promise<Token> {
 
     const token = await this.tokenRepository.findOne({
       where: { uuid: uuid },
-      include: { all: true },
     })
 
     return token
@@ -59,7 +58,7 @@ export class TokensService {
       throw new RpcException(new NotFoundException('Токен не найден'));
     }
 
-    token.refreshToken = dto.hashRefreshToken;
+    token.refreshToken = dto.refreshToken;
     await token.save();
 
     return token

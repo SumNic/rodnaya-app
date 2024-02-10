@@ -7,7 +7,7 @@ import { LOGIN_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
 
 function OnChangeForm (props: any) {
 
-    const { id } = props
+    const { id, secret } = props
 
     const navigate = useNavigate()
 
@@ -70,18 +70,15 @@ function OnChangeForm (props: any) {
                 id, 
                 country, 
                 region, 
-                locality
+                locality,
+                secret
             }
             store.saveResidency(dto)
-                .then(data => {
-                    if (data?.data.id) {
-                        // console.log(data, 'data')
-                        store.loginVk(dto.id)
-                        
-                        navigate(LOGIN_ROUTE)
-                    }
-                })
-                .then()
+                .then(() => store.loginVk(dto.id, dto.secret))
+                .then(() => navigate(PERSONALE_ROUTE))
+            
+            
+            // navigate(LOGIN_ROUTE)
             
         }
     }

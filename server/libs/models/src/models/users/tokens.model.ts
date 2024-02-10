@@ -24,10 +24,10 @@ import { User } from './user.model';
     })
     id: number;
   
-    @Column({ type: DataType.STRING, allowNull: false })
+    @Column({ type: DataType.STRING, allowNull: true })
     uuid: string;
   
-    @Column({ type: DataType.STRING, allowNull: false })
+    @Column({ type: DataType.STRING, allowNull: true })
     refreshToken: string;
 
     @ForeignKey(() => User)

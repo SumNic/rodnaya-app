@@ -8,10 +8,13 @@ import {
   ExceptionDto,
   GoogleResponseDto,
   OutputJwtTokens,
+  User,
   UserGmailOAuth,
 } from '@app/models';
 import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
+import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
+import { UuidDevice } from '@app/models/dtos/uuid-device.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import {
     BadRequestException,
@@ -19,6 +22,8 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
+  Headers,
   HttpStatus,
   Inject,
   Param,
@@ -38,7 +43,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { catchError, throwError } from 'rxjs';
+import { Request, Response } from 'express';
+import { catchError, tap, throwError } from 'rxjs';
 
 @Controller()
 export class AppAuthController {
@@ -47,57 +53,57 @@ export class AppAuthController {
     private configService: ConfigService,
   ) {}
 
-  @ApiTags('Авторизация')
-  @ApiOperation({ summary: 'Регистрация пользователя' })
-  @Post('/registration')
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Успешная регистрация',
-    type: OutputJwtTokens,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Пользователь с такой электронной почтой уже существует',
-  })
-  @ApiBody({ type: CreateUserDto })
-  async registration(@Body() dto: CreateUserDto) {
-    return this.authClient
-      .send('registration', dto)
-      .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
-  }
+  // @ApiTags('Авторизация')
+  // @ApiOperation({ summary: 'Регистрация пользователя' })
+  // @Post('/registration')
+  // @ApiBody({ type: CreateUserDto })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'Успешная регистрация',
+  //   type: OutputJwtTokens,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.BAD_REQUEST,
+  //   description: 'Пользователь с такой электронной почтой уже существует',
+  // })
+  // @ApiBody({ type: CreateUserDto })
+  // async registration(@Body() dto: CreateUserDto) {
+  //   return this.authClient
+  //     .send('registration', dto)
+  //     .pipe(
+  //       catchError((error) =>
+  //         throwError(() => new RpcException(error.response)),
+  //       ),
+  //     );
+  // }
 
-  @ApiTags('Авторизация')
-  @ApiOperation({ summary: 'Авторизация пользователя' })
-  @Post('/login')
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Успешная авторизация',
-    type: OutputJwtTokens,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Неккоректные электронная почта или пароль',
-  })
-  async login(@Body() dto: CreateUserDto) {
-    return this.authClient
-      .send('login', dto)
-      .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
-  }
+  // @ApiTags('Авторизация')
+  // @ApiOperation({ summary: 'Авторизация пользователя' })
+  // @Post('/login')
+  // @ApiBody({ type: CreateUserDto })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'Успешная авторизация',
+  //   type: OutputJwtTokens,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.BAD_REQUEST,
+  //   description: 'Неккоректные электронная почта или пароль',
+  // })
+  // async login(@Body() dto: CreateUserDto) {
+  //   return this.authClient
+  //     .send('login', dto)
+  //     .pipe(
+  //       catchError((error) =>
+  //         throwError(() => new RpcException(error.response)),
+  //       ),
+  //     );
+  // }
 
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Авторизация пользователя' })
   @Post('/set-registration')
-  @ApiBody({ type: Number })
+  @ApiBody({ type: CreateRegistrationDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Успешная регистрация',
@@ -107,14 +113,20 @@ export class AppAuthController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Неккоректные данные',
   })
-  async setRegistration(@Body() id: number) {
+  async setRegistration(@Body() dto: CreateRegistrationDto, @Res({ passthrough: true }) res: Response) {
     return this.authClient
-      .send('setRegistration', id)
+      .send('setRegistration', dto)
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
+        tap(data => {
+          res.cookie('refreshToken', data.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax'})
+          }
+        )
+      )
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      )
   }
 
   @ApiTags('Авторизация')
@@ -160,24 +172,22 @@ export class AppAuthController {
   }
 
   @ApiTags('Авторизация')
-  @Post('/refresh-tokens/:user_id')
-  @ApiOperation({
-    summary:
-      'Обновить токены для пользователя (требуется refreshToken в заголовке)',
-  })
-  @ApiParam({
-    name: 'user_id',
-    example: 1,
-    required: true,
-    description: 'Идентификатор пользователя в базе данных',
-    type: Number,
-  })
+  // @Post('/refresh-tokens/:user_id')
+  @ApiOperation({summary: 'Обновить токены для пользователя (требуется refreshToken в заголовке)'})
+  @Post('/refresh-tokens')
+  // @ApiParam({
+  //   name: 'user_id',
+  //   example: 1,
+  //   required: true,
+  //   description: 'Идентификатор пользователя в базе данных',
+  //   type: Number,
+  // })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Операция прошла успешно.',
     type: OutputJwtTokens,
   })
-  @UseGuards(JwtRefreshGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'JWT токен не указан в заголовках',
@@ -186,18 +196,33 @@ export class AppAuthController {
     status: HttpStatus.FORBIDDEN,
     description: 'Некоректный JWT токен',
   })
-  async refreshTokens(@Param('user_id') user_id: number, @Req() req: any) {
-    if(!Number(user_id)) {
-        throw new BadRequestException('Ошибка ввода');
-    }
+  async refreshTokens(@Body() dto: UuidDevice, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return this.authClient
-      .send('refreshTokens', { user_id, refreshToken: req.refreshToken })
+      .send('refreshTokens', { refreshToken: req.cookies.refreshToken, uuid: dto.uuid })
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
-      );
+        tap(data => {
+          res.cookie('refreshToken', data.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax'})
+          // return data
+          })      
+        )
+      .pipe(
+        catchError(async (error) =>{
+          return new RpcException(error)
+          }),
+        )
   }
+  // async refreshTokens(@Param('user_id') user_id: number, @Req() req: any) {
+  //   if(!Number(user_id)) {
+  //       throw new BadRequestException('Ошибка ввода');
+  //   }
+  //   return this.authClient
+  //     .send('refreshTokens', { user_id, refreshToken: req.refreshToken })
+  //     .pipe(
+  //       catchError((error) =>
+  //         throwError(() => new RpcException(error.response)),
+  //       ),
+  //     );
+  // }
 
   // @ApiTags('Авторизация')
   // @ApiOperation({

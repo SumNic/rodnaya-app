@@ -1,6 +1,6 @@
 import axios from "axios";
 import { makeAutoObservable } from "mobx";
-import { API_URL } from "../http";
+import $api, { API_URL } from "../http";
 import { IUser } from "../models/IUser";
 import { AuthResponse } from "../models/response/AuthResponse";
 import AuthService from "../services/AuthService";
@@ -9,6 +9,7 @@ import { ResidencyUser } from "../models/ResidencyUser";
 import LocationUserService from "../services/LocationService";
 import { LocationUser } from "../models/LocationUser";
 import { VkSdkResponse } from "../models/response/VkSdkResponse";
+import { v4 as uuidv4 } from "uuid";
 
 export default class Store {
     user = {} as IUser
@@ -21,10 +22,15 @@ export default class Store {
     country = [] as LocationUser[]
     region = [] as LocationUser[]
     locality = [] as LocationUser[]
+    uuid = uuidv4()
+    load = true
 
     constructor() {
+        this.uuid = uuidv4()
         makeAutoObservable(this)
     }
+
+    
 
     setAuth(bool: boolean) {
         this.isAuth = bool
@@ -65,6 +71,10 @@ export default class Store {
         this.locality = locality
     }
 
+    setLoad(bool: boolean) {
+        this.load = bool
+    }
+
     // async login(email: string, password: string) {
     //     try {
     //         const response = await AuthService.login(email, password)
@@ -102,13 +112,16 @@ export default class Store {
 
     async checkAuth() {
         try {
-            const response = await axios.get<AuthResponse>(`${API_URL}/refresh`, {withCredentials: true})
-            console.log(response);            
-            localStorage.setItem('token', response.data.accessToken)
+            let device: any = localStorage.getItem('device')
+            const response = await AuthService.updateRegistration(device)
+            localStorage.setItem('token', response.data.token)
             this.setAuth(true)
-            this.setUser(response.data.user)
+            // this.setUser(response.data.user)
+
         } catch (e: any) {
             console.log(e.response?.data?.message)
+        } finally {
+            this.setLoad(false)
         }
     }
 
@@ -122,9 +135,17 @@ export default class Store {
         }
     }
 
-    async loginVk(id: number) {
+    async loginVk(id: number, secret: string) {
         try {
-            return await AuthService.setRegistration(id)
+            if(!localStorage.getItem('device')) {                
+                localStorage.setItem('device', this.uuid)
+            } 
+
+            let device: any = localStorage.getItem('device')
+            
+            const response = await AuthService.setRegistration(id, secret, device)
+            localStorage.setItem('token', response.data.token)
+            this.setAuth(true)
 
         } catch(e: any) {
             return { data: e.response?.data?.message }
@@ -133,7 +154,6 @@ export default class Store {
 
     async getCondition() {
         try {
-            // const response =  
             await AuthService.logout()
             localStorage.removeItem('token')
             this.setAuth(false)

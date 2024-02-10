@@ -7,12 +7,12 @@ export class RefreshTokensDto {
     description: 'uuid для создания либо обновления refresh token',
   })
   @IsString({ message: 'uuid: должно быть строкой' })
-  uuid: string;
+  uuid?: string;
 
   @ApiProperty({
     example: 'alkjSedscjgklxcesdf',
     description: 'JWT токен для обновления токенов',
   })
   @IsString({ message: 'refreshToken: должно быть строкой' })
-  hashRefreshToken: string;
+  refreshToken: string;
 }

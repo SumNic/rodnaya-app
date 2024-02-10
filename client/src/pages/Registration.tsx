@@ -13,7 +13,7 @@ function Registration() {
     const {store} = useContext(Context)
 
     const location = useLocation()
-    const { id } = location.state
+    const { user } = location.state
 
         return (
             <div>
@@ -28,7 +28,7 @@ function Registration() {
 
                                 {!store.isRegistrationEnd && store.isCondition && <><ConditionsForm /><MyButtonNext /></>}
 
-                                {store.isRegistrationEnd && <OnChangeForm id={id} />}
+                                {store.isRegistrationEnd && <OnChangeForm id={user.id} secret={user.secret}/>}
                                 
                             </div>
                         </div>

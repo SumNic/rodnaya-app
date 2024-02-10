@@ -26,6 +26,7 @@ import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import { OutputUserIdAndTokens } from '@app/models/dtos/output-user-id-and-tokens.dto';
 import { TokensService } from './tokens/tokens.service';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
+import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +37,7 @@ export class AuthService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly residencyService: ResidencyService,
-    private readonly tokenService: TokensService
+    private readonly tokenService: TokensService,
 
   ) {}
 
@@ -85,7 +86,7 @@ export class AuthService {
   /**
    * Auth через vk
    */
-  async vkLogin(query: VkLoginSdkDto): Promise<OutputUserIdAndTokens> {
+  async vkLogin(query: VkLoginSdkDto): Promise<User> {
 
     if (query.uuid && query.token) {
 
@@ -102,26 +103,7 @@ export class AuthService {
           );
       }
 
-      if (candidate.isRegistration) { // Если пользователь зарегистрирован
-        const tokens = await this.generateTokens(candidate) // Создаем пару токен и рефреш токен
-        const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5) // Хешируем рефреш токен
-        const uuid = localStorage.getItem('uuid') ? localStorage.getItem('uuid') : query.uuid
-
-        // Проверяем, есть ли токен для устройства с указанным uuid в базе данных
-        const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid)
-
-        if(!tokenFromDataBase) {
-          const newRefreshToken = await this.tokenService.createRefreshToken({uuid, hashRefreshToken})
-          await candidate.$set('token', [newRefreshToken.id]);
-          candidate.token = [newRefreshToken];
-          await candidate.save()
-        } else {
-          await this.tokenService.updateRefreshToken({uuid, hashRefreshToken});
-        }
-        return {id: candidate.id, ...tokens}
-      }
-
-      return {id: candidate.id}
+      return candidate
     }
 
     throw new RpcException(
@@ -132,39 +114,55 @@ export class AuthService {
   /**
    * Внесение в базу данных информации о регистрации
    */
-  async setRegistration(id: number): Promise<any> {
+  async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserIdAndTokens> {
 
-      const candidate = await this.userService.getUser(id)
+    const candidate = await this.userService.getUser(dto.id)
 
-      if (!candidate) {
-        throw new RpcException(
-          new UnauthorizedException('Данный пользователь не существует.')
-          );
-      }
+    if (!candidate) {
+      throw new RpcException(
+        new UnauthorizedException('Данный пользователь не существует.')
+        );
+    }
 
-      if (!candidate.isRegistration) { // Если пользователь зарегистрирован
-      console.log('!candidate.isRegistration')
-        // candidate.update('isRegistration', true)
+    if (dto.secret !== candidate.secret) {
+      throw new RpcException(
+        new ForbiddenException('Нет доступа')
+        );
+    }
+
+      if (!candidate.isRegistration) { // Если пользователь не зарегистрирован
         candidate.isRegistration = true;
         await candidate.save()
-        // const tokens = await this.generateTokens(candidate) // Создаем пару токен и рефреш токен
-        // const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5) // Хешируем рефреш токен
-        // const uuid = localStorage.getItem('uuid') ? localStorage.getItem('uuid') : query.uuid
-
-        // // Проверяем, есть ли токен для устройства с указанным uuid в базе данных
-        // const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid)
-
-        // if(!tokenFromDataBase) {
-        //   const newRefreshToken = await this.tokenService.createRefreshToken({uuid, hashRefreshToken})
-        //   await candidate.$set('token', [newRefreshToken.id]);
-        //   candidate.token = [newRefreshToken];
-        //   await candidate.save()
-        // } else {
-        //   await this.tokenService.updateRefreshToken({uuid, hashRefreshToken});
-        // }
-        // return {id: candidate.id, ...tokens}
       }
+
+      return await this.login(candidate, dto.uuid)
   }
+
+  /**
+   * Auth через vk
+   */
+  private async login(candidate: User, uuid: string): Promise<OutputUserIdAndTokens> {
+
+    const tokens = await this.generateTokens(candidate) // Создаем пару токен и рефреш токен
+    const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5) // Хешируем рефреш токен
+
+    // Проверяем, есть ли токен для устройства с указанным uuid в базе данных 
+    const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid)
+
+    if(!tokenFromDataBase) {
+      console.log('!tokenFromDataBase')
+      const newRefreshToken = await this.tokenService.createRefreshToken({uuid, refreshToken: hashRefreshToken})
+      await candidate.$set('token', [newRefreshToken.id]);
+      candidate.token = [newRefreshToken];
+      await candidate.save()
+    } else {
+      console.log('updateRefreshToken')
+      await this.tokenService.updateRefreshToken({uuid, refreshToken: hashRefreshToken});
+    }
+    return {id: candidate.id, secret: candidate.secret, ...tokens}
+  }
+
+
 
   /**
    * Регистрация нового пользователя.
@@ -204,6 +202,7 @@ export class AuthService {
         last_name: userVk.last_name,
         photo_50: userVk.photo_50,
         photo_max: userVk.photo_max,
+        secret: dto.uuid
         });
 
         return newUser
@@ -295,7 +294,6 @@ export class AuthService {
   private async generateTokens(user: User): Promise<OutputJwtTokens> {
     const payload = {
       id: user.id,
-      // email: user.email,
       roles: user.roles,
     };
     const accessSettings = {
@@ -304,7 +302,7 @@ export class AuthService {
     };
     const refreshSettings = {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: '7d',
+      expiresIn: '30d',
     };
     const token = await this.jwtService.signAsync(payload, accessSettings);
     const refreshToken = await this.jwtService.signAsync(
@@ -318,26 +316,28 @@ export class AuthService {
   }
 
   async updateTokens(uuid: string, refreshToken: string): Promise<OutputJwtTokens> {
-    const userRefreshToken = await this.tokenService.getRefreshToken(uuid);
-    const user = await this.userService.getUser(userRefreshToken.userId);
+    const token = await this.tokenService.getRefreshToken(uuid)
+    const user = await this.userService.getUser(token.userId)
+    
 
-    if (!user || !userRefreshToken) {
+    if (!user || !token) {
       throw new RpcException(new ForbiddenException('Доступ запрещен'));
     }
 
     const refreshTokenEquals = await bcrypt.compare(
       refreshToken,
-      userRefreshToken,
+      token.refreshToken,
     );
 
     if (!refreshTokenEquals) {
-      throw new RpcException(new ForbiddenException('Доступ запрещен'));
+      throw new RpcException(new ForbiddenException('Доступ запрещен'))
     }
 
-    const tokens = await this.generateTokens(user);
-    const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
-    await this.tokenService.updateRefreshToken({uuid, hashRefreshToken});
-    return tokens;
+    const tokens = await this.generateTokens(user)
+    const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5)
+    await this.tokenService.updateRefreshToken({uuid: uuid, refreshToken: hashRefreshToken})
+    console.log(tokens, 'tokens2')
+    return tokens
   }
 
   /**
@@ -347,8 +347,8 @@ export class AuthService {
     return await this.jwtService.verify(data.token);
   }
 
-  async handleValidateRefreshToken(data: any): Promise<Boolean> {
-    return await this.jwtService.verify(data.token, {
+  async handleValidateRefreshToken(refreshToken: string): Promise<Boolean> {
+    return  await this.jwtService.verify(refreshToken, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });
   }
@@ -370,7 +370,7 @@ export class AuthService {
   }
 
   /**
-   * Получить пользователя.
+   * Получить пользователя. 
    * @param {number} id - Идентификатор пользователя.
    * @returns User - Найденный пользователь.
    */
@@ -400,25 +400,25 @@ export class AuthService {
     return password;
   }
 
-  /**
-   * Валидация токена.
-   * @param {string} token - JWT токен.
-   */
-  async validateVkToken(token: string) {
-    const url = `https://api.vk.com/method/users.get?access_token=${token}&v=5.131`;
-    const req = await lastValueFrom(this.httpService.get(url));
-    if (req.data.error) {
-        // throw new RpcException(new BadRequestException(`${JSON.stringify(req.data.error)}`))
-        throw new RpcException(new BadRequestException(req.data.error.error_msg))
-    }
-    const tokenData = req.data.response[0];
+  // /**
+  //  * Валидация токена.
+  //  * @param {string} token - JWT токен.
+  //  */
+  // async validateVkToken(token: string) {
+  //   const url = `https://api.vk.com/method/users.get?access_token=${token}&v=5.131`;
+  //   const req = await lastValueFrom(this.httpService.get(url));
+  //   if (req.data.error) {
+  //       // throw new RpcException(new BadRequestException(`${JSON.stringify(req.data.error)}`))
+  //       throw new RpcException(new BadRequestException(req.data.error.error_msg))
+  //   }
+  //   const tokenData = req.data.response[0];
 
-    if (tokenData.id) {
-      return true;
-    }
+  //   if (tokenData.id) {
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   /**
    * Проверка электронной почты.
@@ -475,14 +475,18 @@ export class AuthService {
    * Сохранить место жительства.
    * @param {CreateLocationDto} dto - DTO для добавления роли пользоветилю.
    */
-   async createResidency(dto: CreateResidencyDto): Promise<CreateUserDto> { //CreateLocationDto 
-    console.log(dto, 'dto auth')
+   async createResidency(dto: CreateResidencyDto): Promise<CreateUserDto> {
+
+    const user = await this.userService.getUser(dto.id)
+
+    if (dto.secret !== user.secret) {
+      throw new RpcException(new ForbiddenException('Нет доступа'));
+    }
+
     const residency = await this.residencyService.createResidency(dto)
     const residencyFromId = await this.residencyService.getResidency(residency.id)
     await residencyFromId.$set('user', [dto.id]);
     await residencyFromId.save()
-
-    const user = await this.userService.getUser(dto.id)
 
     return user
 

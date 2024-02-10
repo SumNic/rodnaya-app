@@ -40,6 +40,23 @@ export class LocationService {
   }
 
   /**
+   * Проверка существования места жительства.
+   * @returns Location - Найденное место жительства.
+   */
+  async getLocation(country: string, region: string, locality: string): Promise<Location> {
+    const result = await this.locationRepository.findOne(
+      {
+        where: {
+          country: country,
+          region: region,
+          locality: locality,
+        }
+      });
+
+    return result;                 
+  }
+
+  /**
    * Получить список всех стран.
    * @returns LocationUser - Список найденных стран.
    */

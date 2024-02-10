@@ -2,6 +2,7 @@ import { AxiosResponse } from "axios";
 import $api from "../http";
 import { AuthResponse } from "../models/response/AuthResponse";
 import { ResidencyUser } from "../models/ResidencyUser";
+import { VkSdkResponse } from "../models/response/VkSdkResponse";
 
 export default class AuthService {
     // static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
@@ -20,7 +21,11 @@ export default class AuthService {
         return $api.post<ResidencyUser>('/create-residency', dto)
     }
 
-    static async setRegistration(id: number): Promise<AxiosResponse<ResidencyUser>> {
-        return $api.post<ResidencyUser>('/set-registration', id)
+    static async setRegistration(id: number, secret: string, uuid: any): Promise<AxiosResponse<VkSdkResponse>> {
+        return $api.post<VkSdkResponse>('/set-registration', {id, secret, uuid})
+    }
+
+    static async updateRegistration(device: string): Promise<AxiosResponse<any>> {
+        return $api.post<any>('/refresh-tokens', {uuid: device})
     }
 }
