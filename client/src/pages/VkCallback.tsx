@@ -22,7 +22,6 @@ function VkCallback() {
     async function registration(payload: {}) {
         
         const registrVk = await store.registrationVk(payload)
-        console.log(registrVk.data, 'registrVk.data')
         
         if (registrVk.data.error) {
             store.setError(true)

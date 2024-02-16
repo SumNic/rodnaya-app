@@ -1,4 +1,5 @@
 import { RefreshTokensDto } from '@app/models';
+import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
 import { Token } from '@app/models/models/users/tokens.model';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -69,8 +70,17 @@ export class TokensService {
    * @param {number} user_id - Идентификатор пользователя.
    * @throws RpcException(NotFoundException)
    */
-  async removeRefreshToken(uuid: string): Promise<void> {
-    const token = await this.tokenRepository.findOne({where: {uuid: uuid}});
+  async removeRefreshToken(dto: LogoutUserDto): Promise<void> {
+    console.log(dto, 'dto')
+    if (dto.allDeviceExit) {
+      const tokens = await this.tokenRepository.update({refreshToken: null}, {
+          where: {
+            userId: dto.id
+          }
+        });
+        return
+    }
+    const token = await this.tokenRepository.findOne({where: {uuid: dto.uuid}});
 
     if (!token) {
       throw new RpcException(new NotFoundException('Токен не найден'));

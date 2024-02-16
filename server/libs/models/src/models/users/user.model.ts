@@ -60,5 +60,5 @@ export class User extends Model<User, UserCreationAttrs> {
   residency: Residency;
 
   @HasMany(() => Token) 
-  token: Token[];
+  tokens: Token[];
 }

@@ -1,27 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../models/users/user.model';
 
-export class OutputUserIdAndTokens {
+export class OutputUserAndTokens {
   @ApiProperty({
     example: 1,
-    description: 'ID пользователя в базе данных',
+    description: 'Пользователь сайта',
   })
-  id: number;
+  user: User;
 
   @ApiProperty({
     example: 'sdfsdf',
     description: 'uuid',
   })
-  secret: string;
+  secret?: string;
 
   @ApiProperty({
     example: 'aksjwelWe4kjldfksjas',
     description: 'JWT токен',
   })
-  token?: string;
+  token: string;
 
   @ApiProperty({
     example: 'aksjwelWe4kjldfksjas',
     description: 'JWT refresh токен',
   })
-  refreshToken?: string;
+  refreshToken: string;
 }

@@ -1,5 +1,5 @@
-import { Controller, Post, Req, Res } from '@nestjs/common';
-import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import {
   AddRoleDto,
@@ -11,19 +11,15 @@ import {
   // VkLoginDto, 
 } from '@app/models';
 import { HttpStatusCode } from 'axios';
-import { RmqService } from '@app/common'; 
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
-import { OutputUserIdAndTokens } from '@app/models/dtos/output-user-id-and-tokens.dto';
-import { ResidencyService } from './residency/residency.service';
+import { OutputUserAndTokens } from '@app/models/dtos/output-user-and-tokens.dto';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
-import { Request, Response } from 'express';
+import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
 
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService,
-              private readonly rmqService: RmqService,
-              private readonly residencyService: ResidencyService,
     ) {}
 
   /**
@@ -33,7 +29,7 @@ export class AuthController {
    */
   // @MessagePattern('registration')
   // async registration(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-  //   return await this.authService.registration(dto); 
+  //   return await this.authService.registration(dto);   
   // }
 
   /**
@@ -43,7 +39,7 @@ export class AuthController {
    */
   // @MessagePattern('login')
   // async login(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-  //   return await this.authService.login(dto);  
+  //   return await this.authService.login(dto);   
   // }
 
   /**
@@ -51,8 +47,8 @@ export class AuthController {
    * @param {number} user_id - Идентификатор пользователя.
    */
   @MessagePattern('logout')
-  async logout(uuid: string): Promise<any> {
-    await this.authService.logout(uuid);
+  async logout(dto: LogoutUserDto): Promise<any> {
+    await this.authService.logout(dto);
     return {
       message: 'Операция прошла успешно',
       statusCode: HttpStatusCode.Ok,
@@ -64,7 +60,7 @@ export class AuthController {
    * @param {any} data - Объект содержащий token
    */
   @MessagePattern('refreshTokens')
-  async handleUpdateTokens(@Payload() data: RefreshTokensDto): Promise<OutputJwtTokens> {
+  async handleUpdateTokens(@Payload() data: RefreshTokensDto): Promise<OutputUserAndTokens> {
     return await this.authService.updateTokens(data.uuid, data.refreshToken);
   }
 
@@ -129,7 +125,7 @@ export class AuthController {
    * Внесение в базу данных информацию о регистрации
    */
   @MessagePattern('setRegistration')
-  async setRegistration(@Payload() dto: CreateRegistrationDto): Promise<OutputUserIdAndTokens> {
+  async setRegistration(@Payload() dto: CreateRegistrationDto): Promise<OutputUserAndTokens> {
     return await this.authService.setRegistration(dto)
   }
 

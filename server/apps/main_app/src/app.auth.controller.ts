@@ -1,19 +1,15 @@
-import { JwtAuthGuard, JwtRefreshGuard, ROLES } from '@app/common';
+import { JwtAuthGuard, ROLES } from '@app/common';
 import { Roles } from '@app/common/auth/roles-auth.decorator';
 import { RolesGuard } from '@app/common/auth/roles.guard';
 import { AUTH_SERVICE } from '@app/common/auth/service';
 import {
   AddRoleDto,
-  CreateUserDto,
-  ExceptionDto,
-  GoogleResponseDto,
   OutputJwtTokens,
-  User,
-  UserGmailOAuth,
 } from '@app/models';
-import { CreateLocationDto } from '@app/models/dtos/create-location.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
+import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
+import { OutputUserAndTokens } from '@app/models/dtos/output-user-and-tokens.dto';
 import { UuidDevice } from '@app/models/dtos/uuid-device.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import {
@@ -22,13 +18,10 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
-  Headers,
   HttpStatus,
   Inject,
   Param,
   Post,
-  Query,
   Req,
   Res,
   UseGuards,
@@ -39,7 +32,6 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -107,7 +99,7 @@ export class AppAuthController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Успешная регистрация',
-    type: OutputJwtTokens,
+    type: OutputUserAndTokens,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -133,14 +125,8 @@ export class AppAuthController {
   @ApiOperation({
     summary: 'Разлогинить пользователя (Удалить refreshToken у пользователя)',
   })
-  @Get('/logout/:user_id')
-  @ApiParam({
-    name: 'user_id',
-    example: 1,
-    required: true,
-    description: 'Идентификатор пользователя в базе данных',
-    type: Number,
-  })
+  @Post('/logout')
+  @ApiBody({ type: LogoutUserDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Пользователь успешно разлогинен',
@@ -158,34 +144,24 @@ export class AppAuthController {
     description: 'Некоректный JWT токен',
   })
   @UseGuards(JwtAuthGuard)
-  async logout(@Param('user_id') user_id: number) {
-    if(!Number(user_id)) {
-        throw new BadRequestException('Ошибка ввода');
-    }
+  async logout(@Body() dto: LogoutUserDto) {
     return this.authClient
-      .send('logout', user_id)
+      .send('logout', dto)
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
       );
   }
 
   @ApiTags('Авторизация')
-  // @Post('/refresh-tokens/:user_id')
   @ApiOperation({summary: 'Обновить токены для пользователя (требуется refreshToken в заголовке)'})
   @Post('/refresh-tokens')
-  // @ApiParam({
-  //   name: 'user_id',
-  //   example: 1,
-  //   required: true,
-  //   description: 'Идентификатор пользователя в базе данных',
-  //   type: Number,
-  // })
+  @ApiBody({ type: UuidDevice })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Операция прошла успешно.',
-    type: OutputJwtTokens,
+    type: OutputUserAndTokens,
   })
   // @UseGuards(JwtAuthGuard)
   @ApiResponse({
@@ -202,7 +178,6 @@ export class AppAuthController {
       .pipe(
         tap(data => {
           res.cookie('refreshToken', data.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax'})
-          // return data
           })      
         )
       .pipe(
@@ -284,9 +259,9 @@ export class AppAuthController {
     return this.authClient
       .send('getUser', id)
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
       );
   }
 
@@ -337,8 +312,8 @@ export class AppAuthController {
       .send('loginByVk', dto)
       .pipe(
         catchError(async (error) => {
-          console.log(error)
-          return new RpcException(error)}),
+          return new RpcException(error)
+          }),
         )
   }
 
@@ -398,9 +373,9 @@ export class AppAuthController {
     return this.authClient
       .send('userAddRole', dto)
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
       );
   }
 
@@ -430,9 +405,9 @@ export class AppAuthController {
     return this.authClient
       .send('userRemoveRole', dto)
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)),
-        ),
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
       );
   }
 
@@ -449,9 +424,9 @@ export class AppAuthController {
     return this.authClient
       .send('getAllRoles', {})
       .pipe(
-        catchError((error) =>
-          throwError(() => new RpcException(error.response)), 
-        ),
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
       );
   }
 
@@ -483,7 +458,6 @@ export class AppAuthController {
       .send('createResidency', dto)
       .pipe(
         catchError(async (error) => {
-          console.log(error)
           return new RpcException(error)}),
       );
   }

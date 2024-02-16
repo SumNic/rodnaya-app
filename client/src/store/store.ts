@@ -1,14 +1,10 @@
-import axios from "axios";
 import { makeAutoObservable } from "mobx";
-import $api, { API_URL } from "../http";
 import { IUser } from "../models/IUser";
-import { AuthResponse } from "../models/response/AuthResponse";
 import AuthService from "../services/AuthService";
 import VkAuthService from "../services/VkAuthService";
 import { ResidencyUser } from "../models/ResidencyUser";
 import LocationUserService from "../services/LocationService";
 import { LocationUser } from "../models/LocationUser";
-import { VkSdkResponse } from "../models/response/VkSdkResponse";
 import { v4 as uuidv4 } from "uuid";
 
 export default class Store {
@@ -29,8 +25,6 @@ export default class Store {
         this.uuid = uuidv4()
         makeAutoObservable(this)
     }
-
-    
 
     setAuth(bool: boolean) {
         this.isAuth = bool
@@ -99,9 +93,11 @@ export default class Store {
     //     }
     // }
 
-    async logout() {
+    async logout(allDeviceExit: boolean) {
         try {
-            await AuthService.logout()
+            
+            let uuid: string | null = localStorage.getItem('device')
+            await AuthService.logout(this.user.id, uuid, allDeviceExit)
             localStorage.removeItem('token')
             this.setAuth(false)
             this.setUser({} as IUser)
@@ -112,12 +108,16 @@ export default class Store {
 
     async checkAuth() {
         try {
-            let device: any = localStorage.getItem('device')
+            let device: string | null = localStorage.getItem('device')
             const response = await AuthService.updateRegistration(device)
+            if (!response.data) {
+                this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.')
+                this.setAuth(false)
+                return
+            }
             localStorage.setItem('token', response.data.token)
             this.setAuth(true)
-            // this.setUser(response.data.user)
-
+            this.setUser(response.data.user)
         } catch (e: any) {
             console.log(e.response?.data?.message)
         } finally {
@@ -129,7 +129,6 @@ export default class Store {
         try {
             const response = await VkAuthService.registrationVk(payload)
             return {data: response.data}
-
         } catch(e: any) {
             return { data: e.response?.data?.message }
         }
@@ -146,22 +145,22 @@ export default class Store {
             const response = await AuthService.setRegistration(id, secret, device)
             localStorage.setItem('token', response.data.token)
             this.setAuth(true)
-
+            this.setUser(response.data.user)
         } catch(e: any) {
             return { data: e.response?.data?.message }
         }
     }
 
-    async getCondition() {
-        try {
-            await AuthService.logout()
-            localStorage.removeItem('token')
-            this.setAuth(false)
-            this.setUser({} as IUser)
-        } catch(e: any) {
-            console.log(e.response?.data?.message)
-        }
-    }
+    // async getCondition() {
+    //     try {
+    //         await AuthService.logout()
+    //         localStorage.removeItem('token')
+    //         this.setAuth(false)
+    //         this.setUser({} as IUser)
+    //     } catch(e: any) {
+    //         console.log(e.response?.data?.message)
+    //     }
+    // }
 
     async getCountry() {
         try {
@@ -196,17 +195,6 @@ export default class Store {
     async saveResidency(dto: ResidencyUser) {
         try {
             const response = await AuthService.createResidencyUsers(dto)
-            console.log(response, 'store response saveResidency');            
-            // localStorage.setItem('token', response.data.accessToken)
-            // this.setAuth(true)
-            // this.setUser(response.data.user)
-
-            // return {error: response.data.error, token: response.data.token, user: response.data.user}
-
-            // if(response.data.error) {
-            //     console.log(response.data.error, 'response.data.error')
-            //     return {error: response.data.error}
-            // }
             return response
             
         } catch(e: any) {

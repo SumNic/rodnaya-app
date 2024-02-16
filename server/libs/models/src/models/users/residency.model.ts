@@ -36,5 +36,5 @@ import { User } from './user.model';
     locality: string;
 
     @HasMany(() => User) 
-    user: User[];
+    users: User[];
   }

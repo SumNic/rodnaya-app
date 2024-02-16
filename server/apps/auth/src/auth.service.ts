@@ -23,10 +23,11 @@ import { RolesService } from './roles/roles.service';
 import { ConfigService } from '@nestjs/config';
 import { ResidencyService } from './residency/residency.service';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
-import { OutputUserIdAndTokens } from '@app/models/dtos/output-user-id-and-tokens.dto';
+import { OutputUserAndTokens } from '@app/models/dtos/output-user-and-tokens.dto';
 import { TokensService } from './tokens/tokens.service';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
+import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -114,7 +115,7 @@ export class AuthService {
   /**
    * Внесение в базу данных информации о регистрации
    */
-  async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserIdAndTokens> {
+  async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserAndTokens> {
 
     const candidate = await this.userService.getUser(dto.id)
 
@@ -141,7 +142,7 @@ export class AuthService {
   /**
    * Auth через vk
    */
-  private async login(candidate: User, uuid: string): Promise<OutputUserIdAndTokens> {
+  private async login(candidate: User, uuid: string): Promise<OutputUserAndTokens> {
 
     const tokens = await this.generateTokens(candidate) // Создаем пару токен и рефреш токен
     const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5) // Хешируем рефреш токен
@@ -150,16 +151,14 @@ export class AuthService {
     const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid)
 
     if(!tokenFromDataBase) {
-      console.log('!tokenFromDataBase')
       const newRefreshToken = await this.tokenService.createRefreshToken({uuid, refreshToken: hashRefreshToken})
-      await candidate.$set('token', [newRefreshToken.id]);
-      candidate.token = [newRefreshToken];
+      await candidate.$add('tokens', [newRefreshToken.id])
+      candidate.tokens = [newRefreshToken]
       await candidate.save()
     } else {
-      console.log('updateRefreshToken')
-      await this.tokenService.updateRefreshToken({uuid, refreshToken: hashRefreshToken});
+      const updateRefreshToken = await this.tokenService.updateRefreshToken({uuid, refreshToken: hashRefreshToken})
     }
-    return {id: candidate.id, secret: candidate.secret, ...tokens}
+    return {user: candidate, secret: candidate.secret, ...tokens}
   }
 
 
@@ -315,7 +314,7 @@ export class AuthService {
     };
   }
 
-  async updateTokens(uuid: string, refreshToken: string): Promise<OutputJwtTokens> {
+  async updateTokens(uuid: string, refreshToken: string): Promise<OutputUserAndTokens> {
     const token = await this.tokenService.getRefreshToken(uuid)
     const user = await this.userService.getUser(token.userId)
     
@@ -335,9 +334,8 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user)
     const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5)
-    await this.tokenService.updateRefreshToken({uuid: uuid, refreshToken: hashRefreshToken})
-    console.log(tokens, 'tokens2')
-    return tokens
+    const refreshTokenDb = await this.tokenService.updateRefreshToken({uuid: uuid, refreshToken: hashRefreshToken})
+    return {user, ...tokens}
   }
 
   /**
@@ -467,8 +465,8 @@ export class AuthService {
    * Разлогинить пользователя.
    * @param {number} user_id - Идентификатор пользователя.
    */
-  async logout(uuid: string): Promise<any> {
-    return await this.tokenService.removeRefreshToken(uuid);
+  async logout(dto: LogoutUserDto): Promise<any> {
+    return await this.tokenService.removeRefreshToken(dto);
   }
 
   /**
@@ -485,7 +483,7 @@ export class AuthService {
 
     const residency = await this.residencyService.createResidency(dto)
     const residencyFromId = await this.residencyService.getResidency(residency.id)
-    await residencyFromId.$set('user', [dto.id]);
+    await residencyFromId.$set('users', [dto.id]);
     await residencyFromId.save()
 
     return user

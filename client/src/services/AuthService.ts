@@ -13,8 +13,8 @@ export default class AuthService {
     //     return $api.post<AuthResponse>('/registration', {email, password})
     // }
 
-    static async logout(): Promise<void> {
-        return $api.post('/logout')
+    static async logout(id: number, uuid: string | null, allDeviceExit: boolean): Promise<void> {
+        return $api.post('/logout', {id: id, uuid: uuid, allDeviceExit: allDeviceExit})
     }
 
     static async createResidencyUsers(dto: ResidencyUser): Promise<AxiosResponse<ResidencyUser>> {
@@ -25,7 +25,7 @@ export default class AuthService {
         return $api.post<VkSdkResponse>('/set-registration', {id, secret, uuid})
     }
 
-    static async updateRegistration(device: string): Promise<AxiosResponse<any>> {
-        return $api.post<any>('/refresh-tokens', {uuid: device})
+    static async updateRegistration(device: string | null): Promise<AxiosResponse<AuthResponse>> {
+        return $api.post<AuthResponse>('/refresh-tokens', {uuid: device})
     }
 }

@@ -30,11 +30,13 @@ import { User } from './user.model';
     @Column({ type: DataType.STRING, allowNull: true })
     refreshToken: string;
 
+    @BelongsTo(() => User)
+    users: User;
+
     @ForeignKey(() => User)
     @Column({type: DataType.INTEGER})
     userId: number;
-    references: { model: User, key: 'id' } 
+    // references: { model: User, key: 'id' } 
     
-    @BelongsTo(() => User)
-    user: User;
+    
   }

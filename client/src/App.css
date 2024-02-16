@@ -561,7 +561,7 @@ body {
     text-decoration: none;
     font-size: 19px;
     cursor: pointer;
-    font-family: -apple-system, "Helvetica Neue", "Roboto", sans-serif;
+    /* font-family: -apple-system, "Helvetica Neue", "Roboto", sans-serif; */
 }
 
 
@@ -585,7 +585,7 @@ body {
 
 .middle__item{
     height: 40px;
-    padding-top: 15px;
+    padding-top: 14px;
 }
 
 .middle__link{
@@ -1078,6 +1078,34 @@ display: none;
     font-family: 'IzhitsaRegular', arial;
     font-size: 18px;
     padding: 3px 0;
+    /* display: inline; */
+}
+
+.div_personale_data {
+    display: inline-block;
+}
+
+.personale_data{
+    font-family: -apple-system, system-ui, "Helvetica Neue", Roboto, sans-serif;
+    font-size: 17px;
+    padding: 3px 0;
+    color: black;
+}
+
+.edit {
+    background: none;
+    border: none;
+}
+
+.edit_image {
+    width: 20px;
+    height: 100%;
+    opacity: 0.2;
+  transition: opacity 0.3s;
+}
+
+.edit_image:hover {
+  opacity: 1;
 }
 
 @media screen and (max-width: 510px){
@@ -1093,7 +1121,7 @@ display: none;
 }
 
 .photo_big{
-    width: auto;
+    width: 250px;
     height: 100%;
 }
 
@@ -1552,15 +1580,19 @@ textarea[name="message"] {
     .photo_big{
         display: block;
         margin: 0 auto;
-        border-radius: 50%;
+        /* border-radius: 50%; */
     }
     .menu-button-container {
       display: flex;
+    }
+    .middle__wrapper {
+        justify-content: center;
     }
     .middle__menu {
         position: absolute;
         z-index: 2;
         width: 100%;
+        max-width: 546px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -1674,7 +1706,7 @@ textarea[name="message"] {
     margin-left: -28px;
   }
 
-  .VkIdWebSdk__button_text, .My__button_text{
+  .VkIdWebSdk__button_text, .My__button_text {
     display: flex;
     font-family: -apple-system, system-ui, "Helvetica Neue", Roboto, sans-serif;
     flex: 1;

@@ -12,17 +12,6 @@ function Error_Page() {
     const navigate = useNavigate()
     const {store} = useContext(Context)
 
-    const queryParams = new URLSearchParams(window.location.search)
-    const code: string | null = queryParams.get("message")
-    console.log(code)
-    let message: string
-
-    if (!code) {
-        message = "Произошла неизвестная ошибка"
-    } else {
-        message = code
-    }
-
     function returnHome() {
         store.setError(false)
         navigate(HOME_ROUTE)
@@ -32,7 +21,6 @@ function Error_Page() {
         <div>
             <header className="header">
                 <div className="header__wrapper">
-                    {/* <HeaderLogoPc /> */}
                     <HeaderLogoMobile />
                     <HeaderLogoRegistr />
                 </div>
@@ -40,13 +28,11 @@ function Error_Page() {
 
             <div className="middle">
                 <div className="middle__wrapper">
-                    <nav className="middle__menu" style={{visibility: "hidden"}}>
+                    <nav className="middle__menu">
                         <input id="menu-toggle" type="checkbox" />
                         <label className='menu-button-container' htmlFor="menu-toggle">
                             <div className='menu-button'></div>
                         </label>
-
-                        {/* <NavMiddle /> */}
 
                         <div className="logo">
                             <Link to="/home" className="header__logo-link">
@@ -60,7 +46,7 @@ function Error_Page() {
                                 Ошибка:			
                             </h2>
                             <h2 className="My__error_text" style={{fontSize: "17px"}}>
-                                {message}		
+                                {store.isMessageError ? store.isMessageError : "Произошла неизвестная ошибка"}		
                             </h2>
                             <MyButton text={"Вернуться на главную"} func={returnHome} />
                         </div>
