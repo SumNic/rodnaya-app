@@ -39,7 +39,7 @@ export class AuthController {
    */
   // @MessagePattern('login')
   // async login(@Payload() dto: CreateUserDto): Promise<OutputJwtTokens> {
-  //   return await this.authService.login(dto);   
+  //   return await this.authService.login(dto);        
   // }
 
   /**
@@ -102,6 +102,16 @@ export class AuthController {
   // ): Promise<TokenResponseDto> {
   //   return await this.authService.createSuperUser(dto); 
   // }
+
+  /**
+   * Получить всех пользователей.
+   * @param {number} id - Идентификатор пользователя.
+   * @returns Users - Найденный пользователь.
+   */
+  @MessagePattern('getAllUsers')
+  async getAllUsers(): Promise<User[]> {
+    return await this.authService.getAllUsers();
+  }
 
   /**
    * Получить пользователя.

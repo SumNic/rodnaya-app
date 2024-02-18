@@ -6,6 +6,8 @@ import { ResidencyUser } from "../models/ResidencyUser";
 import LocationUserService from "../services/LocationService";
 import { LocationUser } from "../models/LocationUser";
 import { v4 as uuidv4 } from "uuid";
+import ResidencyService from "../services/ResidencyService";
+import { ResidencyResponse } from "../models/response/ResidencyResponse";
 
 export default class Store {
     user = {} as IUser
@@ -20,6 +22,7 @@ export default class Store {
     locality = [] as LocationUser[]
     uuid = uuidv4()
     load = true
+    isResidency = [] as ResidencyResponse[]
 
     constructor() {
         this.uuid = uuidv4()
@@ -67,6 +70,10 @@ export default class Store {
 
     setLoad(bool: boolean) {
         this.load = bool
+    }
+
+    setResidency (isResidency: ResidencyResponse[]) {
+        this.isResidency = isResidency
     }
 
     // async login(email: string, password: string) {
@@ -195,6 +202,17 @@ export default class Store {
     async saveResidency(dto: ResidencyUser) {
         try {
             const response = await AuthService.createResidencyUsers(dto)
+            return response
+            
+        } catch(e: any) {
+            console.log(e.response?.data?.message)
+        }
+    }
+
+    async getAllResidencys() {
+        try {
+            const response = await ResidencyService.getResidencyUsers()
+            this.setResidency(response.data)
             return response
             
         } catch(e: any) {

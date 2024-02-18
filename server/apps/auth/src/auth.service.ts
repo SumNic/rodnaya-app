@@ -368,6 +368,14 @@ export class AuthService {
   }
 
   /**
+   * Получить всех пользователей.
+   * @returns Users - Найденный пользователь.
+   */
+  async getAllUsers() {
+    return await this.userService.getAllUsers();
+  }
+
+  /**
    * Получить пользователя. 
    * @param {number} id - Идентификатор пользователя.
    * @returns User - Найденный пользователь.

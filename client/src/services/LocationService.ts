@@ -13,7 +13,5 @@ export default class LocationUserService {
 
     static async fetchLocalityUsers(region: string): Promise<AxiosResponse<LocationUser[]>> {
         return $api.get<LocationUser[]>('/locality/' + region)
-    }
-
-    
+    }    
 }

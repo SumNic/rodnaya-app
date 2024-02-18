@@ -92,6 +92,7 @@ export class AppAuthController {
   //     );
   // }
 
+
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Авторизация пользователя' })
   @Post('/set-registration')
@@ -120,6 +121,7 @@ export class AppAuthController {
         }),
       )
   }
+
 
   @ApiTags('Авторизация')
   @ApiOperation({
@@ -153,6 +155,7 @@ export class AppAuthController {
         }),
       );
   }
+
 
   @ApiTags('Авторизация')
   @ApiOperation({summary: 'Обновить токены для пользователя (требуется refreshToken в заголовке)'})
@@ -225,6 +228,45 @@ export class AppAuthController {
   //     );
   // }
 
+
+  @ApiTags('Авторизация')
+  @ApiOperation({ summary: 'Получить всех пользователей' })
+  @UseGuards(JwtAuthGuard)
+  @Get('/users')
+  // @ApiParam({
+  //   name: 'id',
+  //   example: 1,
+  //   required: true,
+  //   description: 'Идентификатор пользователя в базе данных',
+  //   type: Number,
+  // })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Получены данные пользователей',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Пользователь не найден',
+  })
+  // @ApiResponse({
+  //   status: HttpStatus.UNAUTHORIZED,
+  //   description: 'JWT токен не указан в заголовках',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.FORBIDDEN,
+  //   description: 'Некоректный JWT токен',
+  // })
+  async getAllUsers() {
+    return this.authClient
+      .send('getAllUsers', [])
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      );
+  }
+
+
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Получить данные пользователя по ID' })
   @UseGuards(JwtAuthGuard)
@@ -265,6 +307,7 @@ export class AppAuthController {
       );
   }
 
+
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Проверка занаята ли электронная почта' })
   @Get('/check-email/:email')
@@ -293,6 +336,7 @@ export class AppAuthController {
       );
   }
 
+
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Auth через VK SDK' })
   @Post('/loginByVk')
@@ -316,6 +360,7 @@ export class AppAuthController {
           }),
         )
   }
+
 
   @ApiTags('Авторизация')
   @Get('/check-admin')
@@ -346,6 +391,7 @@ export class AppAuthController {
       message: 'У пользователя есть права администратора.',
     };
   }
+
 
   @ApiTags('Авторизация')
   @Post('/add-role')
@@ -379,6 +425,7 @@ export class AppAuthController {
       );
   }
 
+
   @ApiTags('Авторизация')
   @Delete('/remove-role')
   @ApiOperation({
@@ -410,6 +457,7 @@ export class AppAuthController {
         }),
       );
   }
+
 
   @ApiTags('Авторизация')
   @Get('/get-all-roles')
@@ -459,6 +507,42 @@ export class AppAuthController {
       .pipe(
         catchError(async (error) => {
           return new RpcException(error)}),
+      );
+  }
+
+  @ApiTags('Авторизация')
+  @ApiOperation({ summary: 'Получить всех пользователей' })
+  @Get('/all-residencys')
+  // @ApiParam({
+  //   name: 'id',
+  //   example: 1,
+  //   required: true,
+  //   description: 'Идентификатор пользователя в базе данных',
+  //   type: Number,
+  // })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Получены данные пользователей',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Пользователь не найден',
+  })
+  // @ApiResponse({
+  //   status: HttpStatus.UNAUTHORIZED,
+  //   description: 'JWT токен не указан в заголовках',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.FORBIDDEN,
+  //   description: 'Некоректный JWT токен',
+  // })
+  async getAllResydencys() {
+    return this.authClient
+      .send('getAllResydencys', [])
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
       );
   }
 } 

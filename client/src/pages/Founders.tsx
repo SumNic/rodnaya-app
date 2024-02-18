@@ -5,18 +5,19 @@ import NavMiddle from '../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../components/HeaderLogoMobile';
 import HeaderLogoPc from '../components/HeaderLogoPc';
 import NavRegions from '../components/Nav_header/NavRegions';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Context } from '..';
 import MyButtonIcon from '../components/MyButtonIcon';
 import icon_edit from '../images/icon-edit.png'
+import { IUser } from '../models/IUser';
 
 function Founders() {
 
     const {store} = useContext(Context)
 
-    function editData () {
-
-    }
+    useEffect(() => {
+            store.getAllResidencys()
+    }, [store])
 
     return (
         <div>
@@ -34,21 +35,30 @@ function Founders() {
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
                             <div className="scroll_bar">
-                                <ul className="ul_founders">
-                                    <h2 className="name__local_founders" id="name">'.$user['country'].'</h2>
-                                    <ul className="ul_founders">
-                                        <p className="header__link_founders">'.$user2['region'].'</p>
-                                        <li>
-                                            <div className="mes__wrapper_founders">
-                                                <a href="https://vk.com/id'.$vk_id.'"><img className="mes_foto" src="' . $user3['photo_50'] . '"></img></a>
-                                                <div className="name__first_last_founders">
-                                                    <a href="https://vk.com/id'.$vk_id.'" className="name__first"><p className="name__first">' . $user3['first_name'] . '</p></a>
-                                                    <a href="https://vk.com/id'.$vk_id.'" className="name__first"><p className="name__first">' . $user3['last_name'] . '</p></a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </ul>
+                                {store.isResidency
+                                    .map( (item: any) => item.country)
+                                    .filter((item, index, arr) => arr.indexOf(item) === index)
+                                    .map( (item: any, index: any) =>
+                                    <ul key={index} className="ul_founders">
+                                        <h2 className="name__local_founders" id="name">{item}</h2>
+                                        {store.isResidency.map( (item: any, index: any) => 
+                                            <ul key={index} className="ul_founders">
+                                                <h2 className="name__local_founders" id="name">{item.region}</h2>
+                                                {item.users.map( (user: IUser, index: any) => 
+                                                    <li key={index}>
+                                                        <div className="mes__wrapper_founders">
+                                                            <a href=""><img className="mes_foto" src={user.photo_50} alt={user.photo_50}></img></a>
+                                                            <div className="name__first_last_founders">
+                                                                <a href="" className="name__first"><p className="name__first">{user.first_name}</p></a>
+                                                                <a href="" className="name__first"><p className="name__first">{user.last_name}</p></a>
+                                                            </div>
+                                                        </div>
+                                                    </li>)
+                                                }
+                                            </ul>)
+                                        }
+                                    </ul>)
+                                }
                             </div>
                         </div>
 
@@ -66,4 +76,5 @@ function Founders() {
     
 }
 
-export default Founders;
+export default observer(Founders);
+// export default Founders;

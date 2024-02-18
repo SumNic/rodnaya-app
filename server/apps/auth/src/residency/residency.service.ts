@@ -38,4 +38,15 @@ export class ResidencyService {
     });
     return residency;                
   }
+
+  /**
+   * Найти места жительства всех пользователей.
+   * @returns LocationUser - Список районов.
+   */
+   async getAllResydencys(): Promise<Residency[]> {
+    const residency = await this.residencyRepository.findAll({
+      include: { all: true }
+    });
+    return residency;                
+  }
 }
