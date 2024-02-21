@@ -76,15 +76,21 @@ function OnChangeForm (props: any) {
             store.saveResidency(dto)
                 .then(() => store.loginVk(dto.id, dto.secret))
                 .then(() => navigate(PERSONALE_ROUTE))
-            
-            
-            // navigate(LOGIN_ROUTE)
-            
         }
+        store.setCancelAction(true) // закрывается окно редактирования в Personale_page
+    }
+
+    function cancel() {
+        store.setRegistrationEnd(false)
+        store.setCancelAction(true) // закрывается окно редактирования в Personale_page
     }
 
     return (
-        <div className="block_login_form">
+        <>
+            <h2 style={{fontSize: "20px"}}>
+                При сохранении либо изменении места жительства учитывайте, что при неправильном указании данных, в следующий раз поменять данные о месте жительства можно будет только через 3 месяца!
+            </h2>
+            <div className="block_login_form">
             <select id="country" name="country" onChange={e => selectCountry(e.target.value)} onClick={resetCountry} style={{color: !country && clickButton ? 'red' : ''}} required>
                 <option>Укажите Вашу страну проживания</option>
                 {store.country.map( (item: any, index: any) => <option key={index}>{item.country}</option> )}
@@ -97,8 +103,13 @@ function OnChangeForm (props: any) {
                 <option>Укажите Ваш район проживания</option>
                 {region && store.locality.map( (item: any, index: any) => <option key={index}>{item.locality}</option> )}
             </select>
-            <MyButton text="Завершить регистрацию" func={buttonClick}/>
+            <div style={{display: "flex"}}>
+                <MyButton text="Сохранить" func={buttonClick}/><MyButton text="Отменить" func={cancel} style={{background: "#bbbb50"}}/>
+            </div>
+            
         </div>
+        </>
+        
     );
 }
 

@@ -1,3 +1,4 @@
+import { DeclarationUser } from "./DeclarationUser";
 import { LocationUser } from "./LocationUser";
 
 export interface IUser {
@@ -9,4 +10,6 @@ export interface IUser {
     photo_max: string;
     isRegistration: boolean;
     residency: LocationUser;
+    secret: string;
+    declaration: DeclarationUser;
 }

@@ -8,6 +8,7 @@ import { LocationUser } from "../models/LocationUser";
 import { v4 as uuidv4 } from "uuid";
 import ResidencyService from "../services/ResidencyService";
 import { ResidencyResponse } from "../models/response/ResidencyResponse";
+import UserService from "../services/UserService";
 
 export default class Store {
     user = {} as IUser
@@ -23,6 +24,7 @@ export default class Store {
     uuid = uuidv4()
     load = true
     isResidency = [] as ResidencyResponse[]
+    cancelAction = false // используется для закрытия окна редактирования в Personale_page
 
     constructor() {
         this.uuid = uuidv4()
@@ -56,11 +58,11 @@ export default class Store {
         this.isMessageError = str
     }
 
-    setCountry (country: LocationUser[]) {
+    setCountry(country: LocationUser[]) {
         this.country = country
     }
 
-    setRegion (region: LocationUser[]) {
+    setRegion(region: LocationUser[]) {
         this.region = region
     }
 
@@ -72,33 +74,13 @@ export default class Store {
         this.load = bool
     }
 
-    setResidency (isResidency: ResidencyResponse[]) {
+    setResidency(isResidency: ResidencyResponse[]) {
         this.isResidency = isResidency
     }
 
-    // async login(email: string, password: string) {
-    //     try {
-    //         const response = await AuthService.login(email, password)
-    //         console.log(response);
-    //         localStorage.setItem('token', response.data.accessToken)
-    //         this.setAuth(true)
-    //         this.setUser(response.data.user)
-    //     } catch(e: any) {
-    //         console.log(e.response?.data?.message)
-    //     }
-    // }
-
-    // async registration(email: string, password: string) {
-    //     try {
-    //         const response = await AuthService.registration(email, password)
-    //         // console.log(response);            
-    //         localStorage.setItem('token', response.data.accessToken)
-    //         this.setAuth(true)
-    //         this.setUser(response.data.user)
-    //     } catch(e: any) {
-    //         console.log(e.response?.data?.message)
-    //     }
-    // }
+    setCancelAction(bool: boolean) {
+        this.cancelAction = bool
+    }
 
     async logout(allDeviceExit: boolean) {
         try {
@@ -106,6 +88,18 @@ export default class Store {
             let uuid: string | null = localStorage.getItem('device')
             await AuthService.logout(this.user.id, uuid, allDeviceExit)
             localStorage.removeItem('token')
+            this.setAuth(false)
+            this.setUser({} as IUser)
+        } catch(e: any) {
+            console.log(e.response?.data?.message)
+        }
+    }
+
+    async deleteProfile() {
+        try {
+            await AuthService.deleteProfile(this.user.id)
+            localStorage.removeItem('token')
+            localStorage.removeItem('device')
             this.setAuth(false)
             this.setUser({} as IUser)
         } catch(e: any) {
@@ -158,17 +152,6 @@ export default class Store {
         }
     }
 
-    // async getCondition() {
-    //     try {
-    //         await AuthService.logout()
-    //         localStorage.removeItem('token')
-    //         this.setAuth(false)
-    //         this.setUser({} as IUser)
-    //     } catch(e: any) {
-    //         console.log(e.response?.data?.message)
-    //     }
-    // }
-
     async getCountry() {
         try {
             const response = await LocationUserService.fetchCountryUsers()
@@ -217,6 +200,16 @@ export default class Store {
             
         } catch(e: any) {
             console.log(e.response?.data?.message)
+        }
+    }
+
+    async addDeclaration(form: any) {
+        try {            
+            const response = await UserService.addDeclaration(this.user.id, form)
+            console.log(response, 'response add Declaration')
+            this.setUser(response.data)
+        } catch(e: any) {
+            return { data: e.response?.data?.message }
         }
     }
 }

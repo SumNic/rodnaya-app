@@ -10,6 +10,7 @@ import { Context } from '..';
 import MyButtonIcon from '../components/MyButtonIcon';
 import icon_edit from '../images/icon-edit.png'
 import { IUser } from '../models/IUser';
+import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
 
 function Founders() {
 
@@ -23,9 +24,8 @@ function Founders() {
         <div>
             <header className="header">
                 <div className="header__wrapper">
-                    <HeaderLogoPc />
                     <HeaderLogoMobile />
-                    <NavRegions />
+                    <HeaderLogoRegistr />
                 </div>
             </header>
 
@@ -36,25 +36,31 @@ function Founders() {
                         <div id="list_founders">
                             <div className="scroll_bar">
                                 {store.isResidency
-                                    .map( (item: any) => item.country)
+                                    .map( (item: any) => item.users.length !== 0 && item.country)
                                     .filter((item, index, arr) => arr.indexOf(item) === index)
-                                    .map( (item: any, index: any) =>
+                                    .map( (item_country: any, index: any) =>
                                     <ul key={index} className="ul_founders">
-                                        <h2 className="name__local_founders" id="name">{item}</h2>
-                                        {store.isResidency.map( (item: any, index: any) => 
+                                        <h2 className="name__local_founders" id="name">{item_country}</h2>
+                                        {store.isResidency
+                                            .map( (item: any) => item.users.length !== 0  && item.country === item_country && item.region)
+                                            .filter((item, index, arr) => arr.indexOf(item) === index)
+                                            .map( (item_region: any, index: any) =>
                                             <ul key={index} className="ul_founders">
-                                                <h2 className="name__local_founders" id="name">{item.region}</h2>
-                                                {item.users.map( (user: IUser, index: any) => 
-                                                    <li key={index}>
-                                                        <div className="mes__wrapper_founders">
-                                                            <a href=""><img className="mes_foto" src={user.photo_50} alt={user.photo_50}></img></a>
-                                                            <div className="name__first_last_founders">
-                                                                <a href="" className="name__first"><p className="name__first">{user.first_name}</p></a>
-                                                                <a href="" className="name__first"><p className="name__first">{user.last_name}</p></a>
+                                                <h2 className="name__local_founders" id="name">{item_region}</h2>
+                                                {store.isResidency
+                                                .map( (item: any) =>
+                                                    item.country === item_country && item.region === item_region &&
+                                                    item.users.map( (user: IUser, index: any) =>
+                                                        <li key={index}>
+                                                            <div className="mes__wrapper_founders">
+                                                                <a href=""><img className="mes_foto" src={user.photo_50} alt={user.photo_50}></img></a>
+                                                                <div className="name__first_last_founders">
+                                                                    <a href="" className="name__first"><p className="name__first">{user.first_name}</p></a>
+                                                                    <a href="" className="name__first"><p className="name__first">{user.last_name}</p></a>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </li>)
-                                                }
+                                                        </li>)
+                                                    )}
                                             </ul>)
                                         }
                                     </ul>)

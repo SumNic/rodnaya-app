@@ -7,5 +7,8 @@ export default class UserService {
         return $api.get<IUser[]>('/users')
     }
 
+    static async addDeclaration(id: number, form: FormData): Promise<AxiosResponse<IUser>> {
+        return $api.post<IUser>(`/declaration/${id}`, form)
+    }
     
 }

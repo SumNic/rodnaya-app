@@ -1,37 +1,17 @@
-.LogoLoad {
-    display: block;
-    position:absolute;
-    width: 100%;
-    height:100%;
-    font-family: 'IzhitsaRegular', arial;
-    font-style: normal;
-    font-size: 20px;
-    line-height: 1.2;
-    font-weight: normal;
-    padding: 5px;
-    
-    
+.load__wrapper{
+    margin: 0 auto;
+    position: relative;
+    max-width: 546px;
 }
 
-.LoadText {
-    margin: 0 auto;
-    width: 546px;
-    height: 100%;
+.load {
+    padding: 55px 4%;
+    width: 100%;
+    height: 100vh;
     background-image: url('../../images/Logotip-Rodnoj-parti-500x500.png');
+    background-size: contain;
+    background-origin: content-box;
     background-repeat: no-repeat;
     background-position: center;
-    /* background-color: white; */
-    z-index: +5;
-    display:  flex;
-    align-items: center;
-    justify-content: center;
-    /* border: 1px solid black;
-    border-radius: 20px; */
-
 }
 
-.LogoLoadImage {
-    max-width: 100%;
-    height: auto;
-    vertical-align: middle;
-}

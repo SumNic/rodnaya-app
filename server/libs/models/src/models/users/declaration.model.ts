@@ -4,18 +4,18 @@ import {
     Column,
     DataType,
     ForeignKey,
+    HasMany,
     Model,
     Table,
   } from 'sequelize-typescript';
 import { User } from './user.model';
   
-  interface TokenCreationAttrs {
-    uuid: string;
-    refreshToken: string;
+  interface DeclarationCreationAttrs {
+    declaration: string;
   }
   
-  @Table({ tableName: 'token' })
-  export class Token extends Model<Token, TokenCreationAttrs> {
+  @Table({ tableName: 'declarations' })
+  export class Declaration extends Model<Declaration, DeclarationCreationAttrs> {
     @Column({
       type: DataType.INTEGER,
       unique: true,
@@ -24,16 +24,13 @@ import { User } from './user.model';
     })
     id: number;
   
-    @Column({ type: DataType.STRING, allowNull: true })
-    uuid: string;
-  
-    @Column({ type: DataType.STRING, allowNull: true })
-    refreshToken: string;
+    @Column({ type: DataType.STRING, allowNull: false })
+    declaration: string;
 
     @BelongsTo(() => User)
-    users: User;
+    user: User;
 
     @ForeignKey(() => User)
     @Column({type: DataType.INTEGER})
-    userId: number;
+    userId: number; 
   }

@@ -71,7 +71,6 @@ export class TokensService {
    * @throws RpcException(NotFoundException)
    */
   async removeRefreshToken(dto: LogoutUserDto): Promise<void> {
-    console.log(dto, 'dto')
     if (dto.allDeviceExit) {
       const tokens = await this.tokenRepository.update({refreshToken: null}, {
           where: {

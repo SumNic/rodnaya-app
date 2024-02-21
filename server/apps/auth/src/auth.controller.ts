@@ -56,6 +56,19 @@ export class AuthController {
   }
 
   /**
+   * Удалить пользователя.
+   * @param {number} user_id - Идентификатор пользователя.
+   */
+  @MessagePattern('deleteProfile')
+  async deleteProfile(id: number): Promise<any> {
+    await this.authService.deleteProfile(id);
+    return {
+      message: 'Операция прошла успешно',
+      statusCode: HttpStatusCode.Ok,
+    };
+  }
+
+  /**
    * Обновление JWT токенов.
    * @param {any} data - Объект содержащий token
    */

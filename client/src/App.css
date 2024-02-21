@@ -607,16 +607,22 @@ body {
     border-width: 0 1px;
     position: relative;
     width: 546px;
-    background-image: url('./images/Logotip-Rodnoj-parti-500x500.png');
+    /* background-image: url('./images/Logotip-Rodnoj-parti-500x500.png');
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: center; */
     background-color: white;
     -ms-overflow-style: none;  /* IE и Edge */
     scrollbar-width: none;  /* Firefox */
 }
 
 .main__screen_home{
-    background-image: url('./images/Logotip-Rodnoj-parti-500x500.png');
+    max-width: 546px;
+    /* background-image: url('./images/Logotip-Rodnoj-parti-500x500.png');
+    background-size: contain;
+    background-clip: content-box;
+    background-repeat: no-repeat;
+    background-position: center; */
+    /* padding: 10%; */
 }
 
 .main__screen_load{
@@ -637,11 +643,18 @@ display: none;
 }
 
 #list_founders{
-    padding: 10px;
+    /* padding: 10px; */
+    padding: 0 4%;
     width: 100%;
     height: 100%;
     overflow-y: scroll;
     scrollbar-width: none; /*mozilla*/
+
+    background-image: url('./images/Logotip-Rodnoj-parti-500x500.png');
+    background-size: contain;
+    background-origin: content-box;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #list_founders::-webkit-scrollbar {
@@ -657,8 +670,8 @@ display: none;
 
 .name__local_founders{
     font-family: 'IzhitsaRegular', arial;
-    font-size: 26px;
-    margin: 7px 0;
+    font-size: 25px;
+    margin: 4px 0;
     text-align: center;
     color: rgb(43, 112, 43);
 }
@@ -1177,6 +1190,9 @@ display: none;
 
 #text1, #text2{
     width: 100%;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
 .submit_text{
@@ -1656,7 +1672,7 @@ textarea[name="message"] {
 
 .VkIdWebSdk__button_reset {
     border: none;
-    margin: 0;
+    margin: 3px 2px;
     padding: 0;
     width: auto;
     overflow: visible;
@@ -1676,7 +1692,7 @@ textarea[name="message"] {
   }
 
   .button_my {
-    background: #3e8a5b;
+    /* background: #3e8a5b; */
     cursor: pointer;
     transition: all .1s ease-out;
   }
@@ -1691,7 +1707,7 @@ textarea[name="message"] {
   }
 
   .VkIdWebSdk__button, .button_my {
-    border-radius: 8px;
+    border-radius: 20px;
     width: 100%;
     min-height: 44px;
   }

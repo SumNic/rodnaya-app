@@ -5,14 +5,11 @@ import "./LogoLoad.css";
 class LogoLoad extends Component {
     render() {
         return (
-            <div className="LogoLoad">
-                <div className="LoadText">
-                    {/* <h3>Загрузка...</h3> */}
-                </div>
+            <div className="load__wrapper">
+                <div className="load"></div>
             </div>
         )
     }
-    
 }
 
 export default LogoLoad;

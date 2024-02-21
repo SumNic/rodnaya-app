@@ -17,7 +17,6 @@ function Home () {
         <div>
             <header className="header">
                 <div className="header__wrapper">
-                    {/* <HeaderLogoPc /> */}
                     <HeaderLogoMobile />
                     <HeaderLogoRegistr />
                 </div>

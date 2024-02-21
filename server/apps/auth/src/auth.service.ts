@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from './users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
@@ -28,6 +27,7 @@ import { TokensService } from './tokens/tokens.service';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
+import { UsersService } from './users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -44,15 +44,15 @@ export class AuthService {
 
   /**
    * Создание пользователя с правами администратора.
-   * @param {CreateUserDto} dto - DTO для создания пользователя.
+   * @param {CreateUserDto} dto - DTO для создания пользователя. 
    * @returns TokenResponseDto - JWT токен. 
    */
   // async createSuperUser(dto: CreateUserDto): Promise<OutputJwtTokens> {
   //   const candidate = await this.userService.getUserByUserId(dto.user_id);
 
-  //   if (candidate) {
-  //     throw new RpcException(
-  //       new BadRequestException(
+  //   if (candidate) { 
+  //     throw new RpcException( 
+  //       new BadRequestException(  
   //         'Пользователь с такой электронной почтой уже существует',
   //       ),
   //     );
@@ -413,7 +413,7 @@ export class AuthService {
   // async validateVkToken(token: string) {
   //   const url = `https://api.vk.com/method/users.get?access_token=${token}&v=5.131`;
   //   const req = await lastValueFrom(this.httpService.get(url));
-  //   if (req.data.error) {
+  //   if (req.data.error) { 
   //       // throw new RpcException(new BadRequestException(`${JSON.stringify(req.data.error)}`))
   //       throw new RpcException(new BadRequestException(req.data.error.error_msg))
   //   }
@@ -475,6 +475,15 @@ export class AuthService {
    */
   async logout(dto: LogoutUserDto): Promise<any> {
     return await this.tokenService.removeRefreshToken(dto);
+  }
+
+  /**
+   * Удалить пользователя.
+   * @param {number} user_id - Идентификатор пользователя.
+   */
+  async deleteProfile(id: number): Promise<any> {
+    return await this.tokenService.removeRefreshToken({id, uuid: null, allDeviceExit: true});
+    // return await this.tokenService.removeRefreshToken(id);
   }
 
   /**

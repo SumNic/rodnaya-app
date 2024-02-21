@@ -13,6 +13,7 @@ import { Role } from './role.model';
 import { UserRoles } from './user-roles.model';
 import { Residency } from './residency.model';
 import { Token } from './tokens.model';
+import { Declaration } from './declaration.model';
 
 interface UserCreationAttrs {
   user_id: string;
@@ -61,4 +62,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @HasMany(() => Token) 
   tokens: Token[];
+
+  @HasOne(() => Declaration) 
+  declaration: Declaration;
 }

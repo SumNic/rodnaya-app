@@ -35,6 +35,6 @@ import { User } from './user.model';
     @Column({ type: DataType.STRING, allowNull: true })
     locality: string;
 
-    @HasMany(() => User) 
+    @HasMany(() => User)
     users: User[];
   }

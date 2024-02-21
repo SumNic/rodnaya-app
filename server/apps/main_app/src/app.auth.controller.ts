@@ -45,7 +45,7 @@ export class AppAuthController {
     private configService: ConfigService,
   ) {}
 
-  // @ApiTags('Авторизация')
+  // @ApiTags('Авторизация') 
   // @ApiOperation({ summary: 'Регистрация пользователя' })
   // @Post('/registration')
   // @ApiBody({ type: CreateUserDto })
@@ -149,6 +149,39 @@ export class AppAuthController {
   async logout(@Body() dto: LogoutUserDto) {
     return this.authClient
       .send('logout', dto)
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      );
+  }
+
+  @ApiTags('Авторизация')
+  @ApiOperation({
+    summary: 'Удалить пользователя',
+  })
+  @Post('/delete-profile')
+  @ApiBody({ type: LogoutUserDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Пользователь успешно разлогинен',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Пользователь не найден',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'JWT токен не указан в заголовках',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Некоректный JWT токен',
+  })
+  @UseGuards(JwtAuthGuard)
+  async deleteProfile(@Body('id') id: number) {
+    return this.authClient
+      .send('deleteProfile', id)
       .pipe(
         catchError(async (error) => {
           return new RpcException(error)

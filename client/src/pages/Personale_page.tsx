@@ -5,26 +5,95 @@ import NavMiddle from '../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../components/HeaderLogoMobile';
 import HeaderLogoPc from '../components/HeaderLogoPc';
 import NavRegions from '../components/Nav_header/NavRegions';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Context } from '..';
 import MyButtonIcon from '../components/MyButtonIcon';
 import icon_edit from '../images/icon-edit.png'
+import OnChangeForm from '../components/OnChangeForm';
+import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import EditProfile from '../components/EditProfile';
+import Declaration from '../components/Declaration';
 
 function Personale_page() {
 
     const {store} = useContext(Context)
 
-    function editData () {
+    const [edit, setEdit] = useState<boolean>(false)
+    const [editPersonale, setEditPersonale] = useState<boolean>(false)
+    const [editResidency, setEditResidency] = useState<boolean>(false)
+    const [editDeclaration, setEditDeclaration] = useState<boolean>(false)
+    const [editProfile, setEditProfile] = useState<boolean>(false)
+    
 
+    useEffect(() => {
+        if (store.cancelAction) {
+            setEdit(false)
+            setEditPersonale(false)
+            setEditResidency(false)
+            setEditDeclaration(false)
+            setEditProfile(false)
+        }
+        store.setCancelAction(false)
+    })
+    
+
+    function editDataPersonale () {
+        setEdit(true)
     }
+
+    function editDataResidency () {
+        setEdit(true)
+        setEditResidency(true)
+    }
+
+    function editDataDeclaration () {
+        setEdit(true)
+        setEditDeclaration(true)
+    }
+
+    function editDataProfile () {
+        setEdit(true)
+        setEditProfile(true)
+    }
+
+    const personaleData = 
+        <>
+            <h2 style={{fontSize: "20px"}}>
+                Учредитель Родной партии:
+            </h2>
+            <div className="photo_big__wrapper">
+                <img className="photo_big" src={store.user.photo_max} alt="Ваше фото"></img>
+                <div className="personale_p__wrapper">
+                    <h2 style={{fontSize: "18px"}}>
+                        Персональные данные: <MyButtonIcon src={icon_edit} name="edit" func={editDataPersonale} />
+                    </h2>
+                    <p className="personale_data">Имя: {store.user.first_name}</p>
+                    <p className="personale_data">Фамилия: {store.user.last_name}</p>
+                    <p className="personale_data"><a href={`https://vk.com/id${store.user.vk_id}`}>Страница ВК</a></p>
+                    <h2 style={{fontSize: "18px"}}>
+                        Место жительства:  <MyButtonIcon src={icon_edit} name="edit" func={editDataResidency} />
+                    </h2>
+                    <p className="personale_data">Страна: {store.user.residency.country}</p>
+                    <p className="personale_data">Регион: {store.user.residency.region}</p>
+                    <p className="personale_data">Район: {store.user.residency.locality}</p>
+                </div>
+                <h2 style={{fontSize: "18px"}}>
+                    Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editDataDeclaration} />
+                </h2>
+                <h2 style={{fontSize: "18px"}}>
+                    Управление профилем:  <MyButtonIcon src={icon_edit} name="edit" func={editDataProfile} />
+                </h2>
+            </div>
+        </>
+        
+    
 
     return (
         <div>
             <header className="header">
                 <div className="header__wrapper">
-                    <HeaderLogoPc />
                     <HeaderLogoMobile />
-                    <NavRegions />
+                    <HeaderLogoRegistr />
                 </div>
             </header>
 
@@ -33,29 +102,10 @@ function Personale_page() {
                     <NavMiddle />
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
-                            <h2 style={{fontSize: "20px"}}>
-                                Учредитель Родной партии:
-                            </h2>
-                            <div className="photo_big__wrapper">
-                                <img className="photo_big" src={store.user.photo_max} alt="Ваше фото"></img>
-                                <div className="personale_p__wrapper">
-                                    <h2 style={{fontSize: "18px"}}>
-                                        Персональные данные: <MyButtonIcon src={icon_edit} name="edit" func={editData} />
-                                    </h2>
-                                    <p className="personale_data">Имя: {store.user.first_name}</p>
-                                    <p className="personale_data">Фамилия: {store.user.last_name}</p>
-                                    <p className="personale_data"><a href={`https://vk.com/id${store.user.vk_id}`}>Страница ВК</a></p>
-                                    <h2 style={{fontSize: "18px"}}>
-                                        Место жительства:  <MyButtonIcon src={icon_edit} name="edit" func={editData} />
-                                    </h2>
-                                    <p className="personale_data">Страна: {store.user.residency.country}</p>
-                                    <p className="personale_data">Регион: {store.user.residency.region}</p>
-                                    <p className="personale_data">Район: {store.user.residency.locality}</p>
-                                </div>
-                                <h2 style={{fontSize: "18px"}}>
-                                    Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editData} />
-                                </h2>
-                            </div>
+                            {!edit && personaleData}
+                            {!store.cancelAction && editResidency && <OnChangeForm  id={store.user.id} secret={store.user.secret}/>}
+                            {!store.cancelAction && editProfile && <EditProfile />}
+                            {!store.cancelAction && editDeclaration && <Declaration />}
                             
                         </div>
 

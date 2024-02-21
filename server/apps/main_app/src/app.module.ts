@@ -8,7 +8,8 @@ import {
   import { AppAuthController } from './app.auth.controller';
 import { AppLocationController } from './app.location.controller';
 import { LocationModule } from 'apps/location/src/location.module';
-import { LOCATION_SERVICE } from '@app/common/constants/services';
+import { LOCATION_SERVICE, USERS_SERVICE } from '@app/common/constants/services';
+import { AppUsersController } from './app.users.controller';
   
   @Module({
     imports: [
@@ -26,10 +27,12 @@ import { LOCATION_SERVICE } from '@app/common/constants/services';
       }),
       forwardRef(() => AuthModule),
       RmqModule.register({ name: LOCATION_SERVICE }),
+      RmqModule.register({ name: USERS_SERVICE }),
     ],
     controllers: [
       AppAuthController,
       AppLocationController,
+      AppUsersController,
     ],
     providers: [],
   })

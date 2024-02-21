@@ -5,18 +5,15 @@ import { AuthService } from './auth.service';
 import * as Joi from 'joi';
 import { JwtModule } from '@nestjs/jwt';
 import { DatabaseModule, RmqModule } from '@app/common';
-import { UserModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { HttpModule } from '@nestjs/axios';
 import { ResidencyController } from './residency/residency.controller';
 import { ResidencyModule } from './residency/residency.module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Residency } from '@app/models/models/users/residency.model';
-import { UsersController } from './users/users.controller';
-// import { TokensController } from './auth/tokens/tokens.controller';
 import { TokensController } from './tokens/tokens.controller';
 import { TokensModule } from './tokens/tokens.module';
 import cookieParser from 'cookie-parser';
+import { UsersController } from './users/users.controller';
+import { UserModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -39,7 +36,7 @@ import cookieParser from 'cookie-parser';
           expiresIn: `${configService.get('JWT_EXPIRATION')}s`,
         },
         configure(consumer: MiddlewareConsumer) {
-    consumer.apply(cookieParser()).forRoutes('*');
+          consumer.apply(cookieParser()).forRoutes('*');
         }
         // consumer: {
         //   apply(req, res: Response, next) {
@@ -56,9 +53,9 @@ import cookieParser from 'cookie-parser';
     RolesModule,
     HttpModule,
     ResidencyModule,
-    TokensModule
+    TokensModule,
   ],
-  controllers: [AuthController, ResidencyController, TokensController],
+  controllers: [AuthController, ResidencyController, TokensController, UsersController],
   providers: [AuthService],
 })
 export class AuthModule {}
