@@ -47,30 +47,30 @@ export class AppUsersController {
   ) {}
 
 
-  @ApiTags('Декларация Родной партии')
-  @ApiOperation({ summary: 'Авторизация пользователя' })
-  @Post('/declaration/:id')
-  // @ApiBody({ type: CreateRegistrationDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Декларация добавлена',
-    // type: OutputUserAndTokens,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Неккоректные данные',
-  })
-  @UseGuards(JwtAuthGuard)
-  async addDeclaration(@Param('id') id: number, @Body() form: any) {
-    console.log(id, form, 'id declaration')
-    return this.usersClient
-      .send('addDeclaration', {id, form})
-      .pipe(
-        catchError(async (error) => {
-          return new RpcException(error)
-        }),
-      )
-  }
+  // @ApiTags('Декларация Родной партии')
+  // @ApiOperation({ summary: 'Авторизация пользователя' })
+  // @Post('/declaration/:id')
+  // // @ApiBody({ type: CreateRegistrationDto })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'Декларация добавлена',
+  //   // type: OutputUserAndTokens,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.BAD_REQUEST,
+  //   description: 'Неккоректные данные',
+  // })
+  // @UseGuards(JwtAuthGuard)
+  // async addDeclaration(@Param('id') id: number, @Body() form: any) {
+  //   console.log(id, form, 'id declaration')
+  //   return this.usersClient
+  //     .send('addDeclaration', {id, form})
+  //     .pipe(
+  //       catchError(async (error) => {
+  //         return new RpcException(error)
+  //       }),
+  //     )
+  // }
 
 } 
 

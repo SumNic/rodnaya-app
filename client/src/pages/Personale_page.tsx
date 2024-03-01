@@ -13,6 +13,7 @@ import OnChangeForm from '../components/OnChangeForm';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
 import EditProfile from '../components/EditProfile';
 import Declaration from '../components/Declaration';
+import PersonaleData from '../components/PersonaleData';
 
 function Personale_page() {
 
@@ -39,6 +40,7 @@ function Personale_page() {
 
     function editDataPersonale () {
         setEdit(true)
+        setEditPersonale(true)
     }
 
     function editDataResidency () {
@@ -63,7 +65,7 @@ function Personale_page() {
             </h2>
             <div className="photo_big__wrapper">
                 <img className="photo_big" src={store.user.photo_max} alt="Ваше фото"></img>
-                <div className="personale_p__wrapper">
+                <div className="personale_p__wrapper" style={{paddingBottom: 0}}>
                     <h2 style={{fontSize: "18px"}}>
                         Персональные данные: <MyButtonIcon src={icon_edit} name="edit" func={editDataPersonale} />
                     </h2>
@@ -77,10 +79,16 @@ function Personale_page() {
                     <p className="personale_data">Регион: {store.user.residency.region}</p>
                     <p className="personale_data">Район: {store.user.residency.locality}</p>
                 </div>
-                <h2 style={{fontSize: "18px"}}>
-                    Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editDataDeclaration} />
-                </h2>
-                <h2 style={{fontSize: "18px"}}>
+                <div style={{width: "100%", display: "block"}}>
+                    <h2 style={{fontSize: "19px", marginBottom: 0, textAlign: "center"}}>
+                        Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editDataDeclaration} />
+                    </h2>
+                </div>                
+                <div style={{width: "100%"}}>
+                    <p className="personale_data" style={{whiteSpace: 'pre'}}>{store.user.declaration?.declaration}</p>
+                </div>
+                
+                <h2 style={{fontSize: "19px"}}>
                     Управление профилем:  <MyButtonIcon src={icon_edit} name="edit" func={editDataProfile} />
                 </h2>
             </div>
@@ -103,10 +111,10 @@ function Personale_page() {
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
                             {!edit && personaleData}
-                            {!store.cancelAction && editResidency && <OnChangeForm  id={store.user.id} secret={store.user.secret}/>}
+                            {!store.cancelAction && editPersonale && <PersonaleData />}
+                            {!store.cancelAction && editResidency && <OnChangeForm  id={store.user.id} secret={store.user.secret.secret}/>}
                             {!store.cancelAction && editProfile && <EditProfile />}
                             {!store.cancelAction && editDeclaration && <Declaration />}
-                            
                         </div>
 
                         <div className="main__screen-flag">

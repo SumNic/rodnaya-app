@@ -14,6 +14,10 @@ import { TokensModule } from './tokens/tokens.module';
 import cookieParser from 'cookie-parser';
 import { UsersController } from './users/users.controller';
 import { UserModule } from './users/users.module';
+import { DeclarationModule } from './declaration/declaration.module';
+import { DeclarationController } from './declaration/declaration.controller';
+import { SecretModule } from './secret/secret.module';
+import { SecretController } from './secret/secret.controller';
 
 @Module({
   imports: [
@@ -38,12 +42,6 @@ import { UserModule } from './users/users.module';
         configure(consumer: MiddlewareConsumer) {
           consumer.apply(cookieParser()).forRoutes('*');
         }
-        // consumer: {
-        //   apply(req, res: Response, next) {
-        //     res.cookie('refreshToken', req.refreshToken);
-        //     next();
-        //   },
-        // },
       }),
       inject: [ConfigService],
     }),
@@ -54,8 +52,10 @@ import { UserModule } from './users/users.module';
     HttpModule,
     ResidencyModule,
     TokensModule,
+    DeclarationModule,
+    SecretModule,
   ],
-  controllers: [AuthController, ResidencyController, TokensController, UsersController],
+  controllers: [AuthController, ResidencyController, TokensController, UsersController, DeclarationController, SecretController],
   providers: [AuthService],
 })
 export class AuthModule {}

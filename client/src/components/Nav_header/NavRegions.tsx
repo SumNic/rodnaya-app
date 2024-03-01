@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { COUNTRY_ROUTE, LOCALITY_ROUTE, REGION_ROUTE, WORLD_ROUTE } from '../../utils/consts';
+import { MESSAGES_ROUTE } from '../../utils/consts';
+// import { COUNTRY_ROUTE, LOCALITY_ROUTE, REGION_ROUTE, WORLD_ROUTE } from '../../utils/consts';
 
 class NavRegions extends Component {
     render() {
@@ -8,16 +9,16 @@ class NavRegions extends Component {
 			<nav className="header__menu">
                 <ul className="header__list">
 					<li className="header__item">
-						<Link to={LOCALITY_ROUTE} className="header__link">Район</Link>
+						<Link to={`${MESSAGES_ROUTE}/locality`} className="header__link">Район</Link>
 					</li>
 					<li className="header__item">
-						<Link to={REGION_ROUTE} className="header__link">Регион</Link>
+						<Link to={`${MESSAGES_ROUTE}/region`} className="header__link">Регион</Link>
 					</li>
 					<li className="header__item">
-						<Link to={COUNTRY_ROUTE} className="header__link">Страна</Link>
+						<Link to={`${MESSAGES_ROUTE}/country`} className="header__link">Страна</Link>
 					</li>
 					<li className="header__item">
-						<Link to={WORLD_ROUTE} className="header__link">Мир</Link>
+						<Link to={`${MESSAGES_ROUTE}/world`} className="header__link">Мир</Link>
 					</li>											
 				</ul>
             </nav>

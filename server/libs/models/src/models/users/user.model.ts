@@ -14,6 +14,7 @@ import { UserRoles } from './user-roles.model';
 import { Residency } from './residency.model';
 import { Token } from './tokens.model';
 import { Declaration } from './declaration.model';
+import { Secret } from './secret.model';
 
 interface UserCreationAttrs {
   user_id: string;
@@ -44,8 +45,8 @@ export class User extends Model<User, UserCreationAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   photo_max: string;
 
-  @Column({ type: DataType.STRING, allowNull: true })
-  secret: string;
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isDelProfile: boolean;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isRegistration: boolean;
@@ -65,4 +66,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @HasOne(() => Declaration) 
   declaration: Declaration;
+
+  @HasOne(() => Secret) 
+  secret: Secret;
 }

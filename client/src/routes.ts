@@ -23,9 +23,25 @@ export const authRoutes = [
         Component: Personale_page
     },
     {
-        path: MESSAGES_ROUTE,
+        path: `${MESSAGES_ROUTE}/:location`,
         Component: Messages
     },
+    // {
+    //     path: LOCALITY_ROUTE,
+    //     Component: Messages
+    // },
+    // {
+    //     path: REGION_ROUTE,
+    //     Component: Messages
+    // },
+    // {
+    //     path: COUNTRY_ROUTE,
+    //     Component: Messages
+    // },
+    // {
+    //     path: WORLD_ROUTE,
+    //     Component: Messages
+    // },
     {
         path: EXIT_ROUTE,
         Component: Exit

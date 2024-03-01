@@ -9,70 +9,38 @@ import { useContext, useEffect, useState } from 'react';
 import { Context } from '..';
 import MyButtonIcon from '../components/MyButtonIcon';
 import icon_edit from '../images/icon-edit.png'
+import icon_attach from '../images/clippy-icon1.png'
 import OnChangeForm from '../components/OnChangeForm';
+import { useParams } from 'react-router-dom';
+import MessagesService from '../services/MessagesService';
 
-function Personale_page() {
+function Message() {
 
     const {store} = useContext(Context)
 
-    const [edit, setEdit] = useState<boolean>(false)
-    const [editPersonale, setEditPersonale] = useState<boolean>(false)
-    const [editResidency, setEditResidency] = useState<boolean>(false)
-    const [editDeclaration, setEditDeclaration] = useState<boolean>(false)
-    
+    const params = useParams();
+    const location: string | undefined = params.location
 
-    useEffect(() => {
-        if (store.cancelAction) {
-            setEdit(false)
-            setEditPersonale(false)
-            setEditResidency(false)
-            setEditDeclaration(false)
-        }
-        store.setCancelAction(false)
-    })
-    
+    function openNewMesseg() {
 
-    function editDataPersonale () {
-        setEdit(true)
     }
 
-    function editDataResidency () {
-        setEdit(true)
-        setEditResidency(true)
-    }
+    // function sendMessage() {
+    //     store.sendMessage(store.user, location, )
 
-    function editDataDeclaration () {
-        setEdit(true)
-    }
+    // } 
 
-    const personaleData = 
-        <>
-            <h2 style={{fontSize: "20px"}}>
-                Учредитель Родной партии:
-            </h2>
-            <div className="photo_big__wrapper">
-                <img className="photo_big" src={store.user.photo_max} alt="Ваше фото"></img>
-                <div className="personale_p__wrapper">
-                    <h2 style={{fontSize: "18px"}}>
-                        Персональные данные: <MyButtonIcon src={icon_edit} name="edit" func={editDataPersonale} />
-                    </h2>
-                    <p className="personale_data">Имя: {store.user.first_name}</p>
-                    <p className="personale_data">Фамилия: {store.user.last_name}</p>
-                    <p className="personale_data"><a href={`https://vk.com/id${store.user.vk_id}`}>Страница ВК</a></p>
-                    <h2 style={{fontSize: "18px"}}>
-                        Место жительства:  <MyButtonIcon src={icon_edit} name="edit" func={editDataResidency} />
-                    </h2>
-                    <p className="personale_data">Страна: {store.user.residency.country}</p>
-                    <p className="personale_data">Регион: {store.user.residency.region}</p>
-                    <p className="personale_data">Район: {store.user.residency.locality}</p>
-                </div>
-                <h2 style={{fontSize: "18px"}}>
-                    Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editDataDeclaration} />
-                </h2>
-            </div>
-        </>
-        
+    async function sendMessage(e: any) {
+    // Prevent the browser from reloading the page
+    e.preventDefault();
+
+    // Read the form data
+    const form = e.target;
+    const formData = new FormData(form);
+    const formJson = Object.fromEntries(formData.entries());
     
+    await MessagesService.sendMessage(store.user, location, formJson)
+  }   
 
     return (
         <div>
@@ -88,14 +56,66 @@ function Personale_page() {
                 <div className="middle__wrapper">
                     <NavMiddle />
                     <div className="main__screen main__screen_home">
-                        <div id="list_founders">
-                            {!edit && personaleData}
-                            {!store.cancelAction && editResidency && <OnChangeForm  id={store.user.id} secret={store.user.secret}/>}
-                            
+                        <div className="name">
+                            <h2 className="name__local" id="name">
+                                {location === 'personale' && 'Личные сообщения'}
+                                {location === 'locality' && store.user.residency.locality}
+                                {location === 'region' && store.user.residency.region}
+                                {location === 'country' && store.user.residency.country}
+                                {location === 'world' && 'Земля'}
+                            </h2>
                         </div>
+                        <div>
+                            <a className="arrow__down" id="mylink" href="#"></a>
+                        </div>
+                        <div className="main__text">
+                            <div id="message__ajax">
+                                
+                            </div>	
+                            <div id="button__message">
+                                <button id="button" onClick={openNewMesseg}>У вас есть непрочитанные сообщения. Показать?</button>
+                            </div>
+                        </div>
+                        <div id="messages">
+                            <div id="div_message">
+                                <p id="message_message"></p>
+                            </div>
+                            <div id="show_clip">
+                                <p id="progress_start"></p>
+                            </div>
+                            <progress id="progress" value="0" max="100" style={{display: "none"}}></progress>
 
-                        <div className="main__screen-flag">
-                        
+                            <div id="forms">
+                                <form name="load_message" id="load_message">
+                                    <div className="clip">
+                                        <div className="label-clip">
+                                            <label htmlFor="fileToUpload"><img src={icon_attach} alt="Прикрепить" className="clippy-icon"></img></label>
+                                            <input type="file" id="fileToUpload" name="fileToUpload" value="" style={{display: "none"}}></input>
+                                        </div>
+                                    </div>
+                                </form>
+                                <form name="send_message" id="send_message">
+                                    <div className="message">
+                                        <textarea id="message" name="message" autoFocus={true} placeholder="Введите сообщение"></textarea>
+                                    </div>
+                                    <div className="class_none">
+                                        {/* <input type="hidden" id="id_person" name="id_person" value="'.$user['id'].'"></input>
+                                        <input type="hidden" id="first_name" name="first_name" value="'.$user['first_name'].'"></input>
+                                        <input type="hidden" id="last_name" name="last_name" value="'.$user['last_name'].'"></input>
+                                        <input type="hidden" id="photo_50" name="photo_50" value="'.$user['photo_50'].'"></input>
+                                        <input type="hidden" id="solution" name="solution" value="1"></input>
+                                        <input type="hidden" id="land" name="land" value="country"></input>
+                                        <input type="hidden" id="locality" name="locality" value="'.$locality.'"></input>
+                                        <input type="hidden" id="region" name="region" value="'.$region.'"></input>
+                                        <input type="hidden" id="country" name="country" value="'.$country.'"></input> */}
+                                        
+                                        <p id="clip_files"></p>
+                                    </div>
+                                    <div className="send">
+                                        <a href="#" className="submit-send" onClick={sendMessage}></a>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -108,4 +128,4 @@ function Personale_page() {
     
 }
 
-export default observer(Personale_page);
+export default observer(Message);

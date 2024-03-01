@@ -9,7 +9,8 @@ import {
 import { AppLocationController } from './app.location.controller';
 import { LocationModule } from 'apps/location/src/location.module';
 import { LOCATION_SERVICE, USERS_SERVICE } from '@app/common/constants/services';
-import { AppUsersController } from './app.users.controller';
+import { AppUsersController } from './app.message.controller';
+import { MessagesController } from './messages/messages.controller';
   
   @Module({
     imports: [
@@ -33,6 +34,7 @@ import { AppUsersController } from './app.users.controller';
       AppAuthController,
       AppLocationController,
       AppUsersController,
+      MessagesController,
     ],
     providers: [],
   })

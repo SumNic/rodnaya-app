@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import ResidencyService from "../services/ResidencyService";
 import { ResidencyResponse } from "../models/response/ResidencyResponse";
 import UserService from "../services/UserService";
+import { DeclarationUser } from "../models/DeclarationUser";
 
 export default class Store {
     user = {} as IUser
@@ -25,6 +26,7 @@ export default class Store {
     load = true
     isResidency = [] as ResidencyResponse[]
     cancelAction = false // используется для закрытия окна редактирования в Personale_page
+    declaration = ''
 
     constructor() {
         this.uuid = uuidv4()
@@ -82,6 +84,10 @@ export default class Store {
         this.cancelAction = bool
     }
 
+    setDeclaration(str: string) {
+        this.declaration = str
+    }
+
     async logout(allDeviceExit: boolean) {
         try {
             
@@ -112,7 +118,14 @@ export default class Store {
             let device: string | null = localStorage.getItem('device')
             const response = await AuthService.updateRegistration(device)
             if (!response.data) {
+                this.setError(true)
                 this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.')
+                this.setAuth(false)
+                return
+            }
+            if (response.data.error) {
+                this.setError(true)
+                this.setMessageError(response.data.error.message)
                 this.setAuth(false)
                 return
             }
@@ -120,6 +133,7 @@ export default class Store {
             this.setAuth(true)
             this.setUser(response.data.user)
         } catch (e: any) {
+            console.log(e, 'error')
             console.log(e.response?.data?.message)
         } finally {
             this.setLoad(false)
@@ -129,6 +143,18 @@ export default class Store {
     async registrationVk(payload: any) {
         try {
             const response = await VkAuthService.registrationVk(payload)
+            if (!response.data) {
+                this.setError(true)
+                this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.')
+                this.setAuth(false)
+                return
+            }
+            if (response.data.error) {
+                this.setError(true)
+                this.setMessageError(response.data.error.message)
+                this.setAuth(false)
+                return
+            }
             return {data: response.data}
         } catch(e: any) {
             return { data: e.response?.data?.message }
@@ -144,6 +170,18 @@ export default class Store {
             let device: any = localStorage.getItem('device')
             
             const response = await AuthService.setRegistration(id, secret, device)
+            if (!response.data) {
+                this.setError(true)
+                this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.')
+                this.setAuth(false)
+                return
+            }
+            if (response.data.error) {
+                this.setError(true)
+                this.setMessageError(response.data.error.message)
+                this.setAuth(false)
+                return
+            }
             localStorage.setItem('token', response.data.token)
             this.setAuth(true)
             this.setUser(response.data.user)
@@ -205,8 +243,25 @@ export default class Store {
 
     async addDeclaration(form: any) {
         try {            
-            const response = await UserService.addDeclaration(this.user.id, form)
-            console.log(response, 'response add Declaration')
+            const response = await UserService.addDeclaration(form)
+            this.setUser(response.data)
+        } catch(e: any) {
+            return { data: e.response?.data?.message }
+        }
+    }
+
+    async getDeclaration(id: number) {
+        try {            
+            const declaration = await UserService.getDeclaration(id)
+            this.setDeclaration(declaration.data.declaration)
+        } catch(e: any) {
+            return { data: e.response?.data?.message }
+        }
+    }
+    
+    async udatePersonaleData(secret: string, form: any) {
+        try {            
+            const response = await UserService.udatePersonaleData(secret, form)
             this.setUser(response.data)
         } catch(e: any) {
             return { data: e.response?.data?.message }

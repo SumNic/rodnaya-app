@@ -78,6 +78,7 @@ textarea {
     overflow: auto;
     vertical-align: top;
     resize: vertical;
+    tab-size: 2;
 }
 
 /**
@@ -775,6 +776,7 @@ display: none;
 #forms{
     display: flex;
     height: 60px;
+    flex-basis: 100%;
 }
 
 #load_message{
@@ -785,6 +787,7 @@ display: none;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-basis: 100%;
 }
 
 #message_message{
@@ -1142,7 +1145,7 @@ display: none;
     display: block;
     padding-left: 10px;
     padding-bottom: 20px;
-    max-width: 270px;
+    max-width: 250px;
 }
 
 .location_new{
@@ -1394,6 +1397,8 @@ h2 {
 .message {
     /* width: в js; */
     height: 42px;
+    /* display: flex; */
+    flex-basis: 100%;
 }
 
 .class_none{
@@ -1406,7 +1411,8 @@ textarea[name="message"] {
     padding: 10px;
     border-radius: 10px;
     border: 1px solid rgb(223, 219, 219);
-    resize: vertical;
+    resize: none;
+    flex-basis: 100%;
 }
 
 .clip {

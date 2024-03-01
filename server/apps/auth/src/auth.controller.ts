@@ -16,11 +16,19 @@ import { OutputUserAndTokens } from '@app/models/dtos/output-user-and-tokens.dto
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
+import { UsersService } from './users/users.service';
+import { CreateDeclarationDto } from '@app/models/dtos/create-declaration.dto';
+import { DeclarationService } from './declaration/declaration.service';
+import { Declaration } from '@app/models/models/users/declaration.model';
+import { GetDeclarationDto } from '@app/models/dtos/get-declaration.dto';
+import { UpdatePersonaleDto } from '@app/models/dtos/update-personale.dto';
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService,
-    ) {}
+  constructor(
+              private readonly authService: AuthService,
+              private readonly declarationService: DeclarationService,
+            ) {}
 
   /**
    * Регистрация нового пользователя.
@@ -113,7 +121,7 @@ export class AuthController {
   // async createSuperUser(
   //   @Payload() dto: CreateUserDto,
   // ): Promise<TokenResponseDto> {
-  //   return await this.authService.createSuperUser(dto); 
+  //   return await this.authService.createSuperUser(dto);  
   // }
 
   /**
@@ -193,7 +201,33 @@ export class AuthController {
    * @returns LocationUser - Список районов и городв.
    */
    @MessagePattern('createResidency')
-   async saveLocation(@Payload() dto: CreateResidencyDto): Promise<CreateUserDto> {
+   async saveLocation(@Payload() dto: CreateResidencyDto): Promise<User> {
+    console.log(dto, 'dto residency')
      return await this.authService.createResidency(dto); 
    }
+
+   /**
+   * Добавление Декларации Родной партии
+   */
+  @MessagePattern('addDeclaration')
+  async addDeclaration(@Payload() dto: CreateDeclarationDto): Promise<User> {
+    return await this.authService.addDeclaration(dto)
+  }
+
+  /**
+   * Добавление Декларации Родной партии
+   */
+  @MessagePattern('getDeclaration')
+  async getDeclaration(@Payload() id: number): Promise<GetDeclarationDto> {
+    return await this.authService.getDeclaration(id)
+  }
+
+  /**
+   * Добавление Декларации Родной партии
+   */
+  @MessagePattern('udatePersonaleData')
+  async udatePersonaleData(@Payload('secret') secret: string, @Payload('form') form: UpdatePersonaleDto): Promise<User> {
+    return await this.authService.udatePersonaleData(secret, form)
+  }
+
 }

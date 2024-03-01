@@ -6,10 +6,12 @@ import {
   AddRoleDto,
   OutputJwtTokens,
 } from '@app/models';
+import { CreateDeclarationDto } from '@app/models/dtos/create-declaration.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
 import { OutputUserAndTokens } from '@app/models/dtos/output-user-and-tokens.dto';
+import { UpdatePersonaleDto } from '@app/models/dtos/update-personale.dto';
 import { UuidDevice } from '@app/models/dtos/uuid-device.dto';
 import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
 import {
@@ -44,54 +46,6 @@ export class AppAuthController {
     @Inject(AUTH_SERVICE) private authClient: ClientProxy,
     private configService: ConfigService,
   ) {}
-
-  // @ApiTags('Авторизация') 
-  // @ApiOperation({ summary: 'Регистрация пользователя' })
-  // @Post('/registration')
-  // @ApiBody({ type: CreateUserDto })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   description: 'Успешная регистрация',
-  //   type: OutputJwtTokens,
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.BAD_REQUEST,
-  //   description: 'Пользователь с такой электронной почтой уже существует',
-  // })
-  // @ApiBody({ type: CreateUserDto })
-  // async registration(@Body() dto: CreateUserDto) {
-  //   return this.authClient
-  //     .send('registration', dto)
-  //     .pipe(
-  //       catchError((error) =>
-  //         throwError(() => new RpcException(error.response)),
-  //       ),
-  //     );
-  // }
-
-  // @ApiTags('Авторизация')
-  // @ApiOperation({ summary: 'Авторизация пользователя' })
-  // @Post('/login')
-  // @ApiBody({ type: CreateUserDto })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   description: 'Успешная авторизация',
-  //   type: OutputJwtTokens,
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.BAD_REQUEST,
-  //   description: 'Неккоректные электронная почта или пароль',
-  // })
-  // async login(@Body() dto: CreateUserDto) {
-  //   return this.authClient
-  //     .send('login', dto)
-  //     .pipe(
-  //       catchError((error) =>
-  //         throwError(() => new RpcException(error.response)),
-  //       ),
-  //     );
-  // }
-
 
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Авторизация пользователя' })
@@ -264,7 +218,9 @@ export class AppAuthController {
 
   @ApiTags('Авторизация')
   @ApiOperation({ summary: 'Получить всех пользователей' })
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @Roles(ROLES.ADMIN)
+  @UseGuards(RolesGuard)
   @Get('/users')
   // @ApiParam({
   //   name: 'id',
@@ -300,45 +256,45 @@ export class AppAuthController {
   }
 
 
-  @ApiTags('Авторизация')
-  @ApiOperation({ summary: 'Получить данные пользователя по ID' })
-  @UseGuards(JwtAuthGuard)
-  @Get('/user/:id')
-  @ApiParam({
-    name: 'id',
-    example: 1,
-    required: true,
-    description: 'Идентификатор пользователя в базе данных',
-    type: Number,
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Получены данные пользователя',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Пользователь не найден',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'JWT токен не указан в заголовках',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description: 'Некоректный JWT токен',
-  })
-  async getUser(@Param('id') id: number) {
-    if(!Number(id)) {
-        throw new BadRequestException('Ошибка ввода');
-    }
-    return this.authClient
-      .send('getUser', id)
-      .pipe(
-        catchError(async (error) => {
-          return new RpcException(error)
-        }),
-      );
-  }
+  // @ApiTags('Авторизация')
+  // @ApiOperation({ summary: 'Получить данные пользователя по ID' })
+  // @UseGuards(JwtAuthGuard)
+  // @Get('/user/:id')
+  // @ApiParam({
+  //   name: 'id',
+  //   example: 1,
+  //   required: true,
+  //   description: 'Идентификатор пользователя в базе данных',
+  //   type: Number,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: 'Получены данные пользователя',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.NOT_FOUND,
+  //   description: 'Пользователь не найден',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.UNAUTHORIZED,
+  //   description: 'JWT токен не указан в заголовках',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.FORBIDDEN,
+  //   description: 'Некоректный JWT токен',
+  // })
+  // async getUser(@Param('id') id: number) {
+  //   if(!Number(id)) {
+  //       throw new BadRequestException('Ошибка ввода');
+  //   }
+  //   return this.authClient
+  //     .send('getUser', id)
+  //     .pipe(
+  //       catchError(async (error) => {
+  //         return new RpcException(error)
+  //       }),
+  //     );
+  // }
 
 
   @ApiTags('Авторизация')
@@ -577,6 +533,91 @@ export class AppAuthController {
           return new RpcException(error)
         }),
       );
+  }
+
+  @ApiTags('Декларация Родной партии')
+  @ApiOperation({ summary: 'Авторизация пользователя' })
+  @Post('/add-declaration')
+  @ApiBody({ type: CreateDeclarationDto })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Декларация добавлена',
+    // type: OutputUserAndTokens,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неккоректные данные',
+  })
+  @UseGuards(JwtAuthGuard)
+  async addDeclaration(@Body() form: any) {
+    return this.authClient
+      .send('addDeclaration', form)
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      )
+  }
+
+  @ApiTags('Декларация Родной партии')
+  @ApiOperation({ summary: 'Авторизация пользователя' })
+  @Get('/get-declaration/:id')
+  @ApiParam({
+    name: 'id',
+    example: 1,
+    required: true,
+    description: 'Идентификатор пользователя в базе данных',
+    type: Number,
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Декларация добавлена',
+    // type: OutputUserAndTokens,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неккоректные данные',
+  })
+  @UseGuards(JwtAuthGuard)
+  async getDeclaration(@Param('id') id: number) {
+    return this.authClient
+      .send('getDeclaration', id)
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      )
+  }
+
+  @ApiTags('Изменение персональных данных')
+  @ApiOperation({ summary: 'Авторизация пользователя' })
+  @Post('/updata-personale/:secret')
+  @ApiBody({ type: UpdatePersonaleDto })
+  @ApiParam({
+    name: 'secret',
+    example: 'sdfsdfsd',
+    required: true,
+    description: 'Кодовое слово',
+    type: String,
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Декларация добавлена',
+    // type: OutputUserAndTokens,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неккоректные данные',
+  })
+  @UseGuards(JwtAuthGuard)
+  async udatePersonaleData(@Param('secret') secret: string, @Body() form: any) {
+    return this.authClient
+      .send('udatePersonaleData', {secret, form})
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      )
   }
 } 
 

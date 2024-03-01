@@ -23,6 +23,8 @@ export class TokensService {
       where: { uuid: uuid },
     })
 
+    if (!token) return
+
     return token
 
   }

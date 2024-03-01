@@ -1,3 +1,5 @@
+import { SecretUser } from "./SecretUser";
+
 export interface ResidencyUser {
     id: number;
     country: string;

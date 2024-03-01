@@ -10,12 +10,17 @@ import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/sequelize';
 import { RolesService } from '../roles/roles.service';
 import { Token } from '@app/models/models/users/tokens.model';
+import { CreateDeclarationDto } from '@app/models/dtos/create-declaration.dto';
+import { UpdatePersonaleDto } from '@app/models/dtos/update-personale.dto';
+import { SecretService } from '../secret/secret.service';
+import { Secret } from '@app/models/models/users/secret.model';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User) private readonly usersRepository: typeof User,
     private roleService: RolesService,
+    private secretService: SecretService,
   ) {}
 
   /**
@@ -27,6 +32,7 @@ export class UsersService {
     
     const user = await this.usersRepository.create(dto);
     let role = await this.roleService.getRoleByValue(ROLES.USER);
+    const secret = await this.secretService.createSecret(dto.secret);
 
     if (!role) {
       role = await this.roleService.create({ value: ROLES.USER });
@@ -35,7 +41,46 @@ export class UsersService {
     await user.$set('roles', [role.id]);
     user.roles = [role];
 
-    return user;
+    await user.$set('secret', secret);
+    user.secret = secret;
+
+    const newUser = this.getUser(user.id)
+
+    return newUser;
+  }
+
+  /**
+   * Создать пользователя.
+   * @param {CreateRoleDto} dto - DTO для создания пользователя.
+   * @returns User - Созданный пользователь.
+   */
+  async updateUser(dto: CreateUserDto): Promise<User> {
+
+    const user = await this.usersRepository.findOne({
+      where: {
+        vk_id: dto.vk_id
+      }
+    });
+    
+    user.update({first_name: dto.first_name, last_name: dto.last_name, photo_50: dto.photo_50, photo_max: dto.photo_max, isDelProfile: false})
+    const secret = await this.secretService.createSecret(dto.secret);
+    
+    let role = await this.roleService.getRoleByValue(ROLES.USER);
+    // const secret = await this.secretService.createSecret(dto.secret);
+
+    if (!role) {
+      role = await this.roleService.create({ value: ROLES.USER });
+    }
+
+    await user.$set('roles', [role.id]);
+    user.roles = [role];
+
+    await user.$set('secret', secret);
+    user.secret = secret;
+
+    const newUser = this.getUser(user.id)
+
+    return newUser;
   }
 
   /**
@@ -63,7 +108,7 @@ export class UsersService {
    */
   async getAllUsers(): Promise<User[]> {
     const users = await this.usersRepository.findAll({
-      include: { all: true },
+      // include: { all: true },
     });
 
     return users;
@@ -75,16 +120,28 @@ export class UsersService {
    * @returns User - Найденный пользователь.
    */
   async getUser(id: number): Promise<User> {
-    return await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOne({
       where: { id },
-      include: { all: true },
+      include: [
+        { 
+          all: true 
+        },
+        // {
+        //   model: Secret,
+        //   attributes: { exclude: ['secret'] }
+        // }
+      ]
     });
+
+    if (!user) return
+
+    return user
   }
 
   /**
    * Получить пользователя.
    * @param {number} id - Идентификатор пользователя.
-   * @returns User - Найденный пользователь.
+   * @returns User - Найденный пользователь. 
    */
   async getUserByVkId(id: number): Promise<User> {
     return await this.usersRepository.findOne({
@@ -147,5 +204,22 @@ export class UsersService {
     );
   }
 
-  
+  /**
+   * Добавить декларацию Родной партии.
+   * @param {any} dto - DTO для добавления декларации.
+   * @returns AddRoleDto - Данные роли.
+   */
+    async updatePersonale(dto: UpdatePersonaleDto): Promise<User> {
+        const personale = await this.usersRepository.findOne({
+            where: 
+                {
+                    id: dto.user_id
+                }})
+        await personale.update({
+          first_name: dto.first_name,
+          last_name: dto.last_name,
+        })
+        
+        return personale
+    }
 }

@@ -1,5 +1,6 @@
 import { DeclarationUser } from "./DeclarationUser";
 import { LocationUser } from "./LocationUser";
+import { SecretUser } from "./SecretUser";
 
 export interface IUser {
     id: number;
@@ -10,6 +11,6 @@ export interface IUser {
     photo_max: string;
     isRegistration: boolean;
     residency: LocationUser;
-    secret: string;
+    secret: SecretUser;
     declaration: DeclarationUser;
 }

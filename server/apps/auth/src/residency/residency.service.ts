@@ -41,12 +41,12 @@ export class ResidencyService {
 
   /**
    * Найти места жительства всех пользователей.
-   * @returns LocationUser - Список районов.
+   * @returns Residency[] - Список районов.
    */
    async getAllResydencys(): Promise<Residency[]> {
     const residency = await this.residencyRepository.findAll({
       include: { all: true }
     });
-    return residency;                
+    return residency;
   }
 }

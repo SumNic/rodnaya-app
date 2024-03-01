@@ -21,7 +21,7 @@ class NavMiddle extends Component {
 						<Link to={PERSONALE_ROUTE} className="middle__link">Моя страница</Link>
 					</li>
 					<li className="middle__item">
-						<Link to={MESSAGES_ROUTE} className="middle__link">Сообщения</Link>
+						<Link to={`${MESSAGES_ROUTE}/personale`} className="middle__link">Сообщения</Link>
 					</li>
 					<li className="middle__item">
 						<Link to={EXIT_ROUTE} className="middle__link">Выйти</Link>
