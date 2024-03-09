@@ -18,6 +18,8 @@ import { DeclarationModule } from './declaration/declaration.module';
 import { DeclarationController } from './declaration/declaration.controller';
 import { SecretModule } from './secret/secret.module';
 import { SecretController } from './secret/secret.controller';
+import { MessagesController } from './messages/messages.controller';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -54,8 +56,9 @@ import { SecretController } from './secret/secret.controller';
     TokensModule,
     DeclarationModule,
     SecretModule,
+    MessagesModule,
   ],
-  controllers: [AuthController, ResidencyController, TokensController, UsersController, DeclarationController, SecretController],
+  controllers: [AuthController, ResidencyController, TokensController, UsersController, DeclarationController, SecretController, MessagesController],
   providers: [AuthService],
 })
 export class AuthModule {}

@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Simplified Movie Website')
+    .setTitle('Сайт Родная партия')
     .setDescription('Документация REST API')
     .setVersion('1.0.0')
     .build();

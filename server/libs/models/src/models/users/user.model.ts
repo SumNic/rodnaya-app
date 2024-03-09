@@ -15,6 +15,7 @@ import { Residency } from './residency.model';
 import { Token } from './tokens.model';
 import { Declaration } from './declaration.model';
 import { Secret } from './secret.model';
+import { Messages } from '../messages/messages.model';
 
 interface UserCreationAttrs {
   user_id: string;
@@ -69,4 +70,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @HasOne(() => Secret) 
   secret: Secret;
+
+  @HasMany(() => Messages) 
+  messages: Messages[];
 }

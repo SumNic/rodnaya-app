@@ -20,4 +20,5 @@ export const VK_CALLBACK_ROUTE = '/vk-auth'
 export const ERROR_ROUTE = '/error'
 export const PAGE_404_ROUTE = '/404_not_faund'
 
-export const LOCALHOST = 'http://localhost'
+// export const LOCALHOST = 'https://verified-closely-eel.ngrok-free.app'
+export const LOCALHOST = 'http://localhost:3000'

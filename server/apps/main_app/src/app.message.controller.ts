@@ -2,7 +2,7 @@ import { JwtAuthGuard, ROLES } from '@app/common';
 import { Roles } from '@app/common/auth/roles-auth.decorator';
 import { RolesGuard } from '@app/common/auth/roles.guard';
 import { AUTH_SERVICE } from '@app/common/auth/service';
-import { USERS_SERVICE } from '@app/common/constants/services';
+import { MESSAGES_SERVICE, USERS_SERVICE } from '@app/common/constants/services';
 import {
   AddRoleDto,
   OutputJwtTokens,
@@ -40,37 +40,37 @@ import { Request, Response } from 'express';
 import { catchError, tap, throwError } from 'rxjs';
 
 @Controller()
-export class AppUsersController {
+export class AppMessagesController {
   constructor(
-    @Inject(USERS_SERVICE) private usersClient: ClientProxy,
+    @Inject(MESSAGES_SERVICE) private messagesClient: ClientProxy,
     private configService: ConfigService,
   ) {}
 
 
-  // @ApiTags('Декларация Родной партии')
-  // @ApiOperation({ summary: 'Авторизация пользователя' })
-  // @Post('/declaration/:id')
-  // // @ApiBody({ type: CreateRegistrationDto })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   description: 'Декларация добавлена',
-  //   // type: OutputUserAndTokens,
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.BAD_REQUEST,
-  //   description: 'Неккоректные данные',
-  // })
-  // @UseGuards(JwtAuthGuard)
-  // async addDeclaration(@Param('id') id: number, @Body() form: any) {
-  //   console.log(id, form, 'id declaration')
-  //   return this.usersClient
-  //     .send('addDeclaration', {id, form})
-  //     .pipe(
-  //       catchError(async (error) => {
-  //         return new RpcException(error)
-  //       }),
-  //     )
-  // }
+  @ApiTags('Отправка сообщения')
+  @ApiOperation({ summary: 'Добавление нового сообщения' })
+  @Post('/send-message')
+  // @ApiBody({ type: CreateRegistrationDto })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Декларация добавлена',
+    // type: OutputUserAndTokens, 
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неккоректные данные',
+  })
+  @UseGuards(JwtAuthGuard)
+  async addDeclaration(@Body() dto: any) {
+    console.log(dto)
+    return this.messagesClient
+      .send('sendMessage', dto)
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      )
+  }
 
 } 
 

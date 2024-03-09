@@ -23,7 +23,7 @@ function VkCallback() {
         
         const registrVk = await store.registrationVk(payload)
         
-        if (!registrVk) {
+        if (!registrVk?.data) {
             return
         }else if (!registrVk.data.isRegistration && registrVk.data.id) {
             store.setIsCondition(true)

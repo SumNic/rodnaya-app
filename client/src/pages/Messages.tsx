@@ -36,6 +36,7 @@ function Message() {
 
     // Read the form data
     const form = e.target;
+    
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
     
@@ -89,18 +90,22 @@ function Message() {
                                 <form name="load_message" id="load_message">
                                     <div className="clip">
                                         <div className="label-clip">
-                                            <label htmlFor="fileToUpload"><img src={icon_attach} alt="Прикрепить" className="clippy-icon"></img></label>
-                                            <input type="file" id="fileToUpload" name="fileToUpload" value="" style={{display: "none"}}></input>
+                                            <label htmlFor="fileToUpload">
+                                                <img src={icon_attach} alt="Прикрепить" className="clippy-icon" />
+                                                <input type="file" id="fileToUpload" name="fileToUpload" defaultValue="" style={{display: "none"}} />
+                                            </label>
                                         </div>
                                     </div>
                                 </form>
-                                <form name="send_message" id="send_message">
+                                {/* <form name="send_message" id="send_message"> */}
+                                <form name="send_message" id="send_message" method="post" onSubmit={sendMessage}>
                                     <div className="message">
-                                        <textarea id="message" name="message" autoFocus={true} placeholder="Введите сообщение"></textarea>
+                                        <textarea id="message" name="message" placeholder="Введите сообщение"></textarea>
                                     </div>
                                     <div className="class_none">
-                                        {/* <input type="hidden" id="id_person" name="id_person" value="'.$user['id'].'"></input>
-                                        <input type="hidden" id="first_name" name="first_name" value="'.$user['first_name'].'"></input>
+                                        <input type="hidden" id="id_person" name="id_person" value={store.user.id} />
+                                        <input type="hidden" id="secret_person" name="secret_person" value={store.user.secret.secret} />
+                                        {/* <input type="hidden" id="first_name" name="first_name" value="'.$user['first_name'].'"></input>
                                         <input type="hidden" id="last_name" name="last_name" value="'.$user['last_name'].'"></input>
                                         <input type="hidden" id="photo_50" name="photo_50" value="'.$user['photo_50'].'"></input>
                                         <input type="hidden" id="solution" name="solution" value="1"></input>
@@ -112,7 +117,7 @@ function Message() {
                                         <p id="clip_files"></p>
                                     </div>
                                     <div className="send">
-                                        <a href="#" className="submit-send" onClick={sendMessage}></a>
+                                        <button type="submit" className="submit-send"></button>
                                     </div>
                                 </form>
                             </div>

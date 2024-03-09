@@ -65,6 +65,7 @@ export class AppAuthController {
       .send('setRegistration', dto)
       .pipe(
         tap(data => {
+          console.log(data.refreshToken, 'data.refreshToken')
           res.cookie('refreshToken', data.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax'})
           }
         )
@@ -341,6 +342,7 @@ export class AppAuthController {
   })
   @ApiBody({ type: VkLoginSdkDto }) 
   async registrationVk(@Body() dto: VkLoginSdkDto) {
+    console.log(dto, 'dto')
     return this.authClient
       .send('loginByVk', dto)
       .pipe(
