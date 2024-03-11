@@ -10,6 +10,7 @@ import ResidencyService from "../services/ResidencyService";
 import { ResidencyResponse } from "../models/response/ResidencyResponse";
 import UserService from "../services/UserService";
 import { DeclarationUser } from "../models/DeclarationUser";
+import MessagesService from "../services/MessagesService";
 
 export default class Store {
     user = {} as IUser
@@ -262,6 +263,15 @@ export default class Store {
     async udatePersonaleData(secret: string, form: any) {
         try {            
             const response = await UserService.udatePersonaleData(secret, form)
+            this.setUser(response.data)
+        } catch(e: any) {
+            return { data: e.response?.data?.message }
+        }
+    }
+
+    async sendMessage(id_user: number, secret: string, location: string | undefined, form: any) {
+        try {            
+            const response = await MessagesService.sendMessage(id_user, secret, location, form)
             this.setUser(response.data)
         } catch(e: any) {
             return { data: e.response?.data?.message }

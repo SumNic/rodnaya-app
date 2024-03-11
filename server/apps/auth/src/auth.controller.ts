@@ -22,12 +22,14 @@ import { DeclarationService } from './declaration/declaration.service';
 import { Declaration } from '@app/models/models/users/declaration.model';
 import { GetDeclarationDto } from '@app/models/dtos/get-declaration.dto';
 import { UpdatePersonaleDto } from '@app/models/dtos/update-personale.dto';
+import { MessagesService } from './messages/messages.service';
 
 @Controller()
 export class AuthController {
   constructor(
               private readonly authService: AuthService,
               private readonly declarationService: DeclarationService,
+              private readonly messagesService: MessagesService
             ) {}
 
   /**
@@ -228,6 +230,14 @@ export class AuthController {
   @MessagePattern('udatePersonaleData')
   async udatePersonaleData(@Payload('secret') secret: string, @Payload('form') form: UpdatePersonaleDto): Promise<User> {
     return await this.authService.udatePersonaleData(secret, form)
+  }
+
+  /**
+   * Внесение в базу данных информацию о регистрации
+   */
+  @MessagePattern('sendMessage')
+  async addMessage(@Payload() dto: any): Promise<any> {
+      return await this.messagesService.addMessage(dto)
   }
 
 }

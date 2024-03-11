@@ -9,7 +9,7 @@ services:
       - ./apps/main_app/.env
     depends_on:
       - location
-      - messages
+      # - messages
       - auth
       - rabbitmq
     volumes:
@@ -64,20 +64,20 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-  messages:
-    build:
-      context: .
-      dockerfile: ./apps/messages/Dockerfile
-      target: development
-    command: npm run start:dev messages
-    env_file:
-      - ./apps/messages/.env
-    depends_on:
-      - postgres-messages
-      - rabbitmq
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+  # messages:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/messages/Dockerfile
+  #     target: development
+  #   command: npm run start:dev messages
+  #   env_file:
+  #     - ./apps/messages/.env
+  #   depends_on:
+  #     - postgres-messages
+  #     - rabbitmq
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
   # genre:
   #   build:
   #     context: .
@@ -161,13 +161,13 @@ services:
     ports:
       - '5020:5432'
     restart: always
-  postgres-messages:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: messages
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      PG_DATA: /var/lib/postgresql/data
-    ports:
-      - '5030:5432'
-    restart: always
+  # postgres-messages:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: messages
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: root
+  #     PG_DATA: /var/lib/postgresql/data
+  #   ports:
+  #     - '5030:5432'
+  #   restart: always

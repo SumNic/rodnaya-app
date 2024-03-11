@@ -12,6 +12,7 @@ import {
 import { User } from '../users/user.model';
 
 interface MessagesCreationAttrs {
+  location: string;
   message: string;
 }
 
@@ -30,6 +31,9 @@ export class Messages extends Model<Messages, MessagesCreationAttrs> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   location: string;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  blocked: boolean;
 
   @ForeignKey(() => User)
   @Column({type: DataType.INTEGER})

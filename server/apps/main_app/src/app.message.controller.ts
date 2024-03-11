@@ -7,6 +7,7 @@ import {
   AddRoleDto,
   OutputJwtTokens,
 } from '@app/models';
+import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
 import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
@@ -42,7 +43,7 @@ import { catchError, tap, throwError } from 'rxjs';
 @Controller()
 export class AppMessagesController {
   constructor(
-    @Inject(MESSAGES_SERVICE) private messagesClient: ClientProxy,
+    @Inject(AUTH_SERVICE) private messagesClient: ClientProxy,
     private configService: ConfigService,
   ) {}
 
@@ -50,7 +51,7 @@ export class AppMessagesController {
   @ApiTags('Отправка сообщения')
   @ApiOperation({ summary: 'Добавление нового сообщения' })
   @Post('/send-message')
-  // @ApiBody({ type: CreateRegistrationDto })
+  @ApiBody({ type: CreateMessageDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Декларация добавлена',
@@ -61,8 +62,7 @@ export class AppMessagesController {
     description: 'Неккоректные данные',
   })
   @UseGuards(JwtAuthGuard)
-  async addDeclaration(@Body() dto: any) {
-    console.log(dto)
+  async addMessage(@Body() dto: any) {
     return this.messagesClient
       .send('sendMessage', dto)
       .pipe(

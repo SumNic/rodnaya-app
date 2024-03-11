@@ -5,20 +5,8 @@ import { DeclarationUser } from "../models/DeclarationUser";
 import { PersonaleUser } from "../models/PersonaleUser";
 
 export default class MessagesService {
-    // static async fetchUsers(): Promise<AxiosResponse<IUser[]>> {
-    //     return $api.get<IUser[]>('/users')
-    // }
 
-    static async sendMessage(user: IUser, location: string | undefined, form: any): Promise<AxiosResponse<IUser>> {
-        return $api.post<IUser>('/send-message', {user, location, form})
+    static async sendMessage(id_user: number, secret: string, location: string | undefined, form: any): Promise<AxiosResponse<IUser>> {
+        return $api.post<IUser>('/send-message', {id_user, secret, location, form})
     }
-
-    // static async getDeclaration(id: number): Promise<AxiosResponse<DeclarationUser>> {
-    //     return $api.get<DeclarationUser>(`/get-declaration/${id}`)
-    // }
-    
-    // static async udatePersonaleData(secret: string, form: PersonaleUser): Promise<AxiosResponse<IUser>> {
-    //     return $api.post<IUser>(`/updata-personale/${secret}`, form)
-    // }
-    
 }

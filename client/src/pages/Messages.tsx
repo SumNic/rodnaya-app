@@ -13,6 +13,7 @@ import icon_attach from '../images/clippy-icon1.png'
 import OnChangeForm from '../components/OnChangeForm';
 import { useParams } from 'react-router-dom';
 import MessagesService from '../services/MessagesService';
+import { PERSONALE_CARD_ROUTE } from '../utils/consts';
 
 function Message() {
 
@@ -31,17 +32,48 @@ function Message() {
     // } 
 
     async function sendMessage(e: any) {
-    // Prevent the browser from reloading the page
-    e.preventDefault();
+        // Prevent the browser from reloading the page
+        e.preventDefault();
 
-    // Read the form data
-    const form = e.target;
-    
-    const formData = new FormData(form);
-    const formJson = Object.fromEntries(formData.entries());
-    
-    await MessagesService.sendMessage(store.user, location, formJson)
-  }   
+        // Read the form data
+        const form = e.target;
+        
+        const formData = new FormData(form);
+        const formJson = Object.fromEntries(formData.entries());
+        
+        await store.sendMessage(store.user.id, store.user.secret.secret, location, formJson)
+    }
+
+    function openInfo() {
+
+    }
+
+    function foulSend() {
+
+    }
+
+    const mess = 
+        <div className="mes__wrapper">
+        {/* <div name="ses'.$user['id'].'" className="mes__wrapper"></div> */}
+            <a href={PERSONALE_CARD_ROUTE} id="'.$vk_id.'" onClick={openInfo}><img className="mes_foto" src="' . $user['photo_50'] . '" /></a>
+            <div className="name__first_last">
+                <a href={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{store.user.first_name}</p></a>
+                <a href={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{store.user.last_name}</p></a>
+                <p className="name__time">' . date("H:i", strtotime($user['time'])) . '</p>
+                <div className="foul">
+                    <select id="foul'.$user['id'].'" name="foul" className="foul_select" onChange={foulSend}>
+                        <option></option>
+                        <option className="foul__mes" id="foul__mes'.$user['id'].'" value="'.$user['id'].'">нарушение правил</option>
+                    </select>
+                    <p id="foul__respons"></p>
+                </div>
+            </div>
+            <div id="mes_message'.$user['id'].'" className="mes_message">' . nl2br($user['message']) . '</div>
+            {/* <div name="top'.$user['id'].'" id="mes_message'.$user['id'].'" className="mes_message">' . nl2br($user['message']) . '</div> */}
+            <div className="div_name_file">
+                <a href="../uploads/' . $sign . '" className="name__file">' . $name_file . '</a>
+            </div>
+        </div>
 
     return (
         <div>
@@ -49,7 +81,7 @@ function Message() {
                 <div className="header__wrapper">
                     <HeaderLogoPc />
                     <HeaderLogoMobile />
-                    <NavRegions />
+                    {location && <NavRegions location={location}/>}
                 </div>
             </header>
 
@@ -59,7 +91,6 @@ function Message() {
                     <div className="main__screen main__screen_home">
                         <div className="name">
                             <h2 className="name__local" id="name">
-                                {location === 'personale' && 'Личные сообщения'}
                                 {location === 'locality' && store.user.residency.locality}
                                 {location === 'region' && store.user.residency.region}
                                 {location === 'country' && store.user.residency.country}
@@ -71,7 +102,7 @@ function Message() {
                         </div>
                         <div className="main__text">
                             <div id="message__ajax">
-                                
+                                {mess}
                             </div>	
                             <div id="button__message">
                                 <button id="button" onClick={openNewMesseg}>У вас есть непрочитанные сообщения. Показать?</button>
@@ -100,19 +131,11 @@ function Message() {
                                 {/* <form name="send_message" id="send_message"> */}
                                 <form name="send_message" id="send_message" method="post" onSubmit={sendMessage}>
                                     <div className="message">
-                                        <textarea id="message" name="message" placeholder="Введите сообщение"></textarea>
+                                        <textarea id="message" name="message" placeholder="Введите сообщение" />
                                     </div>
                                     <div className="class_none">
-                                        <input type="hidden" id="id_person" name="id_person" value={store.user.id} />
-                                        <input type="hidden" id="secret_person" name="secret_person" value={store.user.secret.secret} />
-                                        {/* <input type="hidden" id="first_name" name="first_name" value="'.$user['first_name'].'"></input>
-                                        <input type="hidden" id="last_name" name="last_name" value="'.$user['last_name'].'"></input>
-                                        <input type="hidden" id="photo_50" name="photo_50" value="'.$user['photo_50'].'"></input>
-                                        <input type="hidden" id="solution" name="solution" value="1"></input>
-                                        <input type="hidden" id="land" name="land" value="country"></input>
-                                        <input type="hidden" id="locality" name="locality" value="'.$locality.'"></input>
-                                        <input type="hidden" id="region" name="region" value="'.$region.'"></input>
-                                        <input type="hidden" id="country" name="country" value="'.$country.'"></input> */}
+                                        {/* <input type="hidden" id="id_person" name="id_person" value={store.user.id} />
+                                        <input type="hidden" id="secret_person" name="secret_person" value={store.user.secret.secret} /> */}
                                         
                                         <p id="clip_files"></p>
                                     </div>

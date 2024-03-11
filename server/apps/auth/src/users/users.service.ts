@@ -126,10 +126,6 @@ export class UsersService {
         { 
           all: true 
         },
-        // {
-        //   model: Secret,
-        //   attributes: { exclude: ['secret'] }
-        // }
       ]
     });
 

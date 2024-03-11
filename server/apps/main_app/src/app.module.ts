@@ -23,7 +23,7 @@ import { AppMessagesController } from './app.message.controller';
       }),
       forwardRef(() => AuthModule),
       RmqModule.register({ name: LOCATION_SERVICE }),
-      RmqModule.register({ name: MESSAGES_SERVICE }),
+      // RmqModule.register({ name: MESSAGES_SERVICE }),
       RmqModule.register({ name: USERS_SERVICE }),
     ],
     controllers: [
