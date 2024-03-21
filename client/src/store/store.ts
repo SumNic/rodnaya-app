@@ -28,6 +28,7 @@ export default class Store {
     isResidency = [] as ResidencyResponse[]
     cancelAction = false // используется для закрытия окна редактирования в Personale_page
     declaration = ''
+    isDelProfile = false
 
     constructor() {
         this.uuid = uuidv4()
@@ -89,12 +90,17 @@ export default class Store {
         this.declaration = str
     }
 
+    setDelProfile(bool: boolean) {
+        this.isDelProfile = bool
+    }
+
     async logout(allDeviceExit: boolean) {
         try {
             
             let uuid: string | null = localStorage.getItem('device')
             await AuthService.logout(this.user.id, uuid, allDeviceExit)
             localStorage.removeItem('token')
+            localStorage.removeItem('device')
             this.setAuth(false)
             this.setUser({} as IUser)
         } catch(e: any) {
@@ -102,9 +108,9 @@ export default class Store {
         }
     }
 
-    async deleteProfile() {
+    async deleteProfile(id: number, secret: string) {
         try {
-            await AuthService.deleteProfile(this.user.id)
+            await AuthService.deleteProfile(id, secret)
             localStorage.removeItem('token')
             localStorage.removeItem('device')
             this.setAuth(false)
@@ -188,6 +194,15 @@ export default class Store {
             this.setUser(response.data.user)
         } catch(e: any) {
             return { data: e.response?.data?.message }
+        }
+    }
+
+    async restoreProfile(id: number, secret: string) {
+        try {
+            const response = await AuthService.restoreProfile(id, secret)
+            this.setDelProfile(response.data) 
+        } catch(e: any) {
+            console.log(e.response?.data?.message)
         }
     }
 

@@ -11,6 +11,8 @@ import MyButtonIcon from '../components/MyButtonIcon';
 import icon_edit from '../images/icon-edit.png'
 import { IUser } from '../models/IUser';
 import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import { PERSONALE_CARD_ROUTE } from '../utils/consts';
+import { Link } from 'react-router-dom';
 
 function Founders() {
 
@@ -53,10 +55,10 @@ function Founders() {
                                                     item.users.map( (user: IUser, index: any) =>
                                                         <li key={index}>
                                                             <div className="mes__wrapper_founders">
-                                                                <a href=""><img className="mes_foto" src={user.photo_50} alt={user.photo_50}></img></a>
+                                                                <Link to={PERSONALE_CARD_ROUTE+`/${user.id}`}><img className="mes_foto" src={user.photo_50} alt={user.photo_50}></img></Link>
                                                                 <div className="name__first_last_founders">
-                                                                    <a href="" className="name__first"><p className="name__first">{user.first_name}</p></a>
-                                                                    <a href="" className="name__first"><p className="name__first">{user.last_name}</p></a>
+                                                                    <Link to={PERSONALE_CARD_ROUTE+`/${user.id}`} className="name__first"><p className="name__first">{user.first_name}</p></Link>
+                                                                    <Link to={PERSONALE_CARD_ROUTE+`/${user.id}`} className="name__first"><p className="name__first">{user.last_name}</p></Link>
                                                                 </div>
                                                             </div>
                                                         </li>)

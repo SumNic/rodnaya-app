@@ -62,8 +62,8 @@ export class UsersService {
       }
     });
     
-    user.update({first_name: dto.first_name, last_name: dto.last_name, photo_50: dto.photo_50, photo_max: dto.photo_max, isDelProfile: false})
-    const secret = await this.secretService.createSecret(dto.secret);
+    user.update({first_name: dto.first_name, last_name: dto.last_name, photo_50: dto.photo_50, photo_max: dto.photo_max})
+    // const secret = await this.secretService.createSecret(dto.secret);
     
     let role = await this.roleService.getRoleByValue(ROLES.USER);
     // const secret = await this.secretService.createSecret(dto.secret);
@@ -74,11 +74,14 @@ export class UsersService {
 
     await user.$set('roles', [role.id]);
     user.roles = [role];
+    user.save()
 
-    await user.$set('secret', secret);
-    user.secret = secret;
+    // await user.$set('secret', secret); 
+    // user.secret = secret;
 
     const newUser = this.getUser(user.id)
+
+    console.log(newUser, 'user')
 
     return newUser;
   }

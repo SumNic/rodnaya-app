@@ -65,7 +65,6 @@ export class AppAuthController {
       .send('setRegistration', dto)
       .pipe(
         tap(data => {
-          console.log(data.refreshToken, 'data.refreshToken')
           res.cookie('refreshToken', data.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax'})
           }
         )
@@ -134,9 +133,35 @@ export class AppAuthController {
     description: 'Некоректный JWT токен',
   })
   @UseGuards(JwtAuthGuard)
-  async deleteProfile(@Body('id') id: number) {
+  async deleteProfile(@Body('id') id: number, @Body('secret') secret: string) {
+    console.log(id, secret)
     return this.authClient
-      .send('deleteProfile', id)
+      .send('deleteProfile', {id, secret})
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      );
+  }
+
+  @ApiTags('Авторизация')
+  @ApiOperation({
+    summary: 'Удалить пользователя',
+  })
+  @Post('/restore-profile')
+  @ApiBody({ type: LogoutUserDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Пользователь успешно разлогинен',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Пользователь не найден',
+  })
+  async restoreProfile(@Body('id') id: number, @Body('secret') secret: string) {
+    console.log(id, secret, 'data')
+    return this.authClient
+      .send('restoreProfile', {id, secret})
       .pipe(
         catchError(async (error) => {
           return new RpcException(error)
@@ -185,7 +210,7 @@ export class AppAuthController {
   //     .send('refreshTokens', { user_id, refreshToken: req.refreshToken })
   //     .pipe(
   //       catchError((error) =>
-  //         throwError(() => new RpcException(error.response)),
+  //         throwError(() => new RpcException(error.response)), 
   //       ),
   //     );
   // }
@@ -342,7 +367,6 @@ export class AppAuthController {
   })
   @ApiBody({ type: VkLoginSdkDto }) 
   async registrationVk(@Body() dto: VkLoginSdkDto) {
-    console.log(dto, 'dto')
     return this.authClient
       .send('loginByVk', dto)
       .pipe(

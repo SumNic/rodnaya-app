@@ -17,8 +17,12 @@ export default class AuthService {
         return $api.post('/logout', {id: id, uuid: uuid, allDeviceExit: allDeviceExit})
     }
 
-    static async deleteProfile(id: number): Promise<void> {
-        return $api.post('/delete-profile', {id: id})
+    static async deleteProfile(id: number, secret: string): Promise<void> {
+        return $api.post('/delete-profile', {id, secret})
+    }
+
+    static async restoreProfile(id: number, secret: string): Promise<AxiosResponse<boolean>> {
+        return $api.post('/restore-profile', {id, secret})
     }
 
     static async createResidencyUsers(dto: ResidencyUser): Promise<AxiosResponse<ResidencyUser>> {

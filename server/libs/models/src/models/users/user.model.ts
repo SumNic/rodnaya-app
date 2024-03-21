@@ -16,6 +16,7 @@ import { Token } from './tokens.model';
 import { Declaration } from './declaration.model';
 import { Secret } from './secret.model';
 import { Messages } from '../messages/messages.model';
+import { ManageMessages } from '../messages/manageMessages.model';
 
 interface UserCreationAttrs {
   user_id: string;
@@ -52,6 +53,9 @@ export class User extends Model<User, UserCreationAttrs> {
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isRegistration: boolean;
 
+  @Column({ type: DataType.DATE, allowNull: true })
+  dateEditResidency: Date;
+
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];
 
@@ -73,4 +77,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @HasMany(() => Messages) 
   messages: Messages[];
+
+  @HasMany(() => ManageMessages) 
+  manageMessages: ManageMessages[];
 }

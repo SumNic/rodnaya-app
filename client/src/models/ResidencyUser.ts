@@ -6,4 +6,7 @@ export interface ResidencyUser {
     region: string;
     locality: string;
     secret: string;
+    error? : {
+        message: Date;
+    }
 }

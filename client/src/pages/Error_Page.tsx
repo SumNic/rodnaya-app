@@ -16,7 +16,7 @@ function Error_Page() {
         store.setError(false)
         navigate(HOME_ROUTE)
     }
-    
+
     return (
         <div>
             <header className="header">

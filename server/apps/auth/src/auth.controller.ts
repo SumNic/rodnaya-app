@@ -23,6 +23,8 @@ import { Declaration } from '@app/models/models/users/declaration.model';
 import { GetDeclarationDto } from '@app/models/dtos/get-declaration.dto';
 import { UpdatePersonaleDto } from '@app/models/dtos/update-personale.dto';
 import { MessagesService } from './messages/messages.service';
+import { DeleteUserDto } from '@app/models/dtos/delete-user.dto';
+import { GetMessagesDto } from '@app/models/dtos/get-messages.dto';
 
 @Controller()
 export class AuthController {
@@ -70,12 +72,22 @@ export class AuthController {
    * @param {number} user_id - Идентификатор пользователя.
    */
   @MessagePattern('deleteProfile')
-  async deleteProfile(id: number): Promise<any> {
-    await this.authService.deleteProfile(id);
-    return {
-      message: 'Операция прошла успешно',
-      statusCode: HttpStatusCode.Ok,
-    };
+  async deleteProfile(dto: DeleteUserDto): Promise<any> {
+      console.log(dto.id, dto.secret)
+      await this.authService.deleteProfile(dto.id, dto.secret);
+      return {
+        message: 'Операция прошла успешно',
+        statusCode: HttpStatusCode.Ok,
+      };
+  }
+
+  /**
+   * Удалить пользователя.
+   * @param {number} user_id - Идентификатор пользователя.
+   */
+  @MessagePattern('restoreProfile')
+  async restoreProfile(dto: DeleteUserDto): Promise<boolean> {
+      return await this.authService.restoreProfile(dto.id, dto.secret);
   }
 
   /**
@@ -204,8 +216,7 @@ export class AuthController {
    */
    @MessagePattern('createResidency')
    async saveLocation(@Payload() dto: CreateResidencyDto): Promise<User> {
-    console.log(dto, 'dto residency')
-     return await this.authService.createResidency(dto); 
+     return await this.authService.createResidencyForUser(dto); 
    }
 
    /**
@@ -233,11 +244,19 @@ export class AuthController {
   }
 
   /**
-   * Внесение в базу данных информацию о регистрации
+   * Добавление нового сообщения
    */
   @MessagePattern('sendMessage')
   async addMessage(@Payload() dto: any): Promise<any> {
       return await this.messagesService.addMessage(dto)
+  }
+
+  /**
+   * Получение сообщений
+   */
+  @MessagePattern('getAllMessages')
+  async getAllMessage(@Payload() dto: GetMessagesDto): Promise<any> {
+      return await this.messagesService.getAllMessage(dto)
   }
 
 }

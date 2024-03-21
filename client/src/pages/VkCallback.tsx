@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '..';
 import LogoLoad from '../components/LogoLoad/LogoLoad';
-import { PERSONALE_ROUTE, REGISTRATION_ROUTE } from '../utils/consts';
+import { PERSONALE_ROUTE, REGISTRATION_ROUTE, RESTORE_PROFILE_ROUTE } from '../utils/consts';
 
 function VkCallback() {
 
@@ -22,9 +22,11 @@ function VkCallback() {
     async function registration(payload: {}) {
         
         const registrVk = await store.registrationVk(payload)
-        
-        if (!registrVk?.data) {
-            return
+
+        if (!registrVk) return
+        if (registrVk.data.isDelProfile) {
+            store.setDelProfile(true)
+            navigate(RESTORE_PROFILE_ROUTE, {state: {user: registrVk.data}})
         }else if (!registrVk.data.isRegistration && registrVk.data.id) {
             store.setIsCondition(true)
             navigate(REGISTRATION_ROUTE, {state: {user: registrVk.data}})

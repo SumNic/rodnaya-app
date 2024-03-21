@@ -14,6 +14,8 @@ function OnChangeForm (props: any) {
     const [country, setCountry] = useState<string>('')
     const [region, setRegion] = useState<string>('')
     const [locality, setLocality] = useState<string>('')
+    const [message, setMessage] = useState<string>('')
+    const [dateStopEditResidensy, setDateStopEditResidensy] = useState<Date>()
     const {store} = useContext(Context)
 
     const [click, setClick] = useState<boolean>(true)
@@ -74,10 +76,25 @@ function OnChangeForm (props: any) {
                 secret
             }
             store.saveResidency(dto)
-                .then(() => store.loginVk(dto.id, dto.secret))
-                .then(() => navigate(PERSONALE_ROUTE))
+                .then((data) => {
+                    if (data?.data.error) {
+                        var options: {} = {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            timezone: 'UTC',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                        };
+                        let dataStoopEditResidency = (new Date(+data.data.error.message)).toLocaleString("ru", options)
+                        setMessage(dataStoopEditResidency)
+                    } else {
+                        store.loginVk(dto.id, dto.secret)
+                            .then(() => navigate(PERSONALE_ROUTE))
+                        store.setCancelAction(true) // закрывается окно редактирования в Personale_page
+                    }
+                })
         }
-        store.setCancelAction(true) // закрывается окно редактирования в Personale_page
     }
 
     function cancel() {
@@ -103,6 +120,9 @@ function OnChangeForm (props: any) {
                 <option>Укажите Ваш район проживания</option>
                 {region && store.locality.map( (item: any, index: any) => <option key={index}>{item.locality}</option> )}
             </select>
+            <h2 style={{fontSize: "20px", color: "red"}}>
+                {message && `Вы не можете сменить место жительства до ${message}`}
+            </h2>
             <div style={{display: "flex"}}>
                 <MyButton text="Сохранить" func={buttonClick}/><MyButton text="Отменить" func={cancel} style={{background: "#bbbb50"}}/>
             </div>

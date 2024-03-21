@@ -19,44 +19,23 @@ function Personale_kard() {
 
     const {store} = useContext(Context)
 
-    const [edit, setEdit] = useState<boolean>(false)
-    const [editPersonale, setEditPersonale] = useState<boolean>(false)
-    const [editResidency, setEditResidency] = useState<boolean>(false)
-    const [editDeclaration, setEditDeclaration] = useState<boolean>(false)
-    const [editProfile, setEditProfile] = useState<boolean>(false)
+    // const [edit, setEdit] = useState<boolean>(false)
+    // const [editPersonale, setEditPersonale] = useState<boolean>(false)
+    // const [editResidency, setEditResidency] = useState<boolean>(false)
+    // const [editDeclaration, setEditDeclaration] = useState<boolean>(false)
+    // const [editProfile, setEditProfile] = useState<boolean>(false)
     
 
-    useEffect(() => {
-        if (store.cancelAction) {
-            setEdit(false)
-            setEditPersonale(false)
-            setEditResidency(false)
-            setEditDeclaration(false)
-            setEditProfile(false)
-        }
-        store.setCancelAction(false)
-    })
-    
-
-    function editDataPersonale () {
-        setEdit(true)
-        setEditPersonale(true)
-    }
-
-    function editDataResidency () {
-        setEdit(true)
-        setEditResidency(true)
-    }
-
-    function editDataDeclaration () {
-        setEdit(true)
-        setEditDeclaration(true)
-    }
-
-    function editDataProfile () {
-        setEdit(true)
-        setEditProfile(true)
-    }
+    // useEffect(() => {
+    //     if (store.cancelAction) {
+    //         setEdit(false)
+    //         setEditPersonale(false)
+    //         setEditResidency(false)
+    //         setEditDeclaration(false)
+    //         setEditProfile(false)
+    //     }
+    //     store.setCancelAction(false)
+    // })
 
     const personaleData = 
         <>
@@ -67,13 +46,13 @@ function Personale_kard() {
                 <img className="photo_big" src={store.user.photo_max} alt="Ваше фото"></img>
                 <div className="personale_p__wrapper" style={{paddingBottom: 0}}>
                     <h2 style={{fontSize: "18px"}}>
-                        Персональные данные: <MyButtonIcon src={icon_edit} name="edit" func={editDataPersonale} />
+                        Персональные данные:
                     </h2>
                     <p className="personale_data">Имя: {store.user.first_name}</p>
                     <p className="personale_data">Фамилия: {store.user.last_name}</p>
                     <p className="personale_data"><a href={`https://vk.com/id${store.user.vk_id}`}>Страница ВК</a></p>
                     <h2 style={{fontSize: "18px"}}>
-                        Место жительства:  <MyButtonIcon src={icon_edit} name="edit" func={editDataResidency} />
+                        Место жительства:
                     </h2>
                     <p className="personale_data">Страна: {store.user.residency.country}</p>
                     <p className="personale_data">Регион: {store.user.residency.region}</p>
@@ -81,16 +60,12 @@ function Personale_kard() {
                 </div>
                 <div style={{width: "100%", display: "block"}}>
                     <h2 style={{fontSize: "19px", marginBottom: 0, textAlign: "center"}}>
-                        Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editDataDeclaration} />
+                        Декларация моей Родной партии:
                     </h2>
                 </div>                
                 <div style={{width: "100%"}}>
                     <p className="personale_data" style={{whiteSpace: 'pre'}}>{store.user.declaration?.declaration}</p>
                 </div>
-                
-                <h2 style={{fontSize: "19px"}}>
-                    Управление профилем:  <MyButtonIcon src={icon_edit} name="edit" func={editDataProfile} />
-                </h2>
             </div>
         </>
         
@@ -110,11 +85,7 @@ function Personale_kard() {
                     <NavMiddle />
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
-                            {!edit && personaleData}
-                            {!store.cancelAction && editPersonale && <PersonaleData />}
-                            {!store.cancelAction && editResidency && <OnChangeForm  id={store.user.id} secret={store.user.secret.secret}/>}
-                            {!store.cancelAction && editProfile && <EditProfile />}
-                            {!store.cancelAction && editDeclaration && <Declaration />}
+                            {personaleData}
                         </div>
 
                         <div className="main__screen-flag">

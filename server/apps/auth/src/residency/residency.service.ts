@@ -16,7 +16,8 @@ export class ResidencyService {
    * Сохранить место жительства.
    * @returns LocationUser - Список районов.
    */
-   async createResidency(dto: CreateLocationDto): Promise<CreateResidencyDto> {
+   async getOrCreateResidency(dto: CreateLocationDto): Promise<CreateResidencyDto> {
+
     const [residency] = await this.residencyRepository.findOrCreate({
       where: { 
         country: dto.country,
@@ -34,6 +35,22 @@ export class ResidencyService {
    async getResidency(id: number): Promise<Residency> {
     const residency = await this.residencyRepository.findOne({
       where: { id: id },
+      include: { all: true }
+    });
+    return residency;                
+  }
+
+  /**
+   * Найти место жительства по данным страны, региона, района.
+   * @returns LocationUser - Список районов.
+   */
+   async getResidencyFromData(country: string, region: string, locality: string): Promise<Residency> {
+    const residency = await this.residencyRepository.findOne({
+      where: { 
+        country,
+        region,
+        locality
+       },
       include: { all: true }
     });
     return residency;                

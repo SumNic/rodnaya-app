@@ -11,16 +11,31 @@ import MyButtonIcon from '../components/MyButtonIcon';
 import icon_edit from '../images/icon-edit.png'
 import icon_attach from '../images/clippy-icon1.png'
 import OnChangeForm from '../components/OnChangeForm';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import MessagesService from '../services/MessagesService';
 import { PERSONALE_CARD_ROUTE } from '../utils/consts';
+import MyButton from '../components/MyButton';
 
 function Message() {
 
     const {store} = useContext(Context)
+    const [posts, setPosts] = useState<any>([])
 
     const params = useParams();
     const location: string | undefined = params.location
+
+    // async function getMessages() {
+    //     const response = await MessagesService.getAllMessages(store.user.id, store.user.secret.secret, location)
+    //     console.log(response)
+    //     // setPosts(response.data)
+    // }
+    // MessagesService.getAllMessages(store.user.id, store.user.secret.secret, location)
+    //         .then((data) => console.log(data))
+
+    useEffect(() => {
+        MessagesService.getAllMessages(store.user.id, store.user.secret.secret, location)
+            .then((data) => setPosts(data.data))
+    }, [location])
 
     function openNewMesseg() {
 
@@ -41,6 +56,7 @@ function Message() {
         const formData = new FormData(form);
         const formJson = Object.fromEntries(formData.entries());
         
+        
         await store.sendMessage(store.user.id, store.user.secret.secret, location, formJson)
     }
 
@@ -52,28 +68,52 @@ function Message() {
 
     }
 
-    const mess = 
+    var options_time: {} = {
+        timezone: 'UTC',
+        hour: 'numeric',
+        minute: 'numeric',
+    };
+
+    var options_day: {} = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timezone: 'UTC',
+    };
+
+    const mess = posts.map((post: any, index: number, arr: any) => {
+        let ind = index === 0 ? index : index - 1
+
+    return (
+    <div key={index}>
+        
+            {index === 0  
+                ? <div className="date__wrapper"><p className="name__time">{new Date(post.createdAt).toLocaleString("ru", options_day)}</p></div>
+                : new Date(post.createdAt).toDateString() !== new Date(arr[ind].createdAt).toDateString() 
+                    && 
+                    <div className="date__wrapper"><p className="name__time">{new Date(post.createdAt).toLocaleString("ru", options_day)}</p></div>}
+        
         <div className="mes__wrapper">
-        {/* <div name="ses'.$user['id'].'" className="mes__wrapper"></div> */}
-            <a href={PERSONALE_CARD_ROUTE} id="'.$vk_id.'" onClick={openInfo}><img className="mes_foto" src="' . $user['photo_50'] . '" /></a>
+            <Link to={PERSONALE_CARD_ROUTE} onClick={openInfo}><img className="mes_foto" src={post.user.photo_50} /></Link>
             <div className="name__first_last">
-                <a href={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{store.user.first_name}</p></a>
-                <a href={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{store.user.last_name}</p></a>
-                <p className="name__time">' . date("H:i", strtotime($user['time'])) . '</p>
+                <Link to={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{post.user.first_name}</p></Link>
+                <Link to={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{post.user.last_name}</p></Link>
+                <p className="name__time">{new Date(post.createdAt).toLocaleString("ru", options_time)}</p>
                 <div className="foul">
-                    <select id="foul'.$user['id'].'" name="foul" className="foul_select" onChange={foulSend}>
+                    <select name="foul" className="foul_select" onChange={foulSend}>
                         <option></option>
                         <option className="foul__mes" id="foul__mes'.$user['id'].'" value="'.$user['id'].'">нарушение правил</option>
                     </select>
                     <p id="foul__respons"></p>
                 </div>
             </div>
-            <div id="mes_message'.$user['id'].'" className="mes_message">' . nl2br($user['message']) . '</div>
-            {/* <div name="top'.$user['id'].'" id="mes_message'.$user['id'].'" className="mes_message">' . nl2br($user['message']) . '</div> */}
+            <div className="mes_message">{post.message}</div>
             <div className="div_name_file">
                 <a href="../uploads/' . $sign . '" className="name__file">' . $name_file . '</a>
             </div>
         </div>
+    </div>)})
+        
 
     return (
         <div>
@@ -103,6 +143,7 @@ function Message() {
                         <div className="main__text">
                             <div id="message__ajax">
                                 {mess}
+                                {/* <MyButton text='Открыть сообщения' func={getMessages}/> */}
                             </div>	
                             <div id="button__message">
                                 <button id="button" onClick={openNewMesseg}>У вас есть непрочитанные сообщения. Показать?</button>
@@ -128,15 +169,11 @@ function Message() {
                                         </div>
                                     </div>
                                 </form>
-                                {/* <form name="send_message" id="send_message"> */}
                                 <form name="send_message" id="send_message" method="post" onSubmit={sendMessage}>
                                     <div className="message">
                                         <textarea id="message" name="message" placeholder="Введите сообщение" />
                                     </div>
                                     <div className="class_none">
-                                        {/* <input type="hidden" id="id_person" name="id_person" value={store.user.id} />
-                                        <input type="hidden" id="secret_person" name="secret_person" value={store.user.secret.secret} /> */}
-                                        
                                         <p id="clip_files"></p>
                                     </div>
                                     <div className="send">

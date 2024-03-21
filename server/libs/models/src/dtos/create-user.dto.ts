@@ -42,5 +42,14 @@ export class CreateUserDto {
     description: 'Секретная строка',
   })
   @IsString({ message: 'Должно быть строкой' })
-  secret: string; 
+  secret?: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Указывает удалён профиль, или нет',
+  })
+  @IsString({ message: 'Должно быть булевым значением' })
+  isDelProfile?: boolean; 
+
+  
 }

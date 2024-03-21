@@ -57,8 +57,8 @@ export class AuthService {
   //   const candidate = await this.userService.getUserByUserId(dto.user_id);
 
   //   if (candidate) { 
-  //     throw new RpcException( 
-  //       new BadRequestException(  
+  //     throw new RpcException(   
+  //       new BadRequestException(    
   //         'Пользователь с такой электронной почтой уже существует',
   //       ),
   //     );
@@ -119,7 +119,7 @@ export class AuthService {
   }
 
   /**
-   * Внесение в базу данных информации о регистрации
+   * Внесение в базу данных информации о регистрации 
    */
   async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserAndTokens> {
 
@@ -201,6 +201,12 @@ export class AuthService {
 
         if (candidate && !candidate.isDelProfile) return candidate
 
+        // if (candidate && candidate.isDelProfile) {
+        //   throw new RpcException( 
+        //     new ForbiddenException('Ваш профиль удален. Хоти восстановить свой профиль?') 
+        //   ); 
+        // }
+
         if (candidate && candidate.isDelProfile) { // Восстановление профиля 
           return await this.userService.updateUser({
           vk_id: userVk.id,
@@ -208,9 +214,8 @@ export class AuthService {
           last_name: userVk.last_name,
           photo_50: userVk.photo_50,
           photo_max: userVk.photo_max,
-          secret: dto.uuid
           });
-          }
+        }
 
         const newUser = await this.userService.createUser({
         vk_id: userVk.id,
@@ -278,7 +283,7 @@ export class AuthService {
   //   // const passwordEquals = await bcrypt.compare(dto.password, user.password);
   //   const passwordEquals = await bcrypt.compare(dto.password);
 
-  //   if (user && passwordEquals) {
+  //   if (user && passwordEquals) { 
   //     return user;
   //   }
 
@@ -305,7 +310,7 @@ export class AuthService {
 
   /**
    * Генерация JWT токенов.
-   * @param {User} user - Пользователь.
+   * @param {User} user - Пользователь. 
    */
   private async generateTokens(user: User): Promise<OutputJwtTokens> {
     const payload = {
@@ -502,27 +507,53 @@ export class AuthService {
    * Удалить пользователя.
    * @param {number} user_id - Идентификатор пользователя.
    */
-  async deleteProfile(id: number): Promise<any> {
+  async deleteProfile(id: number, secret: string): Promise<any> {
+
+    const user = await this.getUser(id);
+
+    if (secret !== user.secret.secret) {
+      throw new RpcException(new ForbiddenException('Нет доступа'));
+    }
+
     await this.tokenService.removeRefreshToken({id, uuid: null, allDeviceExit: true});
-    const user = await this.userService.getUser(id);
+    // const user = await this.userService.getUser(id);    
     // const declaration = await this.declarationService.deleteDeclaration(id);
     user.roles = null
-    user.residency = null
+    // user.residency = null 
     user.declaration = null
     user.tokens = null
-    user.secret = null
+    // user.secret = null
     
     user.update({first_name: null, last_name: null, photo_50: null, photo_max: null, isRegistration: false, isDelProfile: true})
     user.save()
     return
-    // return await this.tokenService.removeRefreshToken(id); 
+    // return await this.tokenService.removeRefreshToken(id);   
+  }
+
+  /**
+   * Восстановить пользователя.
+   * @param {number} user_id - Идентификатор пользователя.
+   */
+  async restoreProfile(id: number, secret: string): Promise<boolean> {
+    console.log(id, secret)
+    const user = await this.getUser(id);
+
+    if (secret !== user.secret.secret) {
+      throw new RpcException(new ForbiddenException('Нет доступа'));
+    }
+    
+    user.update({isDelProfile: false})
+    user.save()
+
+    return user.isDelProfile
+    // return await this.tokenService.removeRefreshToken(id);      
   }
 
   /**
    * Сохранить место жительства.
    * @param {CreateLocationDto} dto - DTO для добавления роли пользоветилю.
    */
-   async createResidency(dto: CreateResidencyDto): Promise<User> {
+   async createResidencyForUser(dto: CreateResidencyDto): Promise<User> {
 
     const user = await this.userService.getUser(dto.id)
 
@@ -530,29 +561,31 @@ export class AuthService {
       throw new RpcException(new ForbiddenException('Нет доступа'));
     }
 
-    const residency = await this.residencyService.createResidency(dto)
-    const residencyFromId = await this.residencyService.getResidency(residency.id)
-    // await residencyFromId.$set('users', [dto.id]);
-    // await residencyFromId.save()
-
-    // return user
     
-    const date = residencyFromId.updatedAt
-    date.setMonth(date.getMonth() + 3)
-    if (new Date() > date) {
+
+    const newDateEditResidency = user.dateEditResidency ? user.dateEditResidency.setMonth(user.dateEditResidency.getMonth() + 3) : new Date()
+
+    if (!user.dateEditResidency || (new Date() > newDateEditResidency)) {
+      const residency = await this.residencyService.getOrCreateResidency(dto)
+      const residencyFromId = await this.residencyService.getResidency(residency.id)
       await residencyFromId.$set('users', [dto.id]);
-      await residencyFromId.save() 
+      await residencyFromId.save()
+      user.dateEditResidency = new Date()
+      await user.save()
+      const userNew = await this.userService.getUser(dto.id)
 
-      const user = await this.userService.getUser(dto.id)
+      return userNew 
 
-      return user 
+    } else {
+      throw new RpcException(
+        new NotFoundException(`${newDateEditResidency}`)
+        )
     }
-  
-    throw new RpcException(new NotFoundException(`Вы не можете сменить место жительства до ${date}`))
+    
   }
 
   /**
-   * Добавить декларацию Родной партии.
+   * Добавить декларацию Родной партии. 
    * @param {CreateDeclarationDto} dto - DTO для добавления декларации.
    * @returns User - Данные пользователя.
    */

@@ -24,6 +24,7 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -65,6 +66,32 @@ export class AppMessagesController {
   async addMessage(@Body() dto: any) {
     return this.messagesClient
       .send('sendMessage', dto)
+      .pipe(
+        catchError(async (error) => {
+          return new RpcException(error)
+        }),
+      )
+  }
+
+  @ApiTags('Получение всех сообщения')
+  @ApiOperation({ summary: 'Получение всех сообщений для определенного location' })
+  @Get('/get-all-messages')
+  @ApiBody({ type: CreateMessageDto })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Декларация добавлена',
+    // type: OutputUserAndTokens, 
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Неккоректные данные',
+  })
+  @UseGuards(JwtAuthGuard)
+  // async getAllMessage(@Param('id') id: number, @Param('secret') secret: string, @Param('location') location: string) {
+  async getAllMessage(@Query() query: any) {  
+    console.log(query)
+    return this.messagesClient
+      .send('getAllMessages', query)
       .pipe(
         catchError(async (error) => {
           return new RpcException(error)

@@ -10,13 +10,26 @@ import MyButtonInput from '../components/MyButtonInput';
 import MyButton from '../components/MyButton';
 import { HOME_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
 
-function Registration() {
+function RestoreUser() {
 
     const {store} = useContext(Context)
     const navigate = useNavigate()
 
     const location = useLocation()
     const { user } = location.state
+
+    function restoreProfile() {
+        store.restoreProfile(user.id, user.secret.secret)
+            .then(() => store.loginVk(user.id, user.secret.secret))
+            .then(() => {
+                navigate(PERSONALE_ROUTE)
+                })
+    }
+
+    function delProfile() {
+        store.setDelProfile(true)
+        navigate(HOME_ROUTE)
+    }
 
     return (
         <div>
@@ -28,15 +41,13 @@ function Registration() {
                 <div className="middle__wrapper">
                     <div className="main__screen main__screen__registr" style={{backgroundSize: "491.4px 491.4px"}}>
                         <div className="form__registr" style={{textAlign: "justify"}}>
-
-                            {!store.isRegistrationEnd && store.isCondition && !store.isDelProfile && 
-                            <>
-                                <ConditionsForm />
-                                <MyButtonInput type="submit" form="condition" id="submit" value="Продолжить регистрацию" />
-                            </>}
-
-                            {!store.user.residency && store.isRegistrationEnd && <OnChangeForm id={user.id} secret={user.secret.secret}/>}
-                            
+                                <h2 className="My__error_text" style={{fontSize: "17px"}}>
+                                    Ваш профиль удалён. Хотите восстановить свой профиль?
+                                </h2>
+                                <div style={{display: "flex"}}>
+                                    <MyButton type="submit" text="Восстановить профиль"  func={restoreProfile} />
+                                    <MyButton type="reset" text="Отменить"  style={{background: "#bbbb50"}} func={delProfile} />
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -48,4 +59,4 @@ function Registration() {
     );
 }
 
-export default observer(Registration);
+export default observer(RestoreUser);
