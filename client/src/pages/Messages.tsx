@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../components/HeaderLogoMobile';
@@ -7,44 +6,51 @@ import HeaderLogoPc from '../components/HeaderLogoPc';
 import NavRegions from '../components/Nav_header/NavRegions';
 import { useContext, useEffect, useState } from 'react';
 import { Context } from '..';
-import MyButtonIcon from '../components/MyButtonIcon';
-import icon_edit from '../images/icon-edit.png'
 import icon_attach from '../images/clippy-icon1.png'
-import OnChangeForm from '../components/OnChangeForm';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import MessagesService from '../services/MessagesService';
-import { PERSONALE_CARD_ROUTE } from '../utils/consts';
-import MyButton from '../components/MyButton';
+import MessagesList from '../components/MessagesList';
+import UploadFiles from '../components/UploadFiles';
+
+interface IState {
+  file: File | undefined;
+}
+
+const initialState: IState = {
+  file: undefined
+}
 
 function Message() {
 
     const {store} = useContext(Context)
     const [posts, setPosts] = useState<any>([])
+    const [message, setMessage] = useState<string>('')
+    const [fetchMessage, setFetchMessage] = useState<boolean>(false)
+    const [endPost, setEndPost] = useState<number>(0)
 
     const params = useParams();
     const location: string | undefined = params.location
 
-    // async function getMessages() {
-    //     const response = await MessagesService.getAllMessages(store.user.id, store.user.secret.secret, location)
-    //     console.log(response)
-    //     // setPosts(response.data)
-    // }
-    // MessagesService.getAllMessages(store.user.id, store.user.secret.secret, location)
-    //         .then((data) => console.log(data))
-
     useEffect(() => {
+        setMessage('')
+        // const id = UserService.getNumberLastReadMessage()
         MessagesService.getAllMessages(store.user.id, store.user.secret.secret, location)
             .then((data) => setPosts(data.data))
-    }, [location])
+        // document.querySelector(`#${endPost}`)?.scrollIntoView()
+    }, [location, fetchMessage])
+
+    
+
+    // useEffect(() => {
+    //     // get id from URL
+    //     // const id = ....
+
+    //     document.querySelector(`#${id}`).scrollIntoView()
+    //     }, [])
 
     function openNewMesseg() {
 
     }
-
-    // function sendMessage() {
-    //     store.sendMessage(store.user, location, )
-
-    // } 
 
     async function sendMessage(e: any) {
         // Prevent the browser from reloading the page
@@ -54,66 +60,16 @@ function Message() {
         const form = e.target;
         
         const formData = new FormData(form);
+
+
         const formJson = Object.fromEntries(formData.entries());
         
-        
-        await store.sendMessage(store.user.id, store.user.secret.secret, location, formJson)
+        const resp_id = await store.sendMessage(store.user.id, store.user.secret.secret, location, formJson)
+        setEndPost(+resp_id)
+
+        setMessage('')
+        setFetchMessage((val) => !val)
     }
-
-    function openInfo() {
-
-    }
-
-    function foulSend() {
-
-    }
-
-    var options_time: {} = {
-        timezone: 'UTC',
-        hour: 'numeric',
-        minute: 'numeric',
-    };
-
-    var options_day: {} = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timezone: 'UTC',
-    };
-
-    const mess = posts.map((post: any, index: number, arr: any) => {
-        let ind = index === 0 ? index : index - 1
-
-    return (
-    <div key={index}>
-        
-            {index === 0  
-                ? <div className="date__wrapper"><p className="name__time">{new Date(post.createdAt).toLocaleString("ru", options_day)}</p></div>
-                : new Date(post.createdAt).toDateString() !== new Date(arr[ind].createdAt).toDateString() 
-                    && 
-                    <div className="date__wrapper"><p className="name__time">{new Date(post.createdAt).toLocaleString("ru", options_day)}</p></div>}
-        
-        <div className="mes__wrapper">
-            <Link to={PERSONALE_CARD_ROUTE} onClick={openInfo}><img className="mes_foto" src={post.user.photo_50} /></Link>
-            <div className="name__first_last">
-                <Link to={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{post.user.first_name}</p></Link>
-                <Link to={PERSONALE_CARD_ROUTE} className="name__first"><p className="name__first">{post.user.last_name}</p></Link>
-                <p className="name__time">{new Date(post.createdAt).toLocaleString("ru", options_time)}</p>
-                <div className="foul">
-                    <select name="foul" className="foul_select" onChange={foulSend}>
-                        <option></option>
-                        <option className="foul__mes" id="foul__mes'.$user['id'].'" value="'.$user['id'].'">нарушение правил</option>
-                    </select>
-                    <p id="foul__respons"></p>
-                </div>
-            </div>
-            <div className="mes_message">{post.message}</div>
-            <div className="div_name_file">
-                <a href="../uploads/' . $sign . '" className="name__file">' . $name_file . '</a>
-            </div>
-        </div>
-    </div>)})
-        
 
     return (
         <div>
@@ -142,8 +98,9 @@ function Message() {
                         </div>
                         <div className="main__text">
                             <div id="message__ajax">
-                                {mess}
-                                {/* <MyButton text='Открыть сообщения' func={getMessages}/> */}
+                                
+                                <MessagesList posts={posts}/>
+
                             </div>	
                             <div id="button__message">
                                 <button id="button" onClick={openNewMesseg}>У вас есть непрочитанные сообщения. Показать?</button>
@@ -159,7 +116,8 @@ function Message() {
                             <progress id="progress" value="0" max="100" style={{display: "none"}}></progress>
 
                             <div id="forms">
-                                <form name="load_message" id="load_message">
+                                <UploadFiles />
+                                {/* <form name="load_message" id="load_message">
                                     <div className="clip">
                                         <div className="label-clip">
                                             <label htmlFor="fileToUpload">
@@ -168,10 +126,25 @@ function Message() {
                                             </label>
                                         </div>
                                     </div>
-                                </form>
+                                </form> */}
                                 <form name="send_message" id="send_message" method="post" onSubmit={sendMessage}>
+                                    {/* <div className="clip">
+                                        <div className="label-clip">
+                                            <label htmlFor="fileToUpload">
+                                                <img src={icon_attach} alt="Прикрепить" className="clippy-icon" />
+                                                <input type="file" id="fileToUpload" name="fileToUpload" defaultValue="" style={{display: "none"}} />
+                                            </label>
+                                        </div>
+                                    </div> */}
                                     <div className="message">
-                                        <textarea id="message" name="message" placeholder="Введите сообщение" />
+                                        <textarea 
+                                            id="message" 
+                                            name="message" 
+                                            placeholder="Введите сообщение" 
+                                            value={message} 
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            required
+                                        />
                                     </div>
                                     <div className="class_none">
                                         <p id="clip_files"></p>

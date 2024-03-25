@@ -10,6 +10,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { User } from '../users/user.model';
+import { Files } from '../files/files.model';
 
 interface MessagesCreationAttrs {
   location: string;
@@ -41,4 +42,7 @@ export class Messages extends Model<Messages, MessagesCreationAttrs> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @HasMany(() => Files) 
+  files: Files[];
 }

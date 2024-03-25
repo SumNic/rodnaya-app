@@ -6,8 +6,8 @@ import { PersonaleUser } from "../models/PersonaleUser";
 
 export default class MessagesService {
 
-    static async sendMessage(id_user: number, secret: string, location: string | undefined, form: any): Promise<AxiosResponse<IUser>> {
-        return $api.post<IUser>('/send-message', {id_user, secret, location, form})
+    static async sendMessage(id_user: number, secret: string, location: string | undefined, form: any): Promise<AxiosResponse<number>> {
+        return $api.post<number>('/send-message', {id_user, secret, location, form})
     }
 
     static async getAllMessages(id_user: number, secret: string, location: string | undefined): Promise<AxiosResponse<any>> {

@@ -59,8 +59,8 @@ export class AppLocationController {
     status: HttpStatus.CREATED,
     description: 'Операция прошла успешно.',
   })
-  @Roles(ROLES.ADMIN)
-  @UseGuards(RolesGuard) 
+  // @Roles(ROLES.ADMIN)
+  // @UseGuards(RolesGuard) 
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'JWT токен не указан в заголовках',

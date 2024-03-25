@@ -18,7 +18,7 @@ export class MessagesService {
    * @param {any} dto - DTO для добавления сообщения.
    * @returns AddRoleDto - Данные роли.
    */
-    async addMessage(dto: CreateMessageDto): Promise<any> {
+    async addMessage(dto: CreateMessageDto): Promise<number> {
 
         const user = await this.usersService.getUser(dto.id_user)        
 
@@ -29,7 +29,7 @@ export class MessagesService {
                     message: dto.form.message
                 })
             await user.$add('messages', message);
-            return user
+            return message.id
         }
         // await declaration.update({ declaration: dto.declaration })
         // const declaration = await this.declarationRepository.create(dto)

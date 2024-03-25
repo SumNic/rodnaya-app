@@ -22,6 +22,7 @@
       "@app/common/*": ["libs/common/src/*"],
       "@app/models": ["libs/models/src"],
       "@app/models/*": ["libs/models/src/*"]
-    }
+    },
+    // "types": ["Multer"]
   }
 }

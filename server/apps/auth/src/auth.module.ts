@@ -20,6 +20,7 @@ import { SecretModule } from './secret/secret.module';
 import { SecretController } from './secret/secret.controller';
 import { MessagesController } from './messages/messages.controller';
 import { MessagesModule } from './messages/messages.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -57,8 +58,17 @@ import { MessagesModule } from './messages/messages.module';
     DeclarationModule,
     SecretModule,
     MessagesModule,
+    FilesModule,
   ],
-  controllers: [AuthController, ResidencyController, TokensController, UsersController, DeclarationController, SecretController, MessagesController],
+  controllers: [
+    AuthController, 
+    ResidencyController, 
+    TokensController, 
+    UsersController, 
+    DeclarationController, 
+    SecretController, 
+    MessagesController
+  ],
   providers: [AuthService],
 })
 export class AuthModule {}

@@ -29,6 +29,7 @@ export default class Store {
     cancelAction = false // используется для закрытия окна редактирования в Personale_page
     declaration = ''
     isDelProfile = false
+    files = [] as string[]
 
     constructor() {
         this.uuid = uuidv4()
@@ -70,7 +71,7 @@ export default class Store {
         this.region = region
     }
 
-    setLocality (locality: LocationUser[]) {
+    setLocality(locality: LocationUser[]) {
         this.locality = locality
     }
 
@@ -92,6 +93,10 @@ export default class Store {
 
     setDelProfile(bool: boolean) {
         this.isDelProfile = bool
+    }
+
+    setFiles(file: string) {
+        this.files.push(file)
     }
 
     async logout(allDeviceExit: boolean) {
@@ -287,7 +292,8 @@ export default class Store {
     async sendMessage(id_user: number, secret: string, location: string | undefined, form: any) {
         try {            
             const response = await MessagesService.sendMessage(id_user, secret, location, form)
-            this.setUser(response.data)
+            // this.setUser(response.data)
+            return response.data
         } catch(e: any) {
             return { data: e.response?.data?.message }
         }

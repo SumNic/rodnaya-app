@@ -466,8 +466,8 @@ export class AuthService {
   //   }
 
   //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: 'Электронная почта свободна',
+  //     statusCode: HttpStatus.OK, 
+  //     message: 'Электронная почта свободна', 
   //   };
   // }
 
