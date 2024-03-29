@@ -2,6 +2,7 @@ import { JwtAuthGuard } from '@app/common';
 import { AUTH_SERVICE } from '@app/common/auth/service';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import {
+  BadRequestException,
     Controller,
   Get,
   HttpStatus,
@@ -63,6 +64,7 @@ export class AppFilesController {
   //   }))
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if(file.size > 20000000) return new RpcException(new BadRequestException('Размер файла должен быть не 20мб'))
     return this.filesClient
       .send('saveFile', file)
       .pipe(

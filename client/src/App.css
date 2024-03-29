@@ -770,7 +770,7 @@ display: none;
     font-family: 'Inter';
     font-style: normal;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 #forms{
@@ -1428,22 +1428,24 @@ textarea[name="message"] {
     display: none;
 }
 
-#progress{
-    margin-left: 5px;
+progress{
+    margin: 0 25px;
+    width: 40px;
+    accent-color: #6d82d7;
 }
 
 #progress_start{
     word-break: break-word;
+    padding: 0 10px;
 }
 
 #progress_end{
-    margin-left: 10px;
-    width: 15px;
-    height: 15px;
+    margin: 0 10px;
+    width: 14px;
+    height: 14px;
 }
 
 #show_clip{
-    display:none;
     width: 100%;
     float: flex;
     align-items: center;

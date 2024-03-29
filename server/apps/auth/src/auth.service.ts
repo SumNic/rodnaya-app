@@ -517,7 +517,7 @@ export class AuthService {
 
     await this.tokenService.removeRefreshToken({id, uuid: null, allDeviceExit: true});
     // const user = await this.userService.getUser(id);    
-    // const declaration = await this.declarationService.deleteDeclaration(id);
+    // const declaration = await this.declarationService.deleteDeclaration(id); 
     user.roles = null
     // user.residency = null 
     user.declaration = null

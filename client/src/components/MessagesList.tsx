@@ -29,7 +29,7 @@ function MessagesList(props: Props) {
     }
 
     return (
-        <>
+        <div id="message__ajax">
             {props.posts.map((post: any, index: number, arr: any) => 
                 <div key={post.id} id={post.id}>
                     
@@ -59,7 +59,7 @@ function MessagesList(props: Props) {
                         </div>
                     </div>
                 </div>)}
-        </>
+        </div>
         )
 }
 

@@ -30,6 +30,8 @@ export default class Store {
     declaration = ''
     isDelProfile = false
     files = [] as string[]
+    progressLoadValue: number = 0
+    newMessage = false
 
     constructor() {
         this.uuid = uuidv4()
@@ -97,6 +99,15 @@ export default class Store {
 
     setFiles(file: string) {
         this.files.push(file)
+    }
+
+    setProgressLoadValue(nbr: number) {
+        this.progressLoadValue = nbr
+        console.log(this.progressLoadValue, 'this.progressLoadValue')
+    }
+
+    setNewMessage(bool: boolean) {
+        this.newMessage = bool
     }
 
     async logout(allDeviceExit: boolean) {

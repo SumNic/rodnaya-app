@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import Store from './store/store';
 
 interface State {
-  store: Store, 
+  store: Store,
 }
 
 const store = new Store()
