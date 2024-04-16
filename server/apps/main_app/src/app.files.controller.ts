@@ -3,17 +3,14 @@ import { AUTH_SERVICE } from '@app/common/auth/service';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import {
   BadRequestException,
-    Controller,
-  Get,
+  Controller,
   HttpStatus,
   Inject,
   Post,
-  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -23,48 +20,47 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { catchError } from 'rxjs';
-// import { Express } from 'express';
-import { Multer } from "multer";
-
 
 @Controller()
 export class AppFilesController {
   constructor(
     @Inject(AUTH_SERVICE) private filesClient: ClientProxy,
-    private configService: ConfigService,
-    // private readonly diskStorage: diskStorage
   ) {}
 
 
-  @ApiTags('Отправка сообщения')
-  @ApiOperation({ summary: 'Добавление нового сообщения' })
+  @ApiTags('Загрузка файла')
+  @ApiOperation({ summary: 'Добавление нового файла' })
   @Post('/upload-files')
   @ApiBody({ type: CreateMessageDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Декларация добавлена',
-    // type: OutputUserAndTokens,      
+    description: 'Файл загружен'  
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Неккоректные данные',
   })
   @UseGuards(JwtAuthGuard)
-  // @UseInterceptors(FileInterceptor('file', {
-  //     // storage: this.diskStorage,
-  //     fileFilter: (req, file, cb) => {
-  //       // const isImage = file.mimetype === 'image/png' || file.mimetype === 'image/jpeg';
-  //       console.log(file)
-  //       const isImage = true
-  //       const validFile = isImage && file.size < 500000;
-  //       console.log(validFile)
-        
-  //       return cb(null, validFile);
-  //     },
-  //   }))
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    if(file.size > 20000000) return new RpcException(new BadRequestException('Размер файла должен быть не 20мб'))
+    if(file.size > 20000000) return new RpcException(new BadRequestException('Размер файла должен быть не более 20мб'))
+    const arrTypeFile = [
+      'image/jpg', 
+      'image/png', 
+      'image/jpeg', 
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.oasis.opendocument.text',
+      ]
+    // console.log(file.mimetype, 'file.mimetype')
+    const isType = arrTypeFile.reduce((accum: number, type: string) => {
+      if(file.mimetype === type) {
+        return accum + 1
+      }
+      return accum
+    }, 0)
+    // if(!isType) return new RpcException(new BadRequestException('Допустимы расширения: jpg, png, jpeg, pdf, doc, rtf, odt'))
     return this.filesClient
       .send('saveFile', file)
       .pipe(
@@ -73,15 +69,6 @@ export class AppFilesController {
         }),
       )
   }
-  // async addMessage(@Body() dto: any) {  
-  //   return this.filesClient
-  //     .send('sendMessage', dto)
-  //     .pipe(
-  //       catchError(async (error) => {
-  //         return new RpcException(error) 
-  //       }),
-  //     )
-  // } 
 } 
 
 

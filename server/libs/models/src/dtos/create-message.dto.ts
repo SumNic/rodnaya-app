@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length } from 'class-validator';
+import { IsEmail, IsInt, IsNumber, IsString, Length } from 'class-validator';
 
 export class CreateMessageDto {
   @ApiProperty({
     example: 1,
     description: 'ID учредителя',
   })
-  @IsString({ message: 'Должно быть числом' })
+  @IsInt({ message: 'Должно быть числом' })
   id_user: number;
 
   @ApiProperty({
@@ -27,9 +27,10 @@ export class CreateMessageDto {
   //   example: 'Сообщение',
   //   description: 'Текст сообщения',
   // })
-  form : {
-    message: string;
-  }
+  form : { 
+    message: string, 
+    files: any;
+  };
 
 
   

@@ -1,5 +1,7 @@
 interface Props {
-    name: string;
+    id?: string;
+    nameDiv?: string;
+    name?: string;
     src: string;
     func: () => void;
   }
@@ -7,8 +9,8 @@ interface Props {
 function MyButtonIcon(props: Props) {
 
     return (
-        <button className={props.name}>
-            <img className={`${props.name}_image`} src={props.src} alt={props.name} onClick={props.func}/>
+        <button className={props.nameDiv}>
+            <img className={props.name} id={props.id} src={props.src} alt={props.name} onClick={props.func}/>
         </button>
     );
 

@@ -27,6 +27,8 @@ import { DeleteUserDto } from '@app/models/dtos/delete-user.dto';
 import { GetMessagesDto } from '@app/models/dtos/get-messages.dto';
 import { FilesService } from './files/files.service';
 import { Express } from 'express';
+import { Files } from '@app/models/models/files/files.model';
+import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 
 @Controller()
 export class AuthController {
@@ -250,7 +252,7 @@ export class AuthController {
    * Добавление нового сообщения
    */
   @MessagePattern('sendMessage')
-  async addMessage(@Payload() dto: any): Promise<number> {
+  async addMessage(@Payload() dto: CreateMessageDto): Promise<number> {
       return await this.messagesService.addMessage(dto)
   }
 
@@ -266,8 +268,7 @@ export class AuthController {
    * Получение сообщений
    */
   @MessagePattern('saveFile')
-  async saveFile(@Payload() file: Express.Multer.File): Promise<any> {
-    console.log(file, 'file auth')
+  async saveFile(@Payload() file: Express.Multer.File): Promise<Files> {
       return await this.filesService.saveFile(file)
   }
 

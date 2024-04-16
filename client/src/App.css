@@ -890,12 +890,20 @@ display: none;
 }
 
 .div_name_file{
+    display: block;
     margin-left: 56px;
 }
 
 .name__file{
+    display: block;
     text-decoration: none;
     word-break: break-word;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.name__file:hover {
+  opacity: 1.0;
 }
 
 .main__text{
@@ -1447,7 +1455,7 @@ progress{
 
 #show_clip{
     width: 100%;
-    float: flex;
+    /* float: flex; */
     align-items: center;
     padding-left: 5px;
 }

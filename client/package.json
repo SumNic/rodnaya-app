@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-frontend-developer/buffers": "^2.0.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -15,6 +16,7 @@
     "@vkid/sdk": "^1.0.2",
     "@vkontakte/superappkit": "^1.60.4",
     "axios": "^1.4.0",
+    "buffer": "^6.0.3",
     "dotenv": "^16.4.1",
     "mobx": "^6.9.0",
     "mobx-react-lite": "^3.4.3",

@@ -48,6 +48,9 @@ import { FilesModule } from './files/files.module';
       }),
       inject: [ConfigService],
     }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: path.resolve(__dirname, '..', 'static'),
+    // }), 
     DatabaseModule,
     RmqModule,
     UserModule,

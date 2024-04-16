@@ -67,13 +67,13 @@ function Personale_page() {
                 <img className="photo_big" src={store.user.photo_max} alt="Ваше фото"></img>
                 <div className="personale_p__wrapper" style={{paddingBottom: 0}}>
                     <h2 style={{fontSize: "18px"}}>
-                        Персональные данные: <MyButtonIcon src={icon_edit} name="edit" func={editDataPersonale} />
+                        Персональные данные: <MyButtonIcon src={icon_edit} nameDiv="edit" name="edit_image" func={editDataPersonale} />
                     </h2>
                     <p className="personale_data">Имя: {store.user.first_name}</p>
                     <p className="personale_data">Фамилия: {store.user.last_name}</p>
                     <p className="personale_data"><a href={`https://vk.com/id${store.user.vk_id}`}>Страница ВК</a></p>
                     <h2 style={{fontSize: "18px"}}>
-                        Место жительства:  <MyButtonIcon src={icon_edit} name="edit" func={editDataResidency} />
+                        Место жительства:  <MyButtonIcon src={icon_edit} nameDiv="edit" name="edit_image" func={editDataResidency} />
                     </h2>
                     <p className="personale_data">Страна: {store.user.residency.country}</p>
                     <p className="personale_data">Регион: {store.user.residency.region}</p>
@@ -81,7 +81,7 @@ function Personale_page() {
                 </div>
                 <div style={{width: "100%", display: "block"}}>
                     <h2 style={{fontSize: "19px", marginBottom: 0, textAlign: "center"}}>
-                        Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} name="edit" func={editDataDeclaration} />
+                        Декларация моей Родной партии:  <MyButtonIcon src={icon_edit} nameDiv="edit" name="edit_image" func={editDataDeclaration} />
                     </h2>
                 </div>                
                 <div style={{width: "100%"}}>
@@ -89,7 +89,7 @@ function Personale_page() {
                 </div>
                 
                 <h2 style={{fontSize: "19px"}}>
-                    Управление профилем:  <MyButtonIcon src={icon_edit} name="edit" func={editDataProfile} />
+                    Управление профилем:  <MyButtonIcon src={icon_edit} nameDiv="edit" name="edit_image" func={editDataProfile} />
                 </h2>
             </div>
         </>

@@ -13,6 +13,10 @@ function Error_Page() {
     const {store} = useContext(Context)
 
     function returnHome() {
+        if(store.isMessageError === 'Доступ запрещен') {
+            localStorage.removeItem('token')
+            localStorage.removeItem('device')
+        }
         store.setError(false)
         navigate(HOME_ROUTE)
     }

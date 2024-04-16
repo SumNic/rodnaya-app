@@ -11,6 +11,8 @@ import { ResidencyResponse } from "../models/response/ResidencyResponse";
 import UserService from "../services/UserService";
 import { DeclarationUser } from "../models/DeclarationUser";
 import MessagesService from "../services/MessagesService";
+import { IFiles } from "../models/IFiles";
+import { MessageForm } from "../models/MessageForm";
 
 export default class Store {
     user = {} as IUser
@@ -29,7 +31,7 @@ export default class Store {
     cancelAction = false // используется для закрытия окна редактирования в Personale_page
     declaration = ''
     isDelProfile = false
-    files = [] as string[]
+    files = [] as IFiles[]
     progressLoadValue: number = 0
     newMessage = false
 
@@ -97,8 +99,12 @@ export default class Store {
         this.isDelProfile = bool
     }
 
-    setFiles(file: string) {
+    setFiles(file: IFiles) {
         this.files.push(file)
+    }
+
+    resetFiles() {
+        this.files = [] as IFiles[]
     }
 
     setProgressLoadValue(nbr: number) {
@@ -300,10 +306,9 @@ export default class Store {
         }
     }
 
-    async sendMessage(id_user: number, secret: string, location: string | undefined, form: any) {
+    async sendMessage(id_user: number, secret: string, location: string, form: MessageForm) {
         try {            
             const response = await MessagesService.sendMessage(id_user, secret, location, form)
-            // this.setUser(response.data)
             return response.data
         } catch(e: any) {
             return { data: e.response?.data?.message }

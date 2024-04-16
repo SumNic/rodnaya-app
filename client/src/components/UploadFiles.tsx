@@ -3,6 +3,8 @@ import { useUploadForm } from '../hooks/useUploadForm';
 import { Context } from '..';
 import del_new from '../images/del_new.png';
 import save_new from '../images/save_new.png';
+import {Buffer} from 'buffer';
+import MyButtonIcon from './MyButtonIcon';
 
 interface IState {
   file: File | undefined;
@@ -22,8 +24,6 @@ export default function UploadFiles() {
     const [nameFile, setNameFile] = useState<string>('');
     const [isError, setIsError] = useState<string>('');
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
-
-    // store.setProgressLoadValue(progress)
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const file = event.target.files?.[0];
@@ -55,28 +55,39 @@ export default function UploadFiles() {
                 return
             }
             setIsSuccess(true)
+            store.setFiles(response.data)
 
         } catch (error: any) {
-            console.error(error, 'error');
             setIsError(error.message)
         }
     };
 
-    const style = isLoading ? {display: "flex"} : {display: "none"}
-
+    const style = isLoading ? {display: "block"} : {display: "none"}
 
     return (
         <>
             <div id="show_clip" style={style}>
-                <p id="progress_start">{state.file?.name}</p>
-                {progress < 100 && <progress value={progress} max={100} />}
-                {isError && 
-                    <>
-                        <img src={del_new} id='progress_end'></img>
-                        <p id="progress_start" style={{color:'red'}}>{isError}</p>
-                    </>                   
+                {store.files && store.files.map((files, index) => {
+                    let originFileName = Buffer.from(files.fileName, 'latin1').toString('utf8')
+                    return (
+                        <div key={index} style={{display: 'flex', paddingBottom: '5px'}}>
+                            <p id="progress_start">{originFileName}</p>
+                            <img src={save_new} id='progress_end'></img>
+                        </div>
+                    )})
                 }
-                {isSuccess && <img src={save_new} id='progress_end'></img>}
+                {progress < 100 && 
+                    <div>
+                        <p id="progress_start">{state.file?.name}</p>
+                        <progress value={progress} max={100} />
+                    </div>}
+                {isError && 
+                    <div style={{display: 'flex', paddingBottom: '5px'}}>
+                        <p id="progress_start">{state.file?.name}</p>
+                        <MyButtonIcon nameDiv="edit" id="progress_end" src={del_new} func={() => setIsError('')} />
+                        <p id="progress_start" style={{color:'red'}}>{isError}</p>
+                    </div>                   
+                }
             </div>
             <form name="load_message" id="load_message">
                 <div className="clip">

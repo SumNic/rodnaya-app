@@ -31,6 +31,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/sequelize": "^9.0.2",
+    "@nestjs/serve-static": "^4.0.2",
     "@nestjs/swagger": "^6.3.0",
     "amqp-connection-manager": "^4.1.12",
     "amqplib": "^0.7.0",
@@ -52,7 +53,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "sequelize": "^6.31.0",
-    "sequelize-typescript": "^2.1.5"
+    "sequelize-typescript": "^2.1.5",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

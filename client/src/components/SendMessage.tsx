@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Context } from '..';
 import MyButton from './MyButton';
 import MessagesService from '../services/MessagesService';
+import { IFiles } from '../models/IFiles';
 
 interface Props {
   location: string;
@@ -17,6 +18,7 @@ function SendMessage (props: Props) {
 
     useEffect(() => {
         setMessage('')
+        store.resetFiles()
     }, [props.location])
 
     async function sendMessage(e: any) {
@@ -27,15 +29,18 @@ function SendMessage (props: Props) {
         const form = e.target;
         
         const formData = new FormData(form);
+        
+        const arrIdFiles = store.files.map((file: IFiles) => file.id)
+        formData.append('files', JSON.stringify(arrIdFiles))
 
-
-        const formJson = Object.fromEntries(formData.entries());
+        const formJson = Object.fromEntries(formData.entries())
         
         const resp_id = await store.sendMessage(store.user.id, store.user.secret.secret, props.location, formJson)
         setEndPost(+resp_id)
 
         setMessage('')
         store.setNewMessage(true)
+        store.resetFiles()
     }
 
     return (

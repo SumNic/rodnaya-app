@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { config } from 'process'
 
-export const API_URL = ' http://localhost:5000'
+export const API_URL = ' http://localhost:5000/api'
 
 const $api_files = axios.create({
     withCredentials: true,

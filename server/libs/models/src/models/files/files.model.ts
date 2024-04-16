@@ -14,6 +14,7 @@ import { Messages } from '../messages/messages.model';
 
 interface FilesCreationAttrs {
   fileName: string;
+  fileNameUuid: string;
 }
 
 @Table({ tableName: `files` })
@@ -28,6 +29,9 @@ export class Files extends Model<Files, FilesCreationAttrs> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   fileName: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  fileNameUuid: string;
 
   @ForeignKey(() => Messages)
   @Column({type: DataType.INTEGER})

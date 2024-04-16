@@ -10,7 +10,10 @@ import { UserModule } from '../users/users.module';
   controllers: [FilesController],
   imports: [
     SequelizeModule.forFeature([Files]),
-    UserModule
+    UserModule,
+    // ServeStaticModule.forRoot({
+    //   rootPath: path.resolve(__dirname, 'static'),
+    // }),
   ],
   exports: [FilesService]
 })

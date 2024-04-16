@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
-import { PERSONALE_CARD_ROUTE } from "../utils/consts";
+import { FILES_ROUTE, PERSONALE_CARD_ROUTE } from "../utils/consts";
+import { IFiles } from "../models/IFiles";
+import {Buffer} from 'buffer';
 
 interface Props {
     posts: [];
   }
 
 function MessagesList(props: Props) {
+
+    console.log(props.posts)
 
     var options_time: {} = {
         timezone: 'UTC',
@@ -55,7 +59,11 @@ function MessagesList(props: Props) {
                         </div>
                         <div className="mes_message">{post.message}</div>
                         <div className="div_name_file">
-                            <a href="../uploads/' . $sign . '" className="name__file">' . $name_file . '</a>
+                            {post.files.map((file: IFiles) => {
+                                let originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8')
+                                // return (<a href={`http://localhost:5000/${file.fileNameUuid}`}  target="_blank" key ={file.id} className="name__file">{originFileName}</a>)
+                                return (<Link to={`${FILES_ROUTE}/${file.fileNameUuid}`}  target="_blank" key ={file.id} className="name__file">{originFileName}</Link>)
+                            })}
                         </div>
                     </div>
                 </div>)}

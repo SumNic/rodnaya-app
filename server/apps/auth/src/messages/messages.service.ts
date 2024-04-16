@@ -1,10 +1,12 @@
 import { User } from '@app/models';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import { Messages } from '@app/models/models/messages/messages.model';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersService } from '../users/users.service';
 import { GetMessagesDto } from '@app/models/dtos/get-messages.dto';
+import { RpcException } from '@nestjs/microservices';
+import { Order } from '@app/common';
 
 @Injectable()
 export class MessagesService {
@@ -29,21 +31,16 @@ export class MessagesService {
                     message: dto.form.message
                 })
             await user.$add('messages', message);
+            const arrFileId = JSON.parse(dto.form.files)
+            arrFileId.map((fileId: number) => {
+                message.$add('file', fileId)
+                })
             return message.id
         }
-        // await declaration.update({ declaration: dto.declaration })
-        // const declaration = await this.declarationRepository.create(dto)
-        
 
-        // if (role && user) {
-        //   await user.$remove('role', role.id);
-
-        //   return dto;
-        // }
-
-        // throw new RpcException(
-        //   new NotFoundException('Пользователь или роль не найдены'),
-        // );
+        throw new RpcException(
+          new InternalServerErrorException('Сообщение не было отправлено'),
+        );
     }
 
     /**
@@ -51,7 +48,7 @@ export class MessagesService {
    * @param {any} dto - DTO для списка сообщений сообщения.
    * @returns AddRoleDto - Данные роли.
    */
-    async getAllMessage(dto: GetMessagesDto): Promise<any> {
+    async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
 
         const user = await this.usersService.getUser(dto.id_user)        
 
@@ -62,22 +59,14 @@ export class MessagesService {
                         location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля' , 
                         blocked: false
                     },
-                include: { all: true }
-                })
+                include: { all: true },
+                order:[['id', Order.ASC]]
+            })
             return messages
         }
-        // await declaration.update({ declaration: dto.declaration })
-        // const declaration = await this.declarationRepository.create(dto)
-        
 
-        // if (role && user) {
-        //   await user.$remove('role', role.id);
-
-        //   return dto;
-        // }
-
-        // throw new RpcException(
-        //   new NotFoundException('Пользователь или роль не найдены'),
-        // );
+        throw new RpcException(
+          new InternalServerErrorException('Произошла ошибка на сервере. Повторите попытку позже.'),
+        );
     }
 }

@@ -55,7 +55,7 @@ export class AppMessagesController {
   @ApiBody({ type: CreateMessageDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Декларация добавлена',
+    description: 'Сообщение добавлено',
     // type: OutputUserAndTokens, 
   })
   @ApiResponse({
@@ -63,7 +63,7 @@ export class AppMessagesController {
     description: 'Неккоректные данные',
   })
   @UseGuards(JwtAuthGuard)
-  async addMessage(@Body() dto: any) {
+  async addMessage(@Body() dto: CreateMessageDto) {
     return this.messagesClient
       .send('sendMessage', dto)
       .pipe(

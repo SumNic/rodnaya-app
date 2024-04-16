@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Context } from '..';
 import { authRoutes, registrationRoutes, errorRoutes, publicRoutes, restoreRoutes } from '../routes';
-import { ERROR_ROUTE, HOME_ROUTE, PAGE_404_ROUTE } from '../utils/consts';
+import { ERROR_ROUTE, FILES_ROUTE, HOME_ROUTE, PAGE_404_ROUTE } from '../utils/consts';
 
 function AppRouter() {
     const {store} = useContext(Context)
@@ -25,7 +25,8 @@ function AppRouter() {
                 <Route key={path} path={path} element={<Component />} />
             )}
             {store.isError && <Route path='*' element={<Navigate to={ERROR_ROUTE} />} />}
-            {store.isAuth && <Route path='*' element={<Navigate to={PAGE_404_ROUTE}/>} />}
+            {store.isError && <Route path='*' element={<Navigate to={ERROR_ROUTE} />} />}
+            {store.isAuth && <Route path={`${FILES_ROUTE}/:namefile`} element={<Navigate to={`${FILES_ROUTE}/:namefile`}/>} />}
             <Route path='*' element={<Navigate to={HOME_ROUTE}/>} />
         </Routes>
     );

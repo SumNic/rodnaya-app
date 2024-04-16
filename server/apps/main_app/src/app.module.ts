@@ -11,6 +11,8 @@ import { LocationModule } from 'apps/location/src/location.module';
 import { LOCATION_SERVICE, MESSAGES_SERVICE, USERS_SERVICE } from '@app/common/constants/services';
 import { AppMessagesController } from './app.message.controller';
 import { AppFilesController } from './app.files.controller';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path'
   
   @Module({
     imports: [
@@ -24,8 +26,11 @@ import { AppFilesController } from './app.files.controller';
       }),
       forwardRef(() => AuthModule),
       RmqModule.register({ name: LOCATION_SERVICE }),
-      // RmqModule.register({ name: MESSAGES_SERVICE }),
       RmqModule.register({ name: USERS_SERVICE }),
+      ServeStaticModule.forRoot({
+        rootPath: path.resolve(__dirname, '..', 'static'), 
+        exclude: ['/api/(.*)'],
+      }),
     ],
     controllers: [
       AppAuthController,
@@ -35,4 +40,5 @@ import { AppFilesController } from './app.files.controller';
     ],
     providers: [],
   })
+
   export class AppModule {}

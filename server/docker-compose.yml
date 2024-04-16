@@ -9,7 +9,6 @@ services:
       - ./apps/main_app/.env
     depends_on:
       - location
-      # - messages
       - auth
       - rabbitmq
     volumes:
@@ -17,39 +16,6 @@ services:
       - /usr/src/app/node_modules
     ports:
       - '5000:5000'
-  # film:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/film/Dockerfile
-  #     target: development
-  #   command: npm run start:dev film
-  #   env_file:
-  #     - ./apps/film/.env
-  #   depends_on:
-  #     - rabbitmq
-  #     - postgres-main
-  #     - staff
-  #     - country
-  #     - genre
-  #     - score
-  #     - review
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  # staff:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/staff/Dockerfile
-  #     target: development
-  #   command: npm run start:dev staff
-  #   env_file:
-  #     - ./apps/staff/.env
-  #   depends_on:
-  #     - postgres-main
-  #     - rabbitmq
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
   location:
     build:
       context: .
@@ -64,62 +30,6 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-  # messages:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/messages/Dockerfile
-  #     target: development
-  #   command: npm run start:dev messages
-  #   env_file:
-  #     - ./apps/messages/.env
-  #   depends_on:
-  #     - postgres-messages
-  #     - rabbitmq
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  # genre:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/genre/Dockerfile
-  #     target: development
-  #   command: npm run start:dev genre
-  #   env_file:
-  #     - ./apps/genre/.env
-  #   depends_on:
-  #     - postgres-main
-  #     - rabbitmq
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  # score:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/score/Dockerfile
-  #     target: development
-  #   command: npm run start:dev score
-  #   env_file:
-  #     - ./apps/score/.env
-  #   depends_on:
-  #     - postgres-main
-  #     - rabbitmq
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  # review:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/review/Dockerfile
-  #     target: development
-  #   command: npm run start:dev review
-  #   env_file:
-  #     - ./apps/review/.env
-  #   depends_on:
-  #     - postgres-main
-  #     - rabbitmq
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
   auth:
     build:
       context: .
@@ -161,13 +71,3 @@ services:
     ports:
       - '5020:5432'
     restart: always
-  # postgres-messages:
-  #   image: postgres:15
-  #   environment:
-  #     POSTGRES_DB: messages
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: root
-  #     PG_DATA: /var/lib/postgresql/data
-  #   ports:
-  #     - '5030:5432'
-  #   restart: always
