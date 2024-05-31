@@ -1,9 +1,6 @@
 import {
-  BelongsTo,
-    BelongsToMany,
-    Column,
+  Column,
     DataType,
-    ForeignKey,
     HasMany,
     Model,
     Table,

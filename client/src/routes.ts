@@ -1,6 +1,6 @@
 import Admin from "./pages/Admin"
 import Personale_page from "./pages/Personale_page"
-import { ADMIN_ROUTE, ERROR_ROUTE, EXIT_ROUTE, FILES_ROUTE, FOUNDERS_ROUTE, HOME_ROUTE, LOGIN_ROUTE, MESSAGES_ROUTE, PERSONALE_CARD_ROUTE, PERSONALE_ROUTE, REGISTRATION_ROUTE, RESTORE_PROFILE_ROUTE, VK_CALLBACK_ROUTE } from "./utils/consts"
+import { ADMIN_ROUTE, ERROR_ROUTE, EXIT_ROUTE, FILES_ROUTE, FOUNDERS_ROUTE, HOME_ROUTE, LOGIN_ROUTE, MESSAGES_ROUTE, PERSONALE_CARD_ROUTE, PERSONALE_ROUTE, REGISTRATION_ROUTE, RESTORE_PROFILE_ROUTE, RULES_ROUTE, VK_CALLBACK_ROUTE } from "./utils/consts"
 import Home from "./pages/Home"
 import Messages from "./pages/Messages"
 import VkCallback from "./pages/VkCallback"
@@ -11,6 +11,7 @@ import Exit from "./pages/Exit"
 import Founders from "./pages/Founders"
 import Personale_kard from "./pages/Personale_kard"
 import RestoreUser from "./pages/RestoreUser"
+import Rules from "./pages/Rules"
 
 export const adminRoutes = [
     {
@@ -72,6 +73,10 @@ export const publicRoutes = [
     {
         path: `${PERSONALE_CARD_ROUTE}/:id`,
         Component: Personale_kard
+    },
+    {
+        path: RULES_ROUTE,
+        Component: Rules
     },
 ]
 

@@ -53,14 +53,13 @@ export class AppFilesController {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.oasis.opendocument.text',
       ]
-    // console.log(file.mimetype, 'file.mimetype')
     const isType = arrTypeFile.reduce((accum: number, type: string) => {
       if(file.mimetype === type) {
         return accum + 1
       }
       return accum
     }, 0)
-    // if(!isType) return new RpcException(new BadRequestException('Допустимы расширения: jpg, png, jpeg, pdf, doc, rtf, odt'))
+    if(!isType) return new RpcException(new BadRequestException('Допустимы расширения: jpg, png, jpeg, pdf, doc, rtf, odt'))
     return this.filesClient
       .send('saveFile', file)
       .pipe(

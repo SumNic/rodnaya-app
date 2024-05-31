@@ -15,8 +15,16 @@ export const PERSONALE_CARD_ROUTE = '/founder'
 
 export const VK_ROUTE = '/vk'
 export const VK_CALLBACK_ROUTE = '/vk-auth'
+export const RULES_ROUTE = '/rules'
 
 export const ERROR_ROUTE = '/error'
 export const PAGE_404_ROUTE = '/404_not_faund'
 
 export const LOCALHOST = 'http://localhost'
+
+export enum LocationEnum {
+	'locality',
+	'region',
+    'country',
+    'world',
+}

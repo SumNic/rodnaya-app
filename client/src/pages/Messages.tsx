@@ -26,7 +26,12 @@ function Message() {
     const {store} = useContext(Context)
     
     const [posts, setPosts] = useState<any>([])
-    const [endPost, setEndPost] = useState<number>(0)
+
+    const [endPostLocality, setEndPostLocality] = useState<number>(0)
+    const [endPostRegion, setEndPostRegion] = useState<number>(0)
+    const [endPostCountry, setEndPostCountry] = useState<number>(0)
+    const [endPostWorld, setEndPostWorld] = useState<number>(0)
+
     const [fetchMessage, setFetchMessage] = useState<boolean>(false)
 
     const params = useParams();

@@ -1,6 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { useContext } from 'react';
 import { Context } from '..';
+import { RULES_ROUTE } from '../utils/consts';
+import { Link } from 'react-router-dom';
 
 function ConditionsForm() {
 
@@ -36,7 +38,7 @@ function ConditionsForm() {
                 <div className="registr__block">
                     <input type="checkbox" className="checkbox" id="registr3" name="registr3" value="regulations" required />
                     <label htmlFor="registr3">
-                        Я согласен(на) с<a href="rules" className="regul"> правилами</a> сайта Родная партия
+                        Я согласен(на) с<Link to={RULES_ROUTE} className="regul"> правилами</Link> сайта Родная партия
                     </label>
                 </div>
                 <div className="registr__block">

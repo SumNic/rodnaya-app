@@ -1,4 +1,5 @@
 import { DeclarationUser } from "./DeclarationUser";
+import { EndReadMessage } from "./EndReadMessage";
 import { LocationUser } from "./LocationUser";
 import { SecretUser } from "./SecretUser";
 
@@ -13,4 +14,5 @@ export interface IUser {
     residency: LocationUser;
     secret: SecretUser;
     declaration: DeclarationUser;
+    endReadMessage: EndReadMessage[];
 }

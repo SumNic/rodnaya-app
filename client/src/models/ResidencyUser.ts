@@ -1,3 +1,4 @@
+import { EndReadMessage } from "./EndReadMessage";
 import { SecretUser } from "./SecretUser";
 
 export interface ResidencyUser {
@@ -6,6 +7,7 @@ export interface ResidencyUser {
     region: string;
     locality: string;
     secret: string;
+    endReadMessage?: EndReadMessage;
     error? : {
         message: Date;
     }

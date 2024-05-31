@@ -13,10 +13,6 @@ import { HOME_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
 function Registration() {
 
     const {store} = useContext(Context)
-    const navigate = useNavigate()
-
-    const location = useLocation()
-    const { user } = location.state
 
     return (
         <div>
@@ -35,7 +31,7 @@ function Registration() {
                                 <MyButtonInput type="submit" form="condition" id="submit" value="Продолжить регистрацию" />
                             </>}
 
-                            {!store.user.residency && store.isRegistrationEnd && <OnChangeForm id={user.id} secret={user.secret.secret}/>}
+                            {!store.user.residency && store.isRegistrationEnd && <OnChangeForm id={store.user.id} secret={store.user.secret.secret}/>}
                             
                         </div>
                     </div>

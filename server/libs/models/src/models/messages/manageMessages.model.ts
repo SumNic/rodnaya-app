@@ -14,10 +14,9 @@ import { User } from '../users/user.model';
 interface ManageMessagesCreationAttrs {
   location: string;
   blocked: boolean;
-  message: string;
 }
 
-@Table({ tableName: 'manamgeMessage' })
+@Table({ tableName: 'manageMessage' })
 export class ManageMessages extends Model<ManageMessages, ManageMessagesCreationAttrs> {
   @Column({
     type: DataType.INTEGER,

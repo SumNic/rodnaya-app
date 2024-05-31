@@ -48,7 +48,6 @@ export default function UploadFiles() {
             formData.append('file', state.file); // fileInput is the input element where you get the file
             setNameFile(state.file.name)
             const response = await uploadForm(formData)
-            console.log(response);
 
             if(response.data.error) {
                 setIsError(response.data.error.message)
@@ -77,7 +76,7 @@ export default function UploadFiles() {
                     )})
                 }
                 {progress < 100 && 
-                    <div>
+                    <div style={{display: 'flex', paddingBottom: '5px'}}>
                         <p id="progress_start">{state.file?.name}</p>
                         <progress value={progress} max={100} />
                     </div>}

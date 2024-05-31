@@ -29,6 +29,7 @@ import { FilesService } from './files/files.service';
 import { Express } from 'express';
 import { Files } from '@app/models/models/files/files.model';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
+import { Messages } from '@app/models/models/messages/messages.model';
 
 @Controller()
 export class AuthController {
@@ -221,7 +222,7 @@ export class AuthController {
    */
    @MessagePattern('createResidency')
    async saveLocation(@Payload() dto: CreateResidencyDto): Promise<User> {
-     return await this.authService.createResidencyForUser(dto); 
+     return await this.authService.createResidencyForUser(dto);
    }
 
    /**
@@ -260,8 +261,16 @@ export class AuthController {
    * Получение сообщений
    */
   @MessagePattern('getAllMessages')
-  async getAllMessage(@Payload() dto: GetMessagesDto): Promise<any> {
+  async getAllMessage(@Payload() dto: GetMessagesDto): Promise<Messages[]> {
       return await this.messagesService.getAllMessage(dto)
+  }
+
+  /**
+   * Получение сообщений
+   */
+  @MessagePattern('getCountMessages')
+  async getCountMessages(@Payload() dto: GetMessagesDto): Promise<number> {
+      return await this.messagesService.getCountMessages(dto)
   }
 
   /**

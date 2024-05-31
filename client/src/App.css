@@ -488,8 +488,8 @@ body {
     background:#b1d6b2;
 }
 
-#messages0, #messages1, #messages2, #messages3{
-    display: none;
+#messages_count {
+    display: flex;
     width: 26px;
     height: 26px;
     border-radius: 13px;

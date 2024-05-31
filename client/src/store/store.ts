@@ -13,9 +13,12 @@ import { DeclarationUser } from "../models/DeclarationUser";
 import MessagesService from "../services/MessagesService";
 import { IFiles } from "../models/IFiles";
 import { MessageForm } from "../models/MessageForm";
+import { IUserVk } from "../models/IUserVk";
+import { CountNoReadMessages } from "../models/CountNoReadMessages";
 
 export default class Store {
     user = {} as IUser
+    userFromVk = {} as IUserVk
     isAuth = false
     isAuthVk = false
     isCondition = false
@@ -34,6 +37,8 @@ export default class Store {
     files = [] as IFiles[]
     progressLoadValue: number = 0
     newMessage = false
+    nameFile = ''
+    arrCountMessages: CountNoReadMessages[] = []
 
     constructor() {
         this.uuid = uuidv4()
@@ -46,6 +51,10 @@ export default class Store {
 
     setUser(user: IUser) {
         this.user = user
+    }
+
+    setUserFromVk(userFromVk: IUserVk) {
+        this.userFromVk = userFromVk
     }
 
     setAuthVk(bool: boolean) {
@@ -109,11 +118,24 @@ export default class Store {
 
     setProgressLoadValue(nbr: number) {
         this.progressLoadValue = nbr
-        console.log(this.progressLoadValue, 'this.progressLoadValue')
     }
 
     setNewMessage(bool: boolean) {
         this.newMessage = bool
+    }
+
+    setNameFile(str: string) {
+        this.nameFile = str
+    }
+
+    setArrCountMessages(location: string, count: number) {
+        let result = this.arrCountMessages.find(item => item.location === location)
+        if (result) {
+            return this.arrCountMessages.map(elem => {
+                if (elem.location === location) elem.count = count
+            })
+        }
+        this.arrCountMessages.push({location, count})
     }
 
     async logout(allDeviceExit: boolean) {
@@ -212,6 +234,7 @@ export default class Store {
                 return
             }
             localStorage.setItem('token', response.data.token)
+            console.log(response.data.user, 'response.data.user')
             this.setAuth(true)
             this.setUser(response.data.user)
         } catch(e: any) {
