@@ -81,8 +81,6 @@ export class UsersService {
 
     const newUser = this.getUser(user.id)
 
-    console.log(newUser, 'user')
-
     return newUser;
   }
 

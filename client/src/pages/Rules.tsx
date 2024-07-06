@@ -1,18 +1,18 @@
-import { Component, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import AuthVkButton from '../components/AuthVkButton';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-import { Context } from '..';
+// import { Context } from '..';
 import { observer } from 'mobx-react-lite';
-import { FOUNDERS_ROUTE, REGISTRATION_ROUTE } from '../utils/consts';
+import { REGISTRATION_ROUTE } from '../utils/consts';
 import MyButton from '../components/MyButton';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function Rules () {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     const navigate = useNavigate()
     

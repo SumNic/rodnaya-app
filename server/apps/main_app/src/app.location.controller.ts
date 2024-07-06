@@ -109,7 +109,6 @@ export class AppLocationController {
     description: 'Операция прошла успешно.',
   })
   async getRegions(@Param('country') country: string) {
-    console.log(country)
     
     return this.authClient
       .send('getRegions', country)
@@ -129,9 +128,7 @@ export class AppLocationController {
     status: HttpStatus.CREATED,
     description: 'Операция прошла успешно.',
   })
-  async getLocality(@Param('region') region: string) {
-    console.log(region)
-    
+  async getLocality(@Param('region') region: string) {    
     return this.authClient
       .send('getLocality', region)
       .pipe(

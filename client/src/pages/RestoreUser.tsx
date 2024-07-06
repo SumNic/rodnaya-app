@@ -1,18 +1,16 @@
-import { useContext } from 'react';
-import { Context } from '..';
-import ConditionsForm from '../components/ConditionsForm';
+// import { Context } from '..';
 import Footer from '../components/Footer';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
-import OnChangeForm from '../components/OnChangeForm';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import { observer } from 'mobx-react-lite';
 import { useLocation, useNavigate } from 'react-router-dom';
-import MyButtonInput from '../components/MyButtonInput';
 import MyButton from '../components/MyButton';
 import { HOME_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function RestoreUser() {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
     const navigate = useNavigate()
 
     const location = useLocation()

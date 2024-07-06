@@ -3,7 +3,7 @@ interface Props {
     nameDiv?: string;
     name?: string;
     src: string;
-    func: () => void;
+    func?: () => void;
   }
 
 function MyButtonIcon(props: Props) {

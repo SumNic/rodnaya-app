@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUploadForm } from '../hooks/useUploadForm';
-import { Context } from '..';
+// import { Context } from '..';
 import del_new from '../images/del_new.png';
 import save_new from '../images/save_new.png';
 import {Buffer} from 'buffer';
 import MyButtonIcon from './MyButtonIcon';
+import { useStoreContext } from '../contexts/StoreContext';
 
 interface IState {
   file: File | undefined;
@@ -16,7 +17,8 @@ const initialState: IState = {
 
 export default function UploadFiles() {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     const { isLoading, uploadForm, progress } = useUploadForm('/upload-files');
 
@@ -66,7 +68,7 @@ export default function UploadFiles() {
     return (
         <>
             <div id="show_clip" style={style}>
-                {store.files && store.files.map((files, index) => {
+                {store.files && store.files.map((files: any, index: number) => {
                     let originFileName = Buffer.from(files.fileName, 'latin1').toString('utf8')
                     return (
                         <div key={index} style={{display: 'flex', paddingBottom: '5px'}}>

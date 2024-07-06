@@ -7,7 +7,7 @@ export class GetMessagesDto {
     description: 'ID учредителя',
   })
   @IsString({ message: 'Должно быть числом' })
-  id_user: number;
+  id: number;
 
   @ApiProperty({
     example: 'dfgdfg',

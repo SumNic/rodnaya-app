@@ -1,11 +1,12 @@
-import { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Context } from '..';
+// import { Context } from '..';
 import MyButton from './MyButton';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function PersonaleData () {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     async function handleSubmit(e: any) {
     // Prevent the browser from reloading the page
@@ -34,7 +35,7 @@ function PersonaleData () {
                         Укажите ваше имя:
                     </h2>
                 </label>
-                <input type="text" name="first_name" id="first_name" placeholder={store.user.first_name}  required/>
+                <input type="text" name="first_name" id="first_name" defaultValue={store.user.first_name}  required/>
             </div>
             <div>
                 <label htmlFor="last_name">
@@ -42,13 +43,12 @@ function PersonaleData () {
                         Укажите вашу фамилию:
                     </h2>
                 </label>
-                <input type="text" name="last_name" id="last_name" placeholder={store.user.last_name}  required/>
+                <input type="text" name="last_name" id="last_name" defaultValue={store.user.last_name}  required/>
             </div>
             <div style={{display: "flex"}}>
                 <MyButton type="submit" text="Сохранить" /><MyButton type="reset" text="Отменить"  style={{background: "#bbbb50"}} func={cancel} />
             </div>
-        </form>
-        
+        </form>        
     );
 }
 

@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Context } from "..";
+// import { Context } from "..";
 import MyButton from "./MyButton";
 import { useNavigate } from "react-router-dom";
-import { LOGIN_ROUTE, PERSONALE_ROUTE } from "../utils/consts";
+import { PERSONALE_ROUTE } from "../utils/consts";
+import { useStoreContext } from "../contexts/StoreContext";
 
 function OnChangeForm(props: any) {
     const { id, secret } = props;
@@ -14,8 +15,8 @@ function OnChangeForm(props: any) {
     const [region, setRegion] = useState<string>("");
     const [locality, setLocality] = useState<string>("");
     const [message, setMessage] = useState<string>("");
-    const [dateStopEditResidensy, setDateStopEditResidensy] = useState<Date>();
-    const { store } = useContext(Context);
+    // const { store } = useContext(Context);
+    const { store } = useStoreContext();
 
     const [click, setClick] = useState<boolean>(true);
 
@@ -74,7 +75,7 @@ function OnChangeForm(props: any) {
                 locality,
                 secret,
             };
-            store.saveResidency(dto).then((data) => {
+            store.saveResidency(dto).then((data: any) => {
                 if (data?.data.error) {
                     var options: {} = {
                         year: "numeric",
@@ -84,10 +85,10 @@ function OnChangeForm(props: any) {
                         hour: "numeric",
                         minute: "numeric",
                     };
-                    let dataStoopEditResidency = new Date(
+                    let dataStopEditResidency = new Date(
                         +data.data.error.message
                     ).toLocaleString("ru", options);
-                    setMessage(dataStoopEditResidency);
+                    setMessage(dataStopEditResidency);
                 } else {
                     store
                         .loginVk(dto.id, dto.secret)

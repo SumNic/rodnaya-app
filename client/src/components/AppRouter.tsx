@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { Context } from "..";
 import {
     authRoutes,
     registrationRoutes,
@@ -11,52 +10,54 @@ import {
 } from "../routes";
 import {
     ERROR_ROUTE,
-    FILES_ROUTE,
     HOME_ROUTE,
-    PAGE_404_ROUTE,
 } from "../utils/consts";
-import MessagesService from "../services/MessagesService";
+import { useStoreContext } from "../contexts/StoreContext";
+import LogoLoad from "./LogoLoad/LogoLoad";
 
+/**
+ * Главный компонент маршрутизатора приложения.
+ * Он обрабатывает маршрутизацию на основе статуса аутентификации пользователя, условий и состояния ошибки.
+ * Также он получает и обновляет количество сообщений для каждого местоположения.
+ *
+ * @returns {JSX.Element} - JSX-элемент для компонента AppRouter.
+ */
 function AppRouter() {
+    // Состояние переменной для триггера повторной выборки количества сообщений
     const [count, setCount] = useState<number>(0);
 
-    const { store } = useContext(Context);
+    // Доступ к контексту хранилища
+    const { store } = useStoreContext();
 
+    /**
+     * Получение и обновление количества сообщений для каждого местоположения при изменении состояния count или хранилища.
+     *
+     * @returns {void}
+     */
     useEffect(() => {
         if (store.isAuth) {
-            const arrResidencyUser: string[] = ["Земля"];
-            for (const [key, val] of Object.entries(store.user.residency)) {
-                if (
-                    key === "locality" ||
-                    key === "region" ||
-                    key === "country"
-                ) {
-                    arrResidencyUser.push(val);
-                }
-            }
-
-            const getCountMessages = async () => {
-                for (const location of arrResidencyUser.reverse()) {
-                    const dataPlus = await MessagesService.getCountMessages(
-                        store.user.id,
-                        store.user.secret.secret,
-                        location
-                    );
-                    store.setArrCountMessages(location, dataPlus.data);
-                }
-            };
-
-            getCountMessages();
-
-            setTimeout(() => {
-                setCount(count + 1);
-            }, 5000);
+            store.getCountMessages().then(data => console.log(data))
         }
+        setTimeout(() => {                
+            setCount(count + 1);
+        }, 10000);
     }, [count]);
 
-    
+    /**
+     * Проверка статуса аутентификации при изменении хранилища.
+     *
+     * @returns {void}
+     */
+    useEffect(() => {
+        if (localStorage.getItem("token") && localStorage.getItem("device") && !store.isAuth) {
+            store.checkAuth();
+        } else {
+            store.setLoad(false);
+        }
+    }, []);
 
-    return (
+    // Отрисовка соответствующих маршрутов на основе статуса аутентификации пользователя, условий и состояния ошибки
+    return store.load ? <LogoLoad /> : (
         <Routes>
             {store.isAuth &&
                 authRoutes.map(({ path, Component }) => (
@@ -82,10 +83,6 @@ function AppRouter() {
             {store.isError && (
                 <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />
             )}
-            {store.isError && (
-                <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />
-            )}
-            {/* {store.isAuth && <Route path={`${FILES_ROUTE}/:namefile`} element={<Navigate to={`${FILES_ROUTE}/${store.nameFile}`}/>} />} */}
             <Route path="*" element={<Navigate to={HOME_ROUTE} />} />
         </Routes>
     );

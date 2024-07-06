@@ -1,0 +1,136 @@
+@startuml
+' hide the spot
+' hide circle
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "Declaration" as declarations {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+declaration: string <<allowNull: true>>
+--
+declaration: string <<allowNull: true>>
+}
+
+entity "User" as users {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+vk_id: number <<unique: true, allowNull: false>>
+--
+first_name: string <<allowNull: truee>>
+--
+last_name: string <<allowNull: true>>
+--
+photo_50: string <<allowNull: true>>
+--
+photo_max: string <<allowNull: true>>
+--
+isDelProfile: boolean <<defaultValue: false>>
+--
+isRegistration: boolean <<defaultValue: false>>
+--
+dateEditResidency: Date; <<allowNull: true>>
+--
+roles: Role[]
+--
+residency: Residency
+--
+tokens: Token[]
+--
+declaration: Declaration
+--
+secret: Secret
+--
+messages: Messages[]
+--
+manageMessages: ManageMessages[]
+--
+endReadMessage: EndReadMessage[]
+}
+
+entity "Role" as roles {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+value: string <<unique: true, allowNull: false>>
+--
+users: User[]
+}
+
+entity "Residency" as resydency {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+country: string <<allowNull: false>>
+--
+region: string <<allowNull: false>>
+--
+locality: string <<allowNull: false>>
+--
+users: User[]
+}
+
+entity "Token" as token {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+uuid: string <<allowNull: true>>
+--
+refreshToken: string <<allowNull: true>>
+}
+
+entity "Secret" as secret {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+secret: string <<allowNull: true>>
+}
+
+entity "Messages" as messages {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+message: string <<allowNull: false>>
+--
+location: string <<allowNull: false>>
+--
+blocked: boolean <<allowNull: false>>
+--
+files: Files[]
+}
+
+entity "ManageMessages" as manageMessage {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+location: string <<allowNull: false>>
+--
+blocked: boolean <<defaultValue: false>>
+--
+timeAddMessage: Date <<allowNull: true>>
+--
+lastReadMessage: number <<defaultValue: 0>>
+}
+
+entity "EndReadMessage" as endReadMessage {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+user_id: number
+--
+location: string <<allowNull: false>>
+--
+endMessage: number <<defaultValue: 0>>
+}
+
+entity "Files" as files {
+id: number <<unique, autoIncrement, primaryKey>>
+--
+fileName: string <<allowNull: false>>
+--
+fileNameUuid: string <<allowNull: false>>
+}
+
+users ||--|| declarations
+users }|--|{ roles
+users }|--|| resydency
+users ||--|{ token
+users ||--|| secret
+users ||--|{ messages
+users ||--|{ manageMessage
+users ||--|{ endReadMessage
+messages ||--|{ files
+@endum

@@ -1,8 +1,5 @@
 import { AxiosResponse } from "axios";
 import $api from "../http";
-import { IUser } from "../models/IUser";
-import { DeclarationUser } from "../models/DeclarationUser";
-import { PersonaleUser } from "../models/PersonaleUser";
 
 export default class MessagesService {
     static async sendMessage(
@@ -20,22 +17,32 @@ export default class MessagesService {
     }
 
     static async getAllMessages(
-        id_user: number,
+        id: number,
         secret: string,
         location: string | undefined
     ): Promise<AxiosResponse<any>> {
         return $api.get<any>("/get-all-messages", {
-            params: { id_user, secret, location },
+            params: { id, secret, location },
         });
     }
 
-    static async getCountMessages(
-        id_user: number,
+    static async getCountNoReadMessages(
+        id: number,
         secret: string,
         location: string | undefined
     ): Promise<AxiosResponse<number>> {
-        return $api.get<any>("/get-count-messages", {
-            params: { id_user, secret, location },
+        return $api.get<any>("/get-count-no-read-messages", {
+            params: { id, secret, location },
+        });
+    }
+
+    static async setCountMessages(
+        id_user: number,
+        secret: string,
+        location: string
+    ) {
+        return $api.post("/set-count-messages", {
+            id_user, secret, location,
         });
     }
 }

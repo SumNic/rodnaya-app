@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import $api from "../http";
 
 export function useUploadForm (url: string) {

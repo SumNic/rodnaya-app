@@ -1,9 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Context } from '..';
-import MyButton from './MyButton';
-import MessagesService from '../services/MessagesService';
+// import { Context } from '..';
 import { IFiles } from '../models/IFiles';
+import { useStoreContext } from '../contexts/StoreContext';
 
 interface Props {
   location: string;
@@ -11,7 +10,8 @@ interface Props {
 
 function SendMessage (props: Props) {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     const [message, setMessage] = useState<string>('')
     const [endPost, setEndPost] = useState<number>(0)

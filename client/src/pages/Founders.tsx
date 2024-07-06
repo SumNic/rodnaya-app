@@ -1,22 +1,20 @@
 import { observer } from 'mobx-react-lite';
-import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoPc from '../components/HeaderLogoPc';
-import NavRegions from '../components/Nav_header/NavRegions';
-import { useContext, useEffect, useState } from 'react';
-import { Context } from '..';
-import MyButtonIcon from '../components/MyButtonIcon';
-import icon_edit from '../images/icon-edit.png'
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
+// import HeaderLogoPc from '../components/HeaderLogoPc';
+import { useEffect } from 'react';
+// import { Context } from '..';
 import { IUser } from '../models/IUser';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import { PERSONALE_CARD_ROUTE } from '../utils/consts';
 import { Link } from 'react-router-dom';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function Founders() {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     useEffect(() => {
             store.getAllResidencys()

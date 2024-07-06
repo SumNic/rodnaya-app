@@ -2245,4 +2245,15 @@ let newArr = arr.map((item, index) => {
 
 let myJsonString = JSON.stringify(newArr);
 
-console.log(myJsonString)
+let arrEntry = arr.map((item) => {
+    if (item[1] === item[2]) {
+        return item[1]
+        // accum.push(item[1])
+    } else {
+        return '_'
+    }
+})
+
+let arrEntryJsonString = JSON.stringify(arrEntry);
+
+console.log(arrEntryJsonString)

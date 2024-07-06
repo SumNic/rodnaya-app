@@ -1,18 +1,16 @@
-import { useContext } from 'react';
-import { Context } from '..';
+// import { Context } from '..';
 import ConditionsForm from '../components/ConditionsForm';
 import Footer from '../components/Footer';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import OnChangeForm from '../components/OnChangeForm';
 import { observer } from 'mobx-react-lite';
-import { useLocation, useNavigate } from 'react-router-dom';
 import MyButtonInput from '../components/MyButtonInput';
-import MyButton from '../components/MyButton';
-import { HOME_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function Registration() {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     return (
         <div>

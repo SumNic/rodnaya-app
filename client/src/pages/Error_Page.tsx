@@ -1,16 +1,17 @@
-import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Context } from '..';
+// import { Context } from '..';
 import Footer from '../components/Footer';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import MyButton from '../components/MyButton';
 import { HOME_ROUTE } from '../utils/consts';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function Error_Page() {
 
     const navigate = useNavigate()
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     function returnHome() {
         if(store.isMessageError === 'Доступ запрещен') {

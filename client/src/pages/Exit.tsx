@@ -1,16 +1,17 @@
-import { Component, useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
-import AuthVkButton from '../components/AuthVkButton';
+import { useState } from 'react';
 import Footer from '../components/Footer';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 import MyButton from '../components/MyButton';
-import { Context } from '..';
+import { useStoreContext } from '../contexts/StoreContext';
+import { EXIT_ROUTE } from '../utils/consts';
+// import { Context } from '..';
 
 function Exit () {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     const [checked, setChecked] = useState(false);
 
@@ -33,7 +34,7 @@ function Exit () {
 
             <div className="middle">
                 <div className="middle__wrapper">
-                    <NavMiddle />
+                    <NavMiddle item={EXIT_ROUTE}/>
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
                             <input type="checkbox" checked={checked} onChange={handleChange} id="exit" />

@@ -1,16 +1,14 @@
-import { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { LocationEnum, MESSAGES_ROUTE } from "../../utils/consts";
-import { observer } from "mobx-react-lite";
-import { Context } from "../..";
-// import { COUNTRY_ROUTE, LOCALITY_ROUTE, REGION_ROUTE, WORLD_ROUTE } from '../../utils/consts';
+import { useStoreContext } from "../../contexts/StoreContext";
+import { Badge } from "antd";
 
 interface Props {
     location: string;
 }
 
 function NavRegions(props: Props) {
-    const { store } = useContext(Context);
+    const { store } = useStoreContext();
 
     let style1 = {};
     let style2 = {};
@@ -77,6 +75,8 @@ function NavRegions(props: Props) {
 
     // const arrCountMessageReverse = store.arrCountMessages.reverse();
 
+    // console.log(store.arrCountMessages, 'store.arrCountMessages[index]')
+
     const navMenu = keys.map((elem, index) => (
         <li
             key={index}
@@ -105,13 +105,15 @@ function NavRegions(props: Props) {
                 {elem === "country" && "Страна"}
                 {elem === "world" && "Мир"}
             </Link>
+
             {store.arrCountMessages[index]?.count ? (
-                <div id="messages_count">
-                    {store.arrCountMessages[index]?.count}
-                </div>
-            ) : (
-                ""
-            )}
+                <Badge
+                    count={store.arrCountMessages[index]?.count}
+                    style={{ boxShadow: "none" }}
+                >
+                    <div style={{ minWidth: 12, minHeight: 15 }}></div>
+                </Badge>
+            ) : ''}
         </li>
     ));
 

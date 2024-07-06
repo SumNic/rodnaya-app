@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Nav from '../components/Nav_header/Nav_registr';
 
 class Admin extends Component {

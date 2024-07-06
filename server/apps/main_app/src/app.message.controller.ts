@@ -1,32 +1,15 @@
-import { JwtAuthGuard, ROLES } from '@app/common';
-import { Roles } from '@app/common/auth/roles-auth.decorator';
-import { RolesGuard } from '@app/common/auth/roles.guard';
+import { JwtAuthGuard } from '@app/common';
 import { AUTH_SERVICE } from '@app/common/auth/service';
-import {
-    MESSAGES_SERVICE,
-    USERS_SERVICE,
-} from '@app/common/constants/services';
-import { AddRoleDto, OutputJwtTokens } from '@app/models';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
-import { CreateRegistrationDto } from '@app/models/dtos/create-registration.dto';
-import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
-import { LogoutUserDto } from '@app/models/dtos/logout-user.dto';
-import { OutputUserAndTokens } from '@app/models/dtos/output-user-and-tokens.dto';
-import { UuidDevice } from '@app/models/dtos/uuid-device.dto';
-import { VkLoginSdkDto } from '@app/models/dtos/vk-login-sdk.dto';
+import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto';
 import {
-    BadRequestException,
     Body,
     Controller,
-    Delete,
     Get,
     HttpStatus,
     Inject,
-    Param,
     Post,
     Query,
-    Req,
-    Res,
     UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -34,13 +17,12 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
     ApiBody,
     ApiOperation,
-    ApiParam,
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { Request, Response } from 'express';
-import { catchError, tap, throwError } from 'rxjs';
+import { catchError } from 'rxjs';
 
+@ApiTags('Сообщения')
 @Controller()
 export class AppMessagesController {
     constructor(
@@ -48,7 +30,6 @@ export class AppMessagesController {
         private configService: ConfigService,
     ) {}
 
-    @ApiTags('Отправка сообщения')
     @ApiOperation({ summary: 'Добавление нового сообщения' })
     @Post('/send-message')
     @ApiBody({ type: CreateMessageDto })
@@ -70,7 +51,6 @@ export class AppMessagesController {
         );
     }
 
-    @ApiTags('Получение всех сообщения')
     @ApiOperation({
         summary: 'Получение всех сообщений для определенного location',
     })
@@ -87,7 +67,6 @@ export class AppMessagesController {
     })
     @UseGuards(JwtAuthGuard)
     async getAllMessage(@Query() query: any) {
-        console.log(query, 'query');
         return this.messagesClient.send('getAllMessages', query).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
@@ -95,15 +74,14 @@ export class AppMessagesController {
         );
     }
 
-    @ApiTags('Получение количества всех сообщения')
     @ApiOperation({
         summary:
             'Получение количества всех сообщений для определенного location',
     })
-    @Get('/get-count-messages')
+    @Get('/get-count-no-read-messages')
     @ApiBody({ type: CreateMessageDto })
     @ApiResponse({
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
         description: 'Декларация добавлена',
     })
     @ApiResponse({
@@ -111,9 +89,23 @@ export class AppMessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getCountMessages(@Query() query: any) {
-        console.log(query, 'query');
-        return this.messagesClient.send('getCountMessages', query).pipe(
+    async getCountNoReadMessages(@Query() query: EndReadMessageDto) {
+        return this.messagesClient.send('getCountNoReadMessages', query).pipe(
+            catchError(async (error) => {
+                return new RpcException(error);
+            }),
+        );
+    }
+
+    @ApiOperation({
+        summary:
+            'Устанавливает последнее прочитанное сообщение для определенного location',
+    })
+    @Post('/set-count-messages')
+    @ApiBody({ type: EndReadMessageDto })
+    @UseGuards(JwtAuthGuard)
+    async setCountMessages(@Body() dto: EndReadMessageDto) {
+        return this.messagesClient.send('setCountMessages', dto).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
             }),

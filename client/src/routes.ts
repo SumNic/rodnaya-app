@@ -1,8 +1,8 @@
 import Admin from "./pages/Admin"
 import Personale_page from "./pages/Personale_page"
-import { ADMIN_ROUTE, ERROR_ROUTE, EXIT_ROUTE, FILES_ROUTE, FOUNDERS_ROUTE, HOME_ROUTE, LOGIN_ROUTE, MESSAGES_ROUTE, PERSONALE_CARD_ROUTE, PERSONALE_ROUTE, REGISTRATION_ROUTE, RESTORE_PROFILE_ROUTE, RULES_ROUTE, VK_CALLBACK_ROUTE } from "./utils/consts"
+import { ADMIN_ROUTE, ERROR_ROUTE, EXIT_ROUTE, FILES_ROUTE, FOUNDERS_ROUTE, HOME_ROUTE, LOGIN_ROUTE, MAIL_ROUTE, MESSAGES_ROUTE, PERSONALE_CARD_ROUTE, PERSONALE_ROUTE, REGISTRATION_ROUTE, RESTORE_PROFILE_ROUTE, RULES_ROUTE, VK_CALLBACK_ROUTE, WORKGROUP_ROUTE } from "./utils/consts"
 import Home from "./pages/Home"
-import Messages from "./pages/Messages"
+// import Messages from "./pages/Messages/Messages"
 import VkCallback from "./pages/VkCallback"
 import Error_Page from "./pages/Error_Page"
 import Registration from "./pages/Registration"
@@ -12,6 +12,9 @@ import Founders from "./pages/Founders"
 import Personale_kard from "./pages/Personale_kard"
 import RestoreUser from "./pages/RestoreUser"
 import Rules from "./pages/Rules"
+import Workgroup from "./pages/Workgroup/Workgroup"
+import Mail from "./pages/Mail"
+import Messages from "./pages/Messages/Messages.tsx"
 
 export const adminRoutes = [
     {
@@ -33,10 +36,14 @@ export const authRoutes = [
         path: EXIT_ROUTE,
         Component: Exit
     },
-    // {
-    //     path: FILES_ROUTE,
-    //     Component: <Navigate to={`${FILES_ROUTE}/namefile`}/>
-    // },
+    {
+        path: `${WORKGROUP_ROUTE}/:location`,
+        Component: Workgroup
+    },
+    {
+        path: MAIL_ROUTE,
+        Component: Mail
+    }
 ]
 
 export const registrationRoutes = [

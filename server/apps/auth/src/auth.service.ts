@@ -32,6 +32,8 @@ import { DeclarationService } from './declaration/declaration.service';
 import { GetDeclarationDto } from '@app/models/dtos/get-declaration.dto';
 import { UpdatePersonaleDto } from '@app/models/dtos/update-personale.dto';
 import { MessagesService } from './messages/messages.service';
+import { Files } from '@app/models/models/files/files.model';
+import { FilesService } from 'apps/auth/src/files/files.service';
 
 @Injectable()
 export class AuthService {
@@ -44,6 +46,7 @@ export class AuthService {
         private readonly tokenService: TokensService,
         private readonly declarationService: DeclarationService,
         private readonly messagesService: MessagesService,
+        private readonly filesService: FilesService,
     ) {}
 
     /**
@@ -180,6 +183,7 @@ export class AuthService {
      * @returns User - данные пользователя.
      */
     async getOrCreateUser(dto: VkLoginSdkDto): Promise<User> {
+        console.log(dto.token, 'token');
         const DATA = {
             v: this.configService.get<string>('VK_VERSION'),
             token: dto.token,
@@ -206,18 +210,11 @@ export class AuthService {
                     result.response.user_id,
                 );
                 const userVk = arrayUsersFromVk.response[0];
-
                 const candidate = await this.userService.getUserByVkId(
                     userVk.id,
                 ); // Проверяем, есть ли пользователь с данным ID в базе данных
-
+                
                 if (candidate && !candidate.isDelProfile) return candidate;
-
-                // if (candidate && candidate.isDelProfile) {
-                //   throw new RpcException(
-                //     new ForbiddenException('Ваш профиль удален. Хоти восстановить свой профиль?')
-                //   );
-                // }
 
                 if (candidate && candidate.isDelProfile) {
                     // Восстановление профиля
@@ -425,9 +422,11 @@ export class AuthService {
     }
 
     /**
-     * Получить пользователя.
-     * @param {number} id - Идентификатор пользователя.
-     * @returns User - Найденный пользователь.
+     * Get a user by their unique identifier.
+     *
+     * @param {number} id - The unique identifier of the user.
+     * @returns {Promise<User>} - A promise that resolves to the found user.
+     * @throws {NotFoundException} - If the user is not found.
      */
     async getUser(id: number) {
         const user = await this.userService.getUser(id);
@@ -499,24 +498,32 @@ export class AuthService {
     // }
 
     /**
-     * Добавить роль пользователю.
-     * @param {AddRoleDto} dto - DTO для добавления роли пользоветилю.
+     * Добавляет роль пользователю.
+     *
+     * @param {AddRoleDto} dto - Объект передачи данных, содержащий идентификатор пользователя и роль для добавления.
+     * @returns {Promise<AddRoleDto>} - Промис, который разрешается к объекту передачи данных с добавленной ролью.
+     * @throws {RpcException} - Если пользователь или роль не найдены.
      */
     async userAddRole(dto: AddRoleDto): Promise<AddRoleDto> {
         return await this.userService.addROle(dto);
     }
 
     /**
-     * Удалить роль пользователю.
-     * @param {AddRoleDto} dto - DTO для добавления роли пользоветилю.
+     * Удаляет роль у пользователя.
+     *
+     * @param {AddRoleDto} dto - Объект передачи данных, содержащий идентификатор пользователя и роль для удаления.
+     * @returns {Promise<AddRoleDto>} - Промис, который разрешается к объекту передачи данных с удаленной ролью.
+     * @throws {RpcException} - Если пользователь или роль не найдены.
      */
     async userRemoveRole(dto: AddRoleDto): Promise<AddRoleDto> {
         return await this.userService.removeRole(dto);
     }
 
     /**
-     * Получить список всех ролей.
-     * @returns Role[] - Список найденных ролей.
+     * Получает все роли из базы данных.
+     *
+     * @returns {Promise<Role[]>} - Промис, который разрешается в массив всех ролей.
+     * @throws {RpcException} - Если возникает ошибка при получении ролей.
      */
     async getAllRoles(): Promise<Role[]> {
         return await this.roleService.getAllRoles();
@@ -526,7 +533,7 @@ export class AuthService {
      * Разлогинить пользователя.
      * @param {number} user_id - Идентификатор пользователя.
      */
-    async logout(dto: LogoutUserDto): Promise<any> {
+    async logout(dto: LogoutUserDto) {
         return await this.tokenService.removeRefreshToken(dto);
     }
 
@@ -610,14 +617,12 @@ export class AuthService {
             const residencyFromId = await this.residencyService.getResidency(
                 residency.id,
             );
-            await residencyFromId.$set('users', [dto.id]);
+            await residencyFromId.$add('users', [dto.id]);
             await residencyFromId.save();
             user.dateEditResidency = new Date();
             await user.save();
 
-            
-
-			const arrResidencyUser = [
+            const arrResidencyUser = [
                 'Земля',
                 dto.country,
                 dto.region,
@@ -626,13 +631,14 @@ export class AuthService {
 
             await Promise.all(
                 arrResidencyUser.map(async (location) => {
-                    const endReadMessages = await this.messagesService.setNewEndReadMessages(
-                        dto.id,
-                        location,
-                    );
+                    const endReadMessages =
+                        await this.messagesService.setNewEndReadMessages(
+                            dto.id,
+                            location,
+                        );
 
-					await endReadMessages.$set('users', [dto.id])
-					await endReadMessages.save();
+                    await endReadMessages.$set('users', [dto.id]);
+                    await endReadMessages.save();
                 }),
             );
 
@@ -681,8 +687,6 @@ export class AuthService {
     async getDeclaration(id: number): Promise<GetDeclarationDto> {
         const user = await this.getUser(id);
 
-        console.log(user, 'user get Declar');
-
         if (user.declaration.declaration) return user.declaration;
 
         return;
@@ -708,5 +712,33 @@ export class AuthService {
         const userFromPersonale = await this.getUser(form.user_id);
 
         return userFromPersonale;
+    }
+
+    /**
+     * Изменить персональные данные пользователя.
+     * @param {UpdatePersonaleDto} dto - DTO для изменения персональных данных.
+     * @returns User - Данные пользователя.
+     */
+    async saveAvatar(file: Express.Multer.File, userId: string): Promise<User> {
+        const avatar = await this.filesService.saveFile(file);
+        const user = await this.userService.getUser(+userId);
+
+        if (!avatar || !user) {
+            throw new RpcException(
+                new ForbiddenException('Не удалось сменить аватар'),
+            );
+        }
+
+        user.update({
+            photo_50: `${this.configService.get<string>('DOMEN')}/${
+                avatar.dataValues.fileNameUuid
+            }`,
+            photo_max: `${this.configService.get<string>('DOMEN')}/${
+                avatar.dataValues.fileNameUuid
+            }`,
+        });
+        user.save();
+
+        return user;
     }
 }

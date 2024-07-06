@@ -27,10 +27,9 @@ import * as path from 'path'
       forwardRef(() => AuthModule),
       RmqModule.register({ name: LOCATION_SERVICE }),
       RmqModule.register({ name: USERS_SERVICE }),
-      ServeStaticModule.forRoot({
-        rootPath: path.resolve(__dirname, '..', 'static'), 
-        exclude: ['/api/(.*)'],
-      }),
+    //   ServeStaticModule.forRoot({
+    //     rootPath: path.resolve(__dirname, '..', 'static'), 
+    //   }),
     ],
     controllers: [
       AppAuthController,

@@ -1,17 +1,15 @@
-import { Component, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-import { Context } from '..';
 import { observer } from 'mobx-react-lite';
-import { FOUNDERS_ROUTE } from '../utils/consts';
+import { FOUNDERS_ROUTE, HOME_ROUTE } from '../utils/consts';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function Home () {
-
-    const {store} = useContext(Context)
+    const { store } = useStoreContext();
     
     return (
         <div>
@@ -24,7 +22,7 @@ function Home () {
 
             <div className="middle">
                 <div className="middle__wrapper">
-                    {store.isAuth && <NavMiddle />}
+                    {store.isAuth && <NavMiddle item={HOME_ROUTE}/>}
                     {!store.isAuth && <nav className="middle__menu"></nav>}
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">

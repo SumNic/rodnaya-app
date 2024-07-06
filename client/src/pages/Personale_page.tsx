@@ -1,22 +1,24 @@
 import { observer } from "mobx-react-lite";
-import AuthVkButton from "../components/AuthVkButton";
 import Footer from "../components/Footer";
 import NavMiddle from "../components/Nav_middle/NavMiddle";
-import HeaderLogoMobile from "../components/HeaderLogoMobile";
-import HeaderLogoPc from "../components/HeaderLogoPc";
-import NavRegions from "../components/Nav_header/NavRegions";
-import { useContext, useEffect, useState } from "react";
-import { Context } from "..";
+import HeaderLogoMobile from "../components/HeaderLogo/HeaderLogoMobile";
+// import HeaderLogoPc from "../components/HeaderLogoPc";
+import { useEffect, useState } from "react";
+// import { Context } from "..";
 import MyButtonIcon from "../components/MyButtonIcon";
 import icon_edit from "../images/icon-edit.png";
 import OnChangeForm from "../components/OnChangeForm";
-import HeaderLogoRegistr from "../components/HeaderLogoRegistr";
+import HeaderLogoRegistr from "../components/HeaderLogo/HeaderLogoRegistr";
 import EditProfile from "../components/EditProfile";
 import Declaration from "../components/Declaration";
 import PersonaleData from "../components/PersonaleData";
+import UploadAvatar from "../components/UploadAvatar";
+import { useStoreContext } from "../contexts/StoreContext";
+import { PERSONALE_ROUTE } from "../utils/consts";
 
 function Personale_page() {
-    const { store } = useContext(Context);
+    // const { store } = useContext(Context);
+    const { store } = useStoreContext();
 
     const [edit, setEdit] = useState<boolean>(false);
     const [editPersonale, setEditPersonale] = useState<boolean>(false);
@@ -56,14 +58,32 @@ function Personale_page() {
     }
 
     const personaleData = (
-        <>
+        <div>
             <h2 style={{ fontSize: "20px" }}>Учредитель Родной партии:</h2>
-            <div className="photo_big__wrapper">
+            <div
+                className="photo_big__wrapper"
+                style={{ position: "relative" }}
+            >
+                <UploadAvatar />
                 <img
                     className="photo_big"
                     src={store.user.photo_max}
                     alt="Ваше фото"
-                ></img>
+                />
+                <label
+                    htmlFor="avatarToUpload"
+                    style={{
+                        fontSize: "18px",
+                        position: "absolute",
+                    }}
+                >
+                    <img
+                        className="edit_image"
+                        src={icon_edit}
+                        alt="Прикрепить"
+                        style={{margin: '10px', opacity: 0.5, cursor: 'pointer'}}
+                    />
+                </label>
                 <div
                     className="personale_p__wrapper"
                     style={{ paddingBottom: 0 }}
@@ -140,7 +160,7 @@ function Personale_page() {
                     />
                 </h2>
             </div>
-        </>
+        </div>
     );
 
     return (
@@ -154,7 +174,7 @@ function Personale_page() {
 
             <div className="middle">
                 <div className="middle__wrapper">
-                    <NavMiddle />
+                    <NavMiddle item={PERSONALE_ROUTE}/>
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
                             {!edit && personaleData}

@@ -1,11 +1,11 @@
-import { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Context } from '..';
 import MyButton from './MyButton';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function EditProfile () {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     function deleteProfile() {
         store.deleteProfile(store.user.id, store.user.secret.secret)

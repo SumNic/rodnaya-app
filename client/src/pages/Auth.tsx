@@ -2,10 +2,9 @@ import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-import { REGISTRATION_ROUTE } from '../utils/consts';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 
 function Auth() {
 

@@ -1,0 +1,261 @@
+@import './fonts.css';
+
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+:root {
+	/* z-indexes */
+	--top-menu-z-index: 10;
+
+	/* colors */
+	--brandColor: #fe9000;
+	--sucess: #33c534;
+	--error: #ff7285;
+	--info: #a5a4bf;
+	--warning: #ffca83;
+	--seedTextColor: #2d2f39;
+	/* Secondary color ones are taken from antd theme editor. If the seed color is changed, a replacement will be required */
+	--colorPrimaryTextHover: #feb14c;
+	--colorPrimaryBg: #fff8e6;
+	--colorErrorBg: #fff0f0;
+	--colorFillSecondary: rgba(45, 47, 57, 0.06);
+	--colorTextTertiary: rgba(45, 47, 57, 0.45);
+	--colorPrimaryHover: #ffa929;
+	--colorLinkHover: #ffbf52;
+	--colorLinkActiveDarkTheme: #ac6507;
+	--colorLinkHoverDarkTheme: #7d4c0b;
+
+	/* geometry */
+	--top-menu-height: 3.5rem;
+	--top-menu-lower-height: 1.2rem;
+	--tapbar-height: 4.3rem;
+	--containers-padding: 1rem;
+	--horizontal-view-height: 170vh;
+	--accordion-width: 40vh;
+
+	/* accordion and tapbar */
+	--accordion-side-padding: 1rem;
+	--collapse-header-height: 1.7rem;
+	--management-controls-height: calc(
+		0.2693 * (100vh - var(--top-menu-height) - var(--tapbar-height) - 4 * var(--collapse-header-height))
+	);
+	--measurements-controls-height: calc(
+		0.3484 * (100vh - var(--top-menu-height) - var(--tapbar-height) - 4 * var(--collapse-header-height))
+	);
+	--missions-controls-height: calc(
+		0.3823 * (100vh - var(--top-menu-height) - var(--tapbar-height) - 4 * var(--collapse-header-height))
+	);
+	--tapbar-vertical-padding: 0.6rem;
+
+	/* accordion panels */
+	--indicators-gap: 10px;
+	--panels-footer-height: 24px;
+	--panels-footer-gap: 12px;
+	--panels-footer-padding-left: 8px;
+	--panels-footer-font-size: 12px;
+	--panels-footer-font-weight: 500;
+	--indicators-border-radius: 8px;
+	--small-indicators-padding: 10px;
+
+	/* map */
+	--map-buttons-height: 45px;
+	--map-buttons-width: 45px;
+
+	/* text */
+	--font-family: 'Montserrat';
+	font-family: var(--font-family);
+	--text-size: 1rem;
+	--h2-text-size: 1.5rem;
+	--h2-font-weight: 400;
+	--small-text-size: 11px;
+
+	/* transition */
+	--transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+	--transition-time: 0.3s;
+	--flashing-time: 1.5s;
+
+	/* borders */
+	--containers-border: 1px solid #d7dae2;
+
+	/* shadows */
+	--card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+	--sidebar-shadow: 1px 0px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* для выбора даты в фильтре журнала */
+.ant-picker-dropdown {
+	z-index: 1050 !important;
+}
+
+/*.light-scrollbar * {*/
+/*	color: red !important;*/
+/*}*/
+
+.common-scrollbar *::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+.common-scrollbar::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+.common-scrollbar *::-webkit-scrollbar-track {
+	/*border-radius: 10px;*/
+	border-radius: 0;
+}
+
+.common-scrollbar::-webkit-scrollbar-track {
+	/*border-radius: 10px;*/
+	border-radius: 0;
+}
+
+.common-scrollbar *::-webkit-scrollbar-thumb {
+	background-color: var(--colorLinkHover);
+	border-radius: 10px;
+	border: 2px solid transparent;
+	background-clip: content-box;
+}
+
+.common-scrollbar::-webkit-scrollbar-thumb {
+	background-color: var(--colorLinkHover);
+	border-radius: 10px;
+	border: 2px solid transparent;
+	background-clip: content-box;
+}
+
+.common-scrollbar *::-webkit-scrollbar-thumb:hover {
+	background-color: var(--colorPrimaryHover);
+	opacity: 1;
+}
+
+.common-scrollbar::-webkit-scrollbar-thumb:hover {
+	background-color: var(--colorPrimaryHover);
+	opacity: 1;
+}
+
+.common-scrollbar *::-webkit-scrollbar-track {
+	background-color: #f4f7fc;
+	/*border: 1px solid #d9d9d9;*/
+}
+
+.common-scrollbar::-webkit-scrollbar-track {
+	background-color: #f4f7fc;
+	/*border: 1px solid #d9d9d9;*/
+}
+
+.dark-scrollbar *::-webkit-scrollbar-track {
+	background-color: #303030;
+	/*border: 1px solid #d9d9d9;*/
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+	background-color: #303030;
+	/*border: 1px solid #d9d9d9;*/
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+	background-color: var(--colorLinkHoverDarkTheme);
+}
+
+.dark-scrollbar *::-webkit-scrollbar-thumb {
+	background-color: var(--colorLinkHoverDarkTheme);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+	background-color: var(--colorLinkActiveDarkTheme);
+}
+
+.dark-scrollbar *::-webkit-scrollbar-thumb:hover {
+	background-color: var(--colorLinkActiveDarkTheme);
+}
+
+@media (max-width: 992px) {
+	:root {
+		--containers-padding: 0.75rem;
+	}
+}
+
+@media (max-width: 450px) {
+	:root {
+		--containers-padding: 0.5rem;
+
+		-webkit-tap-highlight-color: transparent;
+	}
+}
+
+@media (max-width: 320px) {
+	:root {
+		/* geometry */
+		--top-menu-height: 3rem;
+		--tapbar-height: 4rem;
+
+		/* accordion and tapbar */
+		--accordion-side-padding: 0.5rem;
+		--collapse-header-height: 1.5rem;
+		--tapbar-vertical-padding: 0.5rem;
+
+		/* accordion panels */
+		--indicators-gap: 6px;
+		--panels-footer-height: 26px;
+		--panels-footer-gap: 8px;
+		--panels-footer-padding-left: 6px;
+		--panels-footer-font-size: 12px;
+		--panels-footer-font-weight: 500;
+
+		/* map */
+		--map-buttons-height: 40px;
+		--map-buttons-width: 40px;
+	}
+}
+
+@media (max-height: 750px) {
+	:root {
+		/* geometry */
+		--top-menu-height: 3rem;
+		--tapbar-height: 4rem;
+
+		/* accordion and tapbar */
+		--accordion-side-padding: 0.5rem;
+		--collapse-header-height: 1.5rem;
+		--tapbar-vertical-padding: 0.5rem;
+
+		/* accordion panels */
+		--indicators-gap: 6px;
+		--panels-footer-height: 26px;
+		--panels-footer-gap: 8px;
+		--panels-footer-padding-left: 6px;
+		--panels-footer-font-size: 12px;
+		--panels-footer-font-weight: 500;
+
+		/* map */
+		--map-buttons-height: 40px;
+		--map-buttons-width: 40px;
+	}
+}
+
+@media (max-height: 450px) {
+	:root {
+		/* geometry */
+		--top-menu-height: 3rem;
+		--tapbar-height: 4rem;
+		--accordion-width: 320px;
+
+		/* accordion and tapbar */
+		--accordion-side-padding: 0.5rem;
+		--collapse-header-height: 1.5rem;
+		--tapbar-vertical-padding: 0.5rem;
+
+		/* accordion panels */
+		--indicators-gap: 6px;
+		--panels-footer-height: 26px;
+		--panels-footer-gap: 8px;
+		--panels-footer-padding-left: 6px;
+		--panels-footer-font-size: 12px;
+		--panels-footer-font-weight: 500;
+	}
+}

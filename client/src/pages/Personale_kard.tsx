@@ -1,23 +1,16 @@
 import { observer } from 'mobx-react-lite';
-import AuthVkButton from '../components/AuthVkButton';
 import Footer from '../components/Footer';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-import HeaderLogoMobile from '../components/HeaderLogoMobile';
-import HeaderLogoPc from '../components/HeaderLogoPc';
-import NavRegions from '../components/Nav_header/NavRegions';
-import { useContext, useEffect, useState } from 'react';
-import { Context } from '..';
-import MyButtonIcon from '../components/MyButtonIcon';
-import icon_edit from '../images/icon-edit.png'
-import OnChangeForm from '../components/OnChangeForm';
-import HeaderLogoRegistr from '../components/HeaderLogoRegistr';
-import EditProfile from '../components/EditProfile';
-import Declaration from '../components/Declaration';
-import PersonaleData from '../components/PersonaleData';
+import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
+// import HeaderLogoPc from '../components/HeaderLogoPc';
+// import { Context } from '..';
+import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
+import { useStoreContext } from '../contexts/StoreContext';
 
 function Personale_kard() {
 
-    const {store} = useContext(Context)
+    // const {store} = useContext(Context)
+    const { store } = useStoreContext();
 
     // const [edit, setEdit] = useState<boolean>(false)
     // const [editPersonale, setEditPersonale] = useState<boolean>(false)

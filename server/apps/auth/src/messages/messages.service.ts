@@ -54,7 +54,7 @@ export class MessagesService {
      * @returns Messages[] - Массив сообщений.
      */
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
-        const user = await this.usersService.getUser(dto.id_user);
+        const user = await this.usersService.getUser(+dto.id);
 
         if (user && user.secret.secret === dto.secret) {
             const { count, rows } =
@@ -81,15 +81,16 @@ export class MessagesService {
     }
 
     /**
-     * Получение всех сообщений.
+     * Получение количества сообщений.
      * @param {any} dto - DTO для списка сообщений сообщения.
      * @returns number - количество сообщений.
      */
-    async getCountMessages(dto: GetMessagesDto): Promise<number> {
-        const user = await this.usersService.getUser(dto.id_user);
+    async getCountNoReadMessages(dto: GetMessagesDto): Promise<number> {
+        const user = await this.usersService.getUser(+dto.id);
 
         if (user && user.secret.secret === dto.secret) {
             const allCountMessages = await this.getCountMessage(dto.location);
+            console.log(allCountMessages, 'allCountMessages')
             const allReadMessages = await this.endReadMessageRepository.findOne({
                 where: {
                     user_id: user.id,
@@ -108,7 +109,7 @@ export class MessagesService {
     }
 
     /**
-     * Получение всех сообщений.
+     * Получение количества сообщений.
      * @param {any} dto - DTO для списка сообщений сообщения.
      * @returns number - количество сообщений.
      */
@@ -123,7 +124,7 @@ export class MessagesService {
     }
 
     /**
-     * Назначение последних прочитанных сообщений пользователя.
+     * Назначение последних прочитанных сообщений пользователя при регистрации.
      * @param {any} dto - DTO для списка сообщений сообщения.
      * @returns number - количество сообщений.
      */
