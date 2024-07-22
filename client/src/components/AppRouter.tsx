@@ -23,26 +23,10 @@ import LogoLoad from "./LogoLoad/LogoLoad";
  * @returns {JSX.Element} - JSX-элемент для компонента AppRouter.
  */
 function AppRouter() {
-    // Состояние переменной для триггера повторной выборки количества сообщений
     const [count, setCount] = useState<number>(0);
 
-    // Доступ к контексту хранилища
     const { store } = useStoreContext();
-
-    /**
-     * Получение и обновление количества сообщений для каждого местоположения при изменении состояния count или хранилища.
-     *
-     * @returns {void}
-     */
-    useEffect(() => {
-        if (store.isAuth) {
-            store.getCountMessages().then(data => console.log(data))
-        }
-        setTimeout(() => {                
-            setCount(count + 1);
-        }, 10000);
-    }, [count]);
-
+    
     /**
      * Проверка статуса аутентификации при изменении хранилища.
      *
@@ -55,6 +39,16 @@ function AppRouter() {
             store.setLoad(false);
         }
     }, []);
+
+    useEffect(() => {
+        if (store.isAuth && location) {
+            store.getCountMessages()
+            store.getEndReadMessagesId()
+        }
+        setTimeout(() => {          
+            setCount(count + 1);
+        }, 10000);
+    }, [count]);
 
     // Отрисовка соответствующих маршрутов на основе статуса аутентификации пользователя, условий и состояния ошибки
     return store.load ? <LogoLoad /> : (

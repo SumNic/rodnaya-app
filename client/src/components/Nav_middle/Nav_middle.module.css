@@ -1,3 +1,10 @@
 .menu {
     background: "none"
 }
+
+.selected-menu-item {
+    :global(.ant-menu-item-selected) {
+        background-color: transparent !important; 
+    }
+    
+  }

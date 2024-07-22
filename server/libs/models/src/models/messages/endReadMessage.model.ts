@@ -35,6 +35,9 @@ export class EndReadMessage extends Model<
     @Column({ type: DataType.INTEGER, defaultValue: 0 })
     endMessage: number;
 
+    @Column({ type: DataType.INTEGER, defaultValue: 0 })
+    endMessageId: number;
+
     @BelongsTo(() => User)
     users: User;
 

@@ -1,42 +1,15 @@
 {
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "cd client && npm start",
-            "name": "Run npm start",
-            "request": "launch",
-            "type": "node-terminal"
-        },
-        {
-            "name": "Run Chrome",
             "type": "chrome",
             "request": "launch",
-            "url": "http://localhost",
-            "webRoot": "${workspaceFolder}/client",
-        },
-        {
-            "type": "firefox",
-            "request": "launch",
-            "name": "firefox",
-            "url": "http://localhost",
-            "webRoot": "${workspaceFolder}/client",
-            "reAttach": true,
-            "keepProfileChanges": true,
-            "firefoxArgs": [
-                "-devtools",
-            ],
-            "profileDir": "/home/sumnic/snap/firefox/common/mozilla/firefox/dev",
-        },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Debug: app-name",
-            "remoteRoot": "/usr/src/app",
-            "localRoot": "${workspaceFolder}/server",
-            "port": 9229,
-            "restart": true,
-            "address": "0.0.0.0",
-            "skipFiles": ["<node_internals>/**"]
-          }
+            "name": "Запустить Chrome на localhost",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/client"
+        }
     ]
 }

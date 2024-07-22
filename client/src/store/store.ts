@@ -14,6 +14,7 @@ import { IFiles } from "../models/IFiles";
 import { MessageForm } from "../models/MessageForm";
 import { IUserVk } from "../models/IUserVk";
 import { CountNoReadMessages } from "../models/CountNoReadMessages";
+import { EndReadMessagesId } from "../models/endReadMessagesId.ts";
 
 export default class Store {
     user = {} as IUser;
@@ -38,6 +39,7 @@ export default class Store {
     newMessage = false;
     nameFile = "";
     arrCountMessages: CountNoReadMessages[] = [];
+    arrEndMessagesId: EndReadMessagesId[] = [];
 
     constructor() {
         this.uuid = uuidv4();
@@ -137,6 +139,18 @@ export default class Store {
             });
         }
         this.arrCountMessages.push({ location, count });
+    }
+
+    setArrEndMessagesId(location: string, id: number) {
+        let result = this.arrEndMessagesId.find(
+            (item) => item.location === location
+        );
+        if (result?.location) {
+            return this.arrEndMessagesId.map((elem) => {
+                if (elem.location === location) elem.id = id;
+            });
+        }
+        this.arrEndMessagesId.push({ location, id });
     }
 
     async logout(allDeviceExit: boolean) {
@@ -374,14 +388,40 @@ export default class Store {
                     this.user.id,
                     this.user.secret.secret,
                     location
-                );
-                console.log(dataPlus) 
+                ); 
                 return { location, count: dataPlus.data };
             });
 
             const results = await Promise.all(promises);
             results.forEach(({ location, count }) => {
                 this.setArrCountMessages(location, count);
+            });
+        } catch (e: any) {
+            console.log(e);
+            // return { data: e.response?.data?.message };
+        }
+    }
+
+    async getEndReadMessagesId() {
+        try {
+            const arrResidencyUser: string[] = ["Земля"];
+            for (const [key, val] of Object.entries(this.user.residency)) {
+                if (["locality", "region", "country"].includes(key)) {
+                    arrResidencyUser.push(val);
+                }
+            }
+            const promises = arrResidencyUser.reverse().map(async (location) => {
+                const dataPlus = await MessagesService.getEndReadMessagesId(
+                    this.user.id,
+                    this.user.secret.secret,
+                    location
+                ); 
+                return { location, id: dataPlus.data };
+            });
+
+            const results = await Promise.all(promises);
+            results.forEach(({ location, id }) => {
+                this.setArrEndMessagesId(location, id);
             });
         } catch (e: any) {
             console.log(e);

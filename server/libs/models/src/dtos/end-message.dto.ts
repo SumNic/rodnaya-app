@@ -1,20 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsString } from 'class-validator';
 
-export class EndReadMessageDto {
+export class EndMessageDto {
   @ApiProperty({
-    example: 1,
+    example: '1',
     description: 'id пользователя',
   })
-  @IsInt({ message: 'Должно быть числом' })
-  id_user: number;
-
-  @ApiProperty({
-    example: 1,
-    description: 'id сообщения',
-  })
-  @IsInt({ message: 'Должно быть числом' })
-  id_message: number;
+  @IsString({ message: 'Должно быть строкой' })
+  id: string;
 
   @ApiProperty({
     example: 'Место жительства',

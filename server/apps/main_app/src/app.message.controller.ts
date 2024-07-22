@@ -1,7 +1,8 @@
 import { JwtAuthGuard } from '@app/common';
 import { AUTH_SERVICE } from '@app/common/auth/service';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
-import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto';
+import { EndMessageDto } from '@app/models/dtos/end-message.dto';
+import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto.js';
 import {
     Body,
     Controller,
@@ -89,8 +90,31 @@ export class AppMessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getCountNoReadMessages(@Query() query: EndReadMessageDto) {
+    async getCountNoReadMessages(@Query() query: EndMessageDto) {
         return this.messagesClient.send('getCountNoReadMessages', query).pipe(
+            catchError(async (error) => {
+                return new RpcException(error);
+            }),
+        );
+    }
+
+    @ApiOperation({
+        summary:
+            'Получение id последнего прочитанного сообщения для определенного location',
+    })
+    @Get('/get-end-read-messages-id')
+    @ApiBody({ type: CreateMessageDto })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Данные получены',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Неккоректные данные',
+    })
+    @UseGuards(JwtAuthGuard)
+    async getEndReadMessagesId(@Query() query: EndMessageDto) {
+        return this.messagesClient.send('getEndReadMessagesId', query).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
             }),
@@ -101,11 +125,12 @@ export class AppMessagesController {
         summary:
             'Устанавливает последнее прочитанное сообщение для определенного location',
     })
-    @Post('/set-count-messages')
+    @Post('/set-end-read-messages-id')
     @ApiBody({ type: EndReadMessageDto })
     @UseGuards(JwtAuthGuard)
-    async setCountMessages(@Body() dto: EndReadMessageDto) {
-        return this.messagesClient.send('setCountMessages', dto).pipe(
+    async setEndReadMessagesId(@Body() dto: EndReadMessageDto) {
+        console.log(dto, 'dto');
+        return this.messagesClient.send('setEndReadMessagesId', dto).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
             }),

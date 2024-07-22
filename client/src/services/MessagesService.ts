@@ -36,13 +36,25 @@ export default class MessagesService {
         });
     }
 
-    static async setCountMessages(
-        id_user: number,
+    static async getEndReadMessagesId(
+        id: number,
         secret: string,
-        location: string
+        location: string | undefined
+    ): Promise<AxiosResponse<number>> {
+        return $api.get<any>("/get-end-read-messages-id", {
+            params: { id, secret, location },
+        });
+    }
+
+    static async setEndReadMessagesId(
+        id_user: number,
+        id_message: number,
+        location: string,
+        secret: string,        
     ) {
-        return $api.post("/set-count-messages", {
-            id_user, secret, location,
+        console.log(id_user, id_message, location, secret, 'id_user, id_message, location, secret');
+        return $api.post("/set-end-read-messages-id", {
+            id_user, id_message, location, secret, 
         });
     }
 }

@@ -22,7 +22,7 @@ export const RULES_ROUTE = '/rules'
 export const ERROR_ROUTE = '/error'
 export const PAGE_404_ROUTE = '/404_not_faund'
 
-export const LOCALHOST = 'http://localhost'
+export const LOCALHOST = 'http://localhost:3000'
 export const DOMEN = 'http://localhost:5000'
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
@@ -33,3 +33,5 @@ export enum LocationEnum {
     'country',
     'world',
 }
+
+export const LOCAL_STORAGE_END_READ_MESSAGE_ID = 'endReadMessageId';

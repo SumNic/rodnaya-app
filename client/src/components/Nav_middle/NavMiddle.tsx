@@ -14,6 +14,8 @@ import { useStoreContext } from "../../contexts/StoreContext";
 
 import { useThemeContext } from "../../contexts/ThemeContext";
 
+import styles from "./Nav_middle.module.css"
+
 interface Item {
     item?: string;
 }
@@ -107,6 +109,7 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
             </label>
 
             {!isCollapse && <Menu
+                className={styles['selected-menu-item']}
                 style={{
                     background: (currentWidth && currentWidth > 830) ? "none" : '',
                     fontFamily: "IzhitsaRegular",

@@ -1,46 +1,128 @@
 import { Link } from "react-router-dom";
 import {
     DOMEN,
+    LOCAL_STORAGE_END_READ_MESSAGE_ID,
+    LocationEnum,
     PERSONALE_CARD_ROUTE,
 } from "../../../utils/consts";
 import { IFiles } from "../../../models/IFiles";
 import { Buffer } from "buffer";
-import { createRef, useEffect, useRef, useState } from "react";
+import {
+    createRef,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import { observer } from "mobx-react-lite";
+import { useMessageContext } from "../../../contexts/MessageContext.ts";
+import { useStoreContext } from "../../../contexts/StoreContext.ts";
+import { useStore } from "../../../hooks/useStore.hook.ts";
+import { EndReadMessagesId } from "../../../models/endReadMessagesId.ts";
+import MessagesService from "../../../services/MessagesService.ts";
 // import React from "react";
 
 interface Props {
     posts: [];
+    location: string;
 }
 
-const MessagesList: React.FC<Props> = ({ posts }) => {
+const MessagesList: React.FC<Props> = ({ posts, location }) => {
     const [heights, setHeights] = useState<number>();
-    const [endVisibleMessage, setEndVisibleMessage] = useState<number>(0);
-    // const refDivMessages = useRef(null);
+    const [endIdFromPage, setEndIdFromPage] = useState<EndReadMessagesId[]>();
+
+    const { store } = useStoreContext();
+
     const elementsRef = useRef<React.RefObject<HTMLDivElement>[]>(
         posts.map(() => createRef() as React.RefObject<HTMLDivElement>)
     );
 
-    // console.log(elementsRef)
+    useEffect(() => {
+        elementsRef.current = posts.map(
+            () => createRef() as React.RefObject<HTMLDivElement>
+        );
+    }, [posts, location]);
+
+    const memoizedIndexMap = useMemo(() => {
+        const entries = Object.values(LocationEnum).filter(
+            (type): type is LocationEnum => typeof type === "string"
+        );
+        return entries.map((item, index) => ({ item: String(item), index }));
+    }, []);
 
     useEffect(() => {
-        if (elementsRef.current.length) {
-            let id = 0
-            const endVisibleId = elementsRef.current.forEach(
-                
-                (ref) => {
-                    if(ref.current && heights) {
-                        
-                        let checkHeight = heights - ref.current.clientHeight
-                        
-                        if (checkHeight < 0) {
-                            return
-                        }
-                        id++
+        if (!location || !endIdFromPage?.length || !elementsRef.current.length)
+            return;
+        let i = 0;
+        elementsRef.current.reduce((accum, ref) => {
+            if (ref.current && heights && accum < heights - 120) {
+                i++;
+                return accum + ref.current.clientHeight;
+            }
+            return accum;
+        }, 0);
+        const newEndIdFromPage = endIdFromPage.map((elem, index) => {
+            const indexLocation = memoizedIndexMap.findIndex(
+                ({ item }) => item === location
+            );
+            if (index === indexLocation && i !== 0) {
+                const currentElement = elementsRef.current[i - 1]?.current;
+                return {
+                    ...elem,
+                    id: currentElement?.id ? +currentElement?.id : 0,
+                };
+            }
+            return elem;
+        });
+
+        setEndIdFromPage((prev) => {
+            if (
+                prev &&
+                JSON.stringify(prev) !== JSON.stringify(newEndIdFromPage)
+            ) {
+                return newEndIdFromPage;
+            }
+            return prev;
+        });
+    });
+
+    useEffect(() => {
+        if (endIdFromPage) {
+            localStorage.setItem(
+                LOCAL_STORAGE_END_READ_MESSAGE_ID,
+                JSON.stringify(endIdFromPage)
+            );
+        }
+        endIdFromPage?.map(async (elem, index) => {
+            try {
+                console.log(elem.id, 'elem.id');
+                // console.log(store.arrEndMessagesId[index].id, 'store.arrEndMessagesId[index].id');
+                if (elem && store.arrEndMessagesId.length ) {
+                    if (elem.id > store.arrEndMessagesId[index].id) {
+                        console.log(store.arrEndMessagesId[index].id, 'store.arrEndMessagesId[index]?.id');
+                        await MessagesService.setEndReadMessagesId(
+                            store.user.id,
+                            elem.id,
+                            elem.location,
+                            store.user.secret.secret
+                        );
                     }
                 }
-            );
-            console.log(id, 'id');
-            // setHeights(nextHeights);
+            } catch (e) {
+                console.log(e, 'e');
+            }
+        });
+    }, [endIdFromPage]);
+
+    useEffect(() => {
+        const storageId = localStorage.getItem(
+            LOCAL_STORAGE_END_READ_MESSAGE_ID
+        );
+        if (storageId && !endIdFromPage)
+            setEndIdFromPage(JSON.parse(storageId) as EndReadMessagesId[]);
+        if (!storageId && store.arrEndMessagesId.length) {
+            setEndIdFromPage(store.arrEndMessagesId as EndReadMessagesId[]);
         }
     });
 
@@ -69,11 +151,14 @@ const MessagesList: React.FC<Props> = ({ posts }) => {
         console.log(e, "e");
     }
 
-    // console.log(ref.current)
-
-    // useEffect(() => {
-    //     if (ref.current) ref.current = null
-    // }, [props.posts])
+    useEffect(() => {
+        const messagesElement = document.getElementById("div__messages");
+        if (messagesElement) {
+            const scrollTop = messagesElement.scrollTop;
+            const clientHeight = messagesElement.clientHeight;
+            setHeights(scrollTop + clientHeight);
+        }
+    }, [elementsRef.current]);
 
     useEffect(() => {
         document
@@ -89,15 +174,8 @@ const MessagesList: React.FC<Props> = ({ posts }) => {
 
     const scrollHandler = (e: Event) => {
         const target = e.target as HTMLElement;
-        const { scrollHeight, scrollTop, clientHeight } = target;
-        let h = scrollTop + clientHeight;
-        console.log(h, 'h')
-        setHeights(scrollTop + clientHeight)
-        if (scrollTop + clientHeight >= scrollHeight - 10) {
-            // console.log("bottom reached");
-            // scroll to the top of the next page
-            // fetchNextPage();
-        }
+        const { scrollTop, clientHeight } = target;
+        setHeights(scrollTop + clientHeight);
     };
 
     return (

@@ -1,4 +1,3 @@
-import { User } from '@app/models';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import { Messages } from '@app/models/models/messages/messages.model';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -7,8 +6,9 @@ import { UsersService } from '../users/users.service';
 import { GetMessagesDto } from '@app/models/dtos/get-messages.dto';
 import { RpcException } from '@nestjs/microservices';
 import { Order } from '@app/common';
-import { CreateResidencyDto } from '@app/models/dtos/create-residency.dto';
 import { EndReadMessage } from '@app/models/models/messages/endReadMessage.model';
+import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto.js';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class MessagesService {
@@ -90,15 +90,43 @@ export class MessagesService {
 
         if (user && user.secret.secret === dto.secret) {
             const allCountMessages = await this.getCountMessage(dto.location);
-            console.log(allCountMessages, 'allCountMessages')
-            const allReadMessages = await this.endReadMessageRepository.findOne({
-                where: {
-                    user_id: user.id,
-                    location: dto.location,
+            const allReadMessages = await this.endReadMessageRepository.findOne(
+                {
+                    where: {
+                        user_id: user.id,
+                        location: dto.location,
+                    },
                 },
-            });
+            );
 
-            return allCountMessages - allReadMessages.endMessage
+            return allCountMessages - allReadMessages.endMessage;
+        }
+
+        throw new RpcException(
+            new InternalServerErrorException(
+                'Произошла ошибка на сервере. Повторите попытку позже.',
+            ),
+        );
+    }
+
+    /**
+     * Получение id последнего прочитанного сообщения.
+     * @param {any} dto - DTO для списка сообщений сообщения.
+     * @returns number - количество сообщений.
+     */
+    async getEndReadMessagesId(dto: GetMessagesDto): Promise<number> {
+        const user = await this.usersService.getUser(+dto.id);
+
+        if (user && user.secret.secret === dto.secret) {
+            const endReadMessagesId =
+                await this.endReadMessageRepository.findOne({
+                    where: {
+                        user_id: user.id,
+                        location: dto.location,
+                    },
+                });
+
+            return endReadMessagesId.endMessageId;
         }
 
         throw new RpcException(
@@ -123,6 +151,55 @@ export class MessagesService {
         return count;
     }
 
+    async getCountMessageFromId(
+        end_id: number,
+        location: string,
+    ): Promise<number> {
+        const { count } = await this.messagesRepository.findAndCountAll({
+            where: {
+                id: {
+                    [Op.lte]: end_id, // Используем оператор Op.lte для "меньше или равно"
+                },
+                location: location,
+                blocked: false,
+            },
+        });
+        console.log(count, 'count ');
+        return count;
+    }
+
+    async getEndMessageId(location: string): Promise<number> {
+        const { rows } = await this.messagesRepository.findAndCountAll({
+            where: {
+                location: location,
+                blocked: false,
+            },
+        });
+        return rows?.at(-1)?.id ? rows.at(-1).id : 0;
+    }
+
+    /**
+     * Назначение последних прочитанных сообщений пользователя при регистрации.
+     * @param {any} dto - DTO для списка сообщений сообщения.
+     * @returns number - количество сообщений.
+     */
+    async setEndReadMessagesId(dto: EndReadMessageDto) {
+        const endReadMessages = await this.endReadMessageRepository.findOne({
+            where: { user_id: dto.id_user, location: dto.location },
+        });
+        console.log(endReadMessages, 'endReadMessages');
+        const countNoReadMessages = await this.getCountMessageFromId(
+            dto.id_message,
+            dto.location,
+        );
+        console.log(countNoReadMessages, 'countNoReadMessages');
+        endReadMessages.endMessage = countNoReadMessages;
+        endReadMessages.endMessageId = dto.id_message;
+        endReadMessages.save();
+
+        return endReadMessages;
+    }
+
     /**
      * Назначение последних прочитанных сообщений пользователя при регистрации.
      * @param {any} dto - DTO для списка сообщений сообщения.
@@ -133,12 +210,13 @@ export class MessagesService {
         location: string,
     ): Promise<EndReadMessage> {
         const countMessagesInLocation = await this.getCountMessage(location);
+        const endMessageId = await this.getEndMessageId(location);
         const [endReadMessages] =
             await this.endReadMessageRepository.findOrCreate({
                 where: { user_id: id, location },
             });
-
         endReadMessages.endMessage = countMessagesInLocation;
+        endReadMessages.endMessageId = endMessageId;
         endReadMessages.save();
 
         return endReadMessages;

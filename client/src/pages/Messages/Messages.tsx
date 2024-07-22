@@ -17,6 +17,7 @@ import { useAboutContext } from "../../contexts/AboutContext";
 import { HOME_ROUTE, MESSAGES_ROUTE } from "../../utils/consts";
 import { Modal, Typography } from "antd";
 import HeaderLogoPc from "../../components/HeaderLogo/HeaderLogoPc";
+import { useMessageContext } from "../../contexts/MessageContext.ts";
 
 // interface IState {
 //     file: File | undefined;
@@ -35,21 +36,31 @@ function Message() {
 
     const { store } = useStoreContext();
     const { posts, setPosts } = useAboutContext();
+    // const { location, setLocation } = useMessageContext();
     const navigate = useNavigate();
 
     const params = useParams();
     const location: string | undefined = params.location;
 
+    // useEffect(() => {
+    //     if (paramsLocation) setLocation(paramsLocation)
+    // }, []);
+    // console.log(paramsLocation, 'paramsLocation');
+    // console.log(location, 'location');
+
     useEffect(() => {
         // const id = UserService.getNumberLastReadMessage()
-        MessagesService.getAllMessages(
-            store.user.id,
-            store.user.secret.secret,
-            location
-        ).then((res) => setPosts([...res.data]));
-        // document.querySelector(`#${endPost}`)?.scrollIntoView()
+        if (location) {
+            MessagesService.getAllMessages(
+                store.user.id,
+                store.user.secret.secret,
+                location
+            ).then((res) => setPosts([...res.data]));
+            // document.querySelector(`#${endPost}`)?.scrollIntoView()
 
-        store.setNewMessage(false);
+            store.setNewMessage(false);
+        }
+        
     }, [location, store.newMessage]);
 
     // useEffect(() => {
@@ -105,7 +116,7 @@ function Message() {
                             <a className="arrow__down" id="mylink" href="#"></a>
                         </div>
                         {/* <div className="main__text"> */}
-                            <MessagesList posts={posts} />
+                            {location && <MessagesList posts={posts} location={location}/>}
 
                             {/* <div id="button__message">
                                 <button id="button" onClick={openNewMesseg}>
