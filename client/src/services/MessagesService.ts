@@ -18,11 +18,12 @@ export default class MessagesService {
 
     static async getAllMessages(
         id: number,
+        start_message_id: number,
         secret: string,
         location: string | undefined
     ): Promise<AxiosResponse<any>> {
         return $api.get<any>("/get-all-messages", {
-            params: { id, secret, location },
+            params: { id, start_message_id, secret, location },
         });
     }
 
@@ -52,7 +53,6 @@ export default class MessagesService {
         location: string,
         secret: string,        
     ) {
-        console.log(id_user, id_message, location, secret, 'id_user, id_message, location, secret');
         return $api.post("/set-end-read-messages-id", {
             id_user, id_message, location, secret, 
         });

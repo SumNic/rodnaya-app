@@ -7,7 +7,7 @@ import { GetMessagesDto } from '@app/models/dtos/get-messages.dto';
 import { RpcException } from '@nestjs/microservices';
 import { Order } from '@app/common';
 import { EndReadMessage } from '@app/models/models/messages/endReadMessage.model';
-import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto.js';
+import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto';
 import { Op } from 'sequelize';
 
 @Injectable()
@@ -56,20 +56,40 @@ export class MessagesService {
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
         const user = await this.usersService.getUser(+dto.id);
 
-        if (user && user.secret.secret === dto.secret) {
-            const { count, rows } =
-                await this.messagesRepository.findAndCountAll({
-                    where: {
-                        location: user.residency[`${dto.location}`]
-                            ? user.residency[`${dto.location}`]
-                            : 'Земля',
-                        blocked: false,
-                    },
-                    include: { all: true },
-                    order: [['id', Order.ASC]],
-                    offset: 0,
-                    limit: 20,
-                });
+        const endReadMessagesId = await this.getEndReadMessagesId({
+            ...dto,
+            location: user.residency[`${dto.location}`]
+                ? user.residency[`${dto.location}`]
+                : 'Земля',
+        });
+
+        const countMessage = await this.getCountMessageFromId(
+            +dto.start_message_id !== -1
+                ? +dto.start_message_id
+                : endReadMessagesId,
+            user.residency[`${dto.location}`]
+                ? user.residency[`${dto.location}`]
+                : 'Земля',
+        );
+
+        if (
+            user &&
+            user.secret.secret === dto.secret &&
+            endReadMessagesId &&
+            countMessage
+        ) {
+            const { rows } = await this.messagesRepository.findAndCountAll({
+                where: {
+                    location: user.residency[`${dto.location}`]
+                        ? user.residency[`${dto.location}`]
+                        : 'Земля',
+                    blocked: false,
+                },
+                include: { all: true },
+                order: [['id', Order.ASC]],
+                offset: countMessage < 20 ? 0 : countMessage - 20,
+                limit: 20,
+            });
             return rows;
         }
 
@@ -164,7 +184,6 @@ export class MessagesService {
                 blocked: false,
             },
         });
-        console.log(count, 'count ');
         return count;
     }
 
@@ -187,12 +206,10 @@ export class MessagesService {
         const endReadMessages = await this.endReadMessageRepository.findOne({
             where: { user_id: dto.id_user, location: dto.location },
         });
-        console.log(endReadMessages, 'endReadMessages');
         const countNoReadMessages = await this.getCountMessageFromId(
             dto.id_message,
             dto.location,
         );
-        console.log(countNoReadMessages, 'countNoReadMessages');
         endReadMessages.endMessage = countNoReadMessages;
         endReadMessages.endMessageId = dto.id_message;
         endReadMessages.save();

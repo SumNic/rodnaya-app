@@ -14,15 +14,13 @@ import SendMessage from "../../components/SendMessage";
 import icon_attach from "../../images/clippy-icon1.png";
 import { useStoreContext } from "../../contexts/StoreContext";
 import { useAboutContext } from "../../contexts/AboutContext";
-import { HOME_ROUTE, MESSAGES_ROUTE } from "../../utils/consts";
+import { HOME_ROUTE, LocationEnum, MESSAGES_ROUTE } from "../../utils/consts";
 import { Modal, Typography } from "antd";
 import HeaderLogoPc from "../../components/HeaderLogo/HeaderLogoPc";
-import { useMessageContext } from "../../contexts/MessageContext.ts";
 
 // interface IState {
 //     file: File | undefined;
 // }
-
 
 const { Text } = Typography;
 
@@ -42,33 +40,39 @@ function Message() {
     const params = useParams();
     const location: string | undefined = params.location;
 
-    // useEffect(() => {
-    //     if (paramsLocation) setLocation(paramsLocation)
-    // }, []);
-    // console.log(paramsLocation, 'paramsLocation');
-    // console.log(location, 'location');
+    const memoizedIndexMap = useMemo(() => {
+        const entries = Object.values(LocationEnum).filter(
+            (type): type is LocationEnum => typeof type === "string"
+        );
+        return entries.map((item, index) => ({ item: String(item), index }));
+    }, []);
 
     useEffect(() => {
-        // const id = UserService.getNumberLastReadMessage()
         if (location) {
+            let endIdMessage = 0
+            endIdMessage = store.arrEndMessagesId.reduce(
+                (accum, item, index) => {
+                    const indexLocation = memoizedIndexMap.findIndex(
+                        ({ item }) => item === location
+                    );
+                    if (indexLocation === index) {
+                        return accum + item.id;
+                    }
+                    return accum;
+                },
+                0
+            );
             MessagesService.getAllMessages(
                 store.user.id,
+                store.arrEndMessagesId.length ? endIdMessage : -1
+                ,
                 store.user.secret.secret,
                 location
             ).then((res) => setPosts([...res.data]));
-            // document.querySelector(`#${endPost}`)?.scrollIntoView()
 
             store.setNewMessage(false);
         }
-        
     }, [location, store.newMessage]);
-
-    // useEffect(() => {
-    //     // get id from URL
-    //     // const id = ....
-
-    //     document.querySelector(`#${id}`).scrollIntoView()
-    //     }, [])
 
     function openNewMesseg() {}
 
@@ -105,7 +109,7 @@ function Message() {
             </header>
             <div className="middle">
                 <div className="middle__wrapper">
-                    <NavMiddle item={MESSAGES_ROUTE}/>
+                    <NavMiddle item={MESSAGES_ROUTE} />
                     <div className="main__screen main__screen_home logotip-background">
                         <div className="name">
                             <h2 className="name__local" id="name">
@@ -116,9 +120,11 @@ function Message() {
                             <a className="arrow__down" id="mylink" href="#"></a>
                         </div>
                         {/* <div className="main__text"> */}
-                            {location && <MessagesList posts={posts} location={location}/>}
+                        {location && (
+                            <MessagesList posts={posts} location={location} />
+                        )}
 
-                            {/* <div id="button__message">
+                        {/* <div id="button__message">
                                 <button id="button" onClick={openNewMesseg}>
                                     У вас есть непрочитанные сообщения.
                                     Показать?

@@ -2,7 +2,7 @@ import { JwtAuthGuard } from '@app/common';
 import { AUTH_SERVICE } from '@app/common/auth/service';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import { EndMessageDto } from '@app/models/dtos/end-message.dto';
-import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto.js';
+import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto';
 import {
     Body,
     Controller,
@@ -129,7 +129,6 @@ export class AppMessagesController {
     @ApiBody({ type: EndReadMessageDto })
     @UseGuards(JwtAuthGuard)
     async setEndReadMessagesId(@Body() dto: EndReadMessageDto) {
-        console.log(dto, 'dto');
         return this.messagesClient.send('setEndReadMessagesId', dto).pipe(
             catchError(async (error) => {
                 return new RpcException(error);

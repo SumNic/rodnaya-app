@@ -11,6 +11,8 @@ import {
 import {
     ERROR_ROUTE,
     HOME_ROUTE,
+    LOCAL_STORAGE_DEVICE,
+    LOCAL_STORAGE_TOKEN,
 } from "../utils/consts";
 import { useStoreContext } from "../contexts/StoreContext";
 import LogoLoad from "./LogoLoad/LogoLoad";
@@ -33,7 +35,7 @@ function AppRouter() {
      * @returns {void}
      */
     useEffect(() => {
-        if (localStorage.getItem("token") && localStorage.getItem("device") && !store.isAuth) {
+        if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE) && !store.isAuth) {
             store.checkAuth();
         } else {
             store.setLoad(false);

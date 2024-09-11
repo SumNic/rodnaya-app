@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
 
 interface MessageContextType {
-    count: number | undefined;
-	setCount: React.Dispatch<React.SetStateAction<number | undefined>>;
+    count: number;
+	setCount: React.Dispatch<React.SetStateAction<number>>;
     // location: string | undefined;
 	// setLocation: React.Dispatch<React.SetStateAction<string | undefined>>;
     // endIdFromPage: string | undefined;

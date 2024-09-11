@@ -26,6 +26,8 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
     const { store } = useStoreContext();
     const { currentWidth } = useThemeContext();
 
+    const allCountAreZero = store.arrCountMessages.every(item => item.count === 0);
+
     const items = [
         {
             key: HOME_ROUTE,
@@ -43,7 +45,7 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
             label: (
                 <Link to={MAIL_ROUTE} className="middle__link">
                     Почта
-                    {store.arrCountMessages.length ? (
+                    {!allCountAreZero ? (
                         <Badge style={{ boxShadow: "none" }} dot></Badge>
                     ) : (
                         ""
@@ -60,7 +62,7 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
                     className="middle__link"
                 >
                     Сообщения
-                    {store.arrCountMessages.length ? (
+                    {!allCountAreZero ? (
                         <Badge style={{ boxShadow: "none" }} dot></Badge>
                     ) : (
                         ""
@@ -77,7 +79,7 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
                     className="middle__link"
                 >
                     Группы
-                    {store.arrCountMessages.length ? (
+                    {!allCountAreZero ? (
                         <Badge style={{ boxShadow: "none" }} dot></Badge>
                     ) : (
                         ""

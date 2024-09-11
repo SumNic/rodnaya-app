@@ -30,7 +30,7 @@ import { Express } from 'express';
 import { Files } from '@app/models/models/files/files.model';
 import { CreateMessageDto } from '@app/models/dtos/create-message.dto';
 import { Messages } from '@app/models/models/messages/messages.model';
-import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto.js';
+import { EndReadMessageDto } from '@app/models/dtos/end-read-message.dto';
 
 @Controller()
 export class AuthController {
@@ -284,7 +284,7 @@ export class AuthController {
     }
 
     /**
-     * Получение id последний прочитанных сообщений
+     * Получение id последних прочитанных сообщений
      */
     @MessagePattern('getEndReadMessagesId')
     async getEndReadMessagesId(@Payload() dto: GetMessagesDto): Promise<number> {
@@ -292,7 +292,7 @@ export class AuthController {
     }
 
     /**
-     * Получение id последний прочитанных сообщений
+     * Установка id последних прочитанных сообщений
      */
     @MessagePattern('setEndReadMessagesId')
     async setEndReadMessagesId(@Payload() dto: EndReadMessageDto) {

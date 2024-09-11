@@ -35,3 +35,5 @@ export enum LocationEnum {
 }
 
 export const LOCAL_STORAGE_END_READ_MESSAGE_ID = 'endReadMessageId';
+export const LOCAL_STORAGE_DEVICE = 'device';
+export const LOCAL_STORAGE_TOKEN = 'token';

@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import MyButton from '../components/MyButton';
-import { HOME_ROUTE } from '../utils/consts';
+import { HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 
 function Error_Page() {
@@ -15,8 +15,8 @@ function Error_Page() {
 
     function returnHome() {
         if(store.isMessageError === 'Доступ запрещен') {
-            localStorage.removeItem('token')
-            localStorage.removeItem('device')
+            localStorage.removeItem(LOCAL_STORAGE_TOKEN)
+            localStorage.removeItem(LOCAL_STORAGE_DEVICE)
         }
         store.setError(false)
         navigate(HOME_ROUTE)

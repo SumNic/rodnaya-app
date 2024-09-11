@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     DOMEN,
     LOCAL_STORAGE_END_READ_MESSAGE_ID,
@@ -7,18 +7,8 @@ import {
 } from "../../../utils/consts";
 import { IFiles } from "../../../models/IFiles";
 import { Buffer } from "buffer";
-import {
-    createRef,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
-import { observer } from "mobx-react-lite";
-import { useMessageContext } from "../../../contexts/MessageContext.ts";
+import { createRef, useEffect, useMemo, useRef, useState } from "react";
 import { useStoreContext } from "../../../contexts/StoreContext.ts";
-import { useStore } from "../../../hooks/useStore.hook.ts";
 import { EndReadMessagesId } from "../../../models/endReadMessagesId.ts";
 import MessagesService from "../../../services/MessagesService.ts";
 // import React from "react";
@@ -38,11 +28,13 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
         posts.map(() => createRef() as React.RefObject<HTMLDivElement>)
     );
 
+    const navigate = useNavigate();
+
     useEffect(() => {
-        elementsRef.current = posts.map(
-            () => createRef() as React.RefObject<HTMLDivElement>
+        elementsRef.current = posts.map(() =>
+            createRef<HTMLDivElement>() as React.RefObject<HTMLDivElement>
         );
-    }, [posts, location]);
+      }, [posts, location]);
 
     const memoizedIndexMap = useMemo(() => {
         const entries = Object.values(LocationEnum).filter(
@@ -96,11 +88,11 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
         }
         endIdFromPage?.map(async (elem, index) => {
             try {
-                console.log(elem.id, 'elem.id');
-                // console.log(store.arrEndMessagesId[index].id, 'store.arrEndMessagesId[index].id');
-                if (elem && store.arrEndMessagesId.length ) {
-                    if (elem.id > store.arrEndMessagesId[index].id) {
-                        console.log(store.arrEndMessagesId[index].id, 'store.arrEndMessagesId[index]?.id');
+                if (elem && store.arrEndMessagesId.length) {
+                    if (
+                        store.user.id &&
+                        elem.id > store.arrEndMessagesId[index].id
+                    ) {
                         await MessagesService.setEndReadMessagesId(
                             store.user.id,
                             elem.id,
@@ -110,7 +102,7 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
                     }
                 }
             } catch (e) {
-                console.log(e, 'e');
+                console.log(e, "e");
             }
         });
     }, [endIdFromPage]);
@@ -125,6 +117,23 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
             setEndIdFromPage(store.arrEndMessagesId as EndReadMessagesId[]);
         }
     });
+
+    useEffect(() => {
+        if (endIdFromPage && elementsRef.current.length) {
+            endIdFromPage.map((elem, index) => {
+                const indexLocation = memoizedIndexMap.findIndex(
+                    ({ item }) => item === location
+                );
+                if (index === indexLocation) {
+                    const divId = document.getElementById(`${elem.id}`)
+                    console.log(divId, 'divId');
+                    if (divId) divId.scrollIntoView({ behavior: 'smooth' })
+                    // navigate(`/messages/${location}#${elem.id}`);
+                    // scrollToBlock(elem.id)
+                }
+            });
+        }
+    }, [location, elementsRef, endIdFromPage]);
 
     var options_time: {} = {
         timezone: "UTC",
@@ -278,7 +287,6 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
                                             {originFileName}
                                         </a>
                                     );
-                                    // return (<Link to={`${FILES_ROUTE}/${file.fileNameUuid}`} target="_blank" key={file.id} className="name__file">{originFileName}</Link>)
                                 })}
                             </div>
                         </div>

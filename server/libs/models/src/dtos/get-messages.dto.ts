@@ -10,6 +10,13 @@ export class GetMessagesDto {
   id: number;
 
   @ApiProperty({
+    example: 1,
+    description: 'ID первого сообщения',
+  })
+  @IsString({ message: 'Должно быть числом' })
+  start_message_id: number;
+
+  @ApiProperty({
     example: 'dfgdfg',
     description: 'Секретное слово',
   })

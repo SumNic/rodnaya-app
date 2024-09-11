@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom';
 import logo from '../../images/svg/Logotip-Rodnoj-parti-40x40.svg';
 
 function HeaderLogoMobile () {
-
-    console.log();
     
     return (
         <div className="header__logo-mobile">

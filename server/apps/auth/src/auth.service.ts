@@ -183,7 +183,6 @@ export class AuthService {
      * @returns User - данные пользователя.
      */
     async getOrCreateUser(dto: VkLoginSdkDto): Promise<User> {
-        console.log(dto.token, 'token');
         const DATA = {
             v: this.configService.get<string>('VK_VERSION'),
             token: dto.token,

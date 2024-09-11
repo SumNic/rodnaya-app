@@ -15,6 +15,7 @@ import { MessageForm } from "../models/MessageForm";
 import { IUserVk } from "../models/IUserVk";
 import { CountNoReadMessages } from "../models/CountNoReadMessages";
 import { EndReadMessagesId } from "../models/endReadMessagesId.ts";
+import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from "../utils/consts.tsx";
 
 export default class Store {
     user = {} as IUser;
@@ -155,10 +156,11 @@ export default class Store {
 
     async logout(allDeviceExit: boolean) {
         try {
-            let uuid: string | null = localStorage.getItem("device");
+            let uuid: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
             await AuthService.logout(this.user.id, uuid, allDeviceExit);
-            localStorage.removeItem("token");
-            localStorage.removeItem("device");
+            localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+            localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+            localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
             this.setAuth(false);
             this.setUser({} as IUser);
         } catch (e: any) {
@@ -169,8 +171,8 @@ export default class Store {
     async deleteProfile(id: number, secret: string) {
         try {
             await AuthService.deleteProfile(id, secret);
-            localStorage.removeItem("token");
-            localStorage.removeItem("device");
+            localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+            localStorage.removeItem(LOCAL_STORAGE_DEVICE);
             this.setAuth(false);
             this.setUser({} as IUser);
         } catch (e: any) {
@@ -180,7 +182,7 @@ export default class Store {
 
     async checkAuth() {
         try {
-            let device: string | null = localStorage.getItem("device");
+            let device: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
             const response = await AuthService.updateRegistration(device);
             if (!response.data) {
                 this.setError(true);
@@ -188,16 +190,16 @@ export default class Store {
                     "Произошла ошибка на сервере. Повторите ошибку позже."
                 );
                 this.setAuth(false);
-                localStorage.removeItem("token");
-                localStorage.removeItem("device");
+                localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+                localStorage.removeItem(LOCAL_STORAGE_DEVICE);
                 return;
             }
             if (response.data.error) {
                 this.setError(true);
                 this.setMessageError(response.data.error.message);
                 this.setAuth(false);
-                localStorage.removeItem("token");
-                localStorage.removeItem("device");
+                localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+                localStorage.removeItem(LOCAL_STORAGE_DEVICE);
                 return;
             }
             localStorage.setItem("token", response.data.token);
@@ -237,11 +239,11 @@ export default class Store {
 
     async loginVk(id: number, secret: string) {
         try {
-            if (!localStorage.getItem("device")) {
-                localStorage.setItem("device", this.uuid);
+            if (!localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
+                localStorage.setItem(LOCAL_STORAGE_DEVICE, this.uuid);
             }
 
-            let device: any = localStorage.getItem("device");
+            let device: any = localStorage.getItem(LOCAL_STORAGE_DEVICE);
 
             const response = await AuthService.setRegistration(
                 id,
@@ -262,7 +264,7 @@ export default class Store {
                 this.setAuth(false);
                 return;
             }
-            localStorage.setItem("token", response.data.token);
+            localStorage.setItem(LOCAL_STORAGE_TOKEN, response.data.token);
             this.setAuth(true);
             this.setUser(response.data.user);
         } catch (e: any) {
