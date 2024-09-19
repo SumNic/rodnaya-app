@@ -278,6 +278,22 @@ export class AuthController {
     /**
      * Получение сообщений
      */
+    @MessagePattern('getNextMessages')
+    async getNextMessage(@Payload() dto: GetMessagesDto): Promise<Messages[]> {
+        return await this.messagesService.getNextMessage(dto);
+    }
+
+    /**
+     * Получение сообщений
+     */
+    @MessagePattern('getPreviousMessages')
+    async getPreviousMessage(@Payload() dto: GetMessagesDto): Promise<Messages[]> {
+        return await this.messagesService.getPreviousMessage(dto);
+    }
+
+    /**
+     * Получение сообщений
+     */
     @MessagePattern('getCountNoReadMessages')
     async getCountNoReadMessages(@Payload() dto: GetMessagesDto): Promise<number> {
         return await this.messagesService.getCountNoReadMessages(dto);

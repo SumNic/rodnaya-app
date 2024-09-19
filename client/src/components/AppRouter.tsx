@@ -48,7 +48,7 @@ function AppRouter() {
             store.getEndReadMessagesId()
         }
         setTimeout(() => {          
-            setCount(count + 1);
+            setCount(prev => prev + 1);
         }, 10000);
     }, [count]);
 

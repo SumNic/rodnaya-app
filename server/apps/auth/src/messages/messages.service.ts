@@ -30,9 +30,7 @@ export class MessagesService {
 
         if (user && user.secret.secret === dto.secret) {
             const message = await this.messagesRepository.create({
-                location: user.residency[`${dto.location}`]
-                    ? user.residency[`${dto.location}`]
-                    : 'Земля',
+                location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
                 message: dto.form.message,
             });
             await user.$add('messages', message);
@@ -43,13 +41,11 @@ export class MessagesService {
             return message.id;
         }
 
-        throw new RpcException(
-            new InternalServerErrorException('Сообщение не было отправлено'),
-        );
+        throw new RpcException(new InternalServerErrorException('Сообщение не было отправлено'));
     }
 
     /**
-     * Получение всех сообщений.
+     * Получение текущих сообщений.
      * @param {any} dto - DTO для списка сообщений сообщения.
      * @returns Messages[] - Массив сообщений.
      */
@@ -58,31 +54,18 @@ export class MessagesService {
 
         const endReadMessagesId = await this.getEndReadMessagesId({
             ...dto,
-            location: user.residency[`${dto.location}`]
-                ? user.residency[`${dto.location}`]
-                : 'Земля',
+            location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
         });
 
-        const countMessage = await this.getCountMessageFromId(
-            +dto.start_message_id !== -1
-                ? +dto.start_message_id
-                : endReadMessagesId,
-            user.residency[`${dto.location}`]
-                ? user.residency[`${dto.location}`]
-                : 'Земля',
-        );
+        const end_id = +dto.start_message_id !== -1 ? +dto.start_message_id : endReadMessagesId;
+        const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
 
-        if (
-            user &&
-            user.secret.secret === dto.secret &&
-            endReadMessagesId &&
-            countMessage
-        ) {
+        const countMessage = await this.getCountMessageFromId(end_id, location);
+
+        if (user && user.secret.secret === dto.secret && endReadMessagesId >= 0 && countMessage >= 0) {
             const { rows } = await this.messagesRepository.findAndCountAll({
                 where: {
-                    location: user.residency[`${dto.location}`]
-                        ? user.residency[`${dto.location}`]
-                        : 'Земля',
+                    location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
                     blocked: false,
                 },
                 include: { all: true },
@@ -93,16 +76,74 @@ export class MessagesService {
             return rows;
         }
 
-        throw new RpcException(
-            new InternalServerErrorException(
-                'Произошла ошибка на сервере. Повторите попытку позже.',
-            ),
-        );
+        throw new RpcException(new InternalServerErrorException('Произошла ошибка на сервере при получении сообщений. Повторите попытку позже.'));
+    }
+
+    /**
+     * Получение последующих сообщений.
+     * @param {any} dto - DTO для списка сообщений сообщения.
+     * @returns Messages[] - Массив сообщений.
+     */
+    async getNextMessage(dto: GetMessagesDto): Promise<Messages[]> {
+        const user = await this.usersService.getUser(+dto.id);
+
+        const end_id = +dto.start_message_id;
+        const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+
+        const countMessage = await this.getCountMessageFromId(end_id, location);
+
+        if (user && user.secret.secret === dto.secret && countMessage > 20) {
+            const { rows } = await this.messagesRepository.findAndCountAll({
+                where: {
+                    location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+                    blocked: false,
+                },
+                include: { all: true },
+                order: [['id', Order.ASC]],
+                offset: countMessage,
+                limit: 20,
+            });
+            return rows;
+        }
+
+        throw new RpcException(new InternalServerErrorException('Произошла ошибка на сервере при получении сообщений. Повторите попытку позже.'));
+    }
+
+    /**
+     * Получение предыдущие сообщения.
+     * @param {any} dto - DTO для списка сообщений сообщения.
+     * @returns Messages[] - Массив сообщений.
+     */
+    async getPreviousMessage(dto: GetMessagesDto): Promise<Messages[]> {
+        const user = await this.usersService.getUser(+dto.id);
+
+        const end_id = +dto.start_message_id;
+        const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+
+        const countMessage = await this.getCountMessageFromId(end_id, location);
+
+        if (user && user.secret.secret === dto.secret && countMessage >= 1) {
+            const { rows } = await this.messagesRepository.findAndCountAll({
+                where: {
+                    location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+                    blocked: false,
+                },
+                include: { all: true },
+                order: [['id', Order.ASC]],
+                offset: countMessage -1  < 20 ? 0 : countMessage - 19,
+                limit: countMessage - 1 < 20 ? countMessage - 1 : 20,
+            });
+            return rows;
+        } else if (!user && user.secret.secret !== dto.secret && countMessage < 1) {
+            return
+        }
+
+        throw new RpcException(new InternalServerErrorException('Произошла ошибка на сервере при получении сообщений. Повторите попытку позже.'));
     }
 
     /**
      * Получение количества сообщений.
-     * @param {any} dto - DTO для списка сообщений сообщения.
+     * @param {GetMessagesDto} dto - DTO для списка сообщений сообщения.
      * @returns number - количество сообщений.
      */
     async getCountNoReadMessages(dto: GetMessagesDto): Promise<number> {
@@ -110,23 +151,16 @@ export class MessagesService {
 
         if (user && user.secret.secret === dto.secret) {
             const allCountMessages = await this.getCountMessage(dto.location);
-            const allReadMessages = await this.endReadMessageRepository.findOne(
-                {
-                    where: {
-                        user_id: user.id,
-                        location: dto.location,
-                    },
+            const allReadMessages = await this.endReadMessageRepository.findOne({
+                where: {
+                    user_id: user.id,
+                    location: dto.location,
                 },
-            );
-
+            });
             return allCountMessages - allReadMessages.endMessage;
         }
 
-        throw new RpcException(
-            new InternalServerErrorException(
-                'Произошла ошибка на сервере. Повторите попытку позже.',
-            ),
-        );
+        throw new RpcException(new InternalServerErrorException('Произошла ошибка на сервере. Повторите попытку позже.'));
     }
 
     /**
@@ -138,22 +172,17 @@ export class MessagesService {
         const user = await this.usersService.getUser(+dto.id);
 
         if (user && user.secret.secret === dto.secret) {
-            const endReadMessagesId =
-                await this.endReadMessageRepository.findOne({
-                    where: {
-                        user_id: user.id,
-                        location: dto.location,
-                    },
-                });
+            const endReadMessagesId = await this.endReadMessageRepository.findOne({
+                where: {
+                    user_id: user.id,
+                    location: dto.location,
+                },
+            });
 
             return endReadMessagesId.endMessageId;
         }
 
-        throw new RpcException(
-            new InternalServerErrorException(
-                'Произошла ошибка на сервере. Повторите попытку позже.',
-            ),
-        );
+        throw new RpcException(new InternalServerErrorException('Произошла ошибка на сервере. Повторите попытку позже.'));
     }
 
     /**
@@ -162,7 +191,7 @@ export class MessagesService {
      * @returns number - количество сообщений.
      */
     async getCountMessage(location: string): Promise<number> {
-        const { count } = await this.messagesRepository.findAndCountAll({
+        const { rows, count } = await this.messagesRepository.findAndCountAll({
             where: {
                 location: location,
                 blocked: false,
@@ -171,10 +200,7 @@ export class MessagesService {
         return count;
     }
 
-    async getCountMessageFromId(
-        end_id: number,
-        location: string,
-    ): Promise<number> {
+    async getCountMessageFromId(end_id: number, location: string): Promise<number> {
         const { count } = await this.messagesRepository.findAndCountAll({
             where: {
                 id: {
@@ -206,10 +232,7 @@ export class MessagesService {
         const endReadMessages = await this.endReadMessageRepository.findOne({
             where: { user_id: dto.id_user, location: dto.location },
         });
-        const countNoReadMessages = await this.getCountMessageFromId(
-            dto.id_message,
-            dto.location,
-        );
+        const countNoReadMessages = await this.getCountMessageFromId(dto.id_message, dto.location);
         endReadMessages.endMessage = countNoReadMessages;
         endReadMessages.endMessageId = dto.id_message;
         endReadMessages.save();
@@ -222,16 +245,12 @@ export class MessagesService {
      * @param {any} dto - DTO для списка сообщений сообщения.
      * @returns number - количество сообщений.
      */
-    async setNewEndReadMessages(
-        id: number,
-        location: string,
-    ): Promise<EndReadMessage> {
+    async setNewEndReadMessages(id: number, location: string): Promise<EndReadMessage> {
         const countMessagesInLocation = await this.getCountMessage(location);
         const endMessageId = await this.getEndMessageId(location);
-        const [endReadMessages] =
-            await this.endReadMessageRepository.findOrCreate({
-                where: { user_id: id, location },
-            });
+        const [endReadMessages] = await this.endReadMessageRepository.findOrCreate({
+            where: { user_id: id, location },
+        });
         endReadMessages.endMessage = countMessagesInLocation;
         endReadMessages.endMessageId = endMessageId;
         endReadMessages.save();

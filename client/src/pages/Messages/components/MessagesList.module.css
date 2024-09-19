@@ -1,0 +1,9 @@
+
+.select-foul{
+    width: 120px;
+    :global(.ant-select-selector) {
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+    }
+}

@@ -31,31 +31,27 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
     const items = [
         {
             key: HOME_ROUTE,
-            // icon: <MailOutlined />,
             label: <Link to={HOME_ROUTE}>Главная</Link>,
         },
         {
             key: PERSONALE_ROUTE,
-            // icon: <CalendarOutlined />,
             label: <Link to={PERSONALE_ROUTE}>Учредитель</Link>,
         },
-        {
-            key: MAIL_ROUTE,
-            // icon: <CalendarOutlined />,
-            label: (
-                <Link to={MAIL_ROUTE} className="middle__link">
-                    Почта
-                    {!allCountAreZero ? (
-                        <Badge style={{ boxShadow: "none" }} dot></Badge>
-                    ) : (
-                        ""
-                    )}
-                </Link>
-            ),
-        },
+        // {
+        //     key: MAIL_ROUTE,
+        //     label: (
+        //         <Link to={MAIL_ROUTE} className="middle__link">
+        //             Почта
+        //             {!allCountAreZero ? (
+        //                 <Badge style={{ boxShadow: "none" }} dot></Badge>
+        //             ) : (
+        //                 ""
+        //             )}
+        //         </Link>
+        //     ),
+        // },
         {
             key: MESSAGES_ROUTE,
-            // icon: <CalendarOutlined />,
             label: (
                 <Link
                     to={`${MESSAGES_ROUTE}/locality`}
@@ -70,26 +66,24 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
                 </Link>
             ),
         },
-        {
-            key: WORKGROUP_ROUTE,
-            // icon: <CalendarOutlined />,
-            label: (
-                <Link
-                    to={`${WORKGROUP_ROUTE}/locality`}
-                    className="middle__link"
-                >
-                    Группы
-                    {!allCountAreZero ? (
-                        <Badge style={{ boxShadow: "none" }} dot></Badge>
-                    ) : (
-                        ""
-                    )}
-                </Link>
-            ),
-        },
+        // {
+        //     key: WORKGROUP_ROUTE,
+        //     label: (
+        //         <Link
+        //             to={`${WORKGROUP_ROUTE}/locality`}
+        //             className="middle__link"
+        //         >
+        //             Группы
+        //             {!allCountAreZero ? (
+        //                 <Badge style={{ boxShadow: "none" }} dot></Badge>
+        //             ) : (
+        //                 ""
+        //             )}
+        //         </Link>
+        //     ),
+        // },
         {
             key: EXIT_ROUTE,
-            // icon: <CalendarOutlined />,
             label: (
                 <Link to={EXIT_ROUTE} className="middle__link">
                     Выйти

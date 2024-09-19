@@ -3,66 +3,81 @@ import { observer } from 'mobx-react-lite';
 // import { Context } from '..';
 import { IFiles } from '../models/IFiles';
 import { useStoreContext } from '../contexts/StoreContext';
+import { message } from 'antd';
+import { useMessageContext } from '../contexts/MessageContext.ts';
 
 interface Props {
-  location: string;
+	location: string;
 }
 
-function SendMessage (props: Props) {
+function SendMessage(props: Props) {
+	const [messageSent, setMessageSent] = useState<string>('');
 
-    // const {store} = useContext(Context)
-    const { store } = useStoreContext();
+	const { store } = useStoreContext();
 
-    const [message, setMessage] = useState<string>('')
-    const [endPost, setEndPost] = useState<number>(0)
+	const { setSendMessageId } = useMessageContext();
 
-    useEffect(() => {
-        setMessage('')
-        store.resetFiles()
-    }, [props.location])
+	useEffect(() => {
+		setMessageSent('');
+		store.resetFiles();
+	}, [props.location]);
 
-    async function sendMessage(e: any) {
-        // Prevent the browser from reloading the page
-        e.preventDefault();
+	const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+		try {
+			e.preventDefault();
 
-        // Read the form data
-        const form = e.target;
-        
-        const formData = new FormData(form);
-        
-        const arrIdFiles = store.files.map((file: IFiles) => file.id)
-        formData.append('files', JSON.stringify(arrIdFiles))
+			const form = e.currentTarget;
 
-        const formJson = Object.fromEntries(formData.entries())
-        
-        const resp_id = await store.sendMessage(store.user.id, store.user.secret.secret, props.location, formJson)
-        setEndPost(+resp_id)
+			const formData = new FormData(form);
 
-        setMessage('')
-        store.setNewMessage(true)
-        store.resetFiles()
-    }
+			const arrIdFiles = store.files.map((file: IFiles) => file.id);
+			formData.append('files', JSON.stringify(arrIdFiles));
 
-    return (
-        <form name="send_message" id="send_message" method="post" onSubmit={sendMessage}>
-            <div className="message">
-                <textarea 
-                    id="message" 
-                    name="message" 
-                    placeholder="Введите сообщение" 
-                    value={message} 
-                    onChange={(e) => setMessage(e.target.value)}
-                    required
-                />
-            </div>
-            <div className="class_none">
-                <p id="clip_files"></p>
-            </div>
-            <div className="send">
-                <button type="submit" className="submit-send"></button>
-            </div>
-        </form>
-    );
+			const formJson = Object.fromEntries(formData.entries());
+
+			const resp_id = await store.sendMessage(store.user.id, store.user.secret.secret, props.location, formJson);
+			setSendMessageId(+resp_id);
+
+			setMessageSent('');
+			store.setNewMessage(true);
+			store.resetFiles();
+		} catch (err) {
+			message.error(` Ошибка в sendMessage: ${err}`);
+		}
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+		if (messageSent.trim().length > 0 && !e.shiftKey && e.key === 'Enter') {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				sendMessage(e);
+			}
+		} else if (messageSent.trim() === '' && ((!e.shiftKey && e.key === 'Enter') || (e.shiftKey && e.key === 'Enter'))) {
+			e.preventDefault();
+			message.warning('Поле ввода не может быть пустым');
+		}
+	};
+
+	return (
+		<form name="send_message" id="send_message" method="post" onSubmit={sendMessage} onKeyDown={handleKeyDown}>
+			<div className="message">
+				<textarea
+					id="message"
+					name="message"
+					placeholder="Введите сообщение"
+					value={messageSent}
+					onChange={(e) => setMessageSent(e.target.value)}
+					required
+				/>
+			</div>
+			<div className="class_none">
+				<p id="clip_files"></p>
+			</div>
+			<div className="send">
+				<button type="submit" className="submit-send"></button>
+			</div>
+		</form>
+	);
 }
 
 export default observer(SendMessage);

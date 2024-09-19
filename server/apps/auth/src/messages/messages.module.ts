@@ -9,12 +9,9 @@ import { ManageMessages } from '@app/models/models/messages/manageMessages.model
 import { EndReadMessage } from '@app/models/models/messages/endReadMessage.model';
 
 @Module({
-  providers: [MessagesService],
-  imports: [
-    SequelizeModule.forFeature([Messages, ManageMessages, EndReadMessage]),
-    UserModule
-  ],
-  controllers: [MessagesController],
-  exports: [MessagesService],
+    providers: [MessagesService],
+    imports: [SequelizeModule.forFeature([Messages, ManageMessages, EndReadMessage]), UserModule],
+    controllers: [MessagesController],
+    exports: [MessagesService],
 })
 export class MessagesModule {}

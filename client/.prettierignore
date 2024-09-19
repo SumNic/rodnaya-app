@@ -1,0 +1,10 @@
+dist
+node_modules
+cordova
+
+.env
+.gitmodules
+.idea
+.prettierrc.json
+.prettierignore
+.eslintrc

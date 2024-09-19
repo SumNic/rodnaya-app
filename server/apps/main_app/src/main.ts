@@ -7,27 +7,27 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Сайт Родная партия')
-    .setDescription('Документация REST API')
-    .setVersion('1.0.0')
-    .build();
+    const app = await NestFactory.create(AppModule);
+    const configService = app.get(ConfigService);
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('Сайт Родная партия')
+        .setDescription('Документация REST API')
+        .setVersion('1.0.0')
+        .build();
 
-  app.enableCors({
-    credentials: true,
-    origin: configService.get('CLIENT_URL')
-});
-  app.useGlobalFilters(new RpcExceptionFilter());
-  app.use(bodyParser.json({ limit: '50mb' }));
-  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+    app.enableCors({
+        credentials: true,
+        origin: configService.get('CLIENT_URL'),
+    });
+    app.useGlobalFilters(new RpcExceptionFilter());
+    app.use(bodyParser.json({ limit: '50mb' }));
+    app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('/api/docs', app, document);
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('/api/docs', app, document);
 
-  app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen((configService.get('PORT')), () => console.log(`Server started on port = ${(configService.get('PORT'))}`));
+    await app.listen(configService.get('PORT'), () => console.log(`Server started on port = ${configService.get('PORT')}`));
 }
-bootstrap(); 
+bootstrap();

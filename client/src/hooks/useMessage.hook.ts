@@ -1,14 +1,13 @@
 import { useState } from "react";
 
 export const useMessage = () => {
-    const [count, setCount] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [sendMessageId, setSendMessageId] = useState<number>()
 
     return {
-        count,
-        setCount
-        // location,
-	    // setLocation,
-        // endIdFromPage,
-        // setEndIdFromPage
+        isLoading,
+        setIsLoading,
+        sendMessageId, 
+        setSendMessageId
     };
 };

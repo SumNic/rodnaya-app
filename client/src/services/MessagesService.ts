@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import $api from "../http";
+import { IPost } from "../models/IPost.ts";
 
 export default class MessagesService {
     static async sendMessage(
@@ -21,8 +22,30 @@ export default class MessagesService {
         start_message_id: number,
         secret: string,
         location: string | undefined
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<IPost>> {
         return $api.get<any>("/get-all-messages", {
+            params: { id, start_message_id, secret, location },
+        });
+    }
+
+    static async getPreviousMessages(
+        id: number,
+        start_message_id: number,
+        secret: string,
+        location: string | undefined
+    ): Promise<AxiosResponse<IPost>> {
+        return $api.get<any>("/get-previous-messages", {
+            params: { id, start_message_id, secret, location },
+        });
+    }
+
+    static async getNextMessages(
+        id: number,
+        start_message_id: number,
+        secret: string,
+        location: string | undefined
+    ): Promise<AxiosResponse<IPost>> {
+        return $api.get<any>("/get-next-messages", {
             params: { id, start_message_id, secret, location },
         });
     }

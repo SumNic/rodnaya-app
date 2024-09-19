@@ -1,12 +1,10 @@
 import { createContext, useContext } from 'react';
 
 interface MessageContextType {
-    count: number;
-	setCount: React.Dispatch<React.SetStateAction<number>>;
-    // location: string | undefined;
-	// setLocation: React.Dispatch<React.SetStateAction<string | undefined>>;
-    // endIdFromPage: string | undefined;
-	// setEndIdFromPage: React.Dispatch<React.SetStateAction<string | undefined>>;
+    isLoading: boolean;
+	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    sendMessageId: number | undefined;
+	setSendMessageId: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
 export const MessageContext = createContext<MessageContextType | null>(null);

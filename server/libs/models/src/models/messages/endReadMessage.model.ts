@@ -1,11 +1,4 @@
-import {
-    BelongsTo,
-    Column,
-    DataType,
-    ForeignKey,
-    Model,
-    Table,
-} from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { User } from '../users/user.model';
 
 interface EndReadMessageCreationAttrs {
@@ -14,10 +7,7 @@ interface EndReadMessageCreationAttrs {
 }
 
 @Table({ tableName: 'endReadMessage' })
-export class EndReadMessage extends Model<
-    EndReadMessage,
-    EndReadMessageCreationAttrs
-> {
+export class EndReadMessage extends Model<EndReadMessage, EndReadMessageCreationAttrs> {
     @Column({
         type: DataType.INTEGER,
         unique: true,
@@ -26,7 +16,7 @@ export class EndReadMessage extends Model<
     })
     id: number;
 
-    @Column({type: DataType.INTEGER})
+    @Column({ type: DataType.INTEGER })
     user_id: number;
 
     @Column({ type: DataType.STRING, allowNull: false })

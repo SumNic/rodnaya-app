@@ -48,11 +48,11 @@ function Workgroup() {
 
     useEffect(() => {
         // const id = UserService.getNumberLastReadMessage()
-        MessagesService.getAllMessages(
-            store.user.id,
-            store.user.secret.secret,
-            location
-        ).then((data) => setPosts(data.data));
+        // MessagesService.getAllMessages(
+        //     store.user.id,
+        //     store.user.secret.secret,
+        //     location
+        // ).then((data) => setPosts(data.data));
         // document.querySelector(`#${endPost}`)?.scrollIntoView()
 
         store.setNewMessage(false);
@@ -109,7 +109,7 @@ function Workgroup() {
                             ></a>
                         </div>
                         <div className="main__text">
-                            <MessagesList posts={posts} />
+                            {/* <MessagesList posts={posts} /> */}
 
                             <div id="button__message">
                                 <button id="button" onClick={openNewMesseg}>

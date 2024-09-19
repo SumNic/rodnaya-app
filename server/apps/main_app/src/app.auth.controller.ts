@@ -30,22 +30,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-    ApiBody,
-    ApiOperation,
-    ApiParam,
-    ApiResponse,
-    ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { catchError, tap, throwError } from 'rxjs';
 
 @Controller()
 export class AppAuthController {
-    constructor(
-        @Inject(AUTH_SERVICE) private authClient: ClientProxy,
-        private configService: ConfigService,
-    ) {}
+    constructor(@Inject(AUTH_SERVICE) private authClient: ClientProxy, private configService: ConfigService) {}
 
     @ApiTags('Авторизация')
     @ApiOperation({ summary: 'Авторизация пользователя' })
@@ -60,10 +51,7 @@ export class AppAuthController {
         status: HttpStatus.BAD_REQUEST,
         description: 'Неккоректные данные',
     })
-    async setRegistration(
-        @Body() dto: CreateRegistrationDto,
-        @Res({ passthrough: true }) res: Response,
-    ) {
+    async setRegistration(@Body() dto: CreateRegistrationDto, @Res({ passthrough: true }) res: Response) {
         return this.authClient
             .send('setRegistration', dto)
             .pipe(
@@ -93,8 +81,7 @@ export class AppAuthController {
      */
     @ApiTags('Авторизация')
     @ApiOperation({
-        summary:
-            'Разлогинить пользователя (Удалить refreshToken у пользователя)',
+        summary: 'Разлогинить пользователя (Удалить refreshToken у пользователя)',
     })
     @Post('/logout')
     @ApiBody({ type: LogoutUserDto })
@@ -146,10 +133,7 @@ export class AppAuthController {
         description: 'Некоректный JWT токен',
     })
     @UseGuards(JwtAuthGuard)
-    async deleteProfile(
-        @Body('id') id: number,
-        @Body('secret') secret: string,
-    ) {
+    async deleteProfile(@Body('id') id: number, @Body('secret') secret: string) {
         return this.authClient.send('deleteProfile', { id, secret }).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
@@ -171,10 +155,7 @@ export class AppAuthController {
         status: HttpStatus.NOT_FOUND,
         description: 'Пользователь не найден',
     })
-    async restoreProfile(
-        @Body('id') id: number,
-        @Body('secret') secret: string,
-    ) {
+    async restoreProfile(@Body('id') id: number, @Body('secret') secret: string) {
         return this.authClient.send('restoreProfile', { id, secret }).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
@@ -184,8 +165,7 @@ export class AppAuthController {
 
     @ApiTags('Авторизация')
     @ApiOperation({
-        summary:
-            'Обновить токены для пользователя (требуется refreshToken в заголовке)',
+        summary: 'Обновить токены для пользователя (требуется refreshToken в заголовке)',
     })
     @Post('/refresh-tokens')
     @ApiBody({ type: UuidDevice })
@@ -203,11 +183,7 @@ export class AppAuthController {
         status: HttpStatus.FORBIDDEN,
         description: 'Некоректный JWT токен',
     })
-    async refreshTokens(
-        @Body() dto: UuidDevice,
-        @Req() req: Request,
-        @Res({ passthrough: true }) res: Response,
-    ) {
+    async refreshTokens(@Body() dto: UuidDevice, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
         return this.authClient
             .send('refreshTokens', {
                 refreshToken: req.cookies.refreshToken,
@@ -365,11 +341,7 @@ export class AppAuthController {
     async checkEmail(@Param('email') email: string) {
         return this.authClient
             .send('checkUserEmail', email)
-            .pipe(
-                catchError((error) =>
-                    throwError(() => new RpcException(error.response)),
-                ),
-            );
+            .pipe(catchError((error) => throwError(() => new RpcException(error.response))));
     }
 
     @ApiTags('Авторизация')
@@ -397,8 +369,7 @@ export class AppAuthController {
     @ApiTags('Авторизация')
     @Get('/check-admin')
     @ApiOperation({
-        summary:
-            'Проверка на наличие прав администратора. (Необходим JWT токен)',
+        summary: 'Проверка на наличие прав администратора. (Необходим JWT токен)',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -637,17 +608,12 @@ export class AppAuthController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async udatePersonaleData(
-        @Param('secret') secret: string,
-        @Body() form: any,
-    ) {
-        return this.authClient
-            .send('udatePersonaleData', { secret, form })
-            .pipe(
-                catchError(async (error) => {
-                    return new RpcException(error);
-                }),
-            );
+    async udatePersonaleData(@Param('secret') secret: string, @Body() form: any) {
+        return this.authClient.send('udatePersonaleData', { secret, form }).pipe(
+            catchError(async (error) => {
+                return new RpcException(error);
+            }),
+        );
     }
 
     @ApiTags('Изменение данных')
@@ -664,16 +630,8 @@ export class AppAuthController {
     })
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    async uploadAvatar(
-        @UploadedFile() file: Express.Multer.File,
-        @Body('userId') userId: string,
-    ) {
-        if (file.size > 20000000)
-            return new RpcException(
-                new BadRequestException(
-                    'Размер файла должен быть не более 20мб',
-                ),
-            );
+    async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Body('userId') userId: string) {
+        if (file.size > 20000000) return new RpcException(new BadRequestException('Размер файла должен быть не более 20мб'));
         const arrTypeFile = ['image/jpg', 'image/png', 'image/jpeg'];
         const isType = arrTypeFile.reduce((accum: number, type: string) => {
             if (file.mimetype === type) {
@@ -681,10 +639,7 @@ export class AppAuthController {
             }
             return accum;
         }, 0);
-        if (!isType)
-            return new RpcException(
-                new BadRequestException('Допустимы расширения: jpg, png, jpeg'),
-            );
+        if (!isType) return new RpcException(new BadRequestException('Допустимы расширения: jpg, png, jpeg'));
         return this.authClient.send('saveAvatar', { file, userId }).pipe(
             catchError(async (error) => {
                 return new RpcException(error);
