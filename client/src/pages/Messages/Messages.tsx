@@ -13,67 +13,102 @@ import icon_attach from '../../images/clippy-icon1.png';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useAboutContext } from '../../contexts/AboutContext';
 import { HOME_ROUTE, LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
-import { Modal, Spin, Typography } from 'antd';
+import { Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
 import { useMessageContext } from '../../contexts/MessageContext.ts';
+import UserService from '../../services/UserService.ts';
+
+import styles from './Messages.module.css';
 
 const { Text } = Typography;
 
 function Message() {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
-    
-    const [isMemoizedIndexMap, setMemoizedIndexMap] = useState(true);
+	const [isMemoizedIndexMap, setMemoizedIndexMap] = useState(true);
+	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
 
 	const { store } = useStoreContext();
 	const { posts, setPosts } = useAboutContext();
-    const { isLoading, setIsLoading, sendMessageId } = useMessageContext()
+	const { isLoading, setIsLoading, sendMessageId } = useMessageContext();
 	const navigate = useNavigate();
 
 	const params = useParams();
 	const location: string | undefined = params.location;
 
-    const memoizedIndexMap = useMemo(() => {
-        if (isMemoizedIndexMap) {
-            const entries = Object.values(LocationEnum).filter((type): type is LocationEnum => typeof type === 'string');
-            return entries.map((item, index) => ({ item: String(item), index }));
-        }
-        setMemoizedIndexMap(false);
-    }, [isMemoizedIndexMap]);
+	useEffect(() => {
+		checkingTheLock();
+	}, []);
+
+	const checkingTheLock = async () => {
+		try {
+			// 1. Получаем данные времени до которого будет действовать блокировка
+			const response = await UserService.checkBlocked(store.user.id);
+
+			if (response.status === 200 && response.data) {
+				const blockingEndTimeString = response.data;
+
+                var options: {} = {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    timezone: "UTC",
+                    hour: "numeric",
+                    minute: "numeric",
+                };
+                let blockingEndTime = new Date(
+                    blockingEndTimeString
+                ).toLocaleString("ru", options);
+                
+				setTimeRemaining(blockingEndTime);
+			}
+		} catch (error) {
+			console.error('Ошибка checkingTheLock:', error);
+			setTimeRemaining(null);
+		}
+	};
+
+	const memoizedIndexMap = useMemo(() => {
+		if (isMemoizedIndexMap) {
+			const entries = Object.values(LocationEnum).filter((type): type is LocationEnum => typeof type === 'string');
+			return entries.map((item, index) => ({ item: String(item), index }));
+		}
+		setMemoizedIndexMap(false);
+	}, [isMemoizedIndexMap]);
 
 	useEffect(() => {
 		if (location) {
-            if (sendMessageId) {
-                store.setNewMessage(false);
-			    loadMessages(sendMessageId, location);
-            } else {
-                const endIdMessage: number = store.arrEndMessagesId.reduce((accum, item, index) => {
-                    const indexLocation = memoizedIndexMap?.findIndex(({ item }) => item === location);
-                    if (indexLocation === index) {
-                        return accum + item.id;
-                    }
-                    return accum;
-                }, 0);
-    
-                store.setNewMessage(false);    
-                loadMessages(endIdMessage, location);
-            }			
+			if (sendMessageId) {
+				store.setNewMessage(false);
+				loadMessages(sendMessageId, location);
+			} else {
+				const endIdMessage: number = store.arrEndMessagesId.reduce((accum, item, index) => {
+					const indexLocation = memoizedIndexMap?.findIndex(({ item }) => item === location);
+					if (indexLocation === index) {
+						return accum + item.id;
+					}
+					return accum;
+				}, 0);
+
+				store.setNewMessage(false);
+				loadMessages(endIdMessage, location);
+			}
 		}
 	}, [location, sendMessageId]);
 
 	useEffect(() => {
 		const handleScroll = () => {
-            const messagesElement = document.getElementById("div__messages");
-            const scrollHeight = messagesElement?.scrollHeight;
-            const scrollTop = messagesElement?.scrollTop;
-            const clientHeight = messagesElement?.clientHeight;
+			const messagesElement = document.getElementById('div__messages');
+			const scrollHeight = messagesElement?.scrollHeight;
+			const scrollTop = messagesElement?.scrollTop;
+			const clientHeight = messagesElement?.clientHeight;
 
-            if (scrollHeight && scrollTop && clientHeight) {
-                if (scrollTop < 3 && !isLoading) {
-                    loadPreviousMessages();
-                } else if (scrollHeight - scrollTop - clientHeight < 3 && !isLoading) {
-                    loadNextMessages();
-                }
-            }
+			if (scrollHeight && scrollTop && clientHeight) {
+				if (scrollTop < 3 && !isLoading) {
+					loadPreviousMessages();
+				} else if (scrollHeight - scrollTop - clientHeight < 3 && !isLoading) {
+					loadNextMessages();
+				}
+			}
 		};
 
 		document.getElementById('div__messages')?.addEventListener('scroll', handleScroll);
@@ -85,30 +120,29 @@ function Message() {
 			const allMessages = await MessagesService.getAllMessages(
 				store.user.id,
 				endIdMessage || -1,
-				store.user.secret.secret,
+				store.user.secret,
 				location
 			);
 			if (allMessages) setPosts([...Object.values(allMessages.data)]);
 		} catch (err) {
-            console.error(`Ошибка в loadMessages: ${err}`)
+			console.error(`Ошибка в loadMessages: ${err}`);
 		}
 	};
 
-    const loadPreviousMessages = async () => {
+	const loadPreviousMessages = async () => {
 		setIsLoading(true);
 		try {
-            if (posts && posts[0]?.id) {
-                const newPosts = await MessagesService.getPreviousMessages(
-                    store.user.id,
-                    posts[0]?.id,
-                    store.user.secret.secret,
-                    location
-                );
-                if (newPosts) setPosts([...Object.values(newPosts.data), ...posts]);
-            }
-			
+			if (posts && posts[0]?.id) {
+				const newPosts = await MessagesService.getPreviousMessages(
+					store.user.id,
+					posts[0]?.id,
+					store.user.secret,
+					location
+				);
+				if (newPosts) setPosts([...Object.values(newPosts.data), ...posts]);
+			}
 		} catch (err) {
-            console.error(`Ошибка в loadPreviousMessages: ${err}`)
+			console.error(`Ошибка в loadPreviousMessages: ${err}`);
 		}
 		setIsLoading(false);
 	};
@@ -116,17 +150,17 @@ function Message() {
 	const loadNextMessages = async () => {
 		setIsLoading(true);
 		try {
-            if (posts) {
-                const newMessages = await MessagesService.getNextMessages(
-                    store.user.id,
-                    posts[posts.length - 1].id,
-                    store.user.secret.secret,
-                    location
-                );
-                if (newMessages) setPosts([...posts, ...Object.values(newMessages.data)]);
-            }
+			if (posts) {
+				const newMessages = await MessagesService.getNextMessages(
+					store.user.id,
+					posts[posts.length - 1].id,
+					store.user.secret,
+					location
+				);
+				if (newMessages) setPosts([...posts, ...Object.values(newMessages.data)]);
+			}
 		} catch (err) {
-            console.error(`Ошибка в loadNextMessages: ${err}`)
+			console.error(`Ошибка в loadNextMessages: ${err}`);
 		}
 		setIsLoading(false);
 	};
@@ -152,7 +186,7 @@ function Message() {
 		}
 		return name;
 	}, [location]);
-    
+
 	return (
 		<div>
 			<header className="header">
@@ -171,25 +205,34 @@ function Message() {
 								{nameLocal}
 							</h2>
 						</div>
-						<div>
+						{/* <div>
 							<a className="arrow__down" id="mylink" href={`${posts?.[length - 1]?.id}`}></a>
-						</div>
+						</div> */}
 						{location && posts && <MessagesList posts={posts} location={location} />}
 						{/* {!isLoading && <div className="loading-indicator">Загрузка...</div>} */}
 						<div id="messages">
-							<UploadFiles />
+							{timeRemaining !== null ? (
+                                <div  className={styles['blocked_text']}>
+                                    <p>Вы заблокированы за нарушение правил.</p>
+                                    <p> Блокировка заканчивается {timeRemaining}</p>
+                                </div>
+							) : (
+								<>
+									<UploadFiles />
 
-							<div id="forms">
-								<div className="clip">
-									<div className="label-clip">
-										<label htmlFor="fileToUpload">
-											<img className="clippy-icon" src={icon_attach} alt="Прикрепить" />
-										</label>
+									<div id="forms">
+										<div className="clip">
+											<div className="label-clip">
+												<label htmlFor="fileToUpload">
+													<img className="clippy-icon" src={icon_attach} alt="Прикрепить" />
+												</label>
+											</div>
+										</div>
+
+										{location && <SendMessage location={location} />}
 									</div>
-								</div>
-
-								{location && <SendMessage location={location} />}
-							</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

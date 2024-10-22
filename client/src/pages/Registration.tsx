@@ -29,7 +29,7 @@ function Registration() {
                                 <MyButtonInput type="submit" form="condition" id="submit" value="Продолжить регистрацию" />
                             </>}
 
-                            {!store.user.residency && store.isRegistrationEnd && <OnChangeForm id={store.user.id} secret={store.user.secret.secret}/>}
+                            {!store.user.residency && store.isRegistrationEnd && <OnChangeForm id={store.user.id} secret={store.user.secret}/>}
                             
                         </div>
                     </div>

@@ -1,0 +1,42 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    depends_on:
+      - server
+  server:
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+      target: ${MODE}
+    env_file:
+      - ./server/.env.${MODE}
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    ports:
+      - 5000:5000
+    command: yarn run start:dev
+    depends_on:
+      - postgres
+    restart: always
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - ./server/.env.${MODE}
+    ports:
+      - '5021:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker_postgres_init.${MODE}.sql:/docker-entrypoint initdb.d/docker_postgres_init.sql
+    restart: always
+
+volumes:
+  pgdata:

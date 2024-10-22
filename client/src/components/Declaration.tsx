@@ -47,7 +47,7 @@ function Declaration() {
                 <input
                     type="hidden"
                     name="secret"
-                    value={store.user.secret.secret}
+                    value={store.user.secret}
                 />
 
                 <textarea

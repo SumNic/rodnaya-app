@@ -10,7 +10,7 @@ class Footer extends Component {
                     </div>
                     <div className="footer__">
                         <div className="footer__prices">
-                            <Link to="donations" className="footer__link">Поддержать проект</Link>
+                            <Link to="/donations" className="footer__link">Поддержать проект</Link>
                         </div>	
                     </div>
                 </div>

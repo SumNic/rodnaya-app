@@ -16,6 +16,7 @@ import { IUserVk } from '../models/IUserVk';
 import { CountNoReadMessages } from '../models/CountNoReadMessages';
 import { EndReadMessagesId } from '../models/endReadMessagesId.ts';
 import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from '../utils/consts.tsx';
+import AdminService from '../services/AdminService.ts';
 
 export default class Store {
 	user = {} as IUser;
@@ -41,6 +42,7 @@ export default class Store {
 	nameFile = '';
 	arrCountMessages: CountNoReadMessages[] = [];
 	arrEndMessagesId: EndReadMessagesId[] = [];
+	isAdmin = false;
 
 	constructor() {
 		this.uuid = uuidv4();
@@ -150,6 +152,10 @@ export default class Store {
 		this.arrEndMessagesId.push({ location, id });
 	}
 
+	setAdmin(bool: boolean) {
+		this.isAdmin = bool;
+	}
+
 	async logout(allDeviceExit: boolean) {
 		try {
 			let uuid: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
@@ -159,6 +165,7 @@ export default class Store {
 			localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
 			this.setAuth(false);
 			this.setUser({} as IUser);
+			if (this.isAdmin) this.setAdmin(false)
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
@@ -171,6 +178,7 @@ export default class Store {
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			this.setAuth(false);
 			this.setUser({} as IUser);
+			if (this.isAdmin) this.setAdmin(false)
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
@@ -200,10 +208,26 @@ export default class Store {
 			this.setAuth(true);
 			this.setUser(response.data.user);
 		} catch (e: any) {
-			console.log(e, 'error');
-			console.log(e.response?.data?.message);
+			console.error(`Ошибка в checkAuth: ${e}`);
+			if (e.response?.data?.message) {
+				this.setError(true);
+				this.setMessageError(e.response.data.message);
+				this.setAuth(false);
+				localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+				localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+				localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
+			}
 		} finally {
 			this.setLoad(false);
+		}
+	}
+
+	async checkAdmin () {
+		try {
+			const isAdmin = await AdminService.checkAdmin()
+			if (isAdmin.data)  this.setAdmin(true)
+		} catch (err) {
+			console.log(`Ошибка в checkAdmin: ${err}`)
 		}
 	}
 
@@ -216,16 +240,16 @@ export default class Store {
 				this.setAuth(false);
 				return;
 			}
-			if (response.data.error) {
-				this.setError(true);
-				console.log(response.data.error.message);
-				this.setMessageError(response.data.error.message);
-				this.setAuth(false);
-				return;
-			}
+			
 			return { data: response.data };
 		} catch (e: any) {
-			return { data: e.response?.data?.message };
+			if (e.response?.data?.message) {
+				this.setError(true);
+				this.setMessageError(e.response.data.message);
+				this.setAuth(false);
+			}
+			console.log(e, 'e');
+			// return { error: e.response?.data?.message };
 		}
 	}
 
@@ -244,17 +268,16 @@ export default class Store {
 				this.setAuth(false);
 				return;
 			}
-			if (response.data.error) {
-				this.setError(true);
-				this.setMessageError(response.data.error.message);
-				this.setAuth(false);
-				return;
-			}
+
 			localStorage.setItem(LOCAL_STORAGE_TOKEN, response.data.token);
 			this.setAuth(true);
 			this.setUser(response.data.user);
 		} catch (e: any) {
-			return { data: e.response?.data?.message };
+			if (e.response?.data?.message) {
+				this.setError(true);
+				this.setMessageError(e.response.data.message);
+				this.setAuth(false);
+			}
 		}
 	}
 
@@ -297,9 +320,9 @@ export default class Store {
 	async saveResidency(dto: ResidencyUser) {
 		try {
 			const response = await AuthService.createResidencyUsers(dto);
-			return response;
+			return { data: response.data };
 		} catch (e: any) {
-			console.log(e.response?.data?.message);
+			return { error: e.response?.data?.message };
 		}
 	}
 
@@ -343,9 +366,10 @@ export default class Store {
 	async sendMessage(id_user: number, secret: string, location: string, form: MessageForm) {
 		try {
 			const response = await MessagesService.sendMessage(id_user, secret, location, form);
-			return response.data;
+			return {data: response.data};
 		} catch (e: any) {
-			return { data: e.response?.data?.message };
+			console.log(e, 'e');
+			return { error: e.response?.data?.message };
 		}
 	}
 
@@ -358,7 +382,7 @@ export default class Store {
 				}
 			}
 			const promises = arrResidencyUser.reverse().map(async (location) => {
-				const dataPlus = await MessagesService.getCountNoReadMessages(this.user.id, this.user.secret.secret, location);
+				const dataPlus = await MessagesService.getCountNoReadMessages(this.user.id, this.user.secret, location);
 				return { location, count: dataPlus.data };
 			});
 
@@ -367,7 +391,7 @@ export default class Store {
 				this.setArrCountMessages(location, count);
 			});
 		} catch (e: any) {
-			console.log(e);
+			console.log(`Ошибка в getCountMessages: ${e}`);
 			// return { data: e.response?.data?.message };
 		}
 	}
@@ -381,7 +405,7 @@ export default class Store {
 				}
 			}
 			const promises = arrResidencyUser.reverse().map(async (location) => {
-				const dataPlus = await MessagesService.getEndReadMessagesId(this.user.id, this.user.secret.secret, location);
+				const dataPlus = await MessagesService.getEndReadMessagesId(this.user.id, this.user.secret, location);
 				return { location, id: dataPlus.data };
 			});
 
@@ -390,7 +414,7 @@ export default class Store {
 				this.setArrEndMessagesId(location, id);
 			});
 		} catch (e: any) {
-			console.log(e);
+			console.log(`Ошибка в getEndReadMessagesId: ${e}`);
 			// return { data: e.response?.data?.message };
 		}
 	}

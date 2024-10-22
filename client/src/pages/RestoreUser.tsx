@@ -17,8 +17,8 @@ function RestoreUser() {
     const { user } = location.state
 
     function restoreProfile() {
-        store.restoreProfile(user.id, user.secret.secret)
-            .then(() => store.loginVk(user.id, user.secret.secret))
+        store.restoreProfile(user.id, user.secret)
+            .then(() => store.loginVk(user.id, user.secret))
             .then(() => {
                 navigate(PERSONALE_ROUTE)
                 })

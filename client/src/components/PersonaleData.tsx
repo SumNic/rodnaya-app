@@ -17,7 +17,7 @@ function PersonaleData () {
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
     
-    await store.udatePersonaleData(store.user.secret.secret, formJson)
+    await store.udatePersonaleData(store.user.secret, formJson)
     store.setCancelAction(true) // закрывается окно редактирования в Personale_page
   }
 

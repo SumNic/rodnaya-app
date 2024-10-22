@@ -81,10 +81,6 @@ function NavRegions(props: Props) {
 
     const keys = Object.keys(LocationEnum).filter((v) => isNaN(Number(v)));
 
-    // const arrCountMessageReverse = store.arrCountMessages.reverse();
-
-    // console.log(store.arrCountMessages, 'store.arrCountMessages[index]')
-
     const navMenu = keys.map((elem, index) => (
         <li
             key={index}
@@ -114,7 +110,7 @@ function NavRegions(props: Props) {
                 {elem === "world" && "Мир"}
             </Link>
 
-            {arrCountMessages && arrCountMessages[index]?.count ? (
+            {arrCountMessages && arrCountMessages[index]?.count > 0 ? (
                 <Badge
                     count={store.arrCountMessages[index]?.count}
                     style={{ boxShadow: "none" }}

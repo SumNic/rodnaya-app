@@ -21,8 +21,13 @@ export const RULES_ROUTE = '/rules';
 export const ERROR_ROUTE = '/error';
 export const PAGE_404_ROUTE = '/404_not_faund';
 
-export const LOCALHOST = 'http://localhost:3000';
+export const DONATIONS_ROUTE = '/donations';
+
+export const BLOCKED_ROUTE = '/blocked';
+
+export const HOST = 'http://localhost:3000';
 export const DOMEN = 'http://localhost:5000';
+export const API_URL = 'http://localhost:5000';
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
 
@@ -58,6 +63,7 @@ export enum ActionWithFoulMessages {
 }
 
 export enum Punishment {
+	'Не блокировать.',
     'Блокировка на сутки.',
     'Блокировка на неделю.',
     'Блокировка на месяц.',

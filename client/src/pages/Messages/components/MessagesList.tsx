@@ -6,17 +6,17 @@ import {
 	LocationEnum,
 	PERSONALE_CARD_ROUTE,
 } from '../../../utils/consts';
-import { IFiles } from '../../../models/IFiles';
 import { Buffer } from 'buffer';
 import { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useStoreContext } from '../../../contexts/StoreContext.ts';
 import { EndReadMessagesId } from '../../../models/endReadMessagesId.ts';
 import MessagesService from '../../../services/MessagesService.ts';
 import { useMessageContext } from '../../../contexts/MessageContext.ts';
-import { Modal, Select } from 'antd';
+import { message, Select } from 'antd';
 import styles from './MessagesList.module.css';
 import { IPost } from '../../../models/IPost.ts';
 import FoulModal from '../FoulModal/FoulModal.tsx';
+import AdminService from '../../../services/AdminService.ts';
 
 interface Props {
 	posts: IPost[];
@@ -105,7 +105,7 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
 			try {
 				if (elem && store.arrEndMessagesId.length) {
 					if (store.user.id && elem.id > store.arrEndMessagesId[index].id) {
-						await MessagesService.setEndReadMessagesId(store.user.id, elem.id, elem.location, store.user.secret.secret);
+						await MessagesService.setEndReadMessagesId(store.user.id, elem.id, elem.location, store.user.secret);
 					}
 				}
 			} catch (e) {
@@ -153,8 +153,6 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
 		timezone: 'UTC',
 	};
 
-	function openInfo() {}
-
 	// useEffect(() => {
 	//     window.addEventListener("beforeunload", handleWindowBeforeUnload);
 	// });
@@ -167,7 +165,6 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
 		setIdFoulMessage(+event);
 		setIsFoulModalOpenOk(true);
 		console.log(event, 'event');
-		// setName(event.target.value);
 	};
 
 	useEffect(() => {
@@ -193,11 +190,22 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
 		setHeights(scrollTop + clientHeight);
 	};
 
-	const sendFoul = (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
-		console.log('Выбранные правила:', selectedRules);
-		console.log('Выбранное действие с фолом:', selectedActionWithFoul);
-		console.log('Выбранное наказание:', selectedPunishment);
-		// Здесь выполняется фактическая отправка
+	const sendFoul = async (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
+        if (idFoulMessage) {
+            try {
+                const sendFoulMessage = await AdminService.reportViolation({
+                    id_cleaner: store.user.id,
+                    id_foul_message: idFoulMessage,
+                    selectedRules: selectedRules,
+                    selectedActionWithFoul: selectedActionWithFoul,
+                    selectedPunishment: selectedPunishment
+                })
+
+                if (sendFoulMessage) message.success(`${sendFoulMessage.data}`)
+            } catch (err) {
+                console.error(`Ошибка в sendFoul: ${err}`)
+            }
+        }
 	};
 
 	return (
@@ -219,14 +227,14 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
 						)}
 
 						<div className="mes__wrapper">
-							<Link to={PERSONALE_CARD_ROUTE} onClick={openInfo}>
+							<Link to={`${PERSONALE_CARD_ROUTE}/${post.user.id}`}>
 								<img className="mes_foto" src={post.user.photo_50} />
 							</Link>
 							<div className="name__first_last">
-								<Link to={PERSONALE_CARD_ROUTE} className="name__first">
+								<Link to={`${PERSONALE_CARD_ROUTE}/${post.user.id}`} className="name__first">
 									<p className="name__first">{post.user.first_name}</p>
 								</Link>
-								<Link to={PERSONALE_CARD_ROUTE} className="name__first">
+								<Link to={`${PERSONALE_CARD_ROUTE}/${post.user.id}`} className="name__first">
 									<p className="name__first">{post.user.last_name}</p>
 								</Link>
 								<p className="name__time">{new Date(post.createdAt).toLocaleString('ru', options_time)}</p>
@@ -241,7 +249,7 @@ const MessagesList: React.FC<Props> = ({ posts, location }) => {
 									/>
 								</div>
 							</div>
-							<div className="mes_message">{post.message}</div>
+							<div className="mes_message">{post.message.trim()}</div>
 							<div className="div_name_file">
 								{post?.files?.map((file) => {
 									let originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8');

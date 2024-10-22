@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Checkbox, Radio, Button } from 'antd';
+import { Modal, Checkbox, Radio, Button, message } from 'antd';
 import { ActionWithFoulMessages, Punishment, Rules } from '../../../utils/consts.tsx';
 
 interface FoulModalProps {
@@ -14,6 +14,9 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 	const [selectedPunishment, setSelectedPunishment] = useState<number | null>(null);
 
 	const handleOk = () => {
+        if (!selectedRules.length) {
+            return message.error('Необходимо указать, какие правила нарушены!')
+        }
 		if (selectedActionWithFoul !== null && selectedPunishment !== null) {
 			sendFoul(selectedRules, selectedActionWithFoul, selectedPunishment);
 			resetModal();
@@ -38,7 +41,7 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 		} else {
 			setSelectedRules([...selectedRules, rule]);
 		}
-	};
+	};      
 
 	const handleActionWithFoulChange = (action: string) => {
 		const actionIndex = Object.values(ActionWithFoulMessages).findIndex((p) => p === action);
@@ -52,7 +55,7 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 
 	return (
 		<Modal
-			title="Фол"
+			title="Нарушение:"
 			open={isFoulModalOpenOk}
 			onOk={handleOk}
 			onCancel={handleCancel}
@@ -66,7 +69,7 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 			]}
 		>
 			<div>
-				<h3>Правила:</h3>
+				<h3>Нарушение правил:</h3>
 				{Object.values(Rules)
 					.filter((p) => typeof p === 'string')
 					.map((rule, index) => (
@@ -76,7 +79,7 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 					))}
 			</div>
 			<div>
-				<h3>Действие с фолом:</h3>
+				<h3>Действие с сообщением:</h3>
 				{Object.values(ActionWithFoulMessages)
 					.filter((p) => typeof p === 'string')
 					.map((action, index) => (
@@ -90,7 +93,7 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 					))}
 			</div>
 			<div>
-				<h3>Наказание:</h3>
+				<h3>Наказание за нарушение:</h3>
 				{Object.values(Punishment)
 					.filter((p) => typeof p === 'string')
 					.map((punishment, index) => (

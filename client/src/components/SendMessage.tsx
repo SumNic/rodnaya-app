@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-// import { Context } from '..';
 import { IFiles } from '../models/IFiles';
 import { useStoreContext } from '../contexts/StoreContext';
 import { message } from 'antd';
@@ -35,8 +34,12 @@ function SendMessage(props: Props) {
 
 			const formJson = Object.fromEntries(formData.entries());
 
-			const resp_id = await store.sendMessage(store.user.id, store.user.secret.secret, props.location, formJson);
-			setSendMessageId(+resp_id);
+			const resp_id = await store.sendMessage(store.user.id, store.user.secret, props.location, formJson);
+			if (resp_id.error && !resp_id.data) {
+				return message.error(resp_id.error)
+			} else if (resp_id.data) {
+				setSendMessageId(+resp_id.data);
+			}
 
 			setMessageSent('');
 			store.setNewMessage(true);

@@ -1,0 +1,130 @@
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { LogoutUserDto } from 'src/common/dtos/logout-user.dto';
+import { OutputUserAndTokens } from 'src/common/dtos/output-user-and-tokens.dto';
+import { RefreshTokensDto } from 'src/common/dtos/refresh-tokens.dto';
+import { Token } from 'src/common/models/users/tokens.model';
+import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcryptjs';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { User } from 'src/common/models/users/user.model';
+import { OutputJwtTokens } from 'src/common/dtos/output-jwt-tokens.dto';
+
+@Injectable()
+export class TokensService {
+    constructor(
+        @InjectModel(Token) private readonly tokenRepository: typeof Token,
+        private readonly userService: UsersService,
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService,
+    ) {}
+
+    async getRefreshToken(uuid: string): Promise<Token> {
+        const token = await this.tokenRepository.findOne({
+            where: { uuid: uuid },
+        });
+
+        if (!token) return;
+
+        return token;
+    }
+
+    async createRefreshToken(dto: RefreshTokensDto): Promise<Token> {
+        const token = await this.tokenRepository.create(dto);
+        return token;
+    }
+
+    async updateRefreshToken(dto: RefreshTokensDto): Promise<Token> {
+        const token = await this.tokenRepository.findOne({
+            where: { uuid: dto.uuid },
+        });
+
+        if (!token) {
+            throw new HttpException('Токен не найден', HttpStatus.FORBIDDEN);
+        }
+
+        token.refreshToken = dto.refreshToken;
+        await token.save();
+        return token;
+    }
+
+    async removeRefreshToken(dto: LogoutUserDto) {
+        if (dto.allDeviceExit) {
+            await this.tokenRepository.update(
+                { refreshToken: null },
+                {
+                    where: {
+                        userId: dto.id,
+                    },
+                },
+            );
+        } else {
+            const token = await this.tokenRepository.findOne({
+                where: { uuid: dto.uuid },
+            });
+
+            if (!token) {
+                throw new HttpException('Токен не найден', HttpStatus.FORBIDDEN);
+            }
+
+            token.refreshToken = null;
+            await token.save();
+        }
+    }
+
+    async updateTokens(uuid: string, refreshToken: string): Promise<OutputUserAndTokens> {
+        const token = await this.getRefreshToken(uuid);
+
+        if (!token) {
+            throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);
+        }
+
+        const user = await this.userService.getUser(token.userId);
+
+        if (!user) {
+            throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);
+        }
+
+        const refreshTokenEquals = await bcrypt.compare(refreshToken, token.refreshToken);
+
+        if (!refreshTokenEquals) {
+            throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);
+        }
+
+        const tokens = await this.generateTokens(user);
+        const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5);
+        const refreshTokenDb = await this.updateRefreshToken({
+            uuid: uuid,
+            refreshToken: hashRefreshToken,
+        });
+        return { user, ...tokens };
+    }
+
+    async handleValidateRefreshToken(refreshToken: string): Promise<Boolean> {
+        return await this.jwtService.verify(refreshToken, {
+            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        });
+    }
+
+    async generateTokens(user: User): Promise<OutputJwtTokens> {
+        const payload = {
+            id: user.id,
+            roles: user.roles,
+        };
+        const accessSettings = {
+            secret: this.configService.get<string>('JWT_SECRET'),
+            expiresIn: '1h',
+        };
+        const refreshSettings = {
+            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+            expiresIn: '30d',
+        };
+        const token = await this.jwtService.signAsync(payload, accessSettings);
+        const refreshToken = await this.jwtService.signAsync(payload, refreshSettings);
+        return {
+            token,
+            refreshToken,
+        };
+    }
+}

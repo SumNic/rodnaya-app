@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const useEffectOnce = (effect: () => void | (() => void)) => {
 	const destroyFunc = useRef<void | (() => void)>();
 	const effectCalled = useRef(false);
 	const renderAfterCalled = useRef(false);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [val, setVal] = useState<number>(0);
 
 	if (effectCalled.current) {
 		renderAfterCalled.current = true;
@@ -17,9 +15,6 @@ export const useEffectOnce = (effect: () => void | (() => void)) => {
 			destroyFunc.current = effect();
 			effectCalled.current = true;
 		}
-
-		// this forces one render after the effect is run
-		setVal((val) => val + 1);
 
 		return () => {
 			// if the comp didn't render since the useEffect was called,

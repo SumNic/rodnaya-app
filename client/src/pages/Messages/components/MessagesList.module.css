@@ -1,5 +1,6 @@
 
 .select-foul{
+    position: absolute;
     width: 120px;
     :global(.ant-select-selector) {
         border: none !important;

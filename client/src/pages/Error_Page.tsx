@@ -1,5 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
-// import { Context } from '..';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
@@ -10,7 +9,6 @@ import { useStoreContext } from '../contexts/StoreContext';
 function Error_Page() {
 
     const navigate = useNavigate()
-    // const {store} = useContext(Context)
     const { store } = useStoreContext();
 
     function returnHome() {
@@ -33,18 +31,6 @@ function Error_Page() {
 
             <div className="middle">
                 <div className="middle__wrapper">
-                    <nav className="middle__menu">
-                        <input id="menu-toggle" type="checkbox" />
-                        <label className='menu-button-container' htmlFor="menu-toggle">
-                            <div className='menu-button'></div>
-                        </label>
-
-                        <div className="logo">
-                            <Link to="/home" className="header__logo-link">
-                                <img src="../images/svg/Logotip-Rodnoj-parti-40x40.svg" alt="Родная партия" className=""></img>
-                            </Link>
-                        </div>
-                    </nav>
                     <div className="main__screen main__screen_home">
                         <div id="list_founders">
                             <h2 className="My__error_text" style={{fontSize: "20px"}}>

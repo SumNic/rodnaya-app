@@ -562,7 +562,6 @@ body {
     text-decoration: none;
     font-size: 19px;
     cursor: pointer;
-    /* font-family: -apple-system, "Helvetica Neue", "Roboto", sans-serif; */
 }
 
 
@@ -597,20 +596,16 @@ body {
 
 .registr__link{
     color: rgb(65, 109, 45);
-    /* text-decoration: none; */
     cursor: pointer;
 }
 
 .main__screen{
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     border: 1px solid black;
     border-width: 0 1px;
     position: relative;
     width: 546px;
-    /* background-image: url('./images/Logotip-Rodnoj-parti-500x500.png');
-    background-repeat: no-repeat;
-    background-position: center; */
     background-color: white;
     -ms-overflow-style: none;  /* IE и Edge */
     scrollbar-width: none;  /* Firefox */
@@ -737,8 +732,10 @@ display: none;
 }
 
 .main__text{
+    /* position: absolute; */
+    flex-grow: 1;
     width: 100%;
-    height: calc(100% - 60px);
+    /* height: 100%; */
     padding-top: 50px;
     /* padding-bottom:50px; */
     overflow-y: scroll;
@@ -786,11 +783,13 @@ display: none;
 #forms{
     display: flex;
     height: 60px;
-    flex-basis: 100%;
+    width: 100%;
+    /* flex-grow: 1; */
 }
 
 #load_message{
     display: flex;
+    width: 100%;
 }
 
 #send_message{
@@ -854,6 +853,7 @@ display: none;
 }
 
 .foul{
+    height: 16px;
     display: flex;
     justify-content: flex-end;
     flex-grow: 1;
@@ -1417,9 +1417,7 @@ h2 {
 }
   
 #messages {
-    /* position: fixed;
-    left: 0;
-    bottom: 55px; */
+    bottom: 55px;
     min-height: 60px;
     border: 1px solid rgb(223, 219, 219);
     border-width: 1px 0 0 0;
@@ -1437,7 +1435,7 @@ h2 {
     /* width: в js; */
     height: 42px;
     /* display: flex; */
-    flex-basis: 100%;
+    flex-grow: 1;
 }
 
 .class_none{

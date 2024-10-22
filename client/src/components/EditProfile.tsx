@@ -8,7 +8,7 @@ function EditProfile () {
     const { store } = useStoreContext();
 
     function deleteProfile() {
-        store.deleteProfile(store.user.id, store.user.secret.secret)
+        store.deleteProfile(store.user.id, store.user.secret)
     }
 
     function cancel() {

@@ -9,6 +9,12 @@ export default class UserService {
         return $api.get<IUser[]>('/users')
     }
 
+    static async getUser(id: number): Promise<AxiosResponse<IUser>> {
+        return $api.get<IUser>('/get-user', {
+            params: {id}
+        })
+    }
+
     static async addDeclaration(form: DeclarationUser): Promise<AxiosResponse<IUser>> {
         return $api.post<IUser>('/add-declaration', form)
     }
@@ -20,5 +26,14 @@ export default class UserService {
     static async udatePersonaleData(secret: string, form: PersonaleUser): Promise<AxiosResponse<IUser>> {
         return $api.post<IUser>(`/updata-personale/${secret}`, form)
     }
-    
+
+    static async blockedUser(userId: number, selectedPunishmentIndex: number): Promise<AxiosResponse<string>> {
+        return $api.post('/blocked-user', {userId, selectedPunishmentIndex})
+    }
+
+    static async checkBlocked(userId: number): Promise<AxiosResponse<Date>> {
+		return $api.get<Date>('/check-blocked', {
+            params: { userId }
+        });
+	} 
 }

@@ -4,8 +4,4 @@ export interface VkSdkResponse {
     user: IUser;
     token: string;
     refreshToken: string;
-    error: 
-    {
-        message: string
-    }
 }

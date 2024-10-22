@@ -3,8 +3,9 @@ import { observer } from "mobx-react-lite";
 // import { Context } from "..";
 import MyButton from "./MyButton";
 import { useNavigate } from "react-router-dom";
-import { PERSONALE_ROUTE } from "../utils/consts";
+import { LOCAL_STORAGE_END_READ_MESSAGE_ID, PERSONALE_ROUTE } from "../utils/consts";
 import { useStoreContext } from "../contexts/StoreContext";
+import { LocationUser } from "../models/LocationUser";
 
 function OnChangeForm(props: any) {
     const { id, secret } = props;
@@ -76,7 +77,7 @@ function OnChangeForm(props: any) {
                 secret,
             };
             store.saveResidency(dto).then((data: any) => {
-                if (data?.data.error) {
+                if (data.error) {
                     var options: {} = {
                         year: "numeric",
                         month: "long",
@@ -86,10 +87,13 @@ function OnChangeForm(props: any) {
                         minute: "numeric",
                     };
                     let dataStopEditResidency = new Date(
-                        +data.data.error.message
+                        +data.error
                     ).toLocaleString("ru", options);
                     setMessage(dataStopEditResidency);
                 } else {
+                    localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
+                    const userWithoutResidency = {...store.user, residency: {} as LocationUser}
+                    store.setUser(userWithoutResidency)
                     store
                         .loginVk(dto.id, dto.secret)
                         .then(() => navigate(PERSONALE_ROUTE));

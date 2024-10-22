@@ -1,5 +1,4 @@
 import { EndReadMessage } from "./EndReadMessage";
-import { SecretUser } from "./SecretUser";
 
 export interface ResidencyUser {
     id: number;

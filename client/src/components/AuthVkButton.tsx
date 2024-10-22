@@ -1,4 +1,4 @@
-import { LOCALHOST, VK_CALLBACK_ROUTE } from "../utils/consts";
+import { HOST, VK_CALLBACK_ROUTE } from "../utils/consts";
 import * as VKID from "@vkid/sdk";
 import { observer } from "mobx-react-lite";
 import { useRef } from "react";
@@ -10,6 +10,7 @@ import { useEffectOnce } from "../hooks/useEffectOnce";
  * @returns {JSX.Element} - JSX-элемент, представляющий кнопку авторизации ВКонтакте.
  */
 function AuthVkButton() {
+    console.log(HOST, 'HOST');
     /**
      * Ссылка на HTML-элемент, в котором будет отображаться кнопка авторизации ВКонтакте.
      */
@@ -39,7 +40,7 @@ function AuthVkButton() {
         // Идентификатор приложения.
         app: 51729608,
         // URL для перенаправления после авторизации.
-        redirectUrl: `${LOCALHOST}${VK_CALLBACK_ROUTE}`,
+        redirectUrl: `${HOST}${VK_CALLBACK_ROUTE}`,
     });
 
     /**

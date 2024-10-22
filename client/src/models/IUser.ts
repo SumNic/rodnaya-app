@@ -1,7 +1,6 @@
 import { DeclarationUser } from "./DeclarationUser";
 import { EndReadMessage } from "./EndReadMessage";
 import { LocationUser } from "./LocationUser";
-import { SecretUser } from "./SecretUser";
 
 export interface IUser {
     id: number;
@@ -10,9 +9,14 @@ export interface IUser {
     last_name: string;
     photo_50: string;
     photo_max: string;
+    isDelProfile: boolean;
     isRegistration: boolean;
+    dateEditResidency: Date;
     residency: LocationUser;
-    secret: SecretUser;
+    secret: string;
     declaration: DeclarationUser;
     endReadMessage: EndReadMessage[];
+    blocked: boolean;
+    blockedforever: boolean;
+    blockeduntil: Date;
 }

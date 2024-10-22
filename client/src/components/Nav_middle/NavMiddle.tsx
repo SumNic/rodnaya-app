@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import {
     EXIT_ROUTE,
     HOME_ROUTE,
-    MAIL_ROUTE,
+    // MAIL_ROUTE,
     MESSAGES_ROUTE,
     PERSONALE_ROUTE,
-    WORKGROUP_ROUTE,
+    // WORKGROUP_ROUTE,
 } from "../../utils/consts";
 import logo_40x40 from "../../images/svg/Logotip-Rodnoj-parti-40x40.svg";
 import { Badge, Menu } from "antd";
@@ -26,7 +26,7 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
     const { store } = useStoreContext();
     const { currentWidth } = useThemeContext();
 
-    const allCountAreZero = store.arrCountMessages.every(item => item.count === 0);
+    const allCountAreZero = store.arrCountMessages.every(item => item.count <= 0);
 
     const items = [
         {

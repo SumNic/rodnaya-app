@@ -184,7 +184,7 @@ function Personale_page() {
                             {!store.cancelAction && editResidency && (
                                 <OnChangeForm
                                     id={store.user.id}
-                                    secret={store.user.secret.secret}
+                                    secret={store.user.secret}
                                 />
                             )}
                             {!store.cancelAction && editProfile && (
