@@ -5,8 +5,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - '80:80'
+      - "443:443"
     depends_on:
       - server
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./certs-data:/data/letsencrypt
+    entrypoint: "/bin/sh -c 'certbot certonly --webroot -w /etc/letsencrypt -d rod-partya.ru --email sum_ith@mail.ru --agree-tos --no-eff-email'"
   server:
     build:
       context: ./server

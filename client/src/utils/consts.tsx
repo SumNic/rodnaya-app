@@ -25,7 +25,8 @@ export const DONATIONS_ROUTE = '/donations';
 
 export const BLOCKED_ROUTE = '/blocked';
 
-export const HOST = 'http://localhost:3000';
+// export const HOST = 'http://localhost:3000';
+export const HOST = 'https://rod-partya.ru';
 export const DOMEN = 'http://localhost:5000';
 export const API_URL = 'http://localhost:5000';
 
