@@ -23,7 +23,8 @@ export class AuthService {
         try {
             return await this.jwtService.verify(token);
         } catch (err) {
-            throw new HttpException(`Ошибка в handleValidateUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+            console.error(err)
+            return false
         }
             
     }

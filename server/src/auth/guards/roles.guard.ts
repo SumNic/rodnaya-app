@@ -34,6 +34,8 @@ export class RolesGuard implements CanActivate {
                 token,
                 requiredRoles,
             });
+            if (!checkToken) throw new UnauthorizedException();
+            
             this.addUser(checkToken, context);
             return true;
         } catch (e) {
