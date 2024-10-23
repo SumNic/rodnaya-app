@@ -27,7 +27,7 @@ import { UpdatePersonaleDto } from 'src/common/dtos/update-personale.dto';
 import { User } from 'src/common/models/users/user.model';
 import { UsersService } from 'src/users/users.service';
 
-@Controller()
+@Controller('api')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 

@@ -4,7 +4,7 @@ import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 import { GeoLocations } from 'src/common/models/main/location.model';
 import { LocationService } from 'src/location/location.service';
 
-@Controller()
+@Controller('api')
 export class LocationController {
     constructor(private readonly locationService: LocationService) {}
 

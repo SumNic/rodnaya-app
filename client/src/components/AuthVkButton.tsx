@@ -10,7 +10,6 @@ import { useEffectOnce } from "../hooks/useEffectOnce";
  * @returns {JSX.Element} - JSX-элемент, представляющий кнопку авторизации ВКонтакте.
  */
 function AuthVkButton() {
-    console.log(HOST, 'HOST');
     /**
      * Ссылка на HTML-элемент, в котором будет отображаться кнопка авторизации ВКонтакте.
      */

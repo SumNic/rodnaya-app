@@ -13,7 +13,7 @@ import { Response } from 'express';
 import { VkLoginSdkDto } from 'src/common/dtos/vk-login-sdk.dto';
 import { LogoutUserDto } from 'src/common/dtos/logout-user.dto';
 
-@Controller()
+@Controller('api')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 

@@ -5,7 +5,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Files } from 'src/common/models/files/files.model';
 import { FilesService } from 'src/files/files.service';
 
-@Controller()
+@Controller('api')
 export class FilesController {
     constructor(
         private readonly filesService: FilesService,

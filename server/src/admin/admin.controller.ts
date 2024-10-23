@@ -10,7 +10,7 @@ import { FoulSendMessageDto } from 'src/common/dtos/foul-send-message.dto';
 import { FooulSendMessage } from 'src/common/models/admin/foulSendMessage.model';
 // import { catchError } from 'server/node_modules/rxjs/src';
 
-@Controller()
+@Controller('api')
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 

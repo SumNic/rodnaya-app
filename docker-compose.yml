@@ -1,26 +1,38 @@
 services:
-  client:
+  nginx:
     build:
       context: ./client
       dockerfile: Dockerfile
+    networks:
+      nginx_net:
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     ports:
       - '80:80'
-      - "443:443"
+      - '443:443'
     depends_on:
       - server
+    restart: unless-stopped
+# Перезапустит контейнер в непредвиденных ситуациях
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
   certbot:
     image: certbot/certbot
     volumes:
-      - ./certs:/etc/letsencrypt
-      - ./certs-data:/data/letsencrypt
-    entrypoint: "/bin/sh -c 'certbot certonly --webroot -w /etc/letsencrypt -d rod-partya.ru --email sum_ith@mail.ru --agree-tos --no-eff-email'"
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    # entrypoint: "/bin/sh -c 'certbot certonly --webroot -w /etc/letsencrypt -d rod-partya.ru -d www.rod-partya.ru --email sum_ith@mail.ru --agree-tos --no-eff-email'"
+    restart: unless-stopped
+    entrypoint:  "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      nginx_net:
   server:
     build:
       context: ./server
       dockerfile: ./Dockerfile
-      target: ${MODE}
+      target: production
     env_file:
-      - ./server/.env.${MODE}
+      - ./server/.env.production
     volumes:
       - ./server:/app
       - /app/node_modules
@@ -29,21 +41,29 @@ services:
     command: yarn run start:dev
     depends_on:
       - postgres
+    networks:
+      nginx_net:
     restart: always
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: prod_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rrgdfgjuikDFSDFjghpldfgdfgdlffgh34665674234234
     env_file:
-      - ./server/.env.${MODE}
+      - ./server/.env.production
     ports:
-      - '5021:5432'
+      - '5020:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./docker_postgres_init.${MODE}.sql:/docker-entrypoint initdb.d/docker_postgres_init.sql
+      - ./docker_postgres_init.sql:/docker-entrypoint initdb.d/docker_postgres_init.sql
     restart: always
+    networks:
+      nginx_net:
 
 volumes:
   pgdata:
+
+networks:
+  nginx_net:
+    name: nginx_net

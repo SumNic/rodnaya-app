@@ -20,7 +20,7 @@ RUN yarn install
 
 COPY . .
 
-RUN yarn build
+COPY --from=development /app/dist ./dist
 
 EXPOSE 5000
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]

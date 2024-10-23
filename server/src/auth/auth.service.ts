@@ -20,7 +20,12 @@ export class AuthService {
     ) {}
 
     async handleValidateUser(token: any): Promise<Boolean> {
+        try {
             return await this.jwtService.verify(token);
+        } catch (err) {
+            throw new HttpException(`Ошибка в handleValidateUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+            
     }
 
     async logout(dto: LogoutUserDto) {

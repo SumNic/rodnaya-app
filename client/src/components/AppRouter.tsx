@@ -20,6 +20,8 @@ const AppRouter: React.FC = () => {
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE) && !store.isAuth) {
 			store.checkAuth();
 		} else {
+			localStorage.removeItem(LOCAL_STORAGE_TOKEN)
+			localStorage.removeItem(LOCAL_STORAGE_DEVICE)
 			store.setLoad(false);
 		}
 	}, []);

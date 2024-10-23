@@ -13,7 +13,7 @@ import { Messages } from 'src/common/models/messages/messages.model';
 import { MessagesService } from 'src/messages/messages.service';
 
 @ApiTags('Сообщения')
-@Controller()
+@Controller('api')
 export class MessagesController {
     constructor(private readonly messagesService: MessagesService) {}
 

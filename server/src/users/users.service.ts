@@ -273,7 +273,7 @@ export class UsersService {
                 ? user.dateEditResidency.setMonth(user.dateEditResidency.getMonth() + 1)
                 : new Date();
 
-            if (!user.dateEditResidency || new Date() < newDateEditResidency) {
+            if (!user.dateEditResidency || new Date() > newDateEditResidency) {
                 // Заменить < на >
                 const arrResidencyUser = ['Земля', dto.country, dto.region, dto.locality];
                 // Удалить все строки, которые не соответсвуют arrResidencyUser для данного user

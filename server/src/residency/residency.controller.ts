@@ -3,7 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Residency } from 'src/common/models/users/residency.model';
 import { ResidencyService } from 'src/residency/residency.service';
 
-@Controller()
+@Controller('api')
 export class ResidencyController {
     constructor(private readonly residencyService: ResidencyService) {}
 

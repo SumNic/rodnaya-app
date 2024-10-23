@@ -27,8 +27,8 @@ export const BLOCKED_ROUTE = '/blocked';
 
 // export const HOST = 'http://localhost:3000';
 export const HOST = 'https://rod-partya.ru';
-export const DOMEN = 'http://localhost:5000';
-export const API_URL = 'http://localhost:5000';
+export const DOMEN = 'https://rod-partya.ru/api';
+export const API_URL = 'https://rod-partya.ru/api';
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
 

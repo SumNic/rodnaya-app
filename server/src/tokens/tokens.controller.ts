@@ -5,7 +5,7 @@ import { UuidDevice } from 'src/common/dtos/uuid-device.dto';
 import { TokensService } from 'src/tokens/tokens.service';
 import { Request, Response } from 'express';
 
-@Controller()
+@Controller('api')
 export class TokensController {
     constructor(private readonly tokenService: TokensService) {}
 
