@@ -18,7 +18,10 @@ FROM nginx:stable-alpine
 COPY --from=frontend /app/dist /usr/share/nginx/html
 
 # Копируем конфигурацию Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# ARG ENV=production
+ARG ENV=development
+
+COPY nginx.${ENV}.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
