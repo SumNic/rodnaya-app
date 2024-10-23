@@ -1,4 +1,4 @@
-import { HOST, VK_CALLBACK_ROUTE } from "../utils/consts";
+import { HOST, VK_CALLBACK_ROUTE, VK_ID_APP } from "../utils/consts";
 import * as VKID from "@vkid/sdk";
 import { observer } from "mobx-react-lite";
 import { useRef } from "react";
@@ -37,7 +37,7 @@ function AuthVkButton() {
      */
     VKID.Config.set({
         // Идентификатор приложения.
-        app: 51729608,
+        app: VK_ID_APP,
         // URL для перенаправления после авторизации.
         redirectUrl: `${HOST}${VK_CALLBACK_ROUTE}`,
     });

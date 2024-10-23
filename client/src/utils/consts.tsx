@@ -25,10 +25,12 @@ export const DONATIONS_ROUTE = '/donations';
 
 export const BLOCKED_ROUTE = '/blocked';
 
-// export const HOST = 'http://localhost:3000';
-export const HOST = 'https://rod-partya.ru';
-export const DOMEN = 'https://rod-partya.ru/api';
-export const API_URL = 'https://rod-partya.ru/api';
+export const HOST = 'http://localhost';
+export const VK_ID_APP = 52537591;
+// export const HOST = 'https://rod-partya.ru';
+// export const VK_ID_APP = 51729608;
+export const DOMEN = `${HOST}/api`;
+export const API_URL = `${HOST}/api`;
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
 
