@@ -36,7 +36,7 @@ services:
       - /app/node_modules
     ports:
       - 5000:5000
-    command: yarn run start:dev
+    command: yarn run start:prod
     depends_on:
       - postgres
     networks:
