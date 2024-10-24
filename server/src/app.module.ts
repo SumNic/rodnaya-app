@@ -90,7 +90,7 @@ import { EndReadMessageModule } from 'src/end-read-message/end-read-message.modu
             inject: [ConfigService],
         }),
         ServeStaticModule.forRoot({
-            rootPath: path.resolve(__dirname, 'static'),
+            rootPath: path.resolve(__dirname, '..', 'static'),
         }),
         AuthModule,
         AdminModule,
