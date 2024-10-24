@@ -22,23 +22,24 @@ const Donations: React.FC = () => {
 					{store.isAuth && <NavMiddle item={HOME_ROUTE} />}
 					{!store.isAuth && <nav className="middle__menu"></nav>}
 					<div className="main__screen main__screen_home">
-						<div id="list_founders" style={{paddingTop: '50px'}}>
-							<div className="rules" style={{ textAlign: 'justify' }}>
-								<p style={{ textIndent: '30px', fontSize: '18px' }}>
-									Чтобы поддержать сайт Родная партия, вы можете перевести любую сумму, перейдя по кнопке Перевести:
+						<div id="list_founders" className="support-section">
+							<div className="rules">
+								<h2 className="founders-subheading">Поддержите Родную партию!</h2>
+								<p className="founders-details">
+									Если вы цените наш труд и хотите помочь развивать этот ресурс, вы можете перевести любую сумму, нажав
+									на кнопку ниже. Ваша поддержка важна для нас!
 								</p>
 							</div>
-                            <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
-                                <iframe
-                                    src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=H28j3gJ3nHw.230111&"
-                                    width="237"
-                                    height="50"
-                                    scrolling="no"
-                                />
-                            </div>
-							
+							<div className="support-button-container">
+								<iframe
+									src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=H28j3gJ3nHw.230111&"
+									width="237"
+									height="50"
+									scrolling="no"
+									className="support-button"
+								/>
+							</div>
 						</div>
-
 						<div className="main__screen-flag"></div>
 					</div>
 				</div>

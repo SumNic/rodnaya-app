@@ -665,11 +665,77 @@ display: none;
     display: none; /*chrome*/
   }
 
-.list_founders{
+  .list_founders{
     text-decoration: none;
+  }
+
+.founders-section {
+    padding: 20px; /* Спецотступы для удобочитаемости */
+}
+
+.founders-title {
+    font-size: 30px;
+    margin-bottom: 15px; /* Отступ снизу для заголовка */
+    text-align: center;
+}
+
+.founders-description, 
+.founders-details {
     font-size: 20px;
-    margin-top: 10px;
-    color: rgb(43, 112, 43);
+    margin-bottom: 10px; /* Отступы для абзацев */
+    text-indent: 30px;
+}
+
+.founders-call-to-action {
+    font-size: 19px;
+    font-weight: 600; /* Выделяем призыв к действию */
+    margin-bottom: 15px; /* Отступ для выделения */
+    text-indent: 30px;
+}
+
+.founders-subheading {
+    font-size: 21px;
+    margin-top: 20px; /* Отступ для разделения секций */
+    text-indent: 30px;
+}
+
+.founders-list {
+    list-style-type: none; /* Убираем маркеры списка */
+    padding: 0; /* Убираем отступы */
+}
+
+.list_founders {
+    text-decoration: underline; /* Подчеркиваем ссылки для привлечения внимания */
+    font-size: 17px;
+}
+
+
+.support-section {
+    padding-top: 50px;
+    text-align: center; /* Для центрирования текста и кнопки */
+}
+
+.rules {
+    margin: 20px 0; /* Отступы сверху и снизу для разделения от других элементов */
+    text-align: justify; /* Выравнивание текста для лучшей читабельности */
+    padding: 15px; /* Внутренние отступы для более приятного восприятия */
+}
+
+.support-text {
+    text-indent: 30px;
+    font-size: 18px; /* Гармониизируем с предыдущей страницей */
+    margin: 0 0 20px 0; /* Отступы снизу для разделения текста и кнопки */
+}
+
+.support-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.support-button {
+    border: none; /* Убираем границы из iframe, если это возможно */
+    /* Добавьте дополнительные стили для кнопки, если необходимо */
 }
 
 .name__local_founders{
