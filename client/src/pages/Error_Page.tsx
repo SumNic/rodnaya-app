@@ -5,6 +5,7 @@ import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import MyButton from '../components/MyButton';
 import { HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
+import NavMiddle from '../components/Nav_middle/NavMiddle';
 
 function Error_Page() {
 
@@ -31,8 +32,10 @@ function Error_Page() {
 
             <div className="middle">
                 <div className="middle__wrapper">
+                    {store.isAuth && <NavMiddle item={HOME_ROUTE} />}
+                    {!store.isAuth && <nav className="middle__menu"></nav>}
                     <div className="main__screen main__screen_home">
-                        <div id="list_founders">
+                        <div id="list_founders"  className="founders-section">
                             <h2 className="My__error_text" style={{fontSize: "20px"}}>
                                 Ошибка:			
                             </h2>

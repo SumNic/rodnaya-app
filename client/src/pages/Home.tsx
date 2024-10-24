@@ -8,54 +8,69 @@ import { observer } from 'mobx-react-lite';
 import { FOUNDERS_ROUTE, HOME_ROUTE } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 
-function Home () {
-    const { store } = useStoreContext();
-    
-    return (
-        <div>
-            <header className="header">
-                <div className="header__wrapper">
-                    <HeaderLogoMobile />
-                    <HeaderLogoRegistr />
-                </div>
-            </header>
+function Home() {
+	const { store } = useStoreContext();
 
-            <div className="middle">
-                <div className="middle__wrapper">
-                    {store.isAuth && <NavMiddle item={HOME_ROUTE}/>}
-                    {!store.isAuth && <nav className="middle__menu"></nav>}
-                    <div className="main__screen main__screen_home">
-                        <div id="list_founders">
-                            <h1 style={{fontSize: "30px"}}>Сайт Родная партия</h1>
-                            <h2 style={{fontSize: "20px"}}>
-                                Сайт создан для объединения учредителей Родной партии, которые учредили ее как дедушка Анастасии.			
-                            </h2>
-                            <h2 style={{fontSize: "20px"}}>
-                                Данная Родная партия не нуждается в официальной регистрации.
-                            </h2>
-                            <h2 style={{fontSize: "20px"}}>
-                                Если ты считаешь себя учредителем своей Родной партии, то присоединяйся.
-                            </h2>
-                            {!store.isAuth && <AuthVkButton />}
-                            <h2 style={{fontSize: "20px"}}>
-                                <Link to={FOUNDERS_ROUTE} className="list_founders">Список учредителей своей Родной партии</Link>
-                            </h2>
-                            <h2 style={{fontSize: "20px"}}>
-                                <Link to="https://vk.com/club166722362" className="list_founders">Группа ВК</Link>
-                            </h2>
-                        </div>
+	return (
+		<div>
+			<header className="header">
+				<div className="header__wrapper">
+					<HeaderLogoMobile />
+					<HeaderLogoRegistr />
+				</div>
+			</header>
 
-                        <div className="main__screen-flag">
-                        
-                        </div>
-                    </div>
-                </div>
-            </div>
+			<div className="middle">
+				<div className="middle__wrapper">
+					{store.isAuth && <NavMiddle item={HOME_ROUTE} />}
+					{!store.isAuth && <nav className="middle__menu"></nav>}
+					<div className="main__screen main__screen_home">
+						<section id="list_founders" className="founders-section">
+							<h1 className="founders-title">Родная партия</h1>
 
-            <Footer />
+							<p className="founders-description">
+								Сайт 'Родная партия' создан для тех, кто поддерживает идеи Владимира Мегре, изложенные в серии книг
+								'Звенящие кедры России', и стремится создать свою Родную партию, как это сделал дедушка Анастасии.
+							</p>
 
-        </div>
-    );
+							<p className="founders-description">
+								Этот ресурс объединяет единомышленников, нацеленных на возвращение энергии Любви в семьи.
+							</p>
+
+							<p className="founders-call-to-action">
+								Если ты считаешь себя учредителем своей Родной партии, присоединяйся к нам!
+							</p>
+
+							{!store.isAuth && <AuthVkButton />}
+
+							<h2 className="founders-subheading">Хотите узнать больше?</h2>
+							<p className="founders-details">
+								Перейдите по ссылкам ниже, чтобы увидеть список учредителей Родной партии и присоединиться к нам в
+								ВКонтакте:
+							</p>
+
+							<ul className="founders-list">
+								<li>
+									<Link to={FOUNDERS_ROUTE} className="list_founders">
+										Учредители Родной партии
+									</Link>
+								</li>
+								<li>
+									<Link to="https://vk.com/club166722362" className="list_founders">
+										Родная партия в ВК
+									</Link>
+								</li>
+							</ul>
+						</section>
+
+						<div className="main__screen-flag"></div>
+					</div>
+				</div>
+			</div>
+
+			<Footer />
+		</div>
+	);
 }
 
 export default observer(Home);

@@ -1,9 +1,9 @@
 import ReactDOM from 'react-dom/client'
 import App from './App'
+import React from 'react'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  //TODO вернуть React.StrictMode при сборке проекта
-  // <React.StrictMode>
+  <React.StrictMode>
     <App />
-  // </React.StrictMode>,
+  </React.StrictMode>,
 )

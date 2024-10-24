@@ -1,5 +1,8 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/auth/guards/roles-auth.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ROLES } from 'src/common/constants/roles';
 import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 import { GeoLocations } from 'src/common/models/main/location.model';
 import { LocationService } from 'src/location/location.service';
@@ -20,8 +23,8 @@ export class LocationController {
         status: HttpStatus.CREATED,
         description: 'Операция прошла успешно.',
     })
-    // @Roles(ROLES.ADMIN)
-    // @UseGuards(RolesGuard)
+    @Roles(ROLES.ADMIN)
+    @UseGuards(RolesGuard)
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
         description: 'JWT токен не указан в заголовках',
