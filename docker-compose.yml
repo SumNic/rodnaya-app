@@ -31,12 +31,13 @@ services:
       target: ${MODE}
     env_file:
       - ./server/.env.${MODE}
-    # volumes: # Для разработки
-    #   - ./server:/app # Для разработки
-    #   - /app/node_modules # Для разработки
+    volumes:
+      - ./server/static:/app/static
+      - ./server:/app # Для разработки
+      - /app/node_modules # Для разработки
     ports:
       - 5000:5000
-    # command: yarn run start:dev # Для разработки
+    command: yarn run start:dev # Для разработки
     depends_on:
       - postgres
     networks:
