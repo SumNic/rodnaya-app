@@ -24,7 +24,7 @@ const Donations: React.FC = () => {
 					<div className="main__screen main__screen_home">
 						<div id="list_founders" className="support-section">
 							<div className="rules">
-								<h2 className="founders-subheading">Поддержите Родную партию!</h2>
+								<h2 className="founders-subheading">Поддержите наш проект!</h2>
 								<p className="founders-details">
 									Если вы цените наш труд и хотите помочь развивать этот ресурс, вы можете перевести любую сумму, нажав
 									на кнопку ниже. Ваша поддержка важна для нас!
