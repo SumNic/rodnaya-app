@@ -11,6 +11,7 @@ import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { UsersService } from 'src/users/users.service';
 import { EndMessageDto } from 'src/common/dtos/end-message.dto';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MessagesService {
@@ -18,7 +19,8 @@ export class MessagesService {
         @InjectModel(Messages) private readonly messagesRepository: typeof Messages,
         @InjectModel(EndReadMessage) private readonly endReadMessageRepository: typeof EndReadMessage,
         private usersService: UsersService,
-        private endReadMessageService: EndReadMessageService
+        private endReadMessageService: EndReadMessageService,
+        private readonly configService: ConfigService,
     ) {}
 
     async addMessage(dto: CreateMessageDto): Promise<number> {
@@ -26,8 +28,9 @@ export class MessagesService {
             const user = await this.usersService.getUser(dto.id_user);
 
             if (user && user.secret === dto.secret) {
+                const locationUser = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля'
                 const message = await this.messagesRepository.create({
-                    location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+                    location: locationUser,
                     message: dto.form.message,
                 });
                 await user.$add('messages', message);
@@ -35,6 +38,34 @@ export class MessagesService {
                 arrFileId.map((fileId: number) => {
                     message.$add('file', fileId);
                 });
+
+                const DATA = {
+                    v: this.configService.get<string>('VK_VERSION'),
+                    access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
+                    client_url: this.configService.get<string>('CLIENT_URL'),
+                };
+
+                const usersByResidence = this.usersService.getUsersByResidence(locationUser)
+                const peer_ids = (await usersByResidence).map(user => user.vk_id)
+
+                const params = new URLSearchParams();
+                params.append('v', DATA.v);
+                params.append('access_token', DATA.access_token);
+                params.append('peer_ids', `${peer_ids.join(',')}`);
+                params.append('random_id', '0');
+                params.append('message', `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти в сообщениям: ${DATA.client_url}/messages/${dto.location}`);
+
+                const response = await fetch('https://api.vk.com/method/messages.send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                });
+            
+                const data = await response.json();
+                console.log('Успешно отправлено', data);
+
                 return message.id;
             }
             
@@ -172,8 +203,6 @@ export class MessagesService {
         }
     }
 
-    
-
     async getCountMessageFromId(end_id: number, location: string): Promise<number> {
         try {
             const { count } = await this.messagesRepository.findAndCountAll({
@@ -191,8 +220,6 @@ export class MessagesService {
         }
     }
 
-    
-    
     async setEndReadMessagesId(dto: EndReadMessageDto) {
         try {
             const endReadMessages = await this.endReadMessageRepository.findOne({
@@ -207,8 +234,6 @@ export class MessagesService {
             throw new HttpException(`Ошибка в setEndReadMessagesId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
 
     async getMessageFromId(id: number): Promise<Messages> {
         try {

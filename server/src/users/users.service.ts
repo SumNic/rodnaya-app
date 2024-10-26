@@ -102,6 +102,22 @@ export class UsersService {
             throw new HttpException(`Ошибка в getAllUsers: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    async getUsersByResidence(residency: string): Promise<User[]> {
+        try {
+            const users = await this.usersRepository.findAll({
+                include: { all: true },
+            });
+            const usersFilterResidency = users.filter(user => {
+                return user.residency.locality === residency || 
+                user.residency.region === residency || 
+                user.residency.country === residency
+            })
+            return usersFilterResidency.length ? usersFilterResidency : users;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getAllUsers: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     
     async getUser(id: number): Promise<User> {
         try {
