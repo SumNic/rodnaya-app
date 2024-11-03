@@ -17,14 +17,13 @@ import { useStoreContext } from "../contexts/StoreContext";
 import { PERSONALE_ROUTE } from "../utils/consts";
 
 function Personale_page() {
-    // const { store } = useContext(Context);
-    const { store } = useStoreContext();
-
     const [edit, setEdit] = useState<boolean>(false);
     const [editPersonale, setEditPersonale] = useState<boolean>(false);
     const [editResidency, setEditResidency] = useState<boolean>(false);
     const [editDeclaration, setEditDeclaration] = useState<boolean>(false);
     const [editProfile, setEditProfile] = useState<boolean>(false);
+
+    const { store } = useStoreContext();
 
     useEffect(() => {
         if (store.cancelAction) {
@@ -59,7 +58,8 @@ function Personale_page() {
 
     const personaleData = (
         <div>
-            <h2 style={{ fontSize: "20px" }}>Учредитель Родной партии:</h2>
+            <h2 style={{ fontSize: "20px" }}>Учредитель</h2>
+            <h2 style={{ fontSize: "20px" }}>Родной партии</h2>
             <div
                 className="photo_big__wrapper"
                 style={{ position: "relative" }}
@@ -89,7 +89,7 @@ function Personale_page() {
                     style={{ paddingBottom: 0 }}
                 >
                     <h2 style={{ fontSize: "18px" }}>
-                        Персональные данные:{" "}
+                        Персональные данные{" "}
                         <MyButtonIcon
                             src={icon_edit}
                             nameDiv="edit"
@@ -109,7 +109,7 @@ function Personale_page() {
                         </a>
                     </p>
                     <h2 style={{ fontSize: "18px" }}>
-                        Место жительства:{" "}
+                        Место жительства{" "}
                         <MyButtonIcon
                             src={icon_edit}
                             nameDiv="edit"
@@ -135,7 +135,7 @@ function Personale_page() {
                             textAlign: "center",
                         }}
                     >
-                        Декларация моей Родной партии:{" "}
+                        Декларация моей Родной партии{" "}
                         <MyButtonIcon
                             src={icon_edit}
                             nameDiv="edit"
@@ -151,7 +151,7 @@ function Personale_page() {
                 </div>
 
                 <h2 style={{ fontSize: "19px" }}>
-                    Управление профилем:{" "}
+                    Управление профилем{" "}
                     <MyButtonIcon
                         src={icon_edit}
                         nameDiv="edit"

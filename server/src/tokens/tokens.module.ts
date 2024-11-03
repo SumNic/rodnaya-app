@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 @Module({
     providers: [TokensService],
-    imports: [SequelizeModule.forFeature([User, Token]), JwtModule, forwardRef(() => UsersModule) ],
+    imports: [SequelizeModule.forFeature([User, Token]), JwtModule, forwardRef(() => UsersModule)],
     exports: [TokensService],
 })
 export class TokensModule {}

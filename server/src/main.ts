@@ -27,7 +27,6 @@ async function bootstrap() {
     SwaggerModule.setup('/api/docs', app, document);
 
     app.useGlobalPipes(new ValidationPipe());
-    
 
     await app.listen(configService.get('PORT'), () => console.log(`Server started on port = ${configService.get('PORT')}`));
 }

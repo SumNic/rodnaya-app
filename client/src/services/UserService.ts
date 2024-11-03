@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import $api from "../http";
+import $api from "../api_http/index.ts";
 import { IUser } from "../models/IUser";
 import { DeclarationUser } from "../models/DeclarationUser";
 import { PersonaleUser } from "../models/PersonaleUser";

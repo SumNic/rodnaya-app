@@ -62,7 +62,6 @@ export class AuthController {
         description: 'Неккоректные данные',
     })
     async setRegistration(@Body() dto: CreateRegistrationDto, @Res({ passthrough: true }) res: Response): Promise<OutputUserAndTokens> {
-
         const registration = await this.authService.setRegistration(dto);
         res.cookie('refreshToken', registration.refreshToken, {
             maxAge: 30 * 24 * 60 * 60 * 1000,

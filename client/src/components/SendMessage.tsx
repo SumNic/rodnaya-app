@@ -34,6 +34,9 @@ function SendMessage(props: Props) {
 
 			const formJson = Object.fromEntries(formData.entries());
 
+			// const mess = SocketApi.socket?.emit('new_message', {id_user: store.user.id, secret: store.user.secret, location: props.location, form: formJson})
+			// console.log(mess, 'mess');
+
 			const resp_id = await store.sendMessage(store.user.id, store.user.secret, props.location, formJson);
 			if (resp_id.error && !resp_id.data) {
 				return message.error(resp_id.error)

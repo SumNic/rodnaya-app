@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AxiosResponse } from 'axios';
-import $api from '../http';
+import $api from '../api_http/index';
 
 export function useUploadForm(url: string) {
 	const [isLoading, setIsLoading] = useState<boolean>(false);

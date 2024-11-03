@@ -1,4 +1,4 @@
-import $api from "../http";
+import $api from "../api_http/index.ts";
 import { AxiosResponse } from "axios";
 import { IUser } from "../models/IUser";
 

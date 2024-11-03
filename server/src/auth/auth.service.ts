@@ -23,10 +23,9 @@ export class AuthService {
         try {
             return await this.jwtService.verify(token);
         } catch (err) {
-            console.error(err)
-            return false
+            console.error(err);
+            return false;
         }
-            
     }
 
     async logout(dto: LogoutUserDto) {

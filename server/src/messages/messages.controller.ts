@@ -23,7 +23,6 @@ export class MessagesController {
     @ApiResponse({
         status: HttpStatus.CREATED,
         description: 'Сообщение добавлено',
-        // type: OutputUserAndTokens,
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
@@ -31,7 +30,7 @@ export class MessagesController {
     })
     @UseGuards(JwtAuthGuard)
     async addMessage(@Body() dto: CreateMessageDto): Promise<number> {
-        return await this.messagesService.addMessage(dto)
+        return await this.messagesService.addMessage(dto);
     }
 
     @ApiOperation({

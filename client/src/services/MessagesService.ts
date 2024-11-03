@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import $api from '../http';
+import $api from '../api_http/index.ts';
 import { IPost } from '../models/IPost.ts';
 
 export default class MessagesService {

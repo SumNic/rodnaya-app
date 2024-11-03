@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import $api from '../http/index.ts';
+import $api from '../api_http/index.ts';
 import { FoulSendMessage } from '../models/FoulSendMessage.ts';
 import { FoulSendMessageResponse } from '../models/response/FoulSendMessageResponse.ts';
 

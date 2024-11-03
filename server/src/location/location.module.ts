@@ -10,6 +10,6 @@ import { AuthModule } from 'src/auth/auth.module';
     imports: [SequelizeModule.forFeature([GeoLocations]), RolesModule, AuthModule],
     controllers: [LocationController],
     providers: [LocationService],
-    exports: [LocationService]
+    exports: [LocationService],
 })
 export class LocationModule {}

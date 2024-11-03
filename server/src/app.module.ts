@@ -82,7 +82,7 @@ import { EndReadMessageModule } from 'src/end-read-message/end-read-message.modu
                     Role,
                     User,
                     UserRoles,
-                    Files
+                    Files,
                 ],
                 autoLoadModels: true,
                 synchronize: true,
@@ -119,6 +119,6 @@ import { EndReadMessageModule } from 'src/end-read-message/end-read-message.modu
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-      consumer.apply(cookieParser()).forRoutes('*');
+        consumer.apply(cookieParser()).forRoutes('*');
     }
 }

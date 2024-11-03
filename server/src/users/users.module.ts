@@ -23,7 +23,7 @@ import { UsersService } from 'src/users/users.service';
         DeclarationModule,
         FilesModule,
         AuthModule,
-        EndReadMessageModule
+        EndReadMessageModule,
     ],
     controllers: [UsersController],
     exports: [UsersService],

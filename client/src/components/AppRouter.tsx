@@ -1,21 +1,15 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { authRoutes, registrationRoutes, errorRoutes, publicRoutes, restoreRoutes, adminRoutes } from '../routes';
 import { ERROR_ROUTE, HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import LogoLoad from './LogoLoad/LogoLoad';
+import { useConnectSocket } from '../hooks/useConnectSocket';
 
 const AppRouter: React.FC = () => {
-	const [count, setCount] = useState<number>(0);
-
 	const { store } = useStoreContext();
 
-	/**
-	 * Проверка статуса аутентификации при изменении хранилища.
-	 *
-	 * @returns {void}
-	 */
 	useEffect(() => {
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE) && !store.isAuth) {
 			store.checkAuth();
@@ -26,15 +20,15 @@ const AppRouter: React.FC = () => {
 		}
 	}, []);
 
+	useConnectSocket()
+
 	useEffect(() => {
 		if (store.isAuth && location) {
 			store.getCountMessages();
 			store.getEndReadMessagesId();
+			
 		}
-		setTimeout(() => {
-			setCount((prev) => prev + 1);
-		}, 10000);
-	}, [count]);
+	}, [store.isAuth, location]);
 
 	// Отрисовка соответствующих маршрутов на основе статуса аутентификации пользователя, условий и состояния ошибки
 	return store.load ? (

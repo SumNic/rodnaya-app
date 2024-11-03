@@ -16,7 +16,7 @@ export class LocationService {
             throw new HttpException(`Ошибка в createLocation: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getLocation(country: string, region: string, locality: string): Promise<GeoLocations> {
         try {
             const result = await this.locationRepository.findOne({
@@ -31,7 +31,7 @@ export class LocationService {
             throw new HttpException(`Ошибка в getLocation: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getAllCountry(): Promise<any> {
         try {
             const result = await this.locationRepository.findAll({
@@ -42,7 +42,7 @@ export class LocationService {
             throw new HttpException(`Ошибка в getAllCountry: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getRegions(country: string): Promise<any> {
         try {
             const result = await this.locationRepository.findAll({
@@ -54,7 +54,7 @@ export class LocationService {
             throw new HttpException(`Ошибка в getRegions: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getLocality(region: string): Promise<any> {
         try {
             const result = await this.locationRepository.findAll({
@@ -66,7 +66,7 @@ export class LocationService {
             throw new HttpException(`Ошибка в getLocality: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async saveLocation(dto: CreateLocationDto): Promise<any> {
         try {
             const result = 'результат';

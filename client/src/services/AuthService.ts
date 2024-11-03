@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import $api from "../http";
+import $api from "../api_http/index.ts";
 import { AuthResponse } from "../models/response/AuthResponse";
 import { ResidencyUser } from "../models/ResidencyUser";
 import { VkSdkResponse } from "../models/response/VkSdkResponse";

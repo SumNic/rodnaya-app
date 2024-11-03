@@ -31,7 +31,7 @@ export class AdminService {
         } catch (err) {
             throw new HttpException(`Ошибка в reportViolation: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    } 
+    }
 
     /**
      * Получить список сообщений, нарушающих правил.

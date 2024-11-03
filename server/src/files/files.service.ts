@@ -9,7 +9,7 @@ import { Files } from 'src/common/models/files/files.model';
 @Injectable()
 export class FilesService {
     constructor(@InjectModel(Files) private readonly filesRepository: typeof Files) {}
-    
+
     async saveFile(file: Express.Multer.File): Promise<Files> {
         try {
             const buf1 = Buffer.from(file.buffer);

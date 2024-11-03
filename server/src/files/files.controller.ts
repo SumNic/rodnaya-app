@@ -7,9 +7,7 @@ import { FilesService } from 'src/files/files.service';
 
 @Controller('api')
 export class FilesController {
-    constructor(
-        private readonly filesService: FilesService,
-    ) {}
+    constructor(private readonly filesService: FilesService) {}
 
     @ApiTags('Загрузка файла')
     @ApiOperation({ summary: 'Добавление нового файла' })

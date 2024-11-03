@@ -27,15 +27,13 @@ export class EndReadMessageService {
         }
     }
 
-    
-
     async deleteOldLocations(id: number, locations: string[]) {
         try {
             await this.endReadMessageRepository.destroy({
                 where: {
                     user_id: id,
-                    location: { [Op.notIn]: locations }
-                }
+                    location: { [Op.notIn]: locations },
+                },
             });
         } catch (err) {
             throw new HttpException(`Ошибка в deleteOldLocations: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,7 +52,6 @@ export class EndReadMessageService {
         } catch (err) {
             throw new HttpException(`Ошибка в getCountMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
     }
 
     async getEndMessageId(location: string): Promise<number> {
@@ -69,6 +66,5 @@ export class EndReadMessageService {
         } catch (err) {
             throw new HttpException(`Ошибка в getEndMessageId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 }

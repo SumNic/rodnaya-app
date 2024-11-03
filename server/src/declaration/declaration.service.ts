@@ -6,7 +6,7 @@ import { Declaration } from 'src/common/models/users/declaration.model';
 @Injectable()
 export class DeclarationService {
     constructor(@InjectModel(Declaration) private readonly declarationRepository: typeof Declaration) {}
-    
+
     async createDeclaration(declaration: string): Promise<Declaration> {
         try {
             return await this.declarationRepository.create({ declaration: declaration });
@@ -14,7 +14,7 @@ export class DeclarationService {
             throw new HttpException(`Ошибка в createDeclaration: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async updateDeclaration(dto: CreateDeclarationDto): Promise<Declaration> {
         try {
             const declaration = await this.declarationRepository.findOne({
@@ -28,7 +28,7 @@ export class DeclarationService {
             throw new HttpException(`Ошибка в updateDeclaration: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async deleteDeclaration(id: number): Promise<any> {
         try {
             const declaration = await this.declarationRepository.findOne({

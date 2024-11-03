@@ -7,7 +7,7 @@ import { Residency } from 'src/common/models/users/residency.model';
 @Injectable()
 export class ResidencyService {
     constructor(@InjectModel(Residency) private readonly residencyRepository: typeof Residency) {}
-    
+
     async getOrCreateResidency(dto: CreateLocationDto): Promise<CreateResidencyDto> {
         try {
             const [residency] = await this.residencyRepository.findOrCreate({
@@ -22,7 +22,7 @@ export class ResidencyService {
             throw new HttpException(`Ошибка в getOrCreateResidency: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getResidency(id: number): Promise<Residency> {
         try {
             const residency = await this.residencyRepository.findOne({
@@ -34,7 +34,7 @@ export class ResidencyService {
             throw new HttpException(`Ошибка в getResidency: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getResidencyFromData(country: string, region: string, locality: string): Promise<Residency> {
         try {
             const residency = await this.residencyRepository.findOne({
@@ -50,7 +50,7 @@ export class ResidencyService {
             throw new HttpException(`Ошибка в getResidencyFromData: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     async getAllResydencys(): Promise<Residency[]> {
         try {
             const residency = await this.residencyRepository.findAll({
