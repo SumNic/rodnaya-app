@@ -43,35 +43,35 @@ export class MessagesService {
                     message.$add('file', file.id);
                 });
 
-                // const DATA = {
-                //     v: this.configService.get<string>('VK_VERSION'),
-                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
-                //     client_url: this.configService.get<string>('CLIENT_URL'),
-                // };
+                const DATA = {
+                    v: this.configService.get<string>('VK_VERSION'),
+                    access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
+                    client_url: this.configService.get<string>('CLIENT_URL'),
+                };
 
-                // const usersByResidence = this.usersService.getUsersByResidence(locationUser);
-                // const peer_ids = (await usersByResidence).map((user) => user.vk_id);
+                const usersByResidence = this.usersService.getUsersByResidence(locationUser);
+                const peer_ids = (await usersByResidence).map((user) => user.vk_id);
 
-                // const params = new URLSearchParams();
-                // params.append('v', DATA.v);
-                // params.append('access_token', DATA.access_token);
-                // params.append('peer_ids', `${peer_ids.join(',')}`);
-                // params.append('random_id', '0');
-                // params.append(
-                //     'message',
-                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
-                // );
+                const params = new URLSearchParams();
+                params.append('v', DATA.v);
+                params.append('access_token', DATA.access_token);
+                params.append('peer_ids', `${peer_ids.join(',')}`);
+                params.append('random_id', '0');
+                params.append(
+                    'message',
+                    `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
+                );
 
-                // const response = await fetch('https://api.vk.com/method/messages.send', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/x-www-form-urlencoded',
-                //     },
-                //     body: params.toString(),
-                // });
+                const response = await fetch('https://api.vk.com/method/messages.send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                });
 
-                // const data = await response.json();
-                // console.log('Успешно отправлено', data);
+                const data = await response.json();
+                console.log('Успешно отправлено', data);
 
                 return {message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50};
             }
