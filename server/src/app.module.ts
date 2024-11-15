@@ -38,6 +38,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { Files } from 'src/common/models/files/files.model';
 import { EndReadMessageModule } from 'src/end-read-message/end-read-message.module';
+import { MessagesGateway } from 'src/messages/messages.gateway';
 
 @Module({
     imports: [

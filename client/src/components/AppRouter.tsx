@@ -5,7 +5,6 @@ import { authRoutes, registrationRoutes, errorRoutes, publicRoutes, restoreRoute
 import { ERROR_ROUTE, HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import LogoLoad from './LogoLoad/LogoLoad';
-import { useConnectSocket } from '../hooks/useConnectSocket';
 
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
@@ -20,17 +19,6 @@ const AppRouter: React.FC = () => {
 		}
 	}, []);
 
-	useConnectSocket()
-
-	useEffect(() => {
-		if (store.isAuth && location) {
-			store.getCountMessages();
-			store.getEndReadMessagesId();
-			
-		}
-	}, [store.isAuth, location]);
-
-	// Отрисовка соответствующих маршрутов на основе статуса аутентификации пользователя, условий и состояния ошибки
 	return store.load ? (
 		<LogoLoad />
 	) : (

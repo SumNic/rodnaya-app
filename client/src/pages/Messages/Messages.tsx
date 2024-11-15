@@ -3,7 +3,7 @@ import Footer from '../../components/Footer';
 import NavMiddle from '../../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import NavRegions from '../../components/Nav_header/NavRegions';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import MessagesService from '../../services/MessagesService';
 import MessagesList from './components/MessagesList';
@@ -11,7 +11,6 @@ import UploadFiles from '../../components/UploadFiles';
 import SendMessage from '../../components/SendMessage';
 import icon_attach from '../../images/clippy-icon1.png';
 import { useStoreContext } from '../../contexts/StoreContext';
-import { useAboutContext } from '../../contexts/AboutContext';
 import { HOME_ROUTE, LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
 import { Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
@@ -19,21 +18,135 @@ import { useMessageContext } from '../../contexts/MessageContext.ts';
 import UserService from '../../services/UserService.ts';
 
 import styles from './Messages.module.css';
+import { throttle } from 'lodash';
+import { IPost } from '../../models/IPost.ts';
 
 const { Text } = Typography;
 
-function Message() {
+type scrollOver = {
+	[key: string]: boolean;
+};
+
+const Message: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [isMemoizedIndexMap, setMemoizedIndexMap] = useState(true);
 	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+	const [isScrollEnd, setIsScrollEnd] = useState<scrollOver>();
+	const [isScrollStart, setIsScrollStart] = useState<scrollOver>();
 
 	const { store } = useStoreContext();
-	const { posts, setPosts } = useAboutContext();
-	const { isLoading, setIsLoading, sendMessageId } = useMessageContext();
+	const {
+		sendMessageId,
+		arrEndMessagesId,
+		posts,
+		setPosts,
+		isLoadMessages,
+		setIsLoadMessages,
+		isLoadingPrevious,
+		setIsLoadingPrevious,
+		isLoadingNext,
+		setIsLoadingNext,
+		messageDataSocket,
+	} = useMessageContext();
 	const navigate = useNavigate();
+
+	const targetRefNext = useRef<HTMLDivElement | null>(null);
+	const targetRefPrev = useRef<HTMLDivElement | null>(null);
 
 	const params = useParams();
 	const location: string | undefined = params.location;
+
+	useEffect(() => {
+		setIsScrollEnd((prev) => {
+			if (location) return { ...prev, [location]: false };
+		});
+		setIsScrollStart((prev) => {
+			if (location) return { ...prev, [location]: false };
+		});
+	}, [location]);
+
+	useEffect(() => {
+		if (messageDataSocket && location) {
+			const arrFileId = JSON.parse(messageDataSocket.form.files);
+			const newPost: IPost = {
+				id: messageDataSocket.id_message,
+				message: messageDataSocket.form.message,
+				location: messageDataSocket.resydency,
+				blocked: false,
+				userId: messageDataSocket.id_user,
+				files: arrFileId,
+				user: {
+					id: messageDataSocket.id_user,
+					first_name: messageDataSocket.first_name,
+					last_name: messageDataSocket.last_name,
+					photo_50: messageDataSocket.photo_50,
+				},
+				createdAt: messageDataSocket.createdAt,
+			};
+
+			if (
+				nameLocal === messageDataSocket.resydency && isScrollEnd && isScrollEnd[location]
+			) {
+				setPosts((prev) => {
+					if (prev?.length && newPost) {
+						const postsFromLocation = prev.filter((elem) => elem.location === location);
+						if (postsFromLocation.length) {
+							const newListPosts = [...postsFromLocation[0].postsCurrent, newPost];
+							return prev.map((postsInLocation) =>
+								postsInLocation.location === location
+									? { ...postsInLocation, postsCurrent: newListPosts }
+									: postsInLocation
+							);
+						}
+					}
+					return prev;
+				});
+			}
+		}
+	}, [messageDataSocket]);
+
+	const handleScroll = useCallback(
+		throttle(() => {
+			const checkVisibility = (targetElement: HTMLDivElement | null, targetIndex: number) => {
+				if (targetElement) {
+					const rect = targetElement.getBoundingClientRect();
+
+					if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+						if (targetIndex === 1 && !isLoadingPrevious && !isLoadMessages) {
+							if (isScrollStart && location && isScrollStart[location] === false) {
+								setIsLoadingPrevious(true);
+								loadPreviousMessages();
+							}
+						} else if (targetIndex === 2 && !isLoadingNext && !isLoadMessages) {
+							if (isScrollEnd && location && isScrollEnd[location] === false) {
+								setIsLoadingNext(true);
+								loadNextMessages();
+							}
+						}
+					}
+				}
+			};
+
+			checkVisibility(targetRefPrev.current, 1);
+			checkVisibility(targetRefNext.current, 2);
+		}, 500),
+		[posts, location, isLoadingNext, isLoadingPrevious, isLoadMessages, isScrollStart, isScrollEnd]
+	);
+
+	useEffect(() => {
+		const scrollableElement = targetRefNext.current;
+
+		if (scrollableElement) {
+			scrollableElement.addEventListener('scroll', handleScroll);
+		}
+
+		// Очистка эффекта: удаляем обработчик события при размонтировании
+		return () => {
+			if (scrollableElement) {
+				scrollableElement.removeEventListener('scroll', handleScroll);
+			}
+		};
+	}, [handleScroll]); // Указываем handleScroll как зависимость
 
 	useEffect(() => {
 		checkingTheLock();
@@ -47,18 +160,16 @@ function Message() {
 			if (response.status === 200 && response.data) {
 				const blockingEndTimeString = response.data;
 
-                var options: {} = {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    timezone: "UTC",
-                    hour: "numeric",
-                    minute: "numeric",
-                };
-                let blockingEndTime = new Date(
-                    blockingEndTimeString
-                ).toLocaleString("ru", options);
-                
+				var options: {} = {
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+					timezone: 'UTC',
+					hour: 'numeric',
+					minute: 'numeric',
+				};
+				let blockingEndTime = new Date(blockingEndTimeString).toLocaleString('ru', options);
+
 				setTimeRemaining(blockingEndTime);
 			}
 		} catch (error) {
@@ -78,10 +189,9 @@ function Message() {
 	useEffect(() => {
 		if (location) {
 			if (sendMessageId) {
-				store.setNewMessage(false);
 				loadMessages(sendMessageId, location);
 			} else {
-				const endIdMessage: number = store.arrEndMessagesId.reduce((accum, item, index) => {
+				const endIdMessage: number | undefined = arrEndMessagesId?.reduce((accum, item, index) => {
 					const indexLocation = memoizedIndexMap?.findIndex(({ item }) => item === location);
 					if (indexLocation === index) {
 						return accum + item.id;
@@ -89,80 +199,118 @@ function Message() {
 					return accum;
 				}, 0);
 
-				store.setNewMessage(false);
-				loadMessages(endIdMessage, location);
+				const postsFromLocation = posts?.filter((elem) => elem.location === location);
+				if (endIdMessage && !postsFromLocation?.[0]?.postsCurrent) loadMessages(endIdMessage, location);
 			}
 		}
-	}, [location, sendMessageId]);
-
-	useEffect(() => {
-		const handleScroll = () => {
-			const messagesElement = document.getElementById('div__messages');
-			const scrollHeight = messagesElement?.scrollHeight;
-			const scrollTop = messagesElement?.scrollTop;
-			const clientHeight = messagesElement?.clientHeight;
-
-			if (scrollHeight && scrollTop && clientHeight) {
-				if (scrollTop < 3 && !isLoading) {
-					loadPreviousMessages();
-				} else if (scrollHeight - scrollTop - clientHeight < 3 && !isLoading) {
-					loadNextMessages();
-				}
-			}
-		};
-
-		document.getElementById('div__messages')?.addEventListener('scroll', handleScroll);
-		return () => document.getElementById('div__messages')?.removeEventListener('scroll', handleScroll);
-	}, [isLoading, posts]);
+	}, [location, sendMessageId, arrEndMessagesId]);
 
 	const loadMessages = async (endIdMessage: number, location: string) => {
 		try {
+			setIsLoadMessages(true);
 			const allMessages = await MessagesService.getAllMessages(
 				store.user.id,
 				endIdMessage || -1,
 				store.user.secret,
 				location
 			);
-			if (allMessages) setPosts([...Object.values(allMessages.data)]);
+			if (allMessages)
+				setPosts((prev) => {
+					if (prev?.length) {
+						const postsFromLocation = prev.filter((elem) => elem.location === location);
+						const newListPosts = [
+							...postsFromLocation,
+							{ location, postsCurrent: [...Object.values(allMessages.data)] },
+						];
+						return [...prev, ...newListPosts];
+					}
+					return [{ location, postsCurrent: [...Object.values(allMessages.data)] }];
+				});
+			setIsLoadMessages(false);
 		} catch (err) {
+			setIsLoadMessages(false);
 			console.error(`Ошибка в loadMessages: ${err}`);
 		}
 	};
 
 	const loadPreviousMessages = async () => {
-		setIsLoading(true);
 		try {
-			if (posts && posts[0]?.id) {
+			setIsLoadingPrevious(true);
+			const postsFromLocation = posts?.filter((elem) => elem.location === location);
+			if (postsFromLocation && postsFromLocation[0]?.postsCurrent[0].id) {
 				const newPosts = await MessagesService.getPreviousMessages(
 					store.user.id,
-					posts[0]?.id,
+					postsFromLocation[0].postsCurrent[0].id,
 					store.user.secret,
 					location
 				);
-				if (newPosts) setPosts([...Object.values(newPosts.data), ...posts]);
+				if (Array.isArray(newPosts.data) && !newPosts.data.length) {
+					return setIsScrollStart((prev) => {
+						if (location) return { ...prev, [location]: true };
+					});
+				}
+
+				if (newPosts && newPosts.data)
+					setPosts((prev) => {
+						if (prev?.length) {
+							const postsFromLocation = prev.filter((elem) => elem.location === location);
+							if (postsFromLocation.length) {
+								const newListPosts = [...Object.values(newPosts.data), ...postsFromLocation[0].postsCurrent];
+								return prev.map((postsInLocation) =>
+									postsInLocation.location === location
+										? { ...postsInLocation, postsCurrent: newListPosts }
+										: postsInLocation
+								);
+							}
+						}
+						return prev;
+					});
 			}
 		} catch (err) {
 			console.error(`Ошибка в loadPreviousMessages: ${err}`);
+		} finally {
+			setIsLoadingPrevious(false);
 		}
-		setIsLoading(false);
 	};
 
 	const loadNextMessages = async () => {
-		setIsLoading(true);
 		try {
-			if (posts) {
+			setIsLoadingNext(true);
+			const postsFromLocation = posts?.filter((elem) => elem.location === location);
+			if (postsFromLocation && postsFromLocation[0]?.postsCurrent[postsFromLocation[0].postsCurrent.length - 1].id) {
 				const newMessages = await MessagesService.getNextMessages(
 					store.user.id,
-					posts[posts.length - 1].id,
+					postsFromLocation[0].postsCurrent[postsFromLocation[0].postsCurrent.length - 1].id,
 					store.user.secret,
 					location
 				);
-				if (newMessages) setPosts([...posts, ...Object.values(newMessages.data)]);
+
+				if (Array.isArray(newMessages.data) && !newMessages.data.length) {
+					return setIsScrollEnd((prev) => {
+						if (location) return { ...prev, [location]: true };
+					});
+				}
+				if (newMessages)
+					setPosts((prev) => {
+						if (prev?.length && newMessages.data) {
+							const postsFromLocation = prev.filter((elem) => elem.location === location);
+							if (postsFromLocation.length) {
+								const newListPosts = [...postsFromLocation[0].postsCurrent, ...Object.values(newMessages.data)];
+								return prev.map((postsInLocation) =>
+									postsInLocation.location === location
+										? { ...postsInLocation, postsCurrent: newListPosts }
+										: postsInLocation
+								);
+							}
+						}
+						return prev;
+					});
 			}
 		} catch (err) {
 			console.error(`Ошибка в loadNextMessages: ${err}`);
+		} finally {
+			setIsLoadingNext(false);
 		}
-		setIsLoading(false);
 	};
 
 	const nameLocal = useMemo(() => {
@@ -205,21 +353,23 @@ function Message() {
 								{nameLocal}
 							</h2>
 						</div>
-						{/* <div>
-							<a className="arrow__down" id="mylink" href={`${posts?.[length - 1]?.id}`}></a>
-						</div> */}
-						{location && posts && <MessagesList posts={posts} location={location} />}
-						{/* {!isLoading && <div className="loading-indicator">Загрузка...</div>} */}
+						{location && (
+							<MessagesList
+								location={location}
+								refPrev={targetRefPrev}
+								refNext={targetRefNext}
+								onScroll={handleScroll}
+							/>
+						)}
 						<div id="messages">
 							{timeRemaining !== null ? (
-                                <div  className={styles['blocked_text']}>
-                                    <p>Вы заблокированы за нарушение правил.</p>
-                                    <p> Блокировка заканчивается {timeRemaining}</p>
-                                </div>
+								<div className={styles['blocked_text']}>
+									<p>Вы заблокированы за нарушение правил.</p>
+									<p> Блокировка заканчивается {timeRemaining}</p>
+								</div>
 							) : (
 								<>
 									<UploadFiles />
-
 									<div id="forms">
 										<div className="clip">
 											<div className="label-clip">
@@ -243,6 +393,6 @@ function Message() {
 			<Footer />
 		</div>
 	);
-}
+};
 
 export default observer(Message);

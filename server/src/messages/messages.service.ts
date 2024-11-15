@@ -12,6 +12,10 @@ import { UsersService } from 'src/users/users.service';
 import { EndMessageDto } from 'src/common/dtos/end-message.dto';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
 import { ConfigService } from '@nestjs/config';
+import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
+import { RespCountNoReadMessagesDto } from 'src/common/dtos/resp-count-no-read-messages.dto';
+import { RespIdNoReadMessagesDto } from 'src/common/dtos/resp-id-no-read-messages.dto copy';
+import { NewMessage } from 'src/common/dtos/new-message.dto';
 
 @Injectable()
 export class MessagesService {
@@ -23,7 +27,7 @@ export class MessagesService {
         private readonly configService: ConfigService,
     ) {}
 
-    async addMessage(dto: CreateMessageDto): Promise<number> {
+    async addMessage(dto: CreateMessageDto): Promise<NewMessage> {
         try {
             const user = await this.usersService.getUser(dto.id_user);
 
@@ -35,41 +39,41 @@ export class MessagesService {
                 });
                 await user.$add('messages', message);
                 const arrFileId = JSON.parse(dto.form.files);
-                arrFileId.map((fileId: number) => {
-                    message.$add('file', fileId);
+                arrFileId.map((file: any) => {
+                    message.$add('file', file.id);
                 });
 
-                const DATA = {
-                    v: this.configService.get<string>('VK_VERSION'),
-                    access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
-                    client_url: this.configService.get<string>('CLIENT_URL'),
-                };
+                // const DATA = {
+                //     v: this.configService.get<string>('VK_VERSION'),
+                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
+                //     client_url: this.configService.get<string>('CLIENT_URL'),
+                // };
 
-                const usersByResidence = this.usersService.getUsersByResidence(locationUser);
-                const peer_ids = (await usersByResidence).map((user) => user.vk_id);
+                // const usersByResidence = this.usersService.getUsersByResidence(locationUser);
+                // const peer_ids = (await usersByResidence).map((user) => user.vk_id);
 
-                const params = new URLSearchParams();
-                params.append('v', DATA.v);
-                params.append('access_token', DATA.access_token);
-                params.append('peer_ids', `${peer_ids.join(',')}`);
-                params.append('random_id', '0');
-                params.append(
-                    'message',
-                    `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
-                );
+                // const params = new URLSearchParams();
+                // params.append('v', DATA.v);
+                // params.append('access_token', DATA.access_token);
+                // params.append('peer_ids', `${peer_ids.join(',')}`);
+                // params.append('random_id', '0');
+                // params.append(
+                //     'message',
+                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
+                // );
 
-                const response = await fetch('https://api.vk.com/method/messages.send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params.toString(),
-                });
+                // const response = await fetch('https://api.vk.com/method/messages.send', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/x-www-form-urlencoded',
+                //     },
+                //     body: params.toString(),
+                // });
 
-                const data = await response.json();
-                console.log('Успешно отправлено', data);
+                // const data = await response.json();
+                // console.log('Успешно отправлено', data);
 
-                return message.id;
+                return {message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50};
             }
 
             throw new HttpException('Сообщение не было отправлено', HttpStatus.FORBIDDEN);
@@ -79,24 +83,27 @@ export class MessagesService {
     }
 
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
+        console.log(dto, 'dto');
         try {
             const user = await this.usersService.getUser(+dto.id);
+            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля'
 
             const endReadMessagesId = await this.getEndReadMessagesId({
                 id: `${dto.id}`,
                 secret: dto.secret,
-                location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+                residency: {[dto.location]: location},
             });
 
-            const end_id = +dto.start_message_id !== -1 ? +dto.start_message_id : endReadMessagesId;
-            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+            const endReadMessagesIdForLocation = endReadMessagesId.filter(elem => elem.location === location)
+
+            const end_id = +dto.start_message_id !== -1 ? +dto.start_message_id : endReadMessagesIdForLocation[0].id;
 
             const countMessage = await this.getCountMessageFromId(end_id, location);
 
-            if (user && user.secret === dto.secret && endReadMessagesId >= 0 && countMessage >= 0) {
+            if (user && user.secret === dto.secret && endReadMessagesIdForLocation[0].id >= 0 && countMessage >= 0) {
                 const { rows } = await this.messagesRepository.findAndCountAll({
                     where: {
-                        location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+                        location,
                         blocked: false,
                     },
                     include: { all: true },
@@ -168,38 +175,65 @@ export class MessagesService {
         }
     }
 
-    async getCountNoReadMessages(dto: EndMessageDto): Promise<number> {
+    async getCountNoReadMessages(dto: EndMessageDto): Promise<RespCountNoReadMessagesDto[]> {
         try {
             const user = await this.usersService.getUser(+dto.id);
 
             if (user && user.secret === dto.secret) {
-                const allCountMessages = await this.endReadMessageService.getCountMessage(dto.location);
-                const allReadMessages = await this.endReadMessageRepository.findOne({
-                    where: {
-                        user_id: user.id,
-                        location: dto.location,
-                    },
+                const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
+                // Итерация по ключам объекта LocationUser
+                const messageCountsPromises = residencyKeys.map(async (key) => {
+                    const value = dto.residency[key];
+                    const allCountMessages = await this.endReadMessageService.getCountMessage(value);
+                    const allReadMessages = await this.endReadMessageRepository.findOne({
+                        where: {
+                            user_id: user.id,
+                            location: value,
+                        },
+                    });
+                    const count = allCountMessages - (allReadMessages?.endMessage || 0);
+                    return { location: value, count };
                 });
-                return allCountMessages - allReadMessages.endMessage;
+                // Ждем завершения всех операций
+                const result = await Promise.all(messageCountsPromises);
+                return result.reverse();
             }
         } catch (err) {
             throw new HttpException(`Ошибка в getCountNoReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async getEndReadMessagesId(dto: EndMessageDto): Promise<number> {
+    async getEndReadMessagesId(dto: EndMessageDto): Promise<RespIdNoReadMessagesDto[]> {
         try {
             const user = await this.usersService.getUser(+dto.id);
 
             if (user && user.secret === dto.secret) {
-                const endReadMessagesId = await this.endReadMessageRepository.findOne({
-                    where: {
-                        user_id: user.id,
-                        location: dto.location,
-                    },
+                const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
+                // Итерация по ключам объекта LocationUser
+                const messageEndReadIdPromises = residencyKeys.map(async (key) => {
+                    const value = dto.residency[key];
+                    const endReadMessagesId = await this.endReadMessageRepository.findOne({
+                        where: {
+                            user_id: user.id,
+                            location: value,
+                        },
+                    });
+                    const id = endReadMessagesId.endMessageId;
+                    return { location: value, id };
                 });
+                // Ждем завершения всех операций
+                const result = await Promise.all(messageEndReadIdPromises);
+                return result.reverse();
 
-                return endReadMessagesId.endMessageId;
+
+                // const endReadMessagesId = await this.endReadMessageRepository.findOne({
+                //     where: {
+                //         user_id: user.id,
+                //         location: dto.location,
+                //     },
+                // });
+
+                // return endReadMessagesId.endMessageId;
             }
         } catch (err) {
             throw new HttpException(`Ошибка в getEndReadMessagesId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,8 +262,8 @@ export class MessagesService {
             const endReadMessages = await this.endReadMessageRepository.findOne({
                 where: { user_id: dto.id_user, location: dto.location },
             });
-            const countNoReadMessages = await this.getCountMessageFromId(dto.id_message, dto.location);
-            endReadMessages.endMessage = countNoReadMessages;
+            const countMessages = await this.getCountMessageFromId(dto.id_message, dto.location);
+            endReadMessages.endMessage = countMessages;
             endReadMessages.endMessageId = dto.id_message;
             await endReadMessages.save();
             return endReadMessages;

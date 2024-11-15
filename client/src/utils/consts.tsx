@@ -36,10 +36,10 @@ export const API_URL = `${HOST}/api`;
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
 
 export enum LocationEnum {
-	'locality',
-	'region',
-	'country',
-	'world',
+	locality = 'locality',
+	region = 'region',
+	country = 'country',
+	world = 'world',
 }
 
 export const LOCAL_STORAGE_END_READ_MESSAGE_ID = 'endReadMessageId';
@@ -74,3 +74,5 @@ export enum Punishment {
     'Блокировка на год.',
     'Блокировка навсегда.',
 }
+
+

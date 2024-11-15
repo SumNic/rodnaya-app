@@ -4,6 +4,8 @@ import { IFiles } from '../models/IFiles';
 import { useStoreContext } from '../contexts/StoreContext';
 import { message } from 'antd';
 import { useMessageContext } from '../contexts/MessageContext.ts';
+import { useSocket } from '../hooks/useSocket.ts';
+import { MessageWebsocketResponse } from '../models/response/MessageWebsocketResponse.ts';
 
 interface Props {
 	location: string;
@@ -12,9 +14,25 @@ interface Props {
 function SendMessage(props: Props) {
 	const [messageSent, setMessageSent] = useState<string>('');
 
+	const { socket } = useSocket();
+
 	const { store } = useStoreContext();
 
-	const { setSendMessageId } = useMessageContext();
+	const { setMessageDataSocket } = useMessageContext();
+
+	useEffect(() => {
+		const handleNewMessage = (data: MessageWebsocketResponse) => {
+			if (!data) return;
+			setMessageDataSocket(data);
+		};
+
+		socket?.on('new_message', handleNewMessage);
+
+		// Очистка при размонтировании
+		return () => {
+			socket?.off('new_message', handleNewMessage);
+		};
+	}, [socket]);
 
 	useEffect(() => {
 		setMessageSent('');
@@ -26,26 +44,25 @@ function SendMessage(props: Props) {
 			e.preventDefault();
 
 			const form = e.currentTarget;
-
 			const formData = new FormData(form);
 
-			const arrIdFiles = store.files.map((file: IFiles) => file.id);
+			const arrIdFiles = store.files.map((file: IFiles) => file);
 			formData.append('files', JSON.stringify(arrIdFiles));
-
 			const formJson = Object.fromEntries(formData.entries());
 
-			// const mess = SocketApi.socket?.emit('new_message', {id_user: store.user.id, secret: store.user.secret, location: props.location, form: formJson})
-			// console.log(mess, 'mess');
+			const dto = {
+				id_user: store.user.id,
+				secret: store.user.secret,
+				location: props.location,
+				form: formJson
+			}
 
-			const resp_id = await store.sendMessage(store.user.id, store.user.secret, props.location, formJson);
-			if (resp_id.error && !resp_id.data) {
-				return message.error(resp_id.error)
-			} else if (resp_id.data) {
-				setSendMessageId(+resp_id.data);
+			const resp_id = await store.sendMessage(dto);
+			if (resp_id.error) {
+				return message.error(resp_id.error);
 			}
 
 			setMessageSent('');
-			store.setNewMessage(true);
 			store.resetFiles();
 		} catch (err) {
 			message.error(` Ошибка в sendMessage: ${err}`);

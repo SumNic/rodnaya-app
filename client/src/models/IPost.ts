@@ -1,13 +1,17 @@
 import { IFiles } from "./IFiles.ts";
-import { IUser } from "./IUser.ts";
 
 export interface IPost {
     id: number;
     message: string;
     location: string;
-    blocked: string;
+    blocked: boolean;
     userId: number;
     files?: IFiles[];
-    user: IUser;
+    user: {
+        id: number,
+        first_name: string,
+        last_name: string,
+        photo_50: string,
+    };
     createdAt: Date
 }

@@ -8,3 +8,10 @@
         background: none !important;
     }
 }
+
+.scroll_messages {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

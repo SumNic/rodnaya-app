@@ -1,23 +1,16 @@
 import { Link } from "react-router-dom";
 import { LocationEnum, MESSAGES_ROUTE } from "../../utils/consts";
-import { useStoreContext } from "../../contexts/StoreContext";
 import { Badge } from "antd";
-import { useEffect, useState } from "react";
-import { CountNoReadMessages } from "../../models/CountNoReadMessages.ts";
 import { observer } from "mobx-react-lite";
+import { useMessageContext } from "../../contexts/MessageContext.ts";
 
 interface Props {
     location: string;
 }
 
 function NavRegions(props: Props) {
-    const [ arrCountMessages, setarrCountMessages ] = useState<CountNoReadMessages[]>();
-    const { store } = useStoreContext();
-
-    useEffect(() => {
-        if (store.arrCountMessages) setarrCountMessages(store.arrCountMessages)
-    }, [store.arrCountMessages]);
-
+    
+    const { arrCountMessages } = useMessageContext()
     let style1 = {};
     let style2 = {};
     let style3 = {};
@@ -112,7 +105,7 @@ function NavRegions(props: Props) {
 
             {arrCountMessages && arrCountMessages[index]?.count > 0 ? (
                 <Badge
-                    count={store.arrCountMessages[index]?.count}
+                    count={arrCountMessages[index]?.count}
                     style={{ boxShadow: "none" }}
                 >
                     <div style={{ minWidth: 12, minHeight: 15 }}></div>

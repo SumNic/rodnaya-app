@@ -10,12 +10,16 @@ import { EndMessageDto } from 'src/common/dtos/end-message.dto';
 import { EndReadMessageDto } from 'src/common/dtos/end-read-message.dto';
 import { GetMessagesDto } from 'src/common/dtos/get-messages.dto';
 import { Messages } from 'src/common/models/messages/messages.model';
+import { MessagesGateway } from 'src/messages/messages.gateway';
 import { MessagesService } from 'src/messages/messages.service';
 
 @ApiTags('Сообщения')
 @Controller('api')
 export class MessagesController {
-    constructor(private readonly messagesService: MessagesService) {}
+    constructor(
+        private readonly messagesService: MessagesService,
+        private readonly messagesGateway: MessagesGateway,
+    ) {}
 
     @ApiOperation({ summary: 'Добавление нового сообщения' })
     @Post('/send-message')
@@ -29,8 +33,19 @@ export class MessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async addMessage(@Body() dto: CreateMessageDto): Promise<number> {
-        return await this.messagesService.addMessage(dto);
+    async addMessage(@Body() dto: CreateMessageDto) {
+        const response = await this.messagesService.addMessage(dto);
+        if (response) {
+            this.messagesGateway.sendMessageWebSocket('new_message', {
+                ...dto,
+                id_message: response.message.id,
+                resydency: response.message.location,
+                first_name: response.first_name,
+                last_name: response.last_name,
+                photo_50: response.photo_50,
+                createdAt: response.message.createdAt
+            });
+        }
     }
 
     @ApiOperation({
@@ -88,7 +103,7 @@ export class MessagesController {
         summary: 'Получение количества всех сообщений для определенного location',
     })
     @Get('/get-count-no-read-messages')
-    @ApiBody({ type: CreateMessageDto })
+    @ApiBody({ type: EndMessageDto })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Декларация добавлена',
@@ -98,7 +113,8 @@ export class MessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getCountNoReadMessages(@Query() query: EndMessageDto): Promise<number> {
+    async getCountNoReadMessages(@Query() query: EndMessageDto) {
+        //: Promise<number>
         return await this.messagesService.getCountNoReadMessages(query);
     }
 
@@ -106,7 +122,7 @@ export class MessagesController {
         summary: 'Получение id последнего прочитанного сообщения для определенного location',
     })
     @Get('/get-end-read-messages-id')
-    @ApiBody({ type: CreateMessageDto })
+    @ApiBody({ type: EndMessageDto })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Данные получены',

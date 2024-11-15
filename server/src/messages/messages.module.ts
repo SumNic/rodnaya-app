@@ -16,9 +16,8 @@ import { MessagesGateway } from 'src/messages/messages.gateway';
         UsersModule,
         AuthModule,
         EndReadMessageModule,
-        // forwardRef(() => EndReadMessageModule)
     ],
     controllers: [MessagesController],
-    exports: [MessagesService],
+    exports: [MessagesService, MessagesGateway],
 })
 export class MessagesModule {}

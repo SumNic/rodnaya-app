@@ -11,12 +11,10 @@ import { ResidencyResponse } from '../models/response/ResidencyResponse';
 import UserService from '../services/UserService';
 import MessagesService from '../services/MessagesService';
 import { IFiles } from '../models/IFiles';
-import { MessageForm } from '../models/MessageForm';
 import { IUserVk } from '../models/IUserVk';
-import { CountNoReadMessages } from '../models/CountNoReadMessages';
-import { EndReadMessagesId } from '../models/endReadMessagesId.ts';
 import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
+import { SendedMessage } from '../models/SendedMessage.ts';
 
 export default class Store {
 	user = {} as IUser;
@@ -38,10 +36,7 @@ export default class Store {
 	isDelProfile = false;
 	files = [] as IFiles[];
 	progressLoadValue: number = 0;
-	newMessage = false;
 	nameFile = '';
-	arrCountMessages: CountNoReadMessages[] = [];
-	arrEndMessagesId: EndReadMessagesId[] = [];
 	isAdmin = false;
 
 	constructor() {
@@ -124,32 +119,8 @@ export default class Store {
 		this.progressLoadValue = nbr;
 	}
 
-	setNewMessage(bool: boolean) {
-		this.newMessage = bool;
-	}
-
 	setNameFile(str: string) {
 		this.nameFile = str;
-	}
-
-	setArrCountMessages(location: string, count: number) {
-		let result = this.arrCountMessages.find((item) => item.location === location);
-		if (result?.location) {
-			return this.arrCountMessages.map((elem) => {
-				if (elem.location === location) elem.count = count;
-			});
-		}
-		this.arrCountMessages.push({ location, count });
-	}
-
-	setArrEndMessagesId(location: string, id: number) {
-		let result = this.arrEndMessagesId.find((item) => item.location === location);
-		if (result?.location) {
-			return this.arrEndMessagesId.map((elem) => {
-				if (elem.location === location) elem.id = id;
-			});
-		}
-		this.arrEndMessagesId.push({ location, id });
 	}
 
 	setAdmin(bool: boolean) {
@@ -363,59 +334,12 @@ export default class Store {
 		}
 	}
 
-	async sendMessage(id_user: number, secret: string, location: string, form: MessageForm) {
+	async sendMessage(dto: SendedMessage) {
 		try {
-			const response = await MessagesService.sendMessage(id_user, secret, location, form);
+			const response = await MessagesService.sendMessage(dto);
 			return {data: response.data};
 		} catch (e: any) {
-			console.log(e, 'e');
 			return { error: e.response?.data?.message };
-		}
-	}
-
-	async getCountMessages() {
-		try {
-			const arrResidencyUser: string[] = ['Земля'];
-			for (const [key, val] of Object.entries(this.user.residency)) {
-				if (['locality', 'region', 'country'].includes(key)) {
-					arrResidencyUser.push(val);
-				}
-			}
-			const promises = arrResidencyUser.reverse().map(async (location) => {
-				const dataPlus = await MessagesService.getCountNoReadMessages(this.user.id, this.user.secret, location);
-				return { location, count: dataPlus.data };
-			});
-
-			const results = await Promise.all(promises);
-			results.forEach(({ location, count }) => {
-				this.setArrCountMessages(location, count);
-			});
-		} catch (e: any) {
-			console.log(`Ошибка в getCountMessages: ${e}`);
-			// return { data: e.response?.data?.message };
-		}
-	}
-
-	async getEndReadMessagesId() {
-		try {
-			const arrResidencyUser: string[] = ['Земля'];
-			for (const [key, val] of Object.entries(this.user.residency)) {
-				if (['locality', 'region', 'country'].includes(key)) {
-					arrResidencyUser.push(val);
-				}
-			}
-			const promises = arrResidencyUser.reverse().map(async (location) => {
-				const dataPlus = await MessagesService.getEndReadMessagesId(this.user.id, this.user.secret, location);
-				return { location, id: dataPlus.data };
-			});
-
-			const results = await Promise.all(promises);
-			results.forEach(({ location, id }) => {
-				this.setArrEndMessagesId(location, id);
-			});
-		} catch (e: any) {
-			console.log(`Ошибка в getEndReadMessagesId: ${e}`);
-			// return { data: e.response?.data?.message };
 		}
 	}
 }

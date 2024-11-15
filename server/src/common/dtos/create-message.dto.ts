@@ -22,11 +22,7 @@ export class CreateMessageDto {
     })
     @IsString({ message: 'Должно быть строкой' })
     location: string;
-
-    // @ApiProperty({
-    //   example: 'Сообщение',
-    //   description: 'Текст сообщения',
-    // })
+    
     form: {
         message: string;
         files: any;

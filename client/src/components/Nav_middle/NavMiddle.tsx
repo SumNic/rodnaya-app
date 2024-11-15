@@ -10,11 +10,12 @@ import {
 } from "../../utils/consts";
 import logo_40x40 from "../../images/svg/Logotip-Rodnoj-parti-40x40.svg";
 import { Badge, Menu } from "antd";
-import { useStoreContext } from "../../contexts/StoreContext";
 
 import { useThemeContext } from "../../contexts/ThemeContext";
 
 import styles from "./Nav_middle.module.css"
+import { observer } from "mobx-react-lite";
+import { useMessageContext } from "../../contexts/MessageContext";
 
 interface Item {
     item?: string;
@@ -22,11 +23,12 @@ interface Item {
 
 const NavMiddle: React.FC<Item> = ({ item = "" }) => {
     const [isCollapse, setIsCollapse] = useState<boolean>(true)
-
-    const { store } = useStoreContext();
+    
     const { currentWidth } = useThemeContext();
 
-    const allCountAreZero = store.arrCountMessages.every(item => item.count <= 0);
+    const { arrCountMessages } = useMessageContext()
+
+    const allCountAreZero = arrCountMessages?.every(item => item.count <= 0);
 
     const items = [
         {
@@ -132,4 +134,4 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
     );
 };
 
-export default NavMiddle;
+export default observer(NavMiddle);
