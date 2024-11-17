@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles-auth.decorator';
 import { AuthService } from 'src/auth/auth.service';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -11,7 +10,7 @@ export class RolesGuard implements CanActivate {
         private authService: AuthService,
     ) {}
 
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         try {
             const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
@@ -30,7 +29,7 @@ export class RolesGuard implements CanActivate {
                 });
             }
 
-            const checkToken = this.authService.handleValidateUserWithRoles({
+            const checkToken = await this.authService.handleValidateUserWithRoles({
                 token,
                 requiredRoles,
             });
@@ -38,8 +37,7 @@ export class RolesGuard implements CanActivate {
 
             this.addUser(checkToken, context);
             return true;
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
             throw new UnauthorizedException();
         }
     }

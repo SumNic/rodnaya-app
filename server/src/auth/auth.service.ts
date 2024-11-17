@@ -37,82 +37,98 @@ export class AuthService {
     }
 
     async handleValidateUserWithRoles(data: any): Promise<Boolean> {
-        const checkToken = await this.jwtService.verifyAsync(data.token);
-        const checkRoles = await checkToken.roles.some((role: any) => data.requiredRoles.includes(role.value));
+        try {
+            const checkToken = await this.jwtService.verifyAsync(data.token);
+            const checkRoles = await checkToken.roles.some((role: any) => data.requiredRoles.includes(role.value));
 
-        if (checkToken && checkRoles) {
-            return checkToken;
+            if (checkToken && checkRoles) {
+                return checkToken;
+            }
+
+            throw new HttpException('Нет доступа', HttpStatus.UNAUTHORIZED);
+        } catch (error) {
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        throw new HttpException('Нет доступа', HttpStatus.UNAUTHORIZED);
     }
 
     async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserAndTokens> {
-        const candidate = await this.userService.getUserWithoutMessages(dto.id);
+        try {
+            const candidate = await this.userService.getUserWithoutMessages(dto.id);
 
-        if (!candidate) {
-            throw new HttpException('Данный пользователь не существует.', HttpStatus.UNAUTHORIZED);
+            if (!candidate) {
+                throw new HttpException('Данный пользователь не существует.', HttpStatus.UNAUTHORIZED);
+            }
+
+            if (dto.secret !== candidate.secret) {
+                throw new HttpException('Нет доступа.', HttpStatus.UNAUTHORIZED);
+            }
+
+            if (!candidate.isRegistration) {
+                // Если пользователь не зарегистрирован
+                candidate.isRegistration = true;
+                await candidate.save();
+            }
+
+            return await this.login(candidate, dto.uuid);
+        } catch (error) {
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        if (dto.secret !== candidate.secret) {
-            throw new HttpException('Нет доступа.', HttpStatus.UNAUTHORIZED);
-        }
-
-        if (!candidate.isRegistration) {
-            // Если пользователь не зарегистрирован
-            candidate.isRegistration = true;
-            await candidate.save();
-        }
-
-        return await this.login(candidate, dto.uuid);
     }
 
     private async login(candidate: User, uuid: string): Promise<OutputUserAndTokens> {
-        const tokens = await this.tokenService.generateTokens(candidate); // Создаем пару токен и рефреш токен
-        const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5); // Хешируем рефреш токен
+        try {
+            const tokens = await this.tokenService.generateTokens(candidate); // Создаем пару токен и рефреш токен
+            const hashRefreshToken = await bcrypt.hash(tokens.refreshToken, 5); // Хешируем рефреш токен
 
-        // Проверяем, есть ли токен для устройства с указанным uuid в базе данных
-        const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid);
+            // Проверяем, есть ли токен для устройства с указанным uuid в базе данных
+            const tokenFromDataBase = await this.tokenService.getRefreshToken(uuid);
 
-        if (!tokenFromDataBase) {
-            const newRefreshToken = await this.tokenService.createRefreshToken({
-                uuid,
-                refreshToken: hashRefreshToken,
-            });
-            await candidate.$add('tokens', [newRefreshToken.id]);
-            candidate.tokens = [newRefreshToken];
-            await candidate.save();
-        } else {
-            const updateRefreshToken = await this.tokenService.updateRefreshToken({
-                uuid,
-                refreshToken: hashRefreshToken,
-            });
+            if (!tokenFromDataBase) {
+                const newRefreshToken = await this.tokenService.createRefreshToken({
+                    uuid,
+                    refreshToken: hashRefreshToken,
+                });
+                await candidate.$add('tokens', [newRefreshToken.id]);
+                candidate.tokens = [newRefreshToken];
+                await candidate.save();
+            } else {
+                const updateRefreshToken = await this.tokenService.updateRefreshToken({
+                    uuid,
+                    refreshToken: hashRefreshToken,
+                });
+            }
+            return { user: candidate, secret: candidate.secret, ...tokens };
+        } catch (error) {
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return { user: candidate, secret: candidate.secret, ...tokens };
     }
 
     async deleteProfile(id: number, secret: string): Promise<any> {
-        const user = await this.userService.getUser(id);
+        try {
+            const user = await this.userService.getUser(id);
 
-        await this.tokenService.removeRefreshToken({
-            id,
-            uuid: null,
-            allDeviceExit: true,
-        });
-        user.roles = null;
-        user.declaration = null;
-        user.tokens = null;
+            await this.tokenService.removeRefreshToken({
+                id,
+                uuid: null,
+                allDeviceExit: true,
+            });
+            user.roles = null;
+            user.declaration = null;
+            user.tokens = null;
 
-        user.update({
-            first_name: null,
-            last_name: null,
-            photo_50: null,
-            photo_max: null,
-            isRegistration: false,
-            isDelProfile: true,
-        });
-        await user.save();
-        return;
+            user.update({
+                first_name: null,
+                last_name: null,
+                photo_50: null,
+                photo_max: null,
+                isRegistration: false,
+                isDelProfile: true,
+            });
+            await user.save();
+            return;
+        } catch (error) {
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     async restoreProfile(id: number, secret: string): Promise<boolean> {

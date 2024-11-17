@@ -10,7 +10,7 @@ export class JwtRefreshGuard implements CanActivate {
         private readonly tokenService: TokensService,
     ) {}
 
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         try {
             const req = context.switchToHttp().getRequest();
             const authHeader = req.headers.authorization;
@@ -23,7 +23,7 @@ export class JwtRefreshGuard implements CanActivate {
                 });
             }
 
-            const user = this.tokenService.handleValidateRefreshToken(token);
+            const user = await this.tokenService.handleValidateRefreshToken(token);
             req.user = user;
             req.refreshToken = token;
             return true;

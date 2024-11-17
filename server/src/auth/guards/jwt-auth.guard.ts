@@ -6,7 +6,7 @@ import { AuthService } from 'src/auth/auth.service';
 export class JwtAuthGuard implements CanActivate {
     constructor(private authService: AuthService) {}
 
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         try {
             const req = context.switchToHttp().getRequest();
             const authHeader = req.headers.authorization;
@@ -19,7 +19,7 @@ export class JwtAuthGuard implements CanActivate {
                 });
             }
 
-            const user = this.authService.handleValidateUser(token);
+            const user = await this.authService.handleValidateUser(token);
             req.user = user;
             return true;
         } catch (e) {

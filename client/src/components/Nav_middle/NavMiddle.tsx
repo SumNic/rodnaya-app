@@ -60,11 +60,11 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
                     className="middle__link"
                 >
                     Сообщения
-                    {!allCountAreZero ? (
+                    {/* {!allCountAreZero ? (
                         <Badge style={{ boxShadow: "none" }} dot></Badge>
                     ) : (
                         ""
-                    )}
+                    )} */}
                 </Link>
             ),
         },
@@ -76,11 +76,11 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
                     className="middle__link"
                 >
                     Группы
-                    {!allCountAreZero ? (
+                    {/* {!allCountAreZero ? (
                         <Badge style={{ boxShadow: "none" }} dot></Badge>
                     ) : (
                         ""
-                    )}
+                    )} */}
                 </Link>
             ),
         },

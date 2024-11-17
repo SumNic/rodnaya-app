@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
 import { ROLES } from 'src/common/constants/roles';
 import { AddRoleDto } from 'src/common/dtos/add-role.dto';
 import { BlockedUserDto } from 'src/common/dtos/blocked-user.dto';
@@ -12,6 +11,7 @@ import { GetDeclarationDto } from 'src/common/dtos/get-declaration.dto';
 import { UpdatePersonaleDto } from 'src/common/dtos/update-personale.dto';
 import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
 import { Token } from 'src/common/models/users/tokens.model';
 import { User } from 'src/common/models/users/user.model';
 import { DeclarationService } from 'src/declaration/declaration.service';
@@ -176,14 +176,14 @@ export class UsersService {
                 include: [
                     { model: Token },
                     { model: Residency},
-                    { model: Token},
+                    { model: Role},
                 ]
             });
 
             if (!user) return;
             return user;
         } catch (err) {
-            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR); 
         }
     }
 

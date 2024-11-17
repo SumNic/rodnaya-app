@@ -25,59 +25,64 @@ const Admin: React.FC = () => {
 	const [selectedActionWithFoul, setSelectedActionWithFoul] = useState<number | null>(null);
 	const [selectedPunishment, setSelectedPunishment] = useState<number | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-    const [ isChangeListFoulMessages, setIsChangeListFoulMessages ] = useState(false);
+	const [isChangeListFoulMessages, setIsChangeListFoulMessages] = useState(false);
 
-    const { store } = useStoreContext();
+	const { store } = useStoreContext();
 
 	useEffect(() => {
-        store.checkAdmin();
+		store.checkAdmin();
 		const fetchFoulMessages = async () => {
-			const allFoulMessages = await AdminService.getFoulMessages();
-			const groupedMessages: Record<number, FoulSendMessage> = {};
-			allFoulMessages.data.forEach((message, index) => {
-				if (groupedMessages[message.id_foul_message]) {
-					groupedMessages[message.id_foul_message].id_cleaners.push(message.id_cleaner);
+			try {
+				const allFoulMessages = await AdminService.getFoulMessages();
+				const groupedMessages: Record<number, FoulSendMessage> = {};
+				allFoulMessages.data.forEach((message, index) => {
+					if (groupedMessages[message.id_foul_message]) {
+						groupedMessages[message.id_foul_message].id_cleaners.push(message.id_cleaner);
 
-					groupedMessages[message.id_foul_message].selectedRules.push(...message.selectedRules);
+						groupedMessages[message.id_foul_message].selectedRules.push(...message.selectedRules);
 
-					groupedMessages[message.id_foul_message].selectedActionWithFoul[message.selectedActionWithFoul] =
-						(groupedMessages[message.id_foul_message].selectedActionWithFoul[message.selectedActionWithFoul] || 0) + 1;
+						groupedMessages[message.id_foul_message].selectedActionWithFoul[message.selectedActionWithFoul] =
+							(groupedMessages[message.id_foul_message].selectedActionWithFoul[message.selectedActionWithFoul] || 0) +
+							1;
 
-					groupedMessages[message.id_foul_message].selectedPunishment[message.selectedPunishment] =
-						(groupedMessages[message.id_foul_message].selectedPunishment[message.selectedPunishment] || 0) + 1;
-				} else {
-					groupedMessages[message.id_foul_message] = {
-						id: `message-${index}`, // Добавлен уникальный ключ
-						id_foul_message: message.id_foul_message,
-						foul_message: {} as IPost,
-						id_cleaner_count: 1,
-						id_cleaners: [message.id_cleaner],
-						selectedRules: message.selectedRules,
-						selectedActionWithFoul: { [message.selectedActionWithFoul]: 1 },
-						selectedPunishment: { [message.selectedPunishment]: 1 },
+						groupedMessages[message.id_foul_message].selectedPunishment[message.selectedPunishment] =
+							(groupedMessages[message.id_foul_message].selectedPunishment[message.selectedPunishment] || 0) + 1;
+					} else {
+						groupedMessages[message.id_foul_message] = {
+							id: `message-${index}`, // Добавлен уникальный ключ
+							id_foul_message: message.id_foul_message,
+							foul_message: {} as IPost,
+							id_cleaner_count: 1,
+							id_cleaners: [message.id_cleaner],
+							selectedRules: message.selectedRules,
+							selectedActionWithFoul: { [message.selectedActionWithFoul]: 1 },
+							selectedPunishment: { [message.selectedPunishment]: 1 },
+						};
+					}
+				});
+				const arrIdFoulMessages = Object.values(groupedMessages).map((message) => {
+					return message.id_foul_message;
+				});
+				const promises = arrIdFoulMessages.map(async (id) => {
+					const dataPlus = await MessagesService.getMessageFromId(id);
+					return dataPlus.data;
+				});
+
+				const results = await Promise.all(promises);
+
+				// Вычисляем количество уникальных id_cleaner для каждого id_foul_message
+				const messages = Object.values(groupedMessages).map((message, index) => {
+					return {
+						...message,
+						id_cleaner_count: new Set(message.id_cleaners).size,
+						foul_message: results[index],
 					};
-				}
-			});
-			const arrIdFoulMessages = Object.values(groupedMessages).map((message) => {
-				return message.id_foul_message;
-			});
-			const promises = arrIdFoulMessages.map(async (id) => {
-				const dataPlus = await MessagesService.getMessageFromId(id);
-				return dataPlus.data;
-			});
+				});
 
-			const results = await Promise.all(promises);
-
-			// Вычисляем количество уникальных id_cleaner для каждого id_foul_message
-			const messages = Object.values(groupedMessages).map((message, index) => {
-				return {
-					...message,
-					id_cleaner_count: new Set(message.id_cleaners).size,
-					foul_message: results[index],
-				};
-			});
-
-			setFoulMessages(messages);
+				setFoulMessages(messages);
+			} catch (error) {
+				console.error(` Ошибка в fetchFoulMessages: ${error}`);
+			}
 		};
 		fetchFoulMessages();
 	}, [isChangeListFoulMessages]);
@@ -93,30 +98,30 @@ const Admin: React.FC = () => {
 		try {
 			const selectedActionIndex = actionOptions.indexOf(`${selectedActionWithFoul}`);
 			const selectedPunishmentIndex = punishmentOptions.indexOf(`${selectedPunishment}`);
-            if (selectedFoulMessage) {
-                if (selectedActionIndex > 0) {
-                    const isDeletedMessages = await MessagesService.blockedMessages(
-                        selectedFoulMessage.foul_message.id,
-                        selectedActionIndex
-                    );
-                    if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите ошибку позже.')
-                    message.success(`${isDeletedMessages.data}`);
-                }
-                if (selectedPunishmentIndex > 0) {
-                    const isBlockedUser = await UserService.blockedUser(
-                        selectedFoulMessage.foul_message.userId,
-                        selectedPunishmentIndex
-                    );
-                if (!isBlockedUser.data) return message.error('Произошла ошибка на сервере. Повторите ошибку позже.')
-                    message.success(`${isBlockedUser.data}`);
-                }
-                const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(selectedFoulMessage.foul_message.id)
-                if (isCleaningIsComplete.data) setIsModalOpen(false);
-                setIsChangeListFoulMessages(prev => !prev)
-            }
+			if (selectedFoulMessage) {
+				if (selectedActionIndex > 0) {
+					const isDeletedMessages = await MessagesService.blockedMessages(
+						selectedFoulMessage.foul_message.id,
+						selectedActionIndex
+					);
+					if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите ошибку позже.');
+					message.success(`${isDeletedMessages.data}`);
+				}
+				if (selectedPunishmentIndex > 0) {
+					const isBlockedUser = await UserService.blockedUser(
+						selectedFoulMessage.foul_message.userId,
+						selectedPunishmentIndex
+					);
+					if (!isBlockedUser.data) return message.error('Произошла ошибка на сервере. Повторите ошибку позже.');
+					message.success(`${isBlockedUser.data}`);
+				}
+				const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(selectedFoulMessage.foul_message.id);
+				if (isCleaningIsComplete.data) setIsModalOpen(false);
+				setIsChangeListFoulMessages((prev) => !prev);
+			}
 		} catch (err) {
-            console.log(err, 'err');
-        }
+			console.log(err, 'err');
+		}
 
 		setIsModalOpen(false);
 	};
@@ -212,25 +217,31 @@ const Admin: React.FC = () => {
 
 	return (
 		<>
-			<Table dataSource={foulMessages} columns={columns} rowKey="id" />
-			<Modal title="Edit Foul Message" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-				<h3>Message Actions</h3>
-				<Radio.Group
-					options={actionOptions}
-					value={selectedActionWithFoul !== null ? selectedActionWithFoul : undefined}
-					onChange={(e) => setSelectedActionWithFoul(e.target.value)}
-					optionType="button"
-					buttonStyle="solid"
-				/>
-				<h3>Punishment</h3>
-				<Radio.Group
-					options={punishmentOptions}
-					value={selectedPunishment !== null ? selectedPunishment : undefined}
-					onChange={(e) => setSelectedPunishment(e.target.value)}
-					optionType="button"
-					buttonStyle="solid"
-				/>
-			</Modal>
+			{store.isAdmin ? (
+				<>
+					<Table dataSource={foulMessages} columns={columns} rowKey="id" />
+					<Modal title="Edit Foul Message" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+						<h3>Message Actions</h3>
+						<Radio.Group
+							options={actionOptions}
+							value={selectedActionWithFoul !== null ? selectedActionWithFoul : undefined}
+							onChange={(e) => setSelectedActionWithFoul(e.target.value)}
+							optionType="button"
+							buttonStyle="solid"
+						/>
+						<h3>Punishment</h3>
+						<Radio.Group
+							options={punishmentOptions}
+							value={selectedPunishment !== null ? selectedPunishment : undefined}
+							onChange={(e) => setSelectedPunishment(e.target.value)}
+							optionType="button"
+							buttonStyle="solid"
+						/>
+					</Modal>
+				</>
+			) : (
+				''
+			)}
 		</>
 	);
 };
