@@ -20,12 +20,7 @@ export class AuthService {
     ) {}
 
     async handleValidateUser(token: any): Promise<Boolean> {
-        try {
-            return await this.jwtService.verify(token);
-        } catch (err) {
-            console.error(err);
-            return false;
-        }
+        return await this.jwtService.verify(token);
     }
 
     async logout(dto: LogoutUserDto) {
@@ -39,6 +34,7 @@ export class AuthService {
     async handleValidateUserWithRoles(data: any): Promise<Boolean> {
         try {
             const checkToken = await this.jwtService.verifyAsync(data.token);
+            console.log(checkToken, 'checkToken');
             const checkRoles = await checkToken.roles.some((role: any) => data.requiredRoles.includes(role.value));
 
             if (checkToken && checkRoles) {

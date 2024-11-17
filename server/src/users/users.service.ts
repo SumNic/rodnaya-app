@@ -142,10 +142,7 @@ export class UsersService {
         try {
             const user = await this.usersRepository.findOne({
                 where: { id },
-                include: [
-                    { model: Residency },
-                    { model: Declaration }
-                ]
+                include: [{ model: Residency }, { model: Declaration }, { model: Role }],
             });
 
             if (!user) return;
@@ -159,7 +156,7 @@ export class UsersService {
         try {
             const user = await this.usersRepository.findOne({
                 where: { id },
-                include: [{ model: Declaration }]
+                include: [{ model: Declaration }],
             });
 
             if (!user) return;
@@ -173,17 +170,13 @@ export class UsersService {
         try {
             const user = await this.usersRepository.findOne({
                 where: { id },
-                include: [
-                    { model: Token },
-                    { model: Residency},
-                    { model: Role},
-                ]
+                include: [{ model: Token }, { model: Residency }, { model: Role }],
             });
 
             if (!user) return;
             return user;
         } catch (err) {
-            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR); 
+            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -379,7 +372,7 @@ export class UsersService {
                 throw new HttpException(`${newDateEditResidency}`, HttpStatus.NOT_FOUND);
             }
         } catch (err) {
-            console.log(err, `Ошибка в createResidencyForUser: ${err}` )
+            console.log(err, `Ошибка в createResidencyForUser: ${err}`);
             throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

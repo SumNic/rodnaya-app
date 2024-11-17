@@ -5,13 +5,6 @@ import { ResidencyUser } from "../models/ResidencyUser";
 import { VkSdkResponse } from "../models/response/VkSdkResponse";
 
 export default class AuthService {
-    // static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
-    //     return $api.post<AuthResponse>('/login', {email, password})
-    // }
-
-    // static async registration(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
-    //     return $api.post<AuthResponse>('/registration', {email, password})
-    // }
 
     static async logout(id: number, uuid: string | null, allDeviceExit: boolean): Promise<void> {
         return $api.post('/logout', {id: id, uuid: uuid, allDeviceExit: allDeviceExit})
