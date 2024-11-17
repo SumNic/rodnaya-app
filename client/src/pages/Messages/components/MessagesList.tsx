@@ -16,7 +16,6 @@ import { message, Select, Spin } from 'antd';
 import styles from './MessagesList.module.css';
 import FoulModal from '../FoulModal/FoulModal.tsx';
 import AdminService from '../../../services/AdminService.ts';
-// import { IPost } from '../../../models/IPost.ts';
 
 interface Props {
 	location: string;
@@ -31,7 +30,6 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(({ location, refPrev, ref
 	const [idFoulMessage, setIdFoulMessage] = useState<number>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [isScrolling, setIsScrolling] = useState(false);
-	// const [ isAddNewMessage, setIsAddNewMessage ] = useState(false);
 	let scrollTimeout: NodeJS.Timeout;
 
 	const { store } = useStoreContext();
@@ -49,10 +47,6 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(({ location, refPrev, ref
 
 	const postsFromLocation = posts?.filter((elem) => elem.location === location);
 	const postsCurrent = postsFromLocation?.[0]?.postsCurrent;
-
-	// const elementsRef = useRef<React.RefObject<HTMLDivElement>[] | null>(useMemo(() => {
-	// 	return postsCurrent ? postsCurrent.map(() => createRef<HTMLDivElement>()) : null;
-	// }, [isAddNewMessage]))
 
 	const elementsRef = useRef<React.RefObject<HTMLDivElement>[] | null>(
 		postsCurrent ? postsCurrent.map(() => createRef<HTMLDivElement>()) : null
@@ -313,9 +307,9 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(({ location, refPrev, ref
 									{post?.files?.map((file) => {
 										let originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8');
 										return (
-											<a href={`${DOMEN}/${file.fileNameUuid}`} target="_blank" key={file.id} className="name__file">
+											<Link to={`${DOMEN}/${file.fileNameUuid}`} target="_blank" key={file.id} className="name__file">
 												{originFileName}
-											</a>
+											</Link>
 										);
 									})}
 								</div>

@@ -48,7 +48,7 @@ export class AuthService {
     }
 
     async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserAndTokens> {
-        const candidate = await this.userService.getUser(dto.id);
+        const candidate = await this.userService.getUserWithoutMessages(dto.id);
 
         if (!candidate) {
             throw new HttpException('Данный пользователь не существует.', HttpStatus.UNAUTHORIZED);

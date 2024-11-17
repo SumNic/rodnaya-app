@@ -8,10 +8,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import MessagesService from '../../services/MessagesService';
 import MessagesList from './components/MessagesList';
 import UploadFiles from '../../components/UploadFiles';
-import SendMessage from '../../components/SendMessage';
+import SendMessage from '../../components/SendMessage/SendMessage.tsx';
 import icon_attach from '../../images/clippy-icon1.png';
 import { useStoreContext } from '../../contexts/StoreContext';
-import { HOME_ROUTE, LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
+import { COUNT_RESPONSE_POSTS, HOME_ROUTE, LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
 import { Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
 import { useMessageContext } from '../../contexts/MessageContext.ts';
@@ -57,6 +57,15 @@ const Message: React.FC = () => {
 	const location: string | undefined = params.location;
 
 	useEffect(() => {
+		const postsFromLocation = posts?.filter((elem) => elem.location === location);
+		if (postsFromLocation && postsFromLocation.length < COUNT_RESPONSE_POSTS) {
+			setIsScrollEnd((prev) => {
+				if (location) return { ...prev, [location]: true };
+			});
+			setIsScrollStart((prev) => {
+				if (location) return { ...prev, [location]: true };
+			});
+		}
 		setIsScrollEnd((prev) => {
 			if (location) return { ...prev, [location]: false };
 		});
@@ -84,8 +93,10 @@ const Message: React.FC = () => {
 				createdAt: messageDataSocket.createdAt,
 			};
 
+			const postsFromLocation = posts?.filter((elem) => elem.location === location);
+
 			if (
-				nameLocal === messageDataSocket.resydency && isScrollEnd && isScrollEnd[location]
+				nameLocal === messageDataSocket.resydency && ((isScrollEnd && isScrollEnd[location]) || (postsFromLocation && postsFromLocation.length < COUNT_RESPONSE_POSTS) )
 			) {
 				setPosts((prev) => {
 					if (prev?.length && newPost) {
@@ -361,7 +372,7 @@ const Message: React.FC = () => {
 								onScroll={handleScroll}
 							/>
 						)}
-						<div id="messages">
+						<div id={styles.messages}>
 							{timeRemaining !== null ? (
 								<div className={styles['blocked_text']}>
 									<p>Вы заблокированы за нарушение правил.</p>

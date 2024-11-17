@@ -23,7 +23,7 @@ export default class UserService {
         return $api.get<DeclarationUser>(`/get-declaration/${id}`)
     }
     
-    static async udatePersonaleData(secret: string, form: PersonaleUser): Promise<AxiosResponse<IUser>> {
+    static async updatePersonaleData(secret: string, form: PersonaleUser): Promise<AxiosResponse<IUser>> {
         return $api.post<IUser>(`/updata-personale/${secret}`, form)
     }
 

@@ -29,7 +29,7 @@ export class MessagesService {
 
     async addMessage(dto: CreateMessageDto): Promise<NewMessage> {
         try {
-            const user = await this.usersService.getUser(dto.id_user);
+            const user = await this.usersService.getUserWithResidency(dto.id_user);
 
             if (user && user.secret === dto.secret) {
                 const locationUser = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
@@ -83,9 +83,8 @@ export class MessagesService {
     }
 
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
-        console.log(dto, 'dto');
         try {
-            const user = await this.usersService.getUser(+dto.id);
+            const user = await this.usersService.getUserWithResidency(+dto.id);
             const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля'
 
             const endReadMessagesId = await this.getEndReadMessagesId({
@@ -120,7 +119,7 @@ export class MessagesService {
 
     async getNextMessage(dto: GetMessagesDto): Promise<Messages[]> {
         try {
-            const user = await this.usersService.getUser(+dto.id);
+            const user = await this.usersService.getUserWithResidency(+dto.id);
 
             const end_id = +dto.start_message_id;
             const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
@@ -148,7 +147,7 @@ export class MessagesService {
 
     async getPreviousMessage(dto: GetMessagesDto): Promise<Messages[]> {
         try {
-            const user = await this.usersService.getUser(+dto.id);
+            const user = await this.usersService.getUserWithResidency(+dto.id);
 
             const end_id = +dto.start_message_id;
             const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
@@ -177,7 +176,7 @@ export class MessagesService {
 
     async getCountNoReadMessages(dto: EndMessageDto): Promise<RespCountNoReadMessagesDto[]> {
         try {
-            const user = await this.usersService.getUser(+dto.id);
+            const user = await this.usersService.getUserWithResidency(+dto.id);
 
             if (user && user.secret === dto.secret) {
                 const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
@@ -205,7 +204,7 @@ export class MessagesService {
 
     async getEndReadMessagesId(dto: EndMessageDto): Promise<RespIdNoReadMessagesDto[]> {
         try {
-            const user = await this.usersService.getUser(+dto.id);
+            const user = await this.usersService.getUserWithResidency(+dto.id);
 
             if (user && user.secret === dto.secret) {
                 const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];

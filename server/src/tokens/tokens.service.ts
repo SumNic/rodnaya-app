@@ -80,7 +80,7 @@ export class TokensService {
             throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);
         }
 
-        const user = await this.userService.getUser(token.userId);
+        const user = await this.userService.getUserWithResidency(token.userId);
 
         if (!user) {
             throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);

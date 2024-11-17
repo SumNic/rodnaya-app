@@ -10,6 +10,9 @@ import { CreateResidencyDto } from 'src/common/dtos/create-residency.dto';
 import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { GetDeclarationDto } from 'src/common/dtos/get-declaration.dto';
 import { UpdatePersonaleDto } from 'src/common/dtos/update-personale.dto';
+import { Declaration } from 'src/common/models/users/declaration.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Token } from 'src/common/models/users/tokens.model';
 import { User } from 'src/common/models/users/user.model';
 import { DeclarationService } from 'src/declaration/declaration.service';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
@@ -41,7 +44,7 @@ export class UsersService {
             await user.$set('roles', [role.id]);
             user.roles = [role];
 
-            const newUser = await this.getUser(user.id);
+            const newUser = await this.getUserCleer(user.id);
             return newUser;
         } catch (err) {
             throw new HttpException(`Ошибка в createUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -68,7 +71,7 @@ export class UsersService {
             user.roles = [role];
             await user.save();
 
-            const newUser = await this.getUser(user.id);
+            const newUser = await this.getUserCleer(user.id);
             return newUser;
         } catch (err) {
             throw new HttpException(`Ошибка в updateUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,7 +109,7 @@ export class UsersService {
     async getUsersByResidence(residency: string): Promise<User[]> {
         try {
             const users = await this.usersRepository.findAll({
-                include: { all: true },
+                include: { model: Residency },
             });
             const usersFilterResidency = users.filter((user) => {
                 return user.residency.locality === residency || user.residency.region === residency || user.residency.country === residency;
@@ -135,11 +138,72 @@ export class UsersService {
         }
     }
 
+    async getUserWithResidency(id: number): Promise<User> {
+        try {
+            const user = await this.usersRepository.findOne({
+                where: { id },
+                include: [
+                    { model: Residency },
+                    { model: Declaration }
+                ]
+            });
+
+            if (!user) return;
+            return user;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getUserWihtDeclaration(id: number): Promise<User> {
+        try {
+            const user = await this.usersRepository.findOne({
+                where: { id },
+                include: [{ model: Declaration }]
+            });
+
+            if (!user) return;
+            return user;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getUserWithoutMessages(id: number): Promise<User> {
+        try {
+            const user = await this.usersRepository.findOne({
+                where: { id },
+                include: [
+                    { model: Token },
+                    { model: Residency},
+                    { model: Token},
+                ]
+            });
+
+            if (!user) return;
+            return user;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getUserCleer(id: number): Promise<User> {
+        try {
+            const user = await this.usersRepository.findOne({
+                where: { id },
+            });
+
+            if (!user) return;
+            return user;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     async getUserByVkId(id: number): Promise<User> {
         try {
             return await this.usersRepository.findOne({
                 where: { vk_id: id },
-                include: { all: true },
             });
         } catch (err) {
             throw new HttpException(`Ошибка в getUserByVkId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -267,7 +331,7 @@ export class UsersService {
 
     async checkBlocked(userId: number): Promise<Date> {
         try {
-            const user = await this.getUser(userId);
+            const user = await this.getUserCleer(userId);
             if (user && user.blockeduntil) return user.blockeduntil;
             return null;
         } catch (err) {
@@ -277,7 +341,7 @@ export class UsersService {
 
     async createResidencyForUser(dto: CreateResidencyDto): Promise<User> {
         try {
-            const user = await this.getUser(dto.id);
+            const user = await this.getUserCleer(dto.id);
 
             if (dto.secret !== user.secret) {
                 throw new HttpException('Нет доступа', HttpStatus.FORBIDDEN);
@@ -308,20 +372,21 @@ export class UsersService {
                     }),
                 );
 
-                const userNew = await this.getUser(dto.id);
+                const userNew = await this.getUserCleer(dto.id);
 
                 return userNew;
             } else {
                 throw new HttpException(`${newDateEditResidency}`, HttpStatus.NOT_FOUND);
             }
         } catch (err) {
+            console.log(err, `Ошибка в createResidencyForUser: ${err}` )
             throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     async addDeclaration(dto: CreateDeclarationDto): Promise<User> {
         try {
-            const user = await this.getUser(dto.id);
+            const user = await this.getUserWihtDeclaration(dto.id);
 
             if (dto.secret !== user.secret) {
                 throw new HttpException('Нет доступа', HttpStatus.FORBIDDEN);
@@ -335,7 +400,7 @@ export class UsersService {
             } else {
                 await this.declarationService.updateDeclaration(dto);
             }
-            const userFromDeclaration = await this.getUser(dto.id);
+            const userFromDeclaration = await this.getUserWihtDeclaration(dto.id);
 
             return userFromDeclaration;
         } catch (err) {
@@ -378,7 +443,7 @@ export class UsersService {
 
     async udatePersonaleData(secret: string, form: UpdatePersonaleDto): Promise<User> {
         try {
-            const user = await this.getUser(form.user_id);
+            const user = await this.getUserCleer(form.user_id);
 
             if (secret !== user.secret) {
                 throw new HttpException('Нет доступа', HttpStatus.FORBIDDEN);
@@ -386,7 +451,7 @@ export class UsersService {
 
             const personale = await this.updatePersonale(form);
 
-            const userFromPersonale = await this.getUser(form.user_id);
+            const userFromPersonale = await this.getUserCleer(form.user_id);
 
             return userFromPersonale;
         } catch (err) {

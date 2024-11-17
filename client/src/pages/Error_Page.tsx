@@ -2,12 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
-import MyButton from '../components/MyButton';
 import { HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
+import { Button } from 'antd';
+import React from 'react';
 
-function Error_Page() {
+const Error_Page: React.FC = () => {
 
     const navigate = useNavigate()
     const { store } = useStoreContext();
@@ -42,7 +43,7 @@ function Error_Page() {
                             <h2 className="My__error_text" style={{fontSize: "17px"}}>
                                 {store.isMessageError ? store.isMessageError : "Произошла неизвестная ошибка"}		
                             </h2>
-                            <MyButton text={"Вернуться на главную"} func={returnHome} />
+                            <Button onClick={returnHome}>Вернуться на главную</Button>
                         </div>
 
                         <div className="main__screen-flag">

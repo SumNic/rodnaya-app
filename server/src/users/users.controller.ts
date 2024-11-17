@@ -113,6 +113,7 @@ export class UsersController {
         status: HttpStatus.CREATED,
         description: 'Операция прошла успешно.',
     })
+    @UseGuards(JwtAuthGuard)
     async createResidency(@Body() dto: CreateResidencyDto) {
         return await this.usersService.createResidencyForUser(dto);
     }

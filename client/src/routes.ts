@@ -17,7 +17,7 @@ import {
 	RESTORE_PROFILE_ROUTE,
 	RULES_ROUTE,
 	VK_CALLBACK_ROUTE,
-	// WORKGROUP_ROUTE,
+	WORKGROUP_ROUTE,
 } from './utils/consts';
 import Home from './pages/Home';
 import VkCallback from './pages/VkCallback';
@@ -29,11 +29,11 @@ import Founders from './pages/Founders';
 import Personale_kard from './pages/Personale_kard';
 import RestoreUser from './pages/RestoreUser';
 import Rules from './pages/Rules';
-// import Workgroup from './pages/Workgroup/Workgroup';
 import Mail from './pages/Mail';
 import Messages from './pages/Messages/Messages.tsx';
 import Blocked from './pages/Blocked.tsx';
 import Donations from './pages/Donations.tsx';
+import Workgroup from './pages/Workgroup/Workgroup.tsx';
 
 export const adminRoutes = [
 	{
@@ -55,10 +55,10 @@ export const authRoutes = [
 		path: EXIT_ROUTE,
 		Component: Exit,
 	},
-	// {
-	// 	path: `${WORKGROUP_ROUTE}/:location`,
-	// 	Component: Workgroup,
-	// },
+	{
+		path: `${WORKGROUP_ROUTE}/:location`,
+		Component: Workgroup,
+	},
 	{
 		path: MAIL_ROUTE,
 		Component: Mail,

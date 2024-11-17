@@ -1,55 +1,78 @@
 import { observer } from 'mobx-react-lite';
-// import { Context } from '..';
-import MyButton from './MyButton';
 import { useStoreContext } from '../contexts/StoreContext';
+import { Button, Form, Input, message } from 'antd';
+import { useState } from 'react';
 
-function PersonaleData () {
+const PersonaleData: React.FC = () => {
+	const [isLoading, setIsLoading] = useState(false);
 
-    // const {store} = useContext(Context)
-    const { store } = useStoreContext();
+	const { store } = useStoreContext();
 
-    async function handleSubmit(e: any) {
-    // Prevent the browser from reloading the page
-    e.preventDefault();
+	const handleSubmit = async (values: any) => {
+		try {
+			setIsLoading(true);
+			// Обновляем данные пользователя
+			await store.updatePersonaleData(store.user.secret, values);
+			setIsLoading(false);
+			store.setCancelAction(true); // Закрываем окно редактирования в Personale_page
+		} catch (error) {
+			setIsLoading(false);
+			message.warning('Не удалось сохранить персональные данные');
+		}
+	};
 
-    // Read the form data
-    const form = e.target;
-    const formData = new FormData(form);
-    const formJson = Object.fromEntries(formData.entries());
-    
-    await store.udatePersonaleData(store.user.secret, formJson)
-    store.setCancelAction(true) // закрывается окно редактирования в Personale_page
-  }
+	const cancel = () => {
+		store.setRegistrationEnd(false);
+		store.setCancelAction(true); // Закрываем окно редактирования в Personale_page
+	};
 
-    function cancel() {
-        store.setRegistrationEnd(false)
-        store.setCancelAction(true) // закрывается окно редактирования в Personale_page
-    }
+	return (
+		<Form
+			name="basic"
+			labelCol={{
+				span: 10,
+			}}
+			style={{
+				maxWidth: 600,
+			}}
+			onFinish={handleSubmit}
+			initialValues={{
+				user_id: store.user.id,
+				first_name: store.user.first_name,
+				last_name: store.user.last_name,
+			}}
+		>
+			<Form.Item name="user_id" style={{ display: 'none' }}>
+				<Input type="hidden" />
+			</Form.Item>
 
-    return (
-        <form method="post" onSubmit={handleSubmit}>
-            <input type="hidden" name="user_id" value={store.user.id}/>
-            <div>
-                <label htmlFor="first_name">
-                    <h2 style={{fontSize: "20px", textAlign: "center"}}>
-                        Укажите ваше имя:
-                    </h2>
-                </label>
-                <input type="text" name="first_name" id="first_name" defaultValue={store.user.first_name}  required/>
-            </div>
-            <div>
-                <label htmlFor="last_name">
-                    <h2 style={{fontSize: "20px", textAlign: "center"}}>
-                        Укажите вашу фамилию:
-                    </h2>
-                </label>
-                <input type="text" name="last_name" id="last_name" defaultValue={store.user.last_name}  required/>
-            </div>
-            <div style={{display: "flex"}}>
-                <MyButton type="submit" text="Сохранить" /><MyButton type="reset" text="Отменить"  style={{background: "#bbbb50"}} func={cancel} />
-            </div>
-        </form>        
-    );
-}
+			<Form.Item
+				name="first_name"
+				label="Укажите ваше имя"
+				style={{ marginTop: '30px' }}
+				rules={[{ required: true, message: 'Пожалуйста, введите ваше имя!' }]}
+			>
+				<Input />
+			</Form.Item>
+
+			<Form.Item
+				name="last_name"
+				label="Укажите вашу фамилию"
+				rules={[{ required: true, message: 'Пожалуйста, введите вашу фамилию!' }]}
+			>
+				<Input />
+			</Form.Item>
+
+			<Form.Item>
+				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+					<Button onClick={cancel}>Отменить</Button>
+					<Button type="primary" htmlType="submit" loading={isLoading}>
+						Сохранить
+					</Button>
+				</div>
+			</Form.Item>
+		</Form>
+	);
+};
 
 export default observer(PersonaleData);

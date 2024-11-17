@@ -310,7 +310,7 @@ export default class Store {
 	async addDeclaration(form: any) {
 		try {
 			const response = await UserService.addDeclaration(form);
-			this.setUser(response.data);
+			this.setUser({...this.user, declaration: response.data.declaration});
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}
@@ -325,10 +325,10 @@ export default class Store {
 		}
 	}
 
-	async udatePersonaleData(secret: string, form: any) {
+	async updatePersonaleData(secret: string, form: any) {
 		try {
-			const response = await UserService.udatePersonaleData(secret, form);
-			this.setUser(response.data);
+			const response = await UserService.updatePersonaleData(secret, form);
+			this.setUser({...this.user, first_name: response.data.first_name, last_name: response.data.last_name});
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}

@@ -1,28 +1,35 @@
 import { observer } from 'mobx-react-lite';
-import MyButton from './MyButton';
 import { useStoreContext } from '../contexts/StoreContext';
+import { Button, Typography } from 'antd';
+
+const { Title } = Typography;
 
 function EditProfile () {
 
     // const {store} = useContext(Context)
     const { store } = useStoreContext();
 
-    function deleteProfile() {
-        store.deleteProfile(store.user.id, store.user.secret)
-    }
+    const deleteProfile = async () => {
+        try {
+            await store.deleteProfile(store.user.id, store.user.secret)
+        } catch (error) {
+            `Ошибка в deleteProfile: ${error}`
+        }
+    };
 
-    function cancel() {
+    const cancel = () => {
         store.setRegistrationEnd(false)
         store.setCancelAction(true) // закрывается окно редактирования в Personale_page
     }
 
     return (
         <>
-            <h2 style={{fontSize: "20px"}}>
+            <Title level={2} style={{ fontSize: '18px' }}>
                 Удалить мой профиль с сайта Родная партия:
-            </h2>
-            <div style={{display: "flex"}}>
-                <MyButton text="Удалить" func={deleteProfile}/><MyButton text="Отменить" func={cancel} style={{background: "#bbbb50"}}/>
+			</Title>
+            <div style={{display: "flex", justifyContent: 'end', gap: '10px'}}>
+                <Button onClick={cancel}>Отменить</Button>
+                <Button type="primary" onClick={deleteProfile} danger>Удалить</Button>
             </div>
         </>
         

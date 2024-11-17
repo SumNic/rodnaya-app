@@ -129,6 +129,18 @@ html {
 /**
  * Address `outline` inconsistency between Chrome and other browsers.
  */
+ 
+ /* style.css */
+a {
+    color: #167859; /* Цвет для обычных ссылок */
+}
+  
+a:hover {
+    color: #167859; /* Цвет для ссылок при наведении */
+}
+  
+  
+  
 
 a:focus {
     outline: thin dotted;
@@ -1141,7 +1153,7 @@ display: none;
     padding: 10px;
 }
 
-label{
+/* label{
     font-size: 19px;
 }
 
@@ -1157,7 +1169,7 @@ input[type=text], input[type=email], input[type=password], select {
     border: 1px solid #ccc;
     border-radius: 20px;
     box-sizing: border-box;
-}
+} */
 
 .main__scroll{
     overflow-y: scroll;
@@ -1481,21 +1493,6 @@ h2 {
     margin-top: 0px;
     transform: rotate(-405deg);
 }
-  
-#messages {
-    bottom: 55px;
-    min-height: 60px;
-    border: 1px solid rgb(223, 219, 219);
-    border-width: 1px 0 0 0;
-    display: flex; 
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #f4f7f4; 
-    width: 100%;
-    z-index: 3;
-    margin: 0 auto;
-}
 
 .message {
     /* width: в js; */
@@ -1567,25 +1564,6 @@ progress{
     margin: auto;
     width: 30px;
     height: 100%;
-}
-
-.send {
-    display: flex; 
-    width: 50px;
-    height: 30px;
-}
-
-.submit-send {
-    margin: auto;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    border: none;
-    background-color: #f4f7f4;
-    background-size: 30px 30px;
-    background-image: url(./images/send-icon1.png);
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 .admin-send{

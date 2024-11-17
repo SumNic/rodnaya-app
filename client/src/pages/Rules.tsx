@@ -3,15 +3,13 @@ import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
-// import { Context } from '..';
 import { observer } from 'mobx-react-lite';
 import { REGISTRATION_ROUTE } from '../utils/consts';
-import MyButton from '../components/MyButton';
 import { useStoreContext } from '../contexts/StoreContext';
+import { Button } from 'antd';
+import React from 'react';
 
-function Rules () {
-
-    // const {store} = useContext(Context)
+const Rules: React.FC = () => {
     const { store } = useStoreContext();
 
     const navigate = useNavigate()
@@ -64,7 +62,7 @@ function Rules () {
                                 <p className="personale_p" style={{textAlign: "center"}}>Общая информация:</p>
                                 <p>Правила сайта могут изменяться, добавляться, удаляться. О всех изменениях правил будет сообщаться дополнительно.</p><br />
 
-                                <MyButton text="Продолжить регистрацию" func={() => navigate(REGISTRATION_ROUTE)}/>
+                                <Button onClick={() => navigate(REGISTRATION_ROUTE)}>Продолжить регистрацию</Button>
                             </div>
 			
 		                </div>

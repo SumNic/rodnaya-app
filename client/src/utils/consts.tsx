@@ -75,4 +75,6 @@ export enum Punishment {
     'Блокировка навсегда.',
 }
 
+export const COUNT_RESPONSE_POSTS = 20
+
 

@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { IFiles } from '../models/IFiles';
-import { useStoreContext } from '../contexts/StoreContext';
-import { message } from 'antd';
-import { useMessageContext } from '../contexts/MessageContext.ts';
-import { useSocket } from '../hooks/useSocket.ts';
-import { MessageWebsocketResponse } from '../models/response/MessageWebsocketResponse.ts';
+import { IFiles } from '../../models/IFiles.ts';
+import { useStoreContext } from '../../contexts/StoreContext.ts';
+import { message, Spin } from 'antd';
+import { useMessageContext } from '../../contexts/MessageContext.ts';
+import { useSocket } from '../../hooks/useSocket.ts';
+import { MessageWebsocketResponse } from '../../models/response/MessageWebsocketResponse.ts';
+
+import styles from './SendMessage.module.css'
+import { LoadingOutlined } from '@ant-design/icons';
+import TextArea from 'antd/es/input/TextArea';
 
 interface Props {
 	location: string;
@@ -13,6 +17,7 @@ interface Props {
 
 function SendMessage(props: Props) {
 	const [messageSent, setMessageSent] = useState<string>('');
+	const [ isSendMessage, setIsSendMessage ] = useState(false);
 
 	const { socket } = useSocket();
 
@@ -40,6 +45,7 @@ function SendMessage(props: Props) {
 	}, [props.location]);
 
 	const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+		setIsSendMessage(true)
 		try {
 			e.preventDefault();
 
@@ -64,7 +70,9 @@ function SendMessage(props: Props) {
 
 			setMessageSent('');
 			store.resetFiles();
+			setIsSendMessage(false)
 		} catch (err) {
+			setIsSendMessage(false)
 			message.error(` Ошибка в sendMessage: ${err}`);
 		}
 	};
@@ -84,21 +92,23 @@ function SendMessage(props: Props) {
 	return (
 		<form name="send_message" id="send_message" method="post" onSubmit={sendMessage} onKeyDown={handleKeyDown}>
 			<div className="message">
-				<textarea
+				<TextArea
 					id="message"
 					name="message"
 					placeholder="Введите сообщение"
 					value={messageSent}
 					onChange={(e) => setMessageSent(e.target.value)}
 					required
+					style={{ overflow: 'hidden' }}
+					disabled={isSendMessage}
 				/>
 			</div>
-			<div className="class_none">
+			{/* <div className="class_none">
 				<p id="clip_files"></p>
-			</div>
-			<div className="send">
-				<button type="submit" className="submit-send"></button>
-			</div>
+			</div> */}
+			{isSendMessage ? <Spin  className={styles.send} indicator={<LoadingOutlined style={{ color: '#b1b3b1', fontSize: 30 }} spin />}/> : <div className={styles.send}>
+				<button type="submit" className={styles.submit_send}></button>
+			</div>}
 		</form>
 	);
 }

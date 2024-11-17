@@ -1,0 +1,20 @@
+.send {
+    display: flex; 
+    width: 50px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.submit_send {
+    margin: auto;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: #f4f7f4;
+    background-size: 30px 30px;
+    background-image: url(../../images/send-icon1.png);
+    background-repeat: no-repeat;
+    background-position: center;
+}
