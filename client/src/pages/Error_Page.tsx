@@ -43,7 +43,7 @@ const Error_Page: React.FC = () => {
                             <h2 className="My__error_text" style={{fontSize: "17px"}}>
                                 {store.isMessageError ? store.isMessageError : "Произошла неизвестная ошибка"}		
                             </h2>
-                            <Button onClick={returnHome}>Вернуться на главную</Button>
+                            <Button type='primary' onClick={returnHome}>Вернуться на главную</Button>
                         </div>
 
                         <div className="main__screen-flag">

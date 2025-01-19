@@ -1,13 +1,13 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  // build: {
-  //   outDir: './mobilApp/www',
-  // },
-  server: {
-    port: 3000
-  },
-})
+	plugins: [react()],
+	// build: {
+	// 	outDir: './rodnaya-app-mobil/dist',
+	// },
+	server: {
+		port: 3000,
+	},
+});

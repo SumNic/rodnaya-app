@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import LogoLoad from "../components/LogoLoad/LogoLoad";
 import {
     BLOCKED_ROUTE,
@@ -9,12 +9,14 @@ import {
 } from "../utils/consts";
 import { useStoreContext } from "../contexts/StoreContext";
 
-function VkCallback() {
+const VkCallback: React.FC = () => {
     const { store } = useStoreContext();
     const navigate = useNavigate();
 
+    const location = useLocation();
+
     useEffect(() => {
-        const queryParams = new URLSearchParams(window.location.search);
+        const queryParams = new URLSearchParams(location.search);
         const codeFromUrl = queryParams.get("payload");
         if (codeFromUrl) {
             const payload = JSON.parse(codeFromUrl);

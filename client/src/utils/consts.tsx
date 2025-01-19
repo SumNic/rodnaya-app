@@ -26,7 +26,7 @@ export const DONATIONS_ROUTE = '/donations';
 export const BLOCKED_ROUTE = '/blocked';
 
 export const HOST = 'http://localhost';
-export const VK_ID_APP = 52537591;
+export const VK_ID_APP = 52706932;
 // export const HOST = 'https://rod-partya.ru';
 // export const VK_ID_APP = 51729608;
 const PROTOCOL = HOST.startsWith("https://") ? "http" : "http"; // Меняем протокол в зависимости от HOST

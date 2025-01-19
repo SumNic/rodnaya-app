@@ -39,19 +39,19 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
             key: PERSONALE_ROUTE,
             label: <Link to={PERSONALE_ROUTE}>Учредитель</Link>,
         },
-        {
-            key: MAIL_ROUTE,
-            label: (
-                <Link to={MAIL_ROUTE} className="middle__link">
-                    Почта
-                    {/* {!allCountAreZero ? (
-                        <Badge style={{ boxShadow: "none" }} dot></Badge>
-                    ) : (
-                        ""
-                    )} */}
-                </Link>
-            ),
-        },
+        // {
+        //     key: MAIL_ROUTE,
+        //     label: (
+        //         <Link to={MAIL_ROUTE} className="middle__link">
+        //             Почта
+        //             {/* {!allCountAreZero ? (
+        //                 <Badge style={{ boxShadow: "none" }} dot></Badge>
+        //             ) : (
+        //                 ""
+        //             )} */}
+        //         </Link>
+        //     ),
+        // },
         {
             key: MESSAGES_ROUTE,
             label: (
@@ -68,22 +68,22 @@ const NavMiddle: React.FC<Item> = ({ item = "" }) => {
                 </Link>
             ),
         },
-        {
-            key: WORKGROUP_ROUTE,
-            label: (
-                <Link
-                    to={`${WORKGROUP_ROUTE}/locality`}
-                    className="middle__link"
-                >
-                    Группы
-                    {/* {!allCountAreZero ? (
-                        <Badge style={{ boxShadow: "none" }} dot></Badge>
-                    ) : (
-                        ""
-                    )} */}
-                </Link>
-            ),
-        },
+        // {
+        //     key: WORKGROUP_ROUTE,
+        //     label: (
+        //         <Link
+        //             to={`${WORKGROUP_ROUTE}/locality`}
+        //             className="middle__link"
+        //         >
+        //             Группы
+        //             {/* {!allCountAreZero ? (
+        //                 <Badge style={{ boxShadow: "none" }} dot></Badge>
+        //             ) : (
+        //                 ""
+        //             )} */}
+        //         </Link>
+        //     ),
+        // },
         {
             key: EXIT_ROUTE,
             label: (

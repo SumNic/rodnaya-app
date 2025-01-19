@@ -1,15 +1,10 @@
 import { HOST, VK_CALLBACK_ROUTE, VK_ID_APP } from "../utils/consts";
 import * as VKID from "@vkid/sdk";
 import { observer } from "mobx-react-lite";
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useEffectOnce } from "../hooks/useEffectOnce";
 
-/**
- * Функциональный компонент, который отображает кнопку авторизации ВКонтакте с использованием VKID SDK.
- * @component
- * @returns {JSX.Element} - JSX-элемент, представляющий кнопку авторизации ВКонтакте.
- */
-function AuthVkButton() {
+const AuthVkButton: React.FC = () => {
     /**
      * Ссылка на HTML-элемент, в котором будет отображаться кнопка авторизации ВКонтакте.
      */
@@ -41,6 +36,7 @@ function AuthVkButton() {
         // URL для перенаправления после авторизации.
         redirectUrl: `${HOST}${VK_CALLBACK_ROUTE}`,
     });
+
 
     /**
      * Отображает HTML-элемент, в котором будет расположена кнопка авторизации ВКонтакте.
