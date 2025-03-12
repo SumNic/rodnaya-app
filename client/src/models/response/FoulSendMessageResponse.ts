@@ -5,6 +5,7 @@ export interface FoulSendMessageResponse {
     selectedRules: number[];
     selectedActionWithFoul: number;
     selectedPunishment: number;
+    source: string;
     createdAt: number;
     updatedAt: number;
 }

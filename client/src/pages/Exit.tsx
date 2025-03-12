@@ -8,6 +8,7 @@ import { EXIT_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
 import { Button, Checkbox } from 'antd';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { useNavigate } from 'react-router-dom';
+import { useThemeContext } from '../contexts/ThemeContext';
 
 const Exit: React.FC = () => {
 	const [checked, setChecked] = useState(false);
@@ -17,6 +18,8 @@ const Exit: React.FC = () => {
 
     const navigate = useNavigate();
 
+	const { currentWidth } = useThemeContext();
+
 	const handleChange = (e: CheckboxChangeEvent) => {
 		setChecked(e.target.checked);
 	};
@@ -24,7 +27,7 @@ const Exit: React.FC = () => {
 	const logout = async () => {
 		try {
             setIsLoading(true)
-            await store.logout(checked);
+            await store.authStore.logout(checked);
             setIsLoading(false)
         } catch (error) {
             setIsLoading(false)
@@ -40,6 +43,7 @@ const Exit: React.FC = () => {
 		<div>
 			<header className="header">
 				<div className="header__wrapper">
+					{currentWidth && currentWidth < 830 && <NavMiddle item={EXIT_ROUTE} />}
 					<HeaderLogoMobile />
 					<HeaderLogoRegistr />
 				</div>
@@ -47,9 +51,9 @@ const Exit: React.FC = () => {
 
 			<div className="middle">
 				<div className="middle__wrapper">
-					<NavMiddle item={EXIT_ROUTE} />
+					{currentWidth && currentWidth >= 830 && <NavMiddle item={EXIT_ROUTE} />}
 					<div className="main__screen main__screen_home">
-						<div id="list_founders" style={{marginTop: '50px'}}>
+						<div id="list_founders" style={{marginTop: '8px'}}>
 							<Checkbox checked={checked} onChange={handleChange} id="exit">
 								<span style={{ fontSize: '20px', padding: '10px' }}>Выйти со всех устройств?</span>
 							</Checkbox>

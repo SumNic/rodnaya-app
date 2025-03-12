@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles-auth.decorator';
@@ -10,6 +10,7 @@ import { EndMessageDto } from 'src/common/dtos/end-message.dto';
 import { EndReadMessageDto } from 'src/common/dtos/end-read-message.dto';
 import { GetMessagesDto } from 'src/common/dtos/get-messages.dto';
 import { Messages } from 'src/common/models/messages/messages.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
 import { MessagesGateway } from 'src/messages/messages.gateway';
 import { MessagesService } from 'src/messages/messages.service';
 
@@ -62,42 +63,43 @@ export class MessagesController {
     })
     @UseGuards(JwtAuthGuard)
     async getAllMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
+        console.log(query, 'query 123');
         return await this.messagesService.getAllMessage(query);
     }
 
-    @ApiOperation({
-        summary: 'Получение последующих сообщений для определенного location',
-    })
-    @Get('/get-next-messages')
-    @ApiBody({ type: CreateMessageDto })
-    @ApiResponse({
-        status: HttpStatus.CREATED,
-    })
-    @ApiResponse({
-        status: HttpStatus.BAD_REQUEST,
-        description: 'Неккоректные данные',
-    })
-    @UseGuards(JwtAuthGuard)
-    async getNextMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
-        return await this.messagesService.getNextMessage(query);
-    }
+    // @ApiOperation({
+    //     summary: 'Получение последующих сообщений для определенного location',
+    // })
+    // @Get('/get-next-messages')
+    // @ApiBody({ type: CreateMessageDto })
+    // @ApiResponse({
+    //     status: HttpStatus.CREATED,
+    // })
+    // @ApiResponse({
+    //     status: HttpStatus.BAD_REQUEST,
+    //     description: 'Неккоректные данные',
+    // })
+    // @UseGuards(JwtAuthGuard)
+    // async getNextMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
+    //     return await this.messagesService.getNextMessage(query);
+    // }
 
-    @ApiOperation({
-        summary: 'Получение предыдущие для определенного location',
-    })
-    @Get('/get-previous-messages')
-    @ApiBody({ type: CreateMessageDto })
-    @ApiResponse({
-        status: HttpStatus.CREATED,
-    })
-    @ApiResponse({
-        status: HttpStatus.BAD_REQUEST,
-        description: 'Неккоректные данные',
-    })
-    @UseGuards(JwtAuthGuard)
-    async getPreviousMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
-        return await this.messagesService.getPreviousMessage(query);
-    }
+    // @ApiOperation({
+    //     summary: 'Получение предыдущие для определенного location',
+    // })
+    // @Get('/get-previous-messages')
+    // @ApiBody({ type: CreateMessageDto })
+    // @ApiResponse({
+    //     status: HttpStatus.CREATED,
+    // })
+    // @ApiResponse({
+    //     status: HttpStatus.BAD_REQUEST,
+    //     description: 'Неккоректные данные',
+    // })
+    // @UseGuards(JwtAuthGuard)
+    // async getPreviousMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
+    //     return await this.messagesService.getPreviousMessage(query);
+    // }
 
     @ApiOperation({
         summary: 'Получение количества всех сообщений для определенного location',
@@ -142,8 +144,8 @@ export class MessagesController {
     @Post('/set-end-read-messages-id')
     @ApiBody({ type: EndReadMessageDto })
     @UseGuards(JwtAuthGuard)
-    async setEndReadMessagesId(@Body() dto: EndReadMessageDto) {
-        return await this.messagesService.setEndReadMessagesId(dto);
+    async setEndReadMessagesId(@Req() req: AuthenticatedRequest, @Body() dto: EndReadMessageDto) {
+        return await this.messagesService.setEndReadMessagesId(req.user.id, dto); 
     }
 
     @ApiOperation({

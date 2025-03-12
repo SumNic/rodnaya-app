@@ -28,7 +28,6 @@ export class JwtRefreshGuard implements CanActivate {
             req.refreshToken = token;
             return true;
         } catch (e) {
-            console.log(e, 'exeption');
             throw new UnauthorizedException({
                 message: 'Пользователь не авторизован',
             });

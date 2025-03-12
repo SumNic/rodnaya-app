@@ -12,9 +12,9 @@ const PersonaleData: React.FC = () => {
 		try {
 			setIsLoading(true);
 			// Обновляем данные пользователя
-			await store.updatePersonaleData(store.user.secret, values);
+			await store.authStore.updatePersonaleData(store.authStore.user.secret, values);
 			setIsLoading(false);
-			store.setCancelAction(true); // Закрываем окно редактирования в Personale_page
+			store.authStore.setIsEditProfile(false); // Закрываем окно редактирования в Personale_page
 		} catch (error) {
 			setIsLoading(false);
 			message.warning('Не удалось сохранить персональные данные');
@@ -22,8 +22,8 @@ const PersonaleData: React.FC = () => {
 	};
 
 	const cancel = () => {
-		store.setRegistrationEnd(false);
-		store.setCancelAction(true); // Закрываем окно редактирования в Personale_page
+		store.authStore.setRegistrationEnd(false);
+		store.authStore.setIsEditProfile(false); // Закрываем окно редактирования в Personale_page
 	};
 
 	return (
@@ -37,9 +37,9 @@ const PersonaleData: React.FC = () => {
 			}}
 			onFinish={handleSubmit}
 			initialValues={{
-				user_id: store.user.id,
-				first_name: store.user.first_name,
-				last_name: store.user.last_name,
+				user_id: store.authStore.user.id,
+				first_name: store.authStore.user.first_name,
+				last_name: store.authStore.user.last_name,
 			}}
 		>
 			<Form.Item name="user_id" style={{ display: 'none' }}>

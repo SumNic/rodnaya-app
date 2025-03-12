@@ -21,9 +21,9 @@ const RestoreUser: React.FC = () => {
 
 	function restoreProfile() {
 		setIsLoading(true);
-		store
+		store.authStore
 			.restoreProfile(user.id, user.secret)
-			.then(() => store.loginVk(user.id, user.secret))
+			.then(() => store.authStore.loginVk(user.id, user.secret))
 			.then(() => {
                 setIsLoading(false);
 				navigate(PERSONALE_ROUTE);
@@ -31,7 +31,7 @@ const RestoreUser: React.FC = () => {
 	}
 
 	function delProfile() {
-		store.setDelProfile(true);
+		store.authStore.setDelProfile(true);
 		navigate(HOME_ROUTE);
 	}
 

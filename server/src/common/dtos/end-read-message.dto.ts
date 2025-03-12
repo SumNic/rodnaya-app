@@ -4,13 +4,6 @@ import { IsInt, IsString } from 'class-validator';
 export class EndReadMessageDto {
     @ApiProperty({
         example: 1,
-        description: 'id пользователя',
-    })
-    @IsInt({ message: 'Должно быть числом' })
-    id_user: number;
-
-    @ApiProperty({
-        example: 1,
         description: 'id сообщения',
     })
     @IsInt({ message: 'Должно быть числом' })
@@ -22,11 +15,4 @@ export class EndReadMessageDto {
     })
     @IsString({ message: 'Должно быть строкой' })
     location: string;
-
-    @ApiProperty({
-        example: 'sdfsfsdgggg',
-        description: 'Проверка состояния',
-    })
-    @IsString({ message: 'Должно быть строкой' })
-    secret: string;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useUploadForm } from '../hooks/useUploadForm';
 import { useStoreContext } from '../contexts/StoreContext';
+import { message } from 'antd';
 
 interface IState {
   file: File | undefined;
@@ -20,7 +21,24 @@ export default function UploadAvatar() {
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const file = event.target.files?.[0];
 
-        setState({ ...state, file });
+        if (file) {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+    
+            img.onload = () => {
+                if (img.width === img.height) {
+                    setState({ ...state, file });
+                } else {
+                    message.error("Пожалуйста, загрузите изображение с равными сторонами (квадратное).");
+                    // Очищаем input, если изображение не подходит
+                    event.target.value = '';
+                }
+            };
+    
+            img.onerror = () => {
+                console.error("Ошибка при загрузке изображения.");
+            };
+        }
     };
 
     useEffect(() => {
@@ -36,12 +54,12 @@ export default function UploadAvatar() {
         try {
             const formData = new FormData();
             formData.append('file', state.file);
-            formData.append('userId', `${store.user.id}`);
+            formData.append('userId', `${store.authStore.user.id}`);
             const response = await uploadForm(formData)
 
             if(response.data.error)  return
             
-            store.setUser(response.data)
+            store.authStore.setUser(response.data)
 
         } catch (error: any) {
             console.log(error, 'Ошибка в uploadFile');

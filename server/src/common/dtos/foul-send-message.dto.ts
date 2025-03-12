@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayMinSize, ArrayNotEmpty, IsInt } from 'class-validator';
+import { ArrayMinSize, ArrayNotEmpty, IsInt, IsString } from 'class-validator';
 
 export class FoulSendMessageDto {
     @ApiProperty({
@@ -37,4 +37,11 @@ export class FoulSendMessageDto {
     })
     @IsInt({ message: 'Должно быть числом' })
     selectedPunishment: number;
+
+    @ApiProperty({
+        example: 'messages',
+        description: 'Источник нарушения правил - название таблицы',
+    })
+    @IsString({ message: 'Должно быть строкой' })
+    source: string;
 }

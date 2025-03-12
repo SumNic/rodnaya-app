@@ -20,7 +20,7 @@ function ConditionsForm() {
      */
     const Condition = (event: { preventDefault: () => void }) => {
         event.preventDefault();
-        store.setRegistrationEnd(true);
+        store.authStore.setRegistrationEnd(true);
     };
 
     return (

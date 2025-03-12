@@ -122,14 +122,7 @@ export class UsersService {
 
     async getUser(id: number): Promise<User> {
         try {
-            const user = await this.usersRepository.findOne({
-                where: { id },
-                include: [
-                    {
-                        all: true,
-                    },
-                ],
-            });
+            const user = await this.usersRepository.findByPk(id);
 
             if (!user) return;
             return user;

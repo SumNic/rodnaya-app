@@ -34,7 +34,6 @@ export class AuthService {
     async handleValidateUserWithRoles(data: any): Promise<Boolean> {
         try {
             const checkToken = await this.jwtService.verifyAsync(data.token);
-            console.log(checkToken, 'checkToken');
             const checkRoles = await checkToken.roles.some((role: any) => data.requiredRoles.includes(role.value));
 
             if (checkToken && checkRoles) {

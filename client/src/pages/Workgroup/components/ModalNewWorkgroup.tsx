@@ -1,11 +1,13 @@
 import { Button, Modal, Typography } from "antd";
-import { useAboutContext } from "../../../contexts/AboutContext";
+import { useStore } from "../../../hooks/useStore.hook";
 
 const { Title, Text } = Typography;
 
 function ModalNewWorkgroup() {
 
-    const { isModalNewWorkgroupOpen, setIsModalNewWorkgroupOpen } = useAboutContext();
+	const {store} = useStore();
+
+    const { isModalNewWorkgroupOpen, setIsModalNewWorkgroupOpen } = store.groupStore;
 
 	const handleCancel = () => {
 		setIsModalNewWorkgroupOpen(false);

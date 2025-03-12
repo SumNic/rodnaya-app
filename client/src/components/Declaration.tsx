@@ -21,9 +21,9 @@ function Declaration() {
 		try {
 			setIsLoading(true);
 			// Вызываем метод для добавления декларации
-			await store.addDeclaration(values);
+			await store.authStore.addDeclaration(values);
 
-			store.setCancelAction(true); // Закрывается окно редактирования в Personale_page
+			store.authStore.setIsEditProfile(false); // Закрывается окно редактирования в Personale_page
 			setIsLoading(false);
 		} catch (error) {
 			setIsLoading(false);
@@ -34,7 +34,7 @@ function Declaration() {
 	};
 
 	const cancel = () => {
-		store.setCancelAction(true); // Закрывается окно редактирования в Personale_page
+		store.authStore.setIsEditProfile(false); // Закрывается окно редактирования в Personale_page
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -56,9 +56,9 @@ function Declaration() {
 			method="post"
 			onFinish={handleSubmit}
 			initialValues={{
-				id: store.user.id,
-				secret: store.user.secret,
-				declaration: store.user.declaration?.declaration || '',
+				id: store.authStore.user.id,
+				secret: store.authStore.user.secret,
+				declaration: store.authStore.user.declaration?.declaration || '',
 			}}
 		>
 			<Title level={2} style={{ textAlign: 'center', fontSize: '20px' }}>

@@ -68,6 +68,8 @@ export interface CurrentColorScheme {
 	/* Цвет границы аватара */
 	colorPrimaryBorder: string;
 	collapseSecondLevelBg: string;
+	vkIconBg: string;
+	/* Цвет заливки неактивных кнопок тапбара */
 }
 
 const lightScheme: CurrentColorScheme = {
@@ -92,6 +94,7 @@ const lightScheme: CurrentColorScheme = {
 	topMenuBg: colorScheme.lightThemeTopMenuBg,
 	colorPrimaryBorder: colorScheme.lightThemeColorPrimaryBorder,
 	collapseSecondLevelBg: colorScheme.lightThemeCollapseSecondLevelBg,
+	vkIconBg: colorScheme.lightThemeVkIconBg,
 };
 
 const darkScheme: CurrentColorScheme = {
@@ -116,6 +119,7 @@ const darkScheme: CurrentColorScheme = {
 	topMenuBg: colorScheme.darkThemeTopMenuBg,
 	colorPrimaryBorder: colorScheme.darkThemeColorPrimaryBorder,
 	collapseSecondLevelBg: colorScheme.darkThemeCollapseSecondLevelBg,
+	vkIconBg: colorScheme.darkThemeVkIconBg,
 };
 
 export const useTheme = () => {

@@ -6,6 +6,8 @@ import { IPost } from '../models/IPost';
 import MessagesService from '../services/MessagesService';
 import UserService from '../services/UserService';
 import { useStoreContext } from '../contexts/StoreContext';
+import { MESSAGES, PUBLICATIONS } from '../utils/consts';
+import PublicationsService from '../services/PublicationsService';
 // import AdminService from './AdminService';
 
 interface FoulSendMessage {
@@ -17,6 +19,7 @@ interface FoulSendMessage {
 	selectedRules: number[];
 	selectedActionWithFoul: Record<number, number>;
 	selectedPunishment: Record<number, number>;
+	source: string;
 }
 
 const Admin: React.FC = () => {
@@ -30,7 +33,7 @@ const Admin: React.FC = () => {
 	const { store } = useStoreContext();
 
 	useEffect(() => {
-		store.checkAdmin();
+		store.authStore.checkAdmin();
 		const fetchFoulMessages = async () => {
 			try {
 				const allFoulMessages = await AdminService.getFoulMessages();
@@ -57,15 +60,22 @@ const Admin: React.FC = () => {
 							selectedRules: message.selectedRules,
 							selectedActionWithFoul: { [message.selectedActionWithFoul]: 1 },
 							selectedPunishment: { [message.selectedPunishment]: 1 },
+							source: message.source,
 						};
 					}
 				});
 				const arrIdFoulMessages = Object.values(groupedMessages).map((message) => {
-					return message.id_foul_message;
+					return message;
 				});
-				const promises = arrIdFoulMessages.map(async (id) => {
-					const dataPlus = await MessagesService.getMessageFromId(id);
-					return dataPlus.data;
+				const promises = arrIdFoulMessages.map(async (message) => {
+					if (message.source === MESSAGES) {
+						const dataPlus = await MessagesService.getMessageFromId(message.id_foul_message);
+						return dataPlus.data;
+					}
+					if (message.source === PUBLICATIONS) {
+						const dataPlus = await PublicationsService.getPublicationFromId(message.id_foul_message);
+						return dataPlus.data;
+					}
 				});
 
 				const results = await Promise.all(promises);
@@ -76,7 +86,8 @@ const Admin: React.FC = () => {
 						...message,
 						id_cleaner_count: new Set(message.id_cleaners).size,
 						foul_message: results[index],
-					};
+						source: message.source,
+					} as FoulSendMessage;
 				});
 
 				setFoulMessages(messages);
@@ -100,19 +111,29 @@ const Admin: React.FC = () => {
 			const selectedPunishmentIndex = punishmentOptions.indexOf(`${selectedPunishment}`);
 			if (selectedFoulMessage) {
 				if (selectedActionIndex > 0) {
-					const isDeletedMessages = await MessagesService.blockedMessages(
-						selectedFoulMessage.foul_message.id,
-						selectedActionIndex
-					);
-					if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите ошибку позже.');
-					message.success(`${isDeletedMessages.data}`);
+					if (selectedFoulMessage.source === MESSAGES) {
+						const isDeletedMessages = await MessagesService.blockedMessages(
+							selectedFoulMessage.foul_message.id,
+							selectedActionIndex
+						);
+						if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
+						message.success(`${isDeletedMessages.data}`);
+					}
+					if (selectedFoulMessage.source === PUBLICATIONS) {
+						const isDeletedMessages = await PublicationsService.blockedPublications(
+							selectedFoulMessage.foul_message.id,
+							selectedActionIndex
+						);
+						if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
+						message.success(`${isDeletedMessages.data}`);
+					}
 				}
 				if (selectedPunishmentIndex > 0) {
 					const isBlockedUser = await UserService.blockedUser(
 						selectedFoulMessage.foul_message.userId,
 						selectedPunishmentIndex
 					);
-					if (!isBlockedUser.data) return message.error('Произошла ошибка на сервере. Повторите ошибку позже.');
+					if (!isBlockedUser.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
 					message.success(`${isBlockedUser.data}`);
 				}
 				const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(selectedFoulMessage.foul_message.id);
@@ -133,13 +154,14 @@ const Admin: React.FC = () => {
 	const columns: ColumnsType<FoulSendMessage> = [
 		{
 			dataIndex: 'id_cleaner_count',
-			title: 'Cleaners',
+			title: 'Уборщик',
 			render: (_, record) => <a onClick={() => alert(record.id_cleaners.join(', '))}>{record.id_cleaner_count}</a>,
 		},
-		{ dataIndex: 'id_foul_message', title: 'ID Foul' },
+		{ dataIndex: 'id_foul_message', title: 'ID сообщения' },
+		{ dataIndex: 'source', title: 'Источник' },
 		{
 			dataIndex: 'foul_message',
-			title: 'Foul Messages',
+			title: 'Сообщение',
 			render: (_, record) => (
 				<div>
 					<div key={record.foul_message.id}>{record.foul_message.message}</div>
@@ -148,7 +170,7 @@ const Admin: React.FC = () => {
 		},
 		{
 			dataIndex: 'selectedRules',
-			title: 'Selected Rules',
+			title: 'Нарушение правил',
 			render: (_, record) => (
 				<div>
 					{[
@@ -174,7 +196,7 @@ const Admin: React.FC = () => {
 		},
 		{
 			dataIndex: 'selectedActionWithFoul',
-			title: 'Selected Action',
+			title: 'Действие',
 			render: (_, record) => (
 				<div>
 					{Object.entries(record.selectedActionWithFoul).map(([actionId, count]) => (
@@ -187,7 +209,7 @@ const Admin: React.FC = () => {
 		},
 		{
 			dataIndex: 'selectedPunishment',
-			title: 'Selected Punishment',
+			title: 'Наказание',
 			render: (_, record) => (
 				<div>
 					{Object.entries(record.selectedPunishment).map(([punishmentId, count]) => (
@@ -200,7 +222,7 @@ const Admin: React.FC = () => {
 		},
 		{
 			dataIndex: 'edit',
-			title: 'Edit',
+			title: 'Решить',
 			render: (_, record) => <Button onClick={() => handleEditFoulMessage(record)}>Edit</Button>,
 		},
 	];
@@ -217,7 +239,7 @@ const Admin: React.FC = () => {
 
 	return (
 		<>
-			{store.isAdmin ? (
+			{store.authStore.isAdmin ? (
 				<>
 					<Table dataSource={foulMessages} columns={columns} rowKey="id" />
 					<Modal title="Edit Foul Message" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>

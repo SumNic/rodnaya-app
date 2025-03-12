@@ -38,7 +38,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { Files } from 'src/common/models/files/files.model';
 import { EndReadMessageModule } from 'src/end-read-message/end-read-message.module';
-import { MessagesGateway } from 'src/messages/messages.gateway';
+import { PublicationsController } from './publications/publications.controller';
+import { PublicationsModule } from './publications/publications.module';
+import { Publications } from 'src/common/models/publications/publications.model';
 
 @Module({
     imports: [
@@ -78,6 +80,7 @@ import { MessagesGateway } from 'src/messages/messages.gateway';
                     Messages,
                     ManageMessages,
                     EndReadMessage,
+                    Publications,
                     Residency,
                     Token,
                     Role,
@@ -104,6 +107,7 @@ import { MessagesGateway } from 'src/messages/messages.gateway';
         UsersModule,
         LocationModule,
         EndReadMessageModule,
+        PublicationsModule,
     ],
     controllers: [
         AdminController,
@@ -115,6 +119,7 @@ import { MessagesGateway } from 'src/messages/messages.gateway';
         TokensController,
         UsersController,
         LocationController,
+        PublicationsController,
     ],
     providers: [],
 })

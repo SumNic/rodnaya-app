@@ -37,9 +37,9 @@ const Workgroup: React.FC = () => {
 
 						<div className="name">
 							<h2 className="name__local" id="name">
-								{location === 'locality' && store.user.residency.locality}
-								{location === 'region' && store.user.residency.region}
-								{location === 'country' && store.user.residency.country}
+								{location === 'locality' && store.authStore.user.residency.locality}
+								{location === 'region' && store.authStore.user.residency.region}
+								{location === 'country' && store.authStore.user.residency.country}
 								{location === 'world' && 'Земля'}
 							</h2>
 						</div>

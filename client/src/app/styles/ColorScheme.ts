@@ -22,6 +22,7 @@ const colorScheme = {
 	lightThemeTopMenuBg: '#FFFFFF',
 	lightThemeColorPrimaryBorder: '#FFD37A',
 	lightThemeCollapseSecondLevelBg: '#F6F6F6',
+	lightThemeVkIconBg: '#0077e1',
 	// Тёмная тема
 	darkThemeBrandColor: '#c9904c',
 	darkThemeBgSecondary: '#212b3a',
@@ -43,6 +44,7 @@ const colorScheme = {
 	darkThemeTopMenuBg: '#333333',
 	darkThemeColorPrimaryBorder: '#73470d',
 	darkThemeCollapseSecondLevelBg: '#272727',
+	darkThemeVkIconBg: '#0077e1',
 };
 
 export default colorScheme;

@@ -23,13 +23,13 @@ function Registration() {
                     <div className="main__screen main__screen__registr" style={{backgroundSize: "491.4px 491.4px"}}>
                         <div className="form__registr" style={{textAlign: "justify"}}>
 
-                            {!store.isRegistrationEnd && store.isCondition && !store.isDelProfile && 
+                            {!store.authStore.isRegistrationEnd && store.authStore.isCondition && !store.authStore.isDelProfile && 
                             <>
                                 <ConditionsForm />
                                 <MyButtonInput type="submit" form="condition" id="submit" value="Продолжить регистрацию" />
                             </>}
 
-                            {!store.user.residency && store.isRegistrationEnd && <OnChangeForm id={store.user.id} secret={store.user.secret}/>}
+                            {!store.authStore.user.residency && store.authStore.isRegistrationEnd && <OnChangeForm id={store.authStore.user.id} secret={store.authStore.user.secret}/>}
                             
                         </div>
                     </div>

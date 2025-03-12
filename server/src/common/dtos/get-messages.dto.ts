@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsBooleanString, IsEmail, IsOptional, IsString, Length } from 'class-validator';
 
 export class GetMessagesDto {
     @ApiProperty({
@@ -14,7 +15,7 @@ export class GetMessagesDto {
         description: 'ID первого сообщения',
     })
     @IsString({ message: 'Должно быть строкой' })
-    start_message_id: string;
+    pageNumber: string;
 
     @ApiProperty({
         example: 'dfgdfg',

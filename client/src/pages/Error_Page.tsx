@@ -7,18 +7,20 @@ import { useStoreContext } from '../contexts/StoreContext';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 import { Button } from 'antd';
 import React from 'react';
+import { useThemeContext } from '../contexts/ThemeContext';
 
 const Error_Page: React.FC = () => {
 
     const navigate = useNavigate()
     const { store } = useStoreContext();
+    const { currentWidth } = useThemeContext();
 
     function returnHome() {
-        if(store.isMessageError === 'Доступ запрещен') {
+        if(store.authStore.isMessageError === 'Доступ запрещен') {
             localStorage.removeItem(LOCAL_STORAGE_TOKEN)
             localStorage.removeItem(LOCAL_STORAGE_DEVICE)
         }
-        store.setError(false)
+        store.authStore.setError(false)
         navigate(HOME_ROUTE)
     }
 
@@ -26,6 +28,7 @@ const Error_Page: React.FC = () => {
         <div>
             <header className="header">
                 <div className="header__wrapper">
+                    {currentWidth && currentWidth < 830 && <NavMiddle item={HOME_ROUTE} />}
                     <HeaderLogoMobile />
                     <HeaderLogoRegistr />
                 </div>
@@ -33,15 +36,14 @@ const Error_Page: React.FC = () => {
 
             <div className="middle">
                 <div className="middle__wrapper">
-                    {store.isAuth && <NavMiddle item={HOME_ROUTE} />}
-                    {!store.isAuth && <nav className="middle__menu"></nav>}
+                    {currentWidth && currentWidth >= 830 && <NavMiddle item={HOME_ROUTE} />}
                     <div className="main__screen main__screen_home">
                         <div id="list_founders"  className="founders-section">
                             <h2 className="My__error_text" style={{fontSize: "20px"}}>
                                 Ошибка:			
                             </h2>
                             <h2 className="My__error_text" style={{fontSize: "17px"}}>
-                                {store.isMessageError ? store.isMessageError : "Произошла неизвестная ошибка"}		
+                                {store.authStore.isMessageError ? store.authStore.isMessageError : "Произошла неизвестная ошибка"}		
                             </h2>
                             <Button type='primary' onClick={returnHome}>Вернуться на главную</Button>
                         </div>

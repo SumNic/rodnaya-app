@@ -35,4 +35,7 @@ export class FooulSendMessage extends Model<FooulSendMessage, FooulSendMessageAt
 
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
     is_decided: boolean;
+
+    @Column({ type: DataType.STRING, allowNull: true })
+    source: string;
 }

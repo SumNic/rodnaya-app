@@ -3,7 +3,7 @@ import Footer from '../../components/Footer';
 import NavMiddle from '../../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import NavRegions from '../../components/Nav_header/NavRegions';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import MessagesService from '../../services/MessagesService';
 import MessagesList from './components/MessagesList';
@@ -11,68 +11,105 @@ import UploadFiles from '../../components/UploadFiles';
 import SendMessage from '../../components/SendMessage/SendMessage.tsx';
 import icon_attach from '../../images/clippy-icon1.png';
 import { useStoreContext } from '../../contexts/StoreContext';
-import { COUNT_RESPONSE_POSTS, HOME_ROUTE, LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
-import { Modal, Typography } from 'antd';
+import { COUNT_RESPONSE_POSTS, HOME_ROUTE, MESSAGES_ROUTE } from '../../utils/consts';
+import { FloatButton, Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
 import { useMessageContext } from '../../contexts/MessageContext.ts';
 import UserService from '../../services/UserService.ts';
 
-import styles from './Messages.module.css';
-import { throttle } from 'lodash';
 import { IPost } from '../../models/IPost.ts';
+import { IPosts } from '../../models/IPosts.ts';
+import { ArrowDownOutlined } from '@ant-design/icons';
+
+import styles from './Messages.module.css';
 
 const { Text } = Typography;
 
-type scrollOver = {
-	[key: string]: boolean;
+const initialPosts: IPosts = {
+	locality: [],
+	region: [],
+	country: [],
+	world: [],
+};
+
+export interface Page {
+	locality: number;
+	region: number;
+	country: number;
+	world: number;
+}
+
+const initialNextPape: Page = {
+	locality: 1,
+	region: 1,
+	country: 1,
+	world: 1,
+};
+
+const initialPrevPape: Page = {
+	locality: -1,
+	region: -1,
+	country: -1,
+	world: -1,
+};
+
+interface FirstLoad {
+	locality: boolean;
+	region: boolean;
+	country: boolean;
+	world: boolean;
+}
+
+const initialFirstLoad: FirstLoad = {
+	locality: true,
+	region: true,
+	country: true,
+	world: true,
+};
+
+const indexLocation: Page = {
+	locality: 0,
+	region: 1,
+	country: 2,
+	world: 3,
 };
 
 const Message: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
-	const [isMemoizedIndexMap, setMemoizedIndexMap] = useState(true);
+	const [posts, setPosts] = useState<IPosts>(initialPosts);
+
 	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
-	const [isScrollEnd, setIsScrollEnd] = useState<scrollOver>();
-	const [isScrollStart, setIsScrollStart] = useState<scrollOver>();
+	const [nextPage, setNextPage] = useState<Page>(initialNextPape);
+	const [prevPage, setPrevPage] = useState<Page>(initialPrevPape);
+	const [isFirstLoad, setIsFirstLoad] = useState<FirstLoad>(initialFirstLoad);
+	const [previousScrollHeight, setPreviousScrollHeight] = useState(0);
+	const [isScrollEnd, setIsScrollEnd] = useState<Record<string, boolean>>({});
+	const [scrollDownPage, setScrollDownPage] = useState(false);
+	const [isLastMessageLoad, setIsLastMessageLoad] = useState(false);
+	const [isLastMessage, setIsLastMessage] = useState<Record<string, boolean>>({});
 
 	const { store } = useStoreContext();
-	const {
-		sendMessageId,
-		arrEndMessagesId,
-		posts,
-		setPosts,
-		isLoadMessages,
-		setIsLoadMessages,
-		isLoadingPrevious,
-		setIsLoadingPrevious,
-		isLoadingNext,
-		setIsLoadingNext,
-		messageDataSocket,
-	} = useMessageContext();
+	const { arrCountNoReadMessages, updateArrCountNoReadMessages } = store.messageStore;
+	const { user } = store.authStore;
+
+	const { setIsLoadMessages, messageDataSocket, isScrollTop, setIsScrollTop, messagesContainerRef } =
+		useMessageContext();
 	const navigate = useNavigate();
 
-	const targetRefNext = useRef<HTMLDivElement | null>(null);
-	const targetRefPrev = useRef<HTMLDivElement | null>(null);
+	const lastMessageRef = useRef<HTMLDivElement | null>(null);
+	const messagesRef = useRef<HTMLDivElement | null>(null);
 
 	const params = useParams();
 	const location: string | undefined = params.location;
 
+	let locationKey: keyof IPosts = location as keyof IPosts;
+
 	useEffect(() => {
-		const postsFromLocation = posts?.filter((elem) => elem.location === location);
-		if (postsFromLocation && postsFromLocation.length < COUNT_RESPONSE_POSTS) {
-			setIsScrollEnd((prev) => {
-				if (location) return { ...prev, [location]: true };
-			});
-			setIsScrollStart((prev) => {
-				if (location) return { ...prev, [location]: true };
-			});
+		const savedScrollTop = localStorage.getItem(`scrollTop-${locationKey}`);
+		if (savedScrollTop && messagesContainerRef.current) {
+			messagesContainerRef.current.scrollTop = parseInt(savedScrollTop, 10);
 		}
-		setIsScrollEnd((prev) => {
-			if (location) return { ...prev, [location]: false };
-		});
-		setIsScrollStart((prev) => {
-			if (location) return { ...prev, [location]: false };
-		});
-	}, [location]);
+	}, [locationKey]);
 
 	useEffect(() => {
 		if (messageDataSocket && location) {
@@ -93,71 +130,87 @@ const Message: React.FC = () => {
 				createdAt: messageDataSocket.createdAt,
 			};
 
-			const postsFromLocation = posts?.filter((elem) => elem.location === location);
+			const noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
 
 			if (
-				nameLocal === messageDataSocket.resydency && ((isScrollEnd && isScrollEnd[location]) || (postsFromLocation && postsFromLocation.length < COUNT_RESPONSE_POSTS) )
+				nameLocal === messageDataSocket.resydency &&
+				isScrollEnd[location] &&
+				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
+				newPost.userId !== user.id
 			) {
 				setPosts((prev) => {
-					if (prev?.length && newPost) {
-						const postsFromLocation = prev.filter((elem) => elem.location === location);
-						if (postsFromLocation.length) {
-							const newListPosts = [...postsFromLocation[0].postsCurrent, newPost];
-							return prev.map((postsInLocation) =>
-								postsInLocation.location === location
-									? { ...postsInLocation, postsCurrent: newListPosts }
-									: postsInLocation
-							);
-						}
+					if (newPost) {
+						setScrollDownPage(true);
+						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
 					}
 					return prev;
 				});
+				updateArrCountNoReadMessages(nameLocal, 0);
 			}
-		}
-	}, [messageDataSocket]);
 
-	const handleScroll = useCallback(
-		throttle(() => {
-			const checkVisibility = (targetElement: HTMLDivElement | null, targetIndex: number) => {
-				if (targetElement) {
-					const rect = targetElement.getBoundingClientRect();
-
-					if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-						if (targetIndex === 1 && !isLoadingPrevious && !isLoadMessages) {
-							if (isScrollStart && location && isScrollStart[location] === false) {
-								setIsLoadingPrevious(true);
-								loadPreviousMessages();
-							}
-						} else if (targetIndex === 2 && !isLoadingNext && !isLoadMessages) {
-							if (isScrollEnd && location && isScrollEnd[location] === false) {
-								setIsLoadingNext(true);
-								loadNextMessages();
-							}
-						}
+			if (
+				nameLocal === messageDataSocket.resydency &&
+				!isScrollEnd[location] &&
+				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
+				newPost.userId !== user.id
+			) {
+				setPosts((prev) => {
+					if (newPost) {
+						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
 					}
-				}
-			};
-
-			checkVisibility(targetRefPrev.current, 1);
-			checkVisibility(targetRefNext.current, 2);
-		}, 500),
-		[posts, location, isLoadingNext, isLoadingPrevious, isLoadMessages, isScrollStart, isScrollEnd]
-	);
-
-	useEffect(() => {
-		const scrollableElement = targetRefNext.current;
-
-		if (scrollableElement) {
-			scrollableElement.addEventListener('scroll', handleScroll);
-		}
-
-		// Очистка эффекта: удаляем обработчик события при размонтировании
-		return () => {
-			if (scrollableElement) {
-				scrollableElement.removeEventListener('scroll', handleScroll);
+					return prev;
+				});
+				updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
 			}
-		};
-	}, [handleScroll]); // Указываем handleScroll как зависимость
+
+			if (
+				nameLocal === messageDataSocket.resydency &&
+				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
+				newPost.userId === user.id
+			) {
+				setPosts((prev) => {
+					if (newPost) {
+						setScrollDownPage(true);
+						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
+					}
+					return prev;
+				});
+				updateArrCountNoReadMessages(nameLocal, 0);
+			}
+
+			if (
+				nameLocal === messageDataSocket.resydency &&
+				noReadMessagesCount >= COUNT_RESPONSE_POSTS &&
+				newPost.userId === user.id
+			) {
+				setIsLastMessageLoad(true);
+				updateArrCountNoReadMessages(nameLocal, 0);
+			}
+
+			if (
+				nameLocal === messageDataSocket.resydency &&
+				noReadMessagesCount >= COUNT_RESPONSE_POSTS &&
+				newPost.userId !== user.id
+			) {
+				setIsLastMessageLoad(true);
+				updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+			}
+		}
+	}, [messageDataSocket, location]);
+
+	// Прокрутка в конец контейнера после загрузки сообщения из сокета
+	useEffect(() => {
+		if (messagesContainerRef.current && scrollDownPage) {
+			const container = messagesContainerRef.current;
+
+			// Устанавливаем прокрутку в самый низ
+			requestAnimationFrame(() => {
+				container.scrollTop = container.scrollHeight;
+			});
+
+			setScrollDownPage(false);
+		}
+	}, [scrollDownPage]); // Выполнится после загрузки сообщений
 
 	useEffect(() => {
 		checkingTheLock();
@@ -166,7 +219,7 @@ const Message: React.FC = () => {
 	const checkingTheLock = async () => {
 		try {
 			// 1. Получаем данные времени до которого будет действовать блокировка
-			const response = await UserService.checkBlocked(store.user.id);
+			const response = await UserService.checkBlocked(store.authStore.user.id);
 
 			if (response.status === 200 && response.data) {
 				const blockingEndTimeString = response.data;
@@ -189,54 +242,69 @@ const Message: React.FC = () => {
 		}
 	};
 
-	const memoizedIndexMap = useMemo(() => {
-		if (isMemoizedIndexMap) {
-			const entries = Object.values(LocationEnum).filter((type): type is LocationEnum => typeof type === 'string');
-			return entries.map((item, index) => ({ item: String(item), index }));
-		}
-		setMemoizedIndexMap(false);
-	}, [isMemoizedIndexMap]);
+	useEffect(() => {
+		if (location && !posts[locationKey].length) loadMessages(location);
+	}, [location]);
 
 	useEffect(() => {
-		if (location) {
-			if (sendMessageId) {
-				loadMessages(sendMessageId, location);
-			} else {
-				const endIdMessage: number | undefined = arrEndMessagesId?.reduce((accum, item, index) => {
-					const indexLocation = memoizedIndexMap?.findIndex(({ item }) => item === location);
-					if (indexLocation === index) {
-						return accum + item.id;
-					}
-					return accum;
-				}, 0);
-
-				const postsFromLocation = posts?.filter((elem) => elem.location === location);
-				if (endIdMessage && !postsFromLocation?.[0]?.postsCurrent) loadMessages(endIdMessage, location);
-			}
+		if (location && isLastMessageLoad && !isLastMessage[locationKey]) {
+			loadMessages(location, nextPage[locationKey]);
+		} else if (location && isLastMessageLoad && isLastMessage[locationKey]) {
+			setIsLastMessageLoad(false);
+			setScrollDownPage(true);
 		}
-	}, [location, sendMessageId, arrEndMessagesId]);
+	}, [isLastMessageLoad, nextPage[locationKey], isLastMessage[locationKey]]);
 
-	const loadMessages = async (endIdMessage: number, location: string) => {
+	const scrollToLastMessage = () => {
+		const noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
+
+		if (noReadMessagesCount && nameLocal) {
+			setIsLastMessageLoad(true);
+			updateArrCountNoReadMessages(nameLocal, 0);
+		} else {
+			setIsLastMessageLoad(false);
+			setScrollDownPage(true);
+		}
+	};
+
+	useEffect(() => {
+		if (isScrollTop && location && posts[locationKey].length) loadPreviousMessages(location, prevPage[locationKey]);
+		setIsScrollTop(false);
+	}, [isScrollTop]);
+
+	useEffect(() => {
+		if (!lastMessageRef.current) return;
+
+		const observer = new IntersectionObserver((entries) => {
+			if (!location) return;
+			if (entries[0].isIntersecting) {
+				setIsScrollEnd((prev) => ({ ...prev, [location]: true }));
+				loadMessages(location, nextPage[locationKey]);
+			} else {
+				setIsScrollEnd((prev) => ({ ...prev, [location]: false }));
+			}
+		});
+
+		observer.observe(lastMessageRef.current);
+
+		return () => observer.disconnect();
+	}, [posts[locationKey]]);
+
+	const loadMessages = async (location: string, pageNumber: number = 1) => {
 		try {
 			setIsLoadMessages(true);
 			const allMessages = await MessagesService.getAllMessages(
-				store.user.id,
-				endIdMessage || -1,
-				store.user.secret,
+				store.authStore.user.id,
+				pageNumber,
+				store.authStore.user.secret,
 				location
 			);
-			if (allMessages)
-				setPosts((prev) => {
-					if (prev?.length) {
-						const postsFromLocation = prev.filter((elem) => elem.location === location);
-						const newListPosts = [
-							...postsFromLocation,
-							{ location, postsCurrent: [...Object.values(allMessages.data)] },
-						];
-						return [...prev, ...newListPosts];
-					}
-					return [{ location, postsCurrent: [...Object.values(allMessages.data)] }];
-				});
+			if (allMessages.data && allMessages.data.length > 0) {
+				setPosts((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], ...allMessages.data] }));
+				setNextPage((prev) => ({ ...prev, [locationKey]: pageNumber + 1 }));
+			} else {
+				setIsLastMessage((prev) => ({ ...prev, [locationKey]: true }));
+			}
 			setIsLoadMessages(false);
 		} catch (err) {
 			setIsLoadMessages(false);
@@ -244,97 +312,95 @@ const Message: React.FC = () => {
 		}
 	};
 
-	const loadPreviousMessages = async () => {
-		try {
-			setIsLoadingPrevious(true);
-			const postsFromLocation = posts?.filter((elem) => elem.location === location);
-			if (postsFromLocation && postsFromLocation[0]?.postsCurrent[0].id) {
-				const newPosts = await MessagesService.getPreviousMessages(
-					store.user.id,
-					postsFromLocation[0].postsCurrent[0].id,
-					store.user.secret,
-					location
-				);
-				if (Array.isArray(newPosts.data) && !newPosts.data.length) {
-					return setIsScrollStart((prev) => {
-						if (location) return { ...prev, [location]: true };
-					});
-				}
+	// Прокрутка в конец контейнера после загрузки сообщений
+	useEffect(() => {
+		if (isFirstLoad[locationKey] && messagesContainerRef.current && posts[locationKey].length) {
+			const container = messagesContainerRef.current;
 
-				if (newPosts && newPosts.data)
-					setPosts((prev) => {
-						if (prev?.length) {
-							const postsFromLocation = prev.filter((elem) => elem.location === location);
-							if (postsFromLocation.length) {
-								const newListPosts = [...Object.values(newPosts.data), ...postsFromLocation[0].postsCurrent];
-								return prev.map((postsInLocation) =>
-									postsInLocation.location === location
-										? { ...postsInLocation, postsCurrent: newListPosts }
-										: postsInLocation
-								);
-							}
-						}
-						return prev;
-					});
+			// Отключаем анимацию скролла
+			container.style.scrollBehavior = 'auto';
+
+			// Устанавливаем прокрутку в самый низ
+			requestAnimationFrame(() => {
+				container.scrollTop = container.scrollHeight;
+
+				// Включаем плавную прокрутку снова
+				requestAnimationFrame(() => {
+					container.style.scrollBehavior = 'smooth';
+				});
+			});
+
+			setIsFirstLoad((prev) => ({ ...prev, [locationKey]: false }));
+		}
+	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
+
+	const loadPreviousMessages = async (location: string, pageNumber: number) => {
+		if (!messagesContainerRef.current || !messagesRef.current) return;
+
+		const container = messagesRef.current;
+		const currentScrollHeight = container.scrollHeight; // Сохраняем высоту перед добавлением
+
+		try {
+			setIsLoadMessages(true);
+
+			const allMessages = await MessagesService.getAllMessages(
+				store.authStore.user.id,
+				pageNumber,
+				store.authStore.user.secret,
+				location
+			);
+
+			if (allMessages.data && allMessages.data.length > 0) {
+				setPosts((prev) => ({
+					...prev,
+					[locationKey]: [...allMessages.data, ...prev[locationKey]], // Добавляем в начало
+				}));
+
+				setPrevPage((prev) => ({ ...prev, [locationKey]: pageNumber - 1 })); // Двигаемся назад
+				setPreviousScrollHeight(currentScrollHeight);
 			}
+
+			setIsLoadMessages(false);
 		} catch (err) {
+			setIsLoadMessages(false);
 			console.error(`Ошибка в loadPreviousMessages: ${err}`);
-		} finally {
-			setIsLoadingPrevious(false);
 		}
 	};
 
-	const loadNextMessages = async () => {
-		try {
-			setIsLoadingNext(true);
-			const postsFromLocation = posts?.filter((elem) => elem.location === location);
-			if (postsFromLocation && postsFromLocation[0]?.postsCurrent[postsFromLocation[0].postsCurrent.length - 1].id) {
-				const newMessages = await MessagesService.getNextMessages(
-					store.user.id,
-					postsFromLocation[0].postsCurrent[postsFromLocation[0].postsCurrent.length - 1].id,
-					store.user.secret,
-					location
-				);
+	useEffect(() => {
+		if (messagesContainerRef.current && messagesRef.current && previousScrollHeight !== 0) {
+			// Отключаем плавный скролл перед изменением
+			messagesContainerRef.current.style.scrollBehavior = 'auto';
 
-				if (Array.isArray(newMessages.data) && !newMessages.data.length) {
-					return setIsScrollEnd((prev) => {
-						if (location) return { ...prev, [location]: true };
+			// Восстанавливаем позицию скролла
+			requestAnimationFrame(() => {
+				if (messagesContainerRef.current && messagesRef.current) {
+					const newScrollHeight = messagesRef.current.scrollHeight;
+					messagesContainerRef.current.scrollTop += newScrollHeight - previousScrollHeight;
+
+					// Включаем плавный скролл снова
+					requestAnimationFrame(() => {
+						if (messagesContainerRef.current) {
+							messagesContainerRef.current.style.scrollBehavior = 'smooth';
+						}
 					});
 				}
-				if (newMessages)
-					setPosts((prev) => {
-						if (prev?.length && newMessages.data) {
-							const postsFromLocation = prev.filter((elem) => elem.location === location);
-							if (postsFromLocation.length) {
-								const newListPosts = [...postsFromLocation[0].postsCurrent, ...Object.values(newMessages.data)];
-								return prev.map((postsInLocation) =>
-									postsInLocation.location === location
-										? { ...postsInLocation, postsCurrent: newListPosts }
-										: postsInLocation
-								);
-							}
-						}
-						return prev;
-					});
-			}
-		} catch (err) {
-			console.error(`Ошибка в loadNextMessages: ${err}`);
-		} finally {
-			setIsLoadingNext(false);
+			});
+			setPreviousScrollHeight(0);
 		}
-	};
+	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
 
 	const nameLocal = useMemo(() => {
 		let name = '';
 		switch (location) {
 			case 'locality':
-				name = store.user.residency.locality;
+				name = store.authStore.user.residency.locality || '';
 				break;
 			case 'region':
-				name = store.user.residency.region;
+				name = store.authStore.user.residency.region || '';
 				break;
 			case 'country':
-				name = store.user.residency.country;
+				name = store.authStore.user.residency.country || '';
 				break;
 			case 'world':
 				name = 'Земля';
@@ -366,10 +432,18 @@ const Message: React.FC = () => {
 						</div>
 						{location && (
 							<MessagesList
+								posts={posts}
 								location={location}
-								refPrev={targetRefPrev}
-								refNext={targetRefNext}
-								onScroll={handleScroll}
+								messagesRef={messagesRef}
+								lastMessageRef={lastMessageRef}
+							/>
+						)}
+						{!isScrollEnd[locationKey] && (
+							<FloatButton
+								icon={<ArrowDownOutlined />}
+								type="default"
+								style={{ position: 'absolute', right: 20, bottom: 74 }} // Позиционирование внизу справа
+								onClick={scrollToLastMessage}
 							/>
 						)}
 						<div id={styles.messages}>
@@ -380,6 +454,7 @@ const Message: React.FC = () => {
 								</div>
 							) : (
 								<>
+									{/*TODO переделать отправку файлов на antd */}
 									<UploadFiles />
 									<div id="forms">
 										<div className="clip">

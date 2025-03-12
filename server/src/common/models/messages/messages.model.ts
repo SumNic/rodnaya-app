@@ -17,7 +17,7 @@ export class Messages extends Model<Messages, MessagesCreationAttrs> {
     })
     id: number;
 
-    @Column({ type: DataType.STRING, allowNull: false })
+    @Column({ type: DataType.TEXT, allowNull: false })
     message: string;
 
     @Column({ type: DataType.STRING, allowNull: false })

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsInt, IsNumber, IsString, Length } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateMessageDto {
     @ApiProperty({
@@ -20,8 +20,9 @@ export class CreateMessageDto {
         example: 'locality',
         description: 'Радиус проживания',
     })
+    @IsOptional()
     @IsString({ message: 'Должно быть строкой' })
-    location: string;
+    location?: string;
     
     form: {
         message: string;

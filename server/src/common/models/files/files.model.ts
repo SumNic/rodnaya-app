@@ -1,6 +1,7 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript/dist';
 import { User } from '../users/user.model';
 import { Messages } from '../messages/messages.model';
+import { Publications } from 'src/common/models/publications/publications.model';
 
 interface FilesCreationAttrs {
     fileName: string;
@@ -29,4 +30,11 @@ export class Files extends Model<Files, FilesCreationAttrs> {
 
     @BelongsTo(() => Messages)
     messages: Messages;
+
+    @ForeignKey(() => Publications)
+    @Column({ type: DataType.INTEGER })
+    publicationId: number;
+
+    @BelongsTo(() => Publications)
+    publications: Publications;
 }

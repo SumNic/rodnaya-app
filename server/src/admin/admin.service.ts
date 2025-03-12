@@ -22,6 +22,7 @@ export class AdminService {
                 where: {
                     id_cleaner: dto.id_cleaner,
                     id_foul_message: dto.id_foul_message,
+                    source: dto.source,
                 },
             });
             if (getFoulMessage) return 'Вы уже сообщали о нарушении! Модератор рассмотрит ваше обращение в ближайшее время.';

@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { App } from '@capacitor/app';
 import { Device } from '@capacitor/device';
 import { Http } from '@capacitor-community/http';
+import { useThemeContext } from '../contexts/ThemeContext';
 
 const Home: React.FC = () => {
 	const [isMobile, setIsMobile] = useState(false);
@@ -34,6 +35,8 @@ const Home: React.FC = () => {
 	
 	// const [deviceId, setDeviceId] = useState('');
 	const { store } = useStoreContext();
+
+	const { currentWidth } = useThemeContext();
 
 	// const navigate = useNavigate();
 
@@ -72,8 +75,6 @@ const Home: React.FC = () => {
 						const code = jsonData.oauth.code;
 						getAccessToken(code);
 					}
-
-					console.log(state);
 				} else {
 					console.log('Параметр data не найден в URL');
 				}
@@ -88,8 +89,6 @@ const Home: React.FC = () => {
 	}, []);
 
 	async function getAccessToken(code: string) {
-		console.log(code, 'code');
-
 		const info = await Device.getId(); // Получаем информацию о устройстве
 		const deviceId = info.identifier;
 
@@ -104,8 +103,6 @@ const Home: React.FC = () => {
 				code: code,
 				redirect_uri: `vk${app_id}://vk.com`,
 			});
-
-			console.log(data.toString(), 'data.toString()');
 
 			// Отправляем POST-запрос
 			const response = await Http.post({
@@ -127,6 +124,7 @@ const Home: React.FC = () => {
 		<div>
 			<header className="header">
 				<div className="header__wrapper">
+					{currentWidth && currentWidth < 830 && <NavMiddle item={HOME_ROUTE} />}
 					<HeaderLogoMobile />
 					<HeaderLogoRegistr />
 				</div>
@@ -134,8 +132,7 @@ const Home: React.FC = () => {
 
 			<div className="middle">
 				<div className="middle__wrapper">
-					{store.isAuth && <NavMiddle item={HOME_ROUTE} />}
-					{!store.isAuth && <nav className="middle__menu"></nav>}
+					{currentWidth && currentWidth >= 830 && <NavMiddle item={HOME_ROUTE} />}
 					<div className="main__screen main__screen_home">
 						<section id="list_founders" className="founders-section">
 							<h1 className="founders-title">Родная партия</h1>
@@ -149,12 +146,12 @@ const Home: React.FC = () => {
 								Этот ресурс объединяет единомышленников, нацеленных на возвращение энергии Любви в семьи.
 							</p>
 
-							<p className="founders-call-to-action">
+							{!store.authStore.isAuth && <p className="founders-call-to-action">
 								Если ты считаешь себя учредителем своей Родной партии, присоединяйся к нам!
-							</p>
+							</p>}
 
 							{isMobile ? <MyButton text="Войти с VK ID" onClick={enterWithVKID} /> :
-							!store.isAuth && <AuthVkButton />}
+							!store.authStore.isAuth && <AuthVkButton />}
 
 							<h2 className="founders-subheading">Хотите узнать больше?</h2>
 							<p className="founders-details">

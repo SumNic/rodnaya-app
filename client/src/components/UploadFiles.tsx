@@ -43,7 +43,7 @@ function UploadFiles() {
 			const formData = new FormData();
 			formData.append('file', state.file);
 			const response = await uploadForm(formData);
-			store.setFiles(response?.data);
+			store.filesStore.setFiles(response?.data);
 		} catch (error: any) {
 			if (error.response.data.message) {
 				setIsError(error.response.data.message);
@@ -57,8 +57,8 @@ function UploadFiles() {
 	return (
 		<>
 			<div id="show_clip" style={style}>
-				{store.files &&
-					store.files.map((files: any, index: number) => {
+				{store.filesStore.files &&
+					store.filesStore.files.map((files: any, index: number) => {
 						let originFileName = Buffer.from(files.fileName, 'latin1').toString('utf8');
 						return (
 							<div key={index} style={{ display: 'flex', paddingBottom: '5px' }}>

@@ -1,7 +1,6 @@
 import { AxiosResponse } from "axios";
 import $api from "../api_http/index.ts";
 import { AuthResponse } from "../models/response/AuthResponse";
-import { ResidencyUser } from "../models/ResidencyUser";
 import { VkSdkResponse } from "../models/response/VkSdkResponse";
 
 export default class AuthService {
@@ -16,11 +15,7 @@ export default class AuthService {
 
     static async restoreProfile(id: number, secret: string): Promise<AxiosResponse<boolean>> {
         return $api.post('/restore-profile', {id, secret})
-    }
-
-    static async createResidencyUsers(dto: ResidencyUser): Promise<AxiosResponse<ResidencyUser>> {
-        return $api.post<ResidencyUser>('/create-residency', dto)
-    }
+    }    
 
     static async setRegistration(id: number, secret: string, uuid: any): Promise<AxiosResponse<VkSdkResponse>> {
         return $api.post<VkSdkResponse>('/set-registration', {id, secret, uuid})

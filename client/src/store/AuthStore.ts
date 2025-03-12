@@ -1,22 +1,14 @@
 import { makeAutoObservable } from 'mobx';
-import { IUser } from '../models/IUser';
-import AuthService from '../services/AuthService';
-import VkAuthService from '../services/VkAuthService';
-import { ResidencyUser } from '../models/ResidencyUser';
-import LocationUserService from '../services/LocationService';
-import { LocationUser } from '../models/LocationUser';
+import { IUser } from '../models/IUser.ts';
+import AuthService from '../services/AuthService.ts';
+import VkAuthService from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
-import ResidencyService from '../services/ResidencyService';
-import { ResidencyResponse } from '../models/response/ResidencyResponse';
-import UserService from '../services/UserService';
-import MessagesService from '../services/MessagesService';
-import { IFiles } from '../models/IFiles';
-import { IUserVk } from '../models/IUserVk';
+import UserService from '../services/UserService.ts';
+import { IUserVk } from '../models/IUserVk.ts';
 import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
-import { SendedMessage } from '../models/SendedMessage.ts';
 
-export default class Store {
+export default class AuthStore {
 	user = {} as IUser;
 	userFromVk = {} as IUserVk;
 	isAuth = false;
@@ -25,18 +17,11 @@ export default class Store {
 	isRegistrationEnd = false;
 	isError = false;
 	isMessageError = '';
-	country = [] as LocationUser[];
-	region = [] as LocationUser[];
-	locality = [] as LocationUser[];
 	uuid = uuidv4();
 	load = true;
-	isResidency = [] as ResidencyResponse[];
-	cancelAction = false; // используется для закрытия окна редактирования в Personale_page
+	isEditProfile = false; // используется для закрытия окна редактирования в Personale_page
 	declaration = '';
 	isDelProfile = false;
-	files = [] as IFiles[];
-	progressLoadValue: number = 0;
-	nameFile = '';
 	isAdmin = false;
 
 	constructor() {
@@ -75,28 +60,12 @@ export default class Store {
 		this.isMessageError = str;
 	}
 
-	setCountry(country: LocationUser[]) {
-		this.country = country;
-	}
-
-	setRegion(region: LocationUser[]) {
-		this.region = region;
-	}
-
-	setLocality(locality: LocationUser[]) {
-		this.locality = locality;
-	}
-
 	setLoad(bool: boolean) {
 		this.load = bool;
 	}
 
-	setResidency(isResidency: ResidencyResponse[]) {
-		this.isResidency = isResidency;
-	}
-
-	setCancelAction(bool: boolean) {
-		this.cancelAction = bool;
+	setIsEditProfile(bool: boolean) {
+		this.isEditProfile = bool;
 	}
 
 	setDeclaration(str: string) {
@@ -105,22 +74,6 @@ export default class Store {
 
 	setDelProfile(bool: boolean) {
 		this.isDelProfile = bool;
-	}
-
-	setFiles(file: IFiles) {
-		this.files.push(file);
-	}
-
-	resetFiles() {
-		this.files = [] as IFiles[];
-	}
-
-	setProgressLoadValue(nbr: number) {
-		this.progressLoadValue = nbr;
-	}
-
-	setNameFile(str: string) {
-		this.nameFile = str;
 	}
 
 	setAdmin(bool: boolean) {
@@ -261,52 +214,6 @@ export default class Store {
 		}
 	}
 
-	async getCountry() {
-		try {
-			const response = await LocationUserService.fetchCountryUsers();
-			this.setCountry(response.data);
-		} catch (e: any) {
-			console.log(e.response?.data?.message);
-		}
-	}
-
-	async getRegion(country: string) {
-		try {
-			const response = await LocationUserService.fetchRegionUsers(country);
-			this.setRegion(response.data);
-		} catch (e: any) {
-			console.log(e.response?.data?.message);
-		}
-	}
-
-	async getLocality(region: string) {
-		try {
-			const response = await LocationUserService.fetchLocalityUsers(region);
-			this.setLocality(response.data);
-		} catch (e: any) {
-			console.log(e.response?.data?.message);
-		}
-	}
-
-	async saveResidency(dto: ResidencyUser) {
-		try {
-			const response = await AuthService.createResidencyUsers(dto);
-			return { data: response.data };
-		} catch (e: any) {
-			return { error: e.response?.data?.message };
-		}
-	}
-
-	async getAllResidencys() {
-		try {
-			const response = await ResidencyService.getResidencyUsers();
-			this.setResidency(response.data);
-			return response;
-		} catch (e: any) {
-			console.log(e.response?.data?.message);
-		}
-	}
-
 	async addDeclaration(form: any) {
 		try {
 			const response = await UserService.addDeclaration(form);
@@ -331,15 +238,6 @@ export default class Store {
 			this.setUser({...this.user, first_name: response.data.first_name, last_name: response.data.last_name});
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
-		}
-	}
-
-	async sendMessage(dto: SendedMessage) {
-		try {
-			const response = await MessagesService.sendMessage(dto);
-			return {data: response.data};
-		} catch (e: any) {
-			return { error: e.response?.data?.message };
 		}
 	}
 }

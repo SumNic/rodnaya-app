@@ -8,6 +8,7 @@ import { Secret } from './secret.model';
 import { Messages } from '../messages/messages.model';
 import { ManageMessages } from '../messages/manageMessages.model';
 import { EndReadMessage } from '../messages/endReadMessage.model';
+import { Publications } from 'src/common/models/publications/publications.model';
 
 interface UserCreationAttrs {
     user_id: string;
@@ -83,4 +84,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
     @HasMany(() => EndReadMessage)
     endReadMessage: EndReadMessage[];
+
+    @HasMany(() => Publications)
+    publications: Publications[];
 }

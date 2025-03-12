@@ -250,7 +250,7 @@ export class UsersController {
     }
 
     @ApiOperation({ summary: 'Получить пользователя' })
-    @Get('/get-user')
+    @Get('/get-user/:id')
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Получение пользователя по его Id',
@@ -260,8 +260,7 @@ export class UsersController {
         status: HttpStatus.BAD_REQUEST,
         description: 'Неккоректные данные',
     })
-    @UseGuards(JwtAuthGuard)
-    async getUser(@Query('id') id: number): Promise<User> {
-        return await this.usersService.getUser(id);
+    async getUser(@Param('id') id: number): Promise<User> {
+        return await this.usersService.getUserWithResidency(id);
     }
 }

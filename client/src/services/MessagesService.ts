@@ -3,7 +3,7 @@ import $api from '../api_http/index.ts';
 import { IPost } from '../models/IPost.ts';
 import { GetCountNoReadMessagesDto } from '../models/GetCounNoReadMessages.dto.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
-import { EndReadMessagesId } from '../models/endReadMessagesId.ts';
+import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
 import { SendedMessage } from '../models/SendedMessage.ts';
 
 export default class MessagesService {
@@ -13,12 +13,12 @@ export default class MessagesService {
 
 	static async getAllMessages(
 		id: number,
-		start_message_id: number,
+		pageNumber: number,
 		secret: string,
-		location: string | undefined
-	): Promise<AxiosResponse<IPost>> {
-		return $api.get<any>('/get-all-messages', {
-			params: { id, start_message_id, secret, location },
+		location: string | undefined,
+	): Promise<AxiosResponse<IPost[]>> {
+		return $api.get<IPost[]>('/get-all-messages', {
+			params: { id, pageNumber, secret, location },
 		});
 	}
 
@@ -50,18 +50,16 @@ export default class MessagesService {
 		});
 	}
 
-	static async getEndReadMessagesId(dto: GetCountNoReadMessagesDto): Promise<AxiosResponse<EndReadMessagesId[]>> {
+	static async getLastReadMessageId(dto: GetCountNoReadMessagesDto): Promise<AxiosResponse<EndReadMessagesId[]>> {
 		return $api.get<EndReadMessagesId[]>('/get-end-read-messages-id', {
 			params: dto,
 		});
 	}
 
-	static async setEndReadMessagesId(id_user: number, id_message: number, location: string, secret: string) {
+	static async setEndReadMessagesId(id_message: number, location: string) {
 		return $api.post('/set-end-read-messages-id', {
-			id_user,
 			id_message,
 			location,
-			secret,
 		});
 	}
 

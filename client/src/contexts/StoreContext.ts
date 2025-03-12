@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
-import Store from '../store/store';
+import store from '../store';
 
 export interface StoreContextType {
-	store: Store;
+	store: typeof store;
 }
 
 export const StoreContext = createContext<StoreContextType | null>(null);

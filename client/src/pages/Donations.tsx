@@ -2,16 +2,18 @@ import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
+import { useThemeContext } from '../contexts/ThemeContext';
 import { HOME_ROUTE } from '../utils/consts';
-import { useStoreContext } from '../contexts/StoreContext';
 
 const Donations: React.FC = () => {
-	const { store } = useStoreContext();
+
+	const { currentWidth } = useThemeContext();
 
 	return (
 		<div>
 			<header className="header">
 				<div className="header__wrapper">
+					{currentWidth && currentWidth < 830 && <NavMiddle item={HOME_ROUTE} />}
 					<HeaderLogoMobile />
 					<HeaderLogoRegistr />
 				</div>
@@ -19,8 +21,7 @@ const Donations: React.FC = () => {
 
 			<div className="middle">
 				<div className="middle__wrapper">
-					{store.isAuth && <NavMiddle item={HOME_ROUTE} />}
-					{!store.isAuth && <nav className="middle__menu"></nav>}
+					{currentWidth && currentWidth >= 830 && <NavMiddle item={HOME_ROUTE} />}
 					<div className="main__screen main__screen_home">
 						<div id="list_founders" className="support-section">
 							<div className="rules">

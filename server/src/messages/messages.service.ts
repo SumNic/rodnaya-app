@@ -73,7 +73,7 @@ export class MessagesService {
                 const data = await response.json();
                 console.log('Успешно отправлено', data);
 
-                return {message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50};
+                return { message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
 
             throw new HttpException('Сообщение не было отправлено', HttpStatus.FORBIDDEN);
@@ -85,21 +85,27 @@ export class MessagesService {
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
         try {
             const user = await this.usersService.getUserWithResidency(+dto.id);
-            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля'
+            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
 
             const endReadMessagesId = await this.getEndReadMessagesId({
                 id: `${dto.id}`,
                 secret: dto.secret,
-                residency: {[dto.location]: location},
+                residency: { [dto.location]: location },
             });
 
-            const endReadMessagesIdForLocation = endReadMessagesId.filter(elem => elem.location === location)
+            const endReadMessagesIdForLocation = endReadMessagesId.filter((elem) => elem.location === location);
 
-            const end_id = +dto.start_message_id !== -1 ? +dto.start_message_id : endReadMessagesIdForLocation[0].id;
+            const end_id = endReadMessagesIdForLocation[0].id;
 
             const countMessage = await this.getCountMessageFromId(end_id, location);
 
-            if (user && user.secret === dto.secret && endReadMessagesIdForLocation[0].id >= 0 && countMessage >= 0) {
+            const standartLimit = 20; // Количество записей на страницу
+            const offset =
+                +dto.pageNumber > 0 ? countMessage - standartLimit + (+dto.pageNumber - 1) * standartLimit : countMessage - standartLimit + (+dto.pageNumber) * standartLimit; // Пропускаем записи для нужной страницы
+
+            const limit = offset < 0 ? offset + standartLimit : standartLimit;
+
+            if (user && user.secret === dto.secret && (offset + standartLimit) >= 0 && countMessage) {
                 const { rows } = await this.messagesRepository.findAndCountAll({
                     where: {
                         location,
@@ -107,8 +113,8 @@ export class MessagesService {
                     },
                     include: { all: true },
                     order: [['id', Order.ASC]],
-                    offset: countMessage < 20 ? 0 : countMessage - 20,
-                    limit: 20,
+                    offset: offset < 0 ? 0 : offset,
+                    limit,
                 });
                 return rows;
             }
@@ -117,62 +123,62 @@ export class MessagesService {
         }
     }
 
-    async getNextMessage(dto: GetMessagesDto): Promise<Messages[]> {
-        try {
-            const user = await this.usersService.getUserWithResidency(+dto.id);
+    // async getNextMessage(dto: GetMessagesDto): Promise<Messages[]> {
+    //     try {
+    //         const user = await this.usersService.getUserWithResidency(+dto.id);
 
-            const end_id = +dto.start_message_id;
-            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+    //         const end_id = +dto.start_message_id;
+    //         const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
 
-            const countMessage = await this.getCountMessageFromId(end_id, location);
+    //         const countMessage = await this.getCountMessageFromId(end_id, location);
 
-            if (user && user.secret === dto.secret) {
-                const { rows } = await this.messagesRepository.findAndCountAll({
-                    where: {
-                        location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
-                        blocked: false,
-                    },
-                    include: { all: true },
-                    order: [['id', Order.ASC]],
-                    offset: countMessage,
-                    limit: 20,
-                });
-                if (rows) return rows;
-                return [];
-            }
-        } catch (err) {
-            throw new HttpException(`Ошибка в getNextMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    //         if (user && user.secret === dto.secret) {
+    //             const { rows } = await this.messagesRepository.findAndCountAll({
+    //                 where: {
+    //                     location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+    //                     blocked: false,
+    //                 },
+    //                 include: { all: true },
+    //                 order: [['id', Order.ASC]],
+    //                 offset: countMessage,
+    //                 limit: 20,
+    //             });
+    //             if (rows) return rows;
+    //             return [];
+    //         }
+    //     } catch (err) {
+    //         throw new HttpException(`Ошибка в getNextMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    //     }
+    // }
 
-    async getPreviousMessage(dto: GetMessagesDto): Promise<Messages[]> {
-        try {
-            const user = await this.usersService.getUserWithResidency(+dto.id);
+    // async getPreviousMessage(dto: GetMessagesDto): Promise<Messages[]> {
+    //     try {
+    //         const user = await this.usersService.getUserWithResidency(+dto.id);
 
-            const end_id = +dto.start_message_id;
-            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+    //         const end_id = +dto.start_message_id;
+    //         const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
 
-            const countMessage = await this.getCountMessageFromId(end_id, location);
+    //         const countMessage = await this.getCountMessageFromId(end_id, location);
 
-            if (user && user.secret === dto.secret && countMessage >= 1) {
-                const { rows } = await this.messagesRepository.findAndCountAll({
-                    where: {
-                        location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
-                        blocked: false,
-                    },
-                    include: { all: true },
-                    order: [['id', Order.ASC]],
-                    offset: countMessage - 1 < 20 ? 0 : countMessage - 21,
-                    limit: countMessage - 1 < 20 ? countMessage - 1 : 20,
-                });
-                return rows;
-            } else if (!user && user.secret !== dto.secret && countMessage < 1) {
-                return;
-            }
-        } catch (err) {
-            throw new HttpException(`Ошибка в getPreviousMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    //         if (user && user.secret === dto.secret && countMessage >= 1) {
+    //             const { rows } = await this.messagesRepository.findAndCountAll({
+    //                 where: {
+    //                     location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
+    //                     blocked: false,
+    //                 },
+    //                 include: { all: true },
+    //                 order: [['id', Order.ASC]],
+    //                 offset: countMessage - 1 < 20 ? 0 : countMessage - 21,
+    //                 limit: countMessage - 1 < 20 ? countMessage - 1 : 20,
+    //             });
+    //             return rows;
+    //         } else if (!user && user.secret !== dto.secret && countMessage < 1) {
+    //             return;
+    //         }
+    //     } catch (err) {
+    //         throw new HttpException(`Ошибка в getPreviousMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    //     }
+    // }
 
     async getCountNoReadMessages(dto: EndMessageDto): Promise<RespCountNoReadMessagesDto[]> {
         try {
@@ -224,7 +230,6 @@ export class MessagesService {
                 const result = await Promise.all(messageEndReadIdPromises);
                 return result.reverse();
 
-
                 // const endReadMessagesId = await this.endReadMessageRepository.findOne({
                 //     where: {
                 //         user_id: user.id,
@@ -244,7 +249,7 @@ export class MessagesService {
             const { count } = await this.messagesRepository.findAndCountAll({
                 where: {
                     id: {
-                        [Op.lte]: end_id, // Используем оператор Op.lte для "меньше или равно"
+                        [Op.lte]: end_id,
                     },
                     location: location,
                     blocked: false,
@@ -256,10 +261,10 @@ export class MessagesService {
         }
     }
 
-    async setEndReadMessagesId(dto: EndReadMessageDto) {
+    async setEndReadMessagesId(user_id: number, dto: EndReadMessageDto) {
         try {
             const endReadMessages = await this.endReadMessageRepository.findOne({
-                where: { user_id: dto.id_user, location: dto.location },
+                where: { user_id, location: dto.location },
             });
             const countMessages = await this.getCountMessageFromId(dto.id_message, dto.location);
             endReadMessages.endMessage = countMessages;

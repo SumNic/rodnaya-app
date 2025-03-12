@@ -22,27 +22,27 @@ const VkCallback: React.FC = () => {
             const payload = JSON.parse(codeFromUrl);
             registration(payload);
         } else {
-            store.setError(true);
-            store.setMessageError('Ошибка в VkCallback');
+            store.authStore.setError(true);
+            store.authStore.setMessageError('Ошибка в VkCallback');
         }
     }, []);
 
     async function registration(payload: {}) {
-        const registrVk = await store.registrationVk(payload);
+        const registrVk = await store.authStore.registrationVk(payload);
         if (!registrVk?.data) return;
         if (registrVk.data.isDelProfile) {
-            store.setDelProfile(true);
+            store.authStore.setDelProfile(true);
             navigate(RESTORE_PROFILE_ROUTE, {
                 state: { user: registrVk.data },
             });
         } else if (!registrVk.data.isRegistration && registrVk.data.blockedforever) {
             return navigate(BLOCKED_ROUTE)
         } else if (!registrVk.data.isRegistration && registrVk.data.id) {
-            store.setIsCondition(true);
-            store.setUser(registrVk.data);
+            store.authStore.setIsCondition(true);
+            store.authStore.setUser(registrVk.data);
             navigate(REGISTRATION_ROUTE);
         } else if (registrVk.data.isRegistration && registrVk.data.id) {
-            await store.loginVk(
+            await store.authStore.loginVk(
                 registrVk.data.id,
                 registrVk.data.secret
             );

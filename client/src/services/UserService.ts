@@ -10,9 +10,7 @@ export default class UserService {
     }
 
     static async getUser(id: number): Promise<AxiosResponse<IUser>> {
-        return $api.get<IUser>('/get-user', {
-            params: {id}
-        })
+        return $api.get<IUser>(`/get-user/${id}`)
     }
 
     static async addDeclaration(form: DeclarationUser): Promise<AxiosResponse<IUser>> {

@@ -1,6 +1,4 @@
-import Store from "../store/store";
-
-const store = new Store();
+import store from "../store";
 
 export const useStore = () => {
 

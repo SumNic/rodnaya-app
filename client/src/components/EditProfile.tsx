@@ -9,27 +9,27 @@ function EditProfile () {
     // const {store} = useContext(Context)
     const { store } = useStoreContext();
 
-    const deleteProfile = async () => {
+    const deleteCurrentProfile = async () => {
         try {
-            await store.deleteProfile(store.user.id, store.user.secret)
+            await store.authStore.deleteProfile(store.authStore.user.id, store.authStore.user.secret)
         } catch (error) {
             `Ошибка в deleteProfile: ${error}`
         }
     };
 
     const cancel = () => {
-        store.setRegistrationEnd(false)
-        store.setCancelAction(true) // закрывается окно редактирования в Personale_page
+        store.authStore.setRegistrationEnd(false)
+        store.authStore.setIsEditProfile(false) // закрывается окно редактирования в Personale_page
     }
 
     return (
         <>
             <Title level={2} style={{ fontSize: '18px' }}>
-                Удалить мой профиль с сайта Родная партия:
+                Удалить профиль с сайта Родная партия:
 			</Title>
             <div style={{display: "flex", justifyContent: 'end', gap: '10px'}}>
                 <Button onClick={cancel}>Отменить</Button>
-                <Button type="primary" onClick={deleteProfile} danger>Удалить</Button>
+                <Button type="primary" onClick={deleteCurrentProfile} danger>Удалить</Button>
             </div>
         </>
         

@@ -32,7 +32,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 
 	function getCount() {
 		if (click) {
-			store.getCountry();
+			store.locationStore.getCountry();
 			setClick(false);
 		}
 		return;
@@ -42,15 +42,15 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 
 	function selectCountry(e: string): void {
 		setCountry(e);
-		store.getRegion(e);
+		store.locationStore.getRegion(e);
 		setSelectCount(true);
 	}
 
 	function selectRegion(e: string): void {
 		setLocality('');
-		store.getRegion(country);
+		store.locationStore.getRegion(country);
 		setRegion(e);
-		store.getLocality(e);
+		store.locationStore.getLocality(e);
 	}
 
 	function resetCountry() {
@@ -79,7 +79,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 				secret,
 			};
 			try {
-				const response = await store.saveResidency(dto);
+				const response = await store.locationStore.saveResidency(dto);
 				if (response.error) {
 					var options: {} = {
 						year: 'numeric',
@@ -93,10 +93,10 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					setMessageBlock(dataStopEditResidency);
 				} else {
 					localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
-					const userWithoutResidency = { ...store.user, residency: {} as LocationUser };
-					store.setUser(userWithoutResidency);
-					store.loginVk(dto.id, dto.secret).then(() => navigate(PERSONALE_ROUTE));
-					store.setCancelAction(true); // закрывается окно редактирования в Personale_page
+					const userWithoutResidency = { ...store.authStore.user, residency: {} as LocationUser };
+					store.authStore.setUser(userWithoutResidency);
+					store.authStore.loginVk(dto.id, dto.secret).then(() => navigate(PERSONALE_ROUTE));
+					store.authStore.setIsEditProfile(false); // закрывается окно редактирования в Personale_page
 				}
 				setIsLoading(false);
 			} catch (error) {
@@ -108,8 +108,8 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 	};
 
 	function cancel() {
-		store.setRegistrationEnd(false);
-		store.setCancelAction(true); // закрывается окно редактирования в Personale_page
+		store.authStore.setRegistrationEnd(false);
+		store.authStore.setIsEditProfile(false); // закрывается окно редактирования в Personale_page
 	}
 
 	return (
@@ -126,7 +126,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					onClick={resetCountry}
 					style={{ width: '100%', marginBottom: '10px' }}
 				>
-					{store.country.map((item: any, index: any) => (
+					{store.locationStore.country.map((item: any, index: any) => (
 						<Option key={index} value={item.country}>
 							{item.country}
 						</Option>
@@ -141,7 +141,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 				>
 					{country &&
 						clickCount &&
-						store.region.map((item: any, index: any) => (
+						store.locationStore.region.map((item: any, index: any) => (
 							<Option key={index} value={item.region}>
 								{item.region}
 							</Option>
@@ -156,7 +156,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					disabled={!region} // Дизаблим, если не выбрана область
 				>
 					{region &&
-						store.locality.map((item: any, index: any) => (
+						store.locationStore.locality.map((item: any, index: any) => (
 							<Option key={index} value={item.locality}>
 								{item.locality}
 							</Option>

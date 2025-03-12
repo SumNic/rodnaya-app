@@ -41,7 +41,7 @@ function SendMessage(props: Props) {
 
 	useEffect(() => {
 		setMessageSent('');
-		store.resetFiles();
+		store.filesStore.resetFiles();
 	}, [props.location]);
 
 	const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,24 +52,24 @@ function SendMessage(props: Props) {
 			const form = e.currentTarget;
 			const formData = new FormData(form);
 
-			const arrIdFiles = store.files.map((file: IFiles) => file);
+			const arrIdFiles = store.filesStore.files.map((file: IFiles) => file);
 			formData.append('files', JSON.stringify(arrIdFiles));
 			const formJson = Object.fromEntries(formData.entries());
 
 			const dto = {
-				id_user: store.user.id,
-				secret: store.user.secret,
+				id_user: store.authStore.user.id,
+				secret: store.authStore.user.secret,
 				location: props.location,
 				form: formJson
 			}
 
-			const resp_id = await store.sendMessage(dto);
+			const resp_id = await store.messageStore.sendMessage(dto);
 			if (resp_id.error) {
 				return message.error(resp_id.error);
 			}
 
 			setMessageSent('');
-			store.resetFiles();
+			store.filesStore.resetFiles();
 			setIsSendMessage(false)
 		} catch (err) {
 			setIsSendMessage(false)
@@ -77,7 +77,7 @@ function SendMessage(props: Props) {
 		}
 	};
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => { 
 		if (messageSent.trim().length > 0 && !e.shiftKey && e.key === 'Enter') {
 			if (e.key === 'Enter') {
 				e.preventDefault();

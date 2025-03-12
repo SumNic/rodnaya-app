@@ -10,33 +10,33 @@ const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
 
 	useEffect(() => {
-		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE) && !store.isAuth) {
-			store.checkAuth();
+		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
+			store.authStore.checkAuth();
 		} else {
 			localStorage.removeItem(LOCAL_STORAGE_TOKEN)
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE)
-			store.setLoad(false);
+			store.authStore.setLoad(false);
 		}
 	}, []);
 
-	return store.load ? (
+	return store.authStore.load ? (
 		<LogoLoad />
 	) : (
 		<Routes>
             {store &&
 				adminRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.isAuth &&
+			{store.authStore.isAuth &&
 				authRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.isCondition &&
-				!store.isDelProfile &&
+			{store.authStore.isCondition &&
+				!store.authStore.isDelProfile &&
 				registrationRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.isDelProfile &&
+			{store.authStore.isDelProfile &&
 				restoreRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{!store.isError &&
+			{!store.authStore.isError &&
 				publicRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.isError &&
+			{store.authStore.isError &&
 				errorRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.isError && <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />}
+			{store.authStore.isError && <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />}
 			<Route path="*" element={<Navigate to={HOME_ROUTE} />} />
 		</Routes>
 	);
