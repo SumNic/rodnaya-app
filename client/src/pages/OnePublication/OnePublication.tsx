@@ -3,7 +3,6 @@ import { useThemeContext } from '../../contexts/ThemeContext';
 import NavMiddle from '../../components/Nav_middle/NavMiddle';
 import { PUBLICATION_ID_ROUTE, PUBLICATION_ROUTE } from '../../utils/consts';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
-import { Spin } from 'antd';
 import { observer } from 'mobx-react-lite';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import PublicationsList from '../Publications/components/PublicationsList';
@@ -58,9 +57,7 @@ const OnePublication: React.FC = () => {
 					{currentWidth && currentWidth >= 830 && <NavMiddle item={PUBLICATION_ROUTE} />}
 					<div className="main__screen main__screen_home">
 						<div id="list_founders">
-							<Spin spinning={isLoadPublications}>
-								<PublicationsList publications={publication} />
-							</Spin>
+							<PublicationsList publications={publication} isLoadPublications={isLoadPublications} />
 						</div>
 
 						<div className="main__screen-flag"></div>
