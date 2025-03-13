@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { DOMEN, FOUL_MESSAGES, HOST, MESSAGES, MESSAGES_ROUTE, PERSONALE_ROUTE, PUBLICATIONS, SHARE } from '../../utils/consts';
+import {
+	DOMEN,
+	FOUL_MESSAGES,
+	HOST,
+	MESSAGES,
+	MESSAGES_ROUTE,
+	PERSONALE_ROUTE,
+	PUBLICATIONS,
+	SHARE,
+} from '../../utils/consts';
 
 import { Button, Dropdown, MenuProps, message } from 'antd';
 
@@ -16,13 +25,14 @@ import ExpandableText from '../ExpandableText/ExpandableText';
 import { DangerIcon } from '../../UI/icons/DangerIcon';
 import { observer } from 'mobx-react-lite';
 import { EllipsisOutlined } from '@ant-design/icons';
+import ShareButton from '../ShareButton';
 
 interface PostProps {
 	post: IPost;
 }
 
 const Post: React.FC<PostProps> = ({ post }) => {
-	const [idFoulMessage, setIdFoulMessage] = useState<number>();
+	const [selectedMessage, setSelectedMessage] = useState<IPost>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
 
@@ -41,6 +51,8 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
 	const splitRoute = MESSAGES_ROUTE.split('/');
 
+	const url = `${HOST}/get-publication/${post.id}`;
+
 	const options: MenuProps['items'] = [
 		{
 			key: FOUL_MESSAGES,
@@ -56,20 +68,10 @@ const Post: React.FC<PostProps> = ({ post }) => {
 						key: SHARE,
 						title: 'Поделиться',
 						label: <>{SHARE}</>,
-						children: [
-							{
-								key: 'vk',
-								label: <div onClick={() => handleShare('vk', 'Родная партия')}>ВКонтакте</div>,
-							},
-							{
-								key: 'telegram',
-								label: <div onClick={() => handleShare('telegram', 'Родная партия')}>Телеграм</div>,
-							},
-							{
-								key: 'whatsapp',
-								label: <div onClick={() => handleShare('whatsapp', 'Родная партия')}>WhatsApp</div>,
-							},
-						],
+						children: ['vk', 'telegram', 'whatsapp'].map((platform) => ({
+							key: platform,
+							label: <ShareButton platform={platform} url={url} text={selectedMessage?.message || ''} />,
+						})),
 					},
 			  ]
 			: []),
@@ -78,15 +80,15 @@ const Post: React.FC<PostProps> = ({ post }) => {
 	const sourceFoul = parts.includes(MESSAGES) ? MESSAGES : PUBLICATIONS;
 
 	const sendFoul = async (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
-		if (idFoulMessage) {
+		if (selectedMessage) {
 			try {
 				const sendFoulMessage = await AdminService.reportViolation({
 					id_cleaner: store.authStore.user.id,
-					id_foul_message: idFoulMessage,
+					id_foul_message: selectedMessage.id,
 					selectedRules: selectedRules,
 					selectedActionWithFoul: selectedActionWithFoul,
 					selectedPunishment: selectedPunishment,
-					source: sourceFoul
+					source: sourceFoul,
 				});
 
 				if (sendFoulMessage) message.success(`${sendFoulMessage.data}`);
@@ -99,30 +101,6 @@ const Post: React.FC<PostProps> = ({ post }) => {
 	const handleSelect = (event: string): void => {
 		if (event === FOUL_MESSAGES) {
 			setIsFoulModalOpenOk(true);
-		}
-	};
-
-	const url = `${HOST}/get-publication/${post.id}`;
-
-	const handleShare = (platform: string, text: string) => {
-		const shareUrl = encodeURIComponent(url);
-		const shareText = encodeURIComponent(text);
-
-		let shareLink = '';
-		if (platform === 'vk') {
-			shareLink = `https://vk.com/share.php?url=${shareUrl}&title=${shareText}`;
-		} else if (platform === 'telegram') {
-			shareLink = `https://t.me/share/url?url=${shareUrl}&text=${shareText}`;
-		} else if (platform === 'whatsapp') {
-			shareLink = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
-		}
-
-		if (shareLink) {
-			window.open(
-				shareLink,
-				'popupWindow',
-				'width=600,height=500,left=100,top=100,resizable=no,scrollbars=no,status=no'
-			);
 		}
 	};
 
@@ -153,16 +131,16 @@ const Post: React.FC<PostProps> = ({ post }) => {
 				</Link>
 				<p className="name__time">{new Date(post.createdAt).toLocaleString('ru', options_time)}</p>
 				<div className={styles.foul}>
-				<Dropdown
-					menu={{ items: options, onClick: handleMenuClick }}
-					onOpenChange={handleVisibleChange}
-					open={visible}
-					trigger={['click']}
-				>
-					<Button type="text" className={styles.menuButton} onClick={() => setIdFoulMessage(post.id)}>
-						<EllipsisOutlined />
-					</Button>
-				</Dropdown>
+					<Dropdown
+						menu={{ items: options, onClick: handleMenuClick }}
+						onOpenChange={handleVisibleChange}
+						open={visible}
+						trigger={['click']}
+					>
+						<Button type="text" className={styles.menuButton} onClick={() => setSelectedMessage(post)}>
+							<EllipsisOutlined />
+						</Button>
+					</Dropdown>
 				</div>
 			</div>
 			<ExpandableText text={post.message.trim()} />
