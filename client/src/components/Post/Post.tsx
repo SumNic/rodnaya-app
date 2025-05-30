@@ -3,15 +3,17 @@ import { Link, useLocation } from 'react-router-dom';
 import {
 	DOMEN,
 	FOUL_MESSAGES,
+	GO,
 	HOST,
 	MESSAGES,
 	MESSAGES_ROUTE,
 	PERSONALE_ROUTE,
+	PUBLICATION_ID_ROUTE,
 	PUBLICATIONS,
 	SHARE,
 } from '../../utils/consts';
 
-import { Button, Dropdown, MenuProps, message } from 'antd';
+import { Avatar, Button, Dropdown, MenuProps, message } from 'antd';
 
 import { Buffer } from 'buffer';
 
@@ -26,6 +28,7 @@ import { DangerIcon } from '../../UI/icons/DangerIcon';
 import { observer } from 'mobx-react-lite';
 import { EllipsisOutlined } from '@ant-design/icons';
 import ShareButton from '../ShareButton';
+import CustomAvatar from '../CustomAvatar';
 
 interface PostProps {
 	post: IPost;
@@ -51,7 +54,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
 	const splitRoute = MESSAGES_ROUTE.split('/');
 
-	const url = `${HOST}/get-publication/${post.id}`;
+	const url = `${HOST}/${PUBLICATION_ID_ROUTE}/${post.id}`;
 
 	const options: MenuProps['items'] = [
 		{
@@ -72,6 +75,10 @@ const Post: React.FC<PostProps> = ({ post }) => {
 							key: platform,
 							label: <ShareButton platform={platform} url={url} text={selectedMessage?.message || ''} />,
 						})),
+					},
+					{
+						key: GO,
+						label: <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
 					},
 			  ]
 			: []),
@@ -119,9 +126,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 	return (
 		<div className={styles['mes__wrapper']}>
 			<div className="buttons-container"></div>
-			<Link to={`${PERSONALE_ROUTE}/${post.user.id}`}>
-				<img className="mes_foto" src={post.user.photo_50} />
-			</Link>
+			<Link to={`${PERSONALE_ROUTE}/${post.user.id}`}><CustomAvatar photoUrl={post.user.photo_50} size={40} names={[post.user.first_name, post.user.last_name]} /></Link>
 			<div className="name__first_last">
 				<Link to={`${PERSONALE_ROUTE}/${post.user.id}`} className="name__first">
 					<p className="name__first">{post.user.first_name}</p>
@@ -138,12 +143,14 @@ const Post: React.FC<PostProps> = ({ post }) => {
 						trigger={['click']}
 					>
 						<Button type="text" className={styles.menuButton} onClick={() => setSelectedMessage(post)}>
-							<EllipsisOutlined />
+							<EllipsisOutlined height={16} />
 						</Button>
 					</Dropdown>
 				</div>
 			</div>
-			<ExpandableText text={post.message.trim()} />
+			<div className="mes_message">
+				<ExpandableText text={post.message.trim()} />
+			</div>
 			<div className="div_name_file">
 				{post?.files?.map((file) => {
 					let originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8');

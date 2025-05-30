@@ -9,7 +9,8 @@ export const FILES_ROUTE = '/files';
 export const HOME_ROUTE = '/home';
 export const FOUNDERS_ROUTE = '/founders';
 export const PERSONALE_ROUTE = '/founder';
-export const WORKGROUP_ROUTE = '/workgroup';
+export const GROUP_ROUTE = '/group';
+export const ONE_GROUP_ROUTE = '/one-group';
 export const MAIL_ROUTE = '/mail';
 
 export const VK_ROUTE = '/vk';
@@ -45,9 +46,12 @@ export enum LocationEnum {
 export const LOCAL_STORAGE_END_READ_MESSAGE_ID = 'endReadMessageId';
 export const LOCAL_STORAGE_DEVICE = 'device';
 export const LOCAL_STORAGE_TOKEN = 'token';
+export const LOCAL_STORAGE_IS_MY_GROUPS = 'isMyGroups';
 
 export const FOUL_MESSAGES = 'Нарушение';
 export const SHARE = 'Поделиться';
+export const GO = 'Перейти';
+export const GO_OUT = 'Выйти';
 
 export enum Rules {
 	'Оскорбления участников сайта, автора книг серии Звенящие кедры России (ЗКР) Владимира Мегре, героев этих книг, любых людей.',
@@ -80,5 +84,7 @@ export const COUNT_RESPONSE_POSTS = 20
 
 export const MESSAGES = 'messages';
 export const PUBLICATIONS = 'publications';
+export const GROUPS = 'groups';
+export const CHAT = 'chat';
 
 

@@ -2,6 +2,7 @@ import { IFiles } from "./IFiles.ts";
 
 export interface IPost {
     id: number;
+    groupId?: number;
     message: string;
     location: string;
     blocked: boolean;

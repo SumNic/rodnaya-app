@@ -6,7 +6,12 @@ import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
 import { GetPublicationsDto } from 'src/common/dtos/get-publications.dto';
 import { NewPublication } from 'src/common/dtos/new-publication.dto';
+import { Group } from 'src/common/models/groups/groups.model';
 import { Publications } from 'src/common/models/publications/publications.model';
+import { Declaration } from 'src/common/models/users/declaration.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -17,11 +22,11 @@ export class PublicationsService {
         private readonly configService: ConfigService,
     ) {}
 
-    async addPublication(dto: CreateMessageDto): Promise<NewPublication> {
+    async addPublication(req: AuthenticatedRequest, dto: CreateMessageDto): Promise<NewPublication> {
         try {
-            const user = await this.usersService.getUserWithResidency(dto.id_user);
+            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
 
-            if (user && user.secret === dto.secret) {
+            if (user) {
                 const message = await this.publicationsRepository.create({
                     country: user.residency.country,
                     region: user.residency.region,
@@ -112,7 +117,7 @@ export class PublicationsService {
         }
     }
 
-    async getUserPublication(dto: {id: string, pageNumber: string}): Promise<Publications[]> {
+    async getUserPublication(dto: { id: string; pageNumber: string }): Promise<Publications[]> {
         try {
             const { pageNumber, id } = dto; // Получаем номер страницы, по умолчанию 1
             const limit = 20; // Количество записей на страницу
@@ -120,7 +125,7 @@ export class PublicationsService {
 
             const { rows } = await this.publicationsRepository.findAndCountAll({
                 where: {
-                    userId: +id
+                    userId: +id,
                 },
                 include: { all: true },
                 order: [['id', Order.DESC]],

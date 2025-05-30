@@ -1,6 +1,7 @@
 import { DeclarationUser } from "./DeclarationUser";
 import { EndReadMessage } from "./EndReadMessage";
 import { LocationUser } from "./LocationUser";
+import { IGroup } from "./response/IGroup";
 
 export interface IUser {
     id: number;
@@ -19,4 +20,5 @@ export interface IUser {
     blocked: boolean;
     blockedforever: boolean;
     blockeduntil: Date;
+    userGroups: IGroup[];
 }

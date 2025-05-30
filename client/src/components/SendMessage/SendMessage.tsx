@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { IFiles } from '../../models/IFiles.ts';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
@@ -7,21 +7,24 @@ import { useMessageContext } from '../../contexts/MessageContext.ts';
 import { useSocket } from '../../hooks/useSocket.ts';
 import { MessageWebsocketResponse } from '../../models/response/MessageWebsocketResponse.ts';
 
-import styles from './SendMessage.module.css'
+import styles from './SendMessage.module.css';
 import { LoadingOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 
-interface Props {
+interface SendMessageProps {
 	location: string;
+	groupId?: number | undefined;
 }
 
-function SendMessage(props: Props) {
+const SendMessage: React.FC<SendMessageProps> = ({ location, groupId }) => {
 	const [messageSent, setMessageSent] = useState<string>('');
-	const [ isSendMessage, setIsSendMessage ] = useState(false);
+	const [isSendMessage, setIsSendMessage] = useState(false);
 
 	const { socket } = useSocket();
 
 	const { store } = useStoreContext();
+	const { sendMessage } = store.messageStore;
+	const { sendPostToChat } = store.groupStore;
 
 	const { setMessageDataSocket } = useMessageContext();
 
@@ -42,10 +45,10 @@ function SendMessage(props: Props) {
 	useEffect(() => {
 		setMessageSent('');
 		store.filesStore.resetFiles();
-	}, [props.location]);
+	}, [location, groupId]);
 
-	const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-		setIsSendMessage(true)
+	const sendMessageToBackend = async (e: React.FormEvent<HTMLFormElement>) => {
+		setIsSendMessage(true);
 		try {
 			e.preventDefault();
 
@@ -56,32 +59,27 @@ function SendMessage(props: Props) {
 			formData.append('files', JSON.stringify(arrIdFiles));
 			const formJson = Object.fromEntries(formData.entries());
 
-			const dto = {
-				id_user: store.authStore.user.id,
-				secret: store.authStore.user.secret,
-				location: props.location,
-				form: formJson
-			}
-
-			const resp_id = await store.messageStore.sendMessage(dto);
+			const resp_id = groupId
+				? await sendPostToChat({ groupId, location, form: formJson })
+				: await sendMessage({ location, form: formJson });
 			if (resp_id.error) {
 				return message.error(resp_id.error);
 			}
 
 			setMessageSent('');
 			store.filesStore.resetFiles();
-			setIsSendMessage(false)
+			setIsSendMessage(false);
 		} catch (err) {
-			setIsSendMessage(false)
+			setIsSendMessage(false);
 			message.error(` Ошибка в sendMessage: ${err}`);
 		}
 	};
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => { 
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
 		if (messageSent.trim().length > 0 && !e.shiftKey && e.key === 'Enter') {
 			if (e.key === 'Enter') {
 				e.preventDefault();
-				sendMessage(e);
+				sendMessageToBackend(e);
 			}
 		} else if (messageSent.trim() === '' && ((!e.shiftKey && e.key === 'Enter') || (e.shiftKey && e.key === 'Enter'))) {
 			e.preventDefault();
@@ -90,7 +88,7 @@ function SendMessage(props: Props) {
 	};
 
 	return (
-		<form name="send_message" id="send_message" method="post" onSubmit={sendMessage} onKeyDown={handleKeyDown}>
+		<form name="send_message" id="send_message" method="post" onSubmit={sendMessageToBackend} onKeyDown={handleKeyDown}>
 			<div className="message">
 				<TextArea
 					id="message"
@@ -106,11 +104,15 @@ function SendMessage(props: Props) {
 			{/* <div className="class_none">
 				<p id="clip_files"></p>
 			</div> */}
-			{isSendMessage ? <Spin  className={styles.send} indicator={<LoadingOutlined style={{ color: '#b1b3b1', fontSize: 30 }} spin />}/> : <div className={styles.send}>
-				<button type="submit" className={styles.submit_send}></button>
-			</div>}
+			{isSendMessage ? (
+				<Spin className={styles.send} indicator={<LoadingOutlined style={{ color: '#b1b3b1', fontSize: 30 }} spin />} />
+			) : (
+				<div className={styles.send}>
+					<button type="submit" className={styles.submit_send}></button>
+				</div>
+			)}
 		</form>
 	);
-}
+};
 
 export default observer(SendMessage);

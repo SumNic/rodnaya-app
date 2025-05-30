@@ -171,6 +171,23 @@ const Home: React.FC = () => {
 									</Link>
 								</li>
 							</ul>
+
+							{/* <div className="rules"> */}
+								<h2 className="founders-subheading">Поддержите наш проект!</h2>
+								<p className="founders-details">
+									Если вы цените наш труд и хотите помочь развивать этот ресурс, вы можете перевести любую сумму, нажав
+									на кнопку ниже. Ваша поддержка важна для нас!
+								</p>
+							{/* </div> */}
+							<div className="support-button-container">
+								<iframe
+									src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=H28j3gJ3nHw.230111&"
+									width="237"
+									height="50"
+									scrolling="no"
+									className="support-button"
+								/>
+							</div>
 						</section>
 
 						<div className="main__screen-flag"></div>
@@ -178,7 +195,7 @@ const Home: React.FC = () => {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

@@ -36,7 +36,7 @@ function Registration() {
                 </div>
             </div>
 
-            <Footer />
+            {/* <Footer /> */}
 
         </div>
     );

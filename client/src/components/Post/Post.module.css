@@ -17,7 +17,7 @@
 }
 
 .foul{
-    /* height: 16px; */
+    height: 16px;
     display: flex;
     justify-content: flex-end;
     flex-grow: 1;
@@ -27,7 +27,7 @@
 
 .mes__wrapper {
     width: 100%;
-    padding: 12px 10px 0 0;
+    padding: 6px 10px;
     border-radius: 10px;
     transition: background-color 0.3s ease;
 }

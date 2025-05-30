@@ -80,7 +80,7 @@ const ExpandableText = ({ text }: { text: string }) => {
 	};
 
 	return (
-		<div className="mes_message">
+		<>
 			{renderTextWithLinks(displayedText)}
 			{shouldTruncate && (
 				<span className={styles['show-more']} onClick={toggleExpand}>
@@ -97,7 +97,7 @@ const ExpandableText = ({ text }: { text: string }) => {
 			>
 				<p>Вы желаете перейти по внешней ссылке?</p>
 			</Modal>
-		</div>
+		</>
 	);
 };
 

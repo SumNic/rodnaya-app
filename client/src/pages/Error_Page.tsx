@@ -55,7 +55,7 @@ const Error_Page: React.FC = () => {
                 </div>
             </div>
 
-            <Footer />
+            {/* <Footer /> */}
 
         </div>
     );

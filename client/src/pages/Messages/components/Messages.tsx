@@ -1,29 +1,21 @@
-import { observer } from 'mobx-react-lite';
-import Footer from '../../components/Footer';
-import NavMiddle from '../../components/Nav_middle/NavMiddle';
-import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
-import NavRegions from '../../components/Nav_header/NavRegions';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import MessagesService from '../../services/MessagesService';
-import MessagesList from './components/MessagesList';
-import UploadFiles from '../../components/UploadFiles';
-import SendMessage from '../../components/SendMessage/SendMessage.tsx';
-import icon_attach from '../../images/clippy-icon1.png';
-import { useStoreContext } from '../../contexts/StoreContext';
-import { COUNT_RESPONSE_POSTS, HOME_ROUTE, MESSAGES_ROUTE } from '../../utils/consts';
-import { FloatButton, Modal, Typography } from 'antd';
-import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
-import { useMessageContext } from '../../contexts/MessageContext.ts';
-import UserService from '../../services/UserService.ts';
-
-import { IPost } from '../../models/IPost.ts';
-import { IPosts } from '../../models/IPosts.ts';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import MessagesList from './MessagesList';
+import { IPosts } from '../../../models/IPosts';
 import { ArrowDownOutlined } from '@ant-design/icons';
+import { FloatButton } from 'antd';
+import SendMessage from '../../../components/SendMessage/SendMessage';
+import UploadFiles from '../../../components/UploadFiles';
+import { useMessageContext } from '../../../contexts/MessageContext';
+import { useStoreContext } from '../../../contexts/StoreContext';
+import { IPost } from '../../../models/IPost';
+import MessagesService from '../../../services/MessagesService';
+import UserService from '../../../services/UserService';
+import { CHAT, COUNT_RESPONSE_POSTS, MESSAGES } from '../../../utils/consts';
+import icon_attach from '../../../images/clippy-icon1.png';
 
-import styles from './Messages.module.css';
-
-const { Text } = Typography;
+import styles from '../MessagesPage.module.css';
+import { IGroup } from '../../../models/response/IGroup';
+import GroupsService from '../../../services/GroupsService';
 
 const initialPosts: IPosts = {
 	locality: [],
@@ -74,8 +66,13 @@ const indexLocation: Page = {
 	world: 3,
 };
 
-const Message: React.FC = () => {
-	const [modalOpen, setModalOpen] = useState<boolean>(false);
+interface MessagesProps {
+	location: string;
+	source: string;
+	group?: IGroup;
+}
+
+const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	const [posts, setPosts] = useState<IPosts>(initialPosts);
 
 	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
@@ -88,34 +85,62 @@ const Message: React.FC = () => {
 	const [isLastMessageLoad, setIsLastMessageLoad] = useState(false);
 	const [isLastMessage, setIsLastMessage] = useState<Record<string, boolean>>({});
 
-	const { store } = useStoreContext();
-	const { arrCountNoReadMessages, updateArrCountNoReadMessages } = store.messageStore;
-	const { user } = store.authStore;
-
-	const { setIsLoadMessages, messageDataSocket, isScrollTop, setIsScrollTop, messagesContainerRef } =
-		useMessageContext();
-	const navigate = useNavigate();
-
 	const lastMessageRef = useRef<HTMLDivElement | null>(null);
 	const messagesRef = useRef<HTMLDivElement | null>(null);
 
-	const params = useParams();
-	const location: string | undefined = params.location;
+	const { store } = useStoreContext();
+
+	const { arrCountNoReadMessages, updateArrCountNoReadMessages } = store.messageStore;
+	const { arrCountNoReadPostsGroups, updateArrCountNoReadPostsGroups } = store.groupStore;
+	const { user } = store.authStore;
+
+	const {
+		setIsLoadMessages,
+		messageDataSocket,
+		setMessageDataSocket,
+		isScrollTop,
+		setIsScrollTop,
+		messagesContainerRef,
+	} = useMessageContext();
 
 	let locationKey: keyof IPosts = location as keyof IPosts;
 
+	const nameLocal = useMemo(() => {
+		let name = '';
+		switch (location) {
+			case 'locality':
+				name = user.residency.locality || '';
+				break;
+			case 'region':
+				name = user.residency.region || '';
+				break;
+			case 'country':
+				name = user.residency.country || '';
+				break;
+			case 'world':
+				name = 'Земля';
+				break;
+		}
+		return name;
+	}, [location]);
+
 	useEffect(() => {
-		const savedScrollTop = localStorage.getItem(`scrollTop-${locationKey}`);
+		const savedScrollTop = localStorage.getItem(`scrollTop-${source}-${locationKey}`);
 		if (savedScrollTop && messagesContainerRef.current) {
 			messagesContainerRef.current.scrollTop = parseInt(savedScrollTop, 10);
 		}
 	}, [locationKey]);
 
 	useEffect(() => {
+		setPosts(initialPosts);
+	}, [source]);    
+
+	useEffect(() => {
 		if (messageDataSocket && location) {
 			const arrFileId = JSON.parse(messageDataSocket.form.files);
 			const newPost: IPost = {
 				id: messageDataSocket.id_message,
+				groupId: messageDataSocket.group_id || -1,
 				message: messageDataSocket.form.message,
 				location: messageDataSocket.resydency,
 				blocked: false,
@@ -130,11 +155,16 @@ const Message: React.FC = () => {
 				createdAt: messageDataSocket.createdAt,
 			};
 
-			const noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
+			let noReadMessagesCount;
+			if (source === MESSAGES)
+				noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
+			if (source === CHAT)
+				noReadMessagesCount = arrCountNoReadPostsGroups.find((elem) => elem.idGroup === group?.id)?.count;
 
 			if (
 				nameLocal === messageDataSocket.resydency &&
 				isScrollEnd[location] &&
+				noReadMessagesCount !== undefined &&
 				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
 				newPost.userId !== user.id
 			) {
@@ -145,12 +175,15 @@ const Message: React.FC = () => {
 					}
 					return prev;
 				});
-				updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === CHAT && messageDataSocket.group_id)
+					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
 			}
 
 			if (
 				nameLocal === messageDataSocket.resydency &&
 				!isScrollEnd[location] &&
+				noReadMessagesCount !== undefined &&
 				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
 				newPost.userId !== user.id
 			) {
@@ -160,11 +193,14 @@ const Message: React.FC = () => {
 					}
 					return prev;
 				});
-				updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+				if (source === CHAT && messageDataSocket.group_id)
+					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
 			}
 
 			if (
 				nameLocal === messageDataSocket.resydency &&
+				noReadMessagesCount !== undefined &&
 				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
 				newPost.userId === user.id
 			) {
@@ -175,26 +211,48 @@ const Message: React.FC = () => {
 					}
 					return prev;
 				});
-				updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === CHAT && messageDataSocket.group_id)
+					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
 			}
 
 			if (
 				nameLocal === messageDataSocket.resydency &&
+				noReadMessagesCount !== undefined &&
 				noReadMessagesCount >= COUNT_RESPONSE_POSTS &&
 				newPost.userId === user.id
 			) {
 				setIsLastMessageLoad(true);
-				updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === CHAT && messageDataSocket.group_id)
+					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
 			}
 
 			if (
 				nameLocal === messageDataSocket.resydency &&
+				noReadMessagesCount !== undefined &&
 				noReadMessagesCount >= COUNT_RESPONSE_POSTS &&
 				newPost.userId !== user.id
 			) {
 				setIsLastMessageLoad(true);
-				updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+				if (source === CHAT && messageDataSocket.group_id)
+					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
 			}
+
+			if (
+				source === CHAT && messageDataSocket.group_id === group?.id
+			) {
+				setPosts((prev) => {
+					if (newPost) {
+						setScrollDownPage(true);
+						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
+					}
+					return prev;
+				});
+			}
+
+			setMessageDataSocket(undefined);
 		}
 	}, [messageDataSocket, location]);
 
@@ -243,12 +301,21 @@ const Message: React.FC = () => {
 	};
 
 	useEffect(() => {
-		if (location && !posts[locationKey].length) loadMessages(location);
+		if (source === MESSAGES && location && !posts[locationKey].length) {
+			loadMessages(location);
+		}
 	}, [location]);
 
 	useEffect(() => {
+		if (source === CHAT && location && group?.id && !posts[locationKey].length) {
+			loadPostsGroup(group.id);
+		}
+	}, [group]);
+
+	useEffect(() => {
 		if (location && isLastMessageLoad && !isLastMessage[locationKey]) {
-			loadMessages(location, nextPage[locationKey]);
+			if (source === MESSAGES) loadMessages(location, nextPage[locationKey]);
+			if (source === CHAT && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
 		} else if (location && isLastMessageLoad && isLastMessage[locationKey]) {
 			setIsLastMessageLoad(false);
 			setScrollDownPage(true);
@@ -260,7 +327,8 @@ const Message: React.FC = () => {
 
 		if (noReadMessagesCount && nameLocal) {
 			setIsLastMessageLoad(true);
-			updateArrCountNoReadMessages(nameLocal, 0);
+			if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+			if (source === CHAT && group?.id) updateArrCountNoReadPostsGroups(group.id, 0);
 		} else {
 			setIsLastMessageLoad(false);
 			setScrollDownPage(true);
@@ -268,7 +336,10 @@ const Message: React.FC = () => {
 	};
 
 	useEffect(() => {
-		if (isScrollTop && location && posts[locationKey].length) loadPreviousMessages(location, prevPage[locationKey]);
+		if (source === MESSAGES && isScrollTop && location && posts[locationKey].length)
+			loadPreviousMessages(location, prevPage[locationKey]);
+        if (source === CHAT && isScrollTop && group?.id && posts[locationKey].length)
+            loadPreviousPostsGroup(group.id, prevPage[locationKey]);
 		setIsScrollTop(false);
 	}, [isScrollTop]);
 
@@ -279,7 +350,8 @@ const Message: React.FC = () => {
 			if (!location) return;
 			if (entries[0].isIntersecting) {
 				setIsScrollEnd((prev) => ({ ...prev, [location]: true }));
-				loadMessages(location, nextPage[locationKey]);
+				if (source === MESSAGES) loadMessages(location, nextPage[locationKey]);
+                if (source === CHAT && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
 			} else {
 				setIsScrollEnd((prev) => ({ ...prev, [location]: false }));
 			}
@@ -291,6 +363,7 @@ const Message: React.FC = () => {
 	}, [posts[locationKey]]);
 
 	const loadMessages = async (location: string, pageNumber: number = 1) => {
+		if (isLastMessage[location]) return;
 		try {
 			setIsLoadMessages(true);
 			const allMessages = await MessagesService.getAllMessages(
@@ -300,6 +373,26 @@ const Message: React.FC = () => {
 				location
 			);
 			if (allMessages.data && allMessages.data.length > 0) {
+				if (posts[locationKey].includes(allMessages.data[0])) return;
+				setPosts((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], ...allMessages.data] }));
+				setNextPage((prev) => ({ ...prev, [locationKey]: pageNumber + 1 }));
+			} else {
+				setIsLastMessage((prev) => ({ ...prev, [locationKey]: true }));
+			}
+			setIsLoadMessages(false);
+		} catch (err) {
+			setIsLoadMessages(false);
+			console.error(`Ошибка в loadMessages: ${err}`);
+		}
+	};
+
+    const loadPostsGroup = async (groupId: number, pageNumber: number = 1) => {
+		if (isLastMessage[location]) return;
+		try {
+			setIsLoadMessages(true);
+			const allMessages = await GroupsService.getAllPosts(groupId, pageNumber);
+			if (allMessages.data && allMessages.data.length > 0) {
+				if (posts[locationKey].includes(allMessages.data[0])) return;
 				setPosts((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], ...allMessages.data] }));
 				setNextPage((prev) => ({ ...prev, [locationKey]: pageNumber + 1 }));
 			} else {
@@ -334,7 +427,34 @@ const Message: React.FC = () => {
 		}
 	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
 
-	const loadPreviousMessages = async (location: string, pageNumber: number) => {
+	const loadPreviousPostsGroup = async (groupId: number, pageNumber: number) => {
+		if (!messagesContainerRef.current || !messagesRef.current) return;
+
+		const container = messagesRef.current;
+		const currentScrollHeight = container.scrollHeight; // Сохраняем высоту перед добавлением
+
+		try {
+			setIsLoadMessages(true);
+
+			const allMessages = await GroupsService.getAllPosts(groupId, pageNumber);
+			if (allMessages.data && allMessages.data.length > 0) {
+				setPosts((prev) => ({
+					...prev,
+					[locationKey]: [...allMessages.data, ...prev[locationKey]], // Добавляем в начало
+				}));
+
+				setPrevPage((prev) => ({ ...prev, [locationKey]: pageNumber - 1 })); // Двигаемся назад
+				setPreviousScrollHeight(currentScrollHeight);
+			}
+
+			setIsLoadMessages(false);
+		} catch (err) {
+			setIsLoadMessages(false);
+			console.error(`Ошибка в loadPreviousMessages: ${err}`);
+		}
+	};
+
+    const loadPreviousMessages = async (location: string, pageNumber: number) => {
 		if (!messagesContainerRef.current || !messagesRef.current) return;
 
 		const container = messagesRef.current;
@@ -390,95 +510,45 @@ const Message: React.FC = () => {
 		}
 	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
 
-	const nameLocal = useMemo(() => {
-		let name = '';
-		switch (location) {
-			case 'locality':
-				name = store.authStore.user.residency.locality || '';
-				break;
-			case 'region':
-				name = store.authStore.user.residency.region || '';
-				break;
-			case 'country':
-				name = store.authStore.user.residency.country || '';
-				break;
-			case 'world':
-				name = 'Земля';
-				break;
-			default:
-				setModalOpen(true);
-				break;
-		}
-		return name;
-	}, [location]);
-
 	return (
-		<div>
-			<header className="header">
-				<div className="header__wrapper">
-					<HeaderLogoPc />
-					<HeaderLogoMobile />
-					{location && <NavRegions location={location} />}
-				</div>
-			</header>
-			<div className="middle">
-				<div className="middle__wrapper">
-					<NavMiddle item={MESSAGES_ROUTE} />
-					<div className="main__screen main__screen_home logotip-background">
-						<div className="name">
-							<h2 className="name__local" id="name">
-								{nameLocal}
-							</h2>
-						</div>
-						{location && (
-							<MessagesList
-								posts={posts}
-								location={location}
-								messagesRef={messagesRef}
-								lastMessageRef={lastMessageRef}
-							/>
-						)}
-						{!isScrollEnd[locationKey] && (
-							<FloatButton
-								icon={<ArrowDownOutlined />}
-								type="default"
-								style={{ position: 'absolute', right: 20, bottom: 74 }} // Позиционирование внизу справа
-								onClick={scrollToLastMessage}
-							/>
-						)}
-						<div id={styles.messages}>
-							{timeRemaining !== null ? (
-								<div className={styles['blocked_text']}>
-									<p>Вы заблокированы за нарушение правил.</p>
-									<p> Блокировка заканчивается {timeRemaining}</p>
-								</div>
-							) : (
-								<>
-									{/*TODO переделать отправку файлов на antd */}
-									<UploadFiles />
-									<div id="forms">
-										<div className="clip">
-											<div className="label-clip">
-												<label htmlFor="fileToUpload">
-													<img className="clippy-icon" src={icon_attach} alt="Прикрепить" />
-												</label>
-											</div>
-										</div>
-
-										{location && <SendMessage location={location} />}
-									</div>
-								</>
-							)}
-						</div>
+		<>
+			{location && (
+				<MessagesList posts={posts} location={location} messagesRef={messagesRef} lastMessageRef={lastMessageRef} groupId={group?.id} />
+			)}
+			{!isScrollEnd[locationKey] && (
+				<FloatButton
+					icon={<ArrowDownOutlined />}
+					type="default"
+					style={{ position: 'absolute', right: 20, bottom: 74 }} // Позиционирование внизу справа
+					onClick={scrollToLastMessage}
+				/>
+			)}
+			<div id={styles.messages}>
+				{timeRemaining !== null ? (
+					<div className={styles['blocked_text']}>
+						<p>Вы заблокированы за нарушение правил.</p>
+						<p> Блокировка заканчивается {timeRemaining}</p>
 					</div>
-				</div>
+				) : (
+					<>
+						{/*TODO переделать отправку файлов на antd */}
+						<UploadFiles />
+						<div id="forms">
+							<div className="clip">
+								<div className="label-clip">
+									<label htmlFor="fileToUpload">
+										<img className="clippy-icon" src={icon_attach} alt="Прикрепить" />
+									</label>
+								</div>
+							</div>
+
+							{location && <SendMessage location={location} groupId={group?.id} />}
+						</div>
+					</>
+				)}
 			</div>
-			<Modal open={modalOpen} onOk={() => navigate(HOME_ROUTE)} onCancel={() => setModalOpen(false)} width={400}>
-				<Text>Страница не существует. Вернуться на главную?</Text>
-			</Modal>
-			<Footer />
-		</div>
+		</>
 	);
 };
 
-export default observer(Message);
+export default Messages;

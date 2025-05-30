@@ -9,6 +9,11 @@ import { Messages } from '../messages/messages.model';
 import { ManageMessages } from '../messages/manageMessages.model';
 import { EndReadMessage } from '../messages/endReadMessage.model';
 import { Publications } from 'src/common/models/publications/publications.model';
+import { Group } from 'src/common/models/groups/groups.model';
+import { UserGroups } from 'src/common/models/users/user-groups.model';
+import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
+import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
+import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
 
 interface UserCreationAttrs {
     user_id: string;
@@ -85,6 +90,24 @@ export class User extends Model<User, UserCreationAttrs> {
     @HasMany(() => EndReadMessage)
     endReadMessage: EndReadMessage[];
 
+    @HasMany(() => LastReadPostChat)
+    lastReadPostChat: LastReadPostChat[];
+
     @HasMany(() => Publications)
     publications: Publications[];
+
+    @HasMany(() => ChatGroup)
+    messagesChat: ChatGroup[];
+
+    @BelongsToMany(() => Group, {
+        through: () => UserGroups,
+        as: 'userGroups', // Алиас для связи
+    })
+    userGroups: Group[];
+
+    @BelongsToMany(() => Group, {
+        through: () => GroupAdmins,
+        as: 'adminGroups', // Алиас для связи
+    })
+    adminGroups: Group[];
 }

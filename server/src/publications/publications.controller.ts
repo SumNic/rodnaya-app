@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
 import { GetPublicationsDto } from 'src/common/dtos/get-publications.dto';
 import { Publications } from 'src/common/models/publications/publications.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
 import { PublicationsGateway } from 'src/publications/publications.gateway';
 import { PublicationsService } from 'src/publications/publications.service';
 
@@ -28,11 +29,12 @@ export class PublicationsController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async addPublication(@Body() dto: CreateMessageDto) {
-        const response = await this.publicationsService.addPublication(dto);
+    async addPublication(@Req() req: AuthenticatedRequest, @Body() dto: CreateMessageDto) {
+        const response = await this.publicationsService.addPublication(req, dto);
         if (response) {
             this.publicationsGateway.sendPublicationWebSocket('new_publication', {
                 ...dto,
+                id_user: req.user.id,
                 id_publication: response.message.id,
                 resydency: {locality: response.message.locality, region: response.message.region, country: response.message.country},
                 first_name: response.first_name,

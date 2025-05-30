@@ -1,0 +1,287 @@
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { Order } from 'src/common/constants/order';
+import { CreateGroupDto } from 'src/common/dtos/create-group.dto';
+import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
+import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
+import { GetPostsGroupDto } from 'src/common/dtos/get-posts-group.dto';
+import { NewMessage } from 'src/common/dtos/new-message.dto';
+import { NewPostToChat } from 'src/common/dtos/new-post-to-chat.dto';
+import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { Group } from 'src/common/models/groups/groups.model';
+import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
+import { Messages } from 'src/common/models/messages/messages.model';
+import { Declaration } from 'src/common/models/users/declaration.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
+import { User } from 'src/common/models/users/user.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
+import { UsersService } from 'src/users/users.service';
+
+@Injectable()
+export class GroupsService {
+    constructor(
+        @InjectModel(Group) private readonly groupsRepository: typeof Group,
+        @InjectModel(ChatGroup) private readonly chatGroupRepository: typeof ChatGroup,
+        @InjectModel(ChatGroup) private readonly lastReadPostChatRepository: typeof LastReadPostChat,
+        private usersService: UsersService,
+        // private readonly configService: ConfigService,
+    ) {}
+
+    async createGroup(req: AuthenticatedRequest, dto: CreateGroupDto): Promise<Group> {
+        //TODO сделать проверку, чтобы было не больше 3 групп в данной локации
+        try {
+            const user = await this.usersService.getUserWithModel(req.user.id, [
+                { model: Residency },
+                { model: Group, as: 'userGroups' },
+                { model: Group, as: 'adminGroups' },
+            ]);
+
+            if (user) {
+                const group = await this.groupsRepository.create({
+                    name: dto.groupName,
+                    task: dto.groupTask,
+                    userId: req.user.id,
+                    [dto.location]: user.residency[dto.location] || 'Земля',
+                });
+
+                await group.$add('users', [user.id]);
+                await group.$add('admins', [user.id]);
+
+                const updatedGroup = await this.groupsRepository.findByPk(group.id, {
+                    include: [
+                        { model: User, as: 'users' },
+                        { model: User, as: 'admins' },
+                    ],
+                });
+
+                return updatedGroup;
+            }
+
+            throw new HttpException('Группа не была создана', HttpStatus.FORBIDDEN);
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getAllGroups(req: AuthenticatedRequest, dto: GetGroupsDto): Promise<Group[]> {
+        try {
+            const user = await this.usersService.getUserWithModel(req.user.id, [
+                { model: Residency },
+                { model: Group, as: 'userGroups' },
+                { model: Group, as: 'adminGroups' },
+            ]);
+
+            if (user) {
+                const groups = await this.groupsRepository.findAll({
+                    where: {
+                        [dto.location]: user.residency[dto.location] || 'Земля',
+                        blocked: false,
+                    },
+                    include: { all: true },
+                });
+
+                return groups;
+            }
+
+            throw new HttpException('Ошибка при получении групп', HttpStatus.FORBIDDEN);
+        } catch (err) {
+            throw new HttpException(`Ошибка в getAllGroups: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getGroupFromId(id: number): Promise<Group> {
+        try {
+            return await this.groupsRepository.findOne({ where: { id, blocked: false }, include: { all: true } });
+        } catch (err) {
+            throw new HttpException(`Ошибка в getGroupsFromId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getAllChatPosts(req: AuthenticatedRequest, dto: GetPostsGroupDto): Promise<ChatGroup[]> {
+        try {
+            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: LastReadPostChat }]);
+
+            const endReadPostId = user.lastReadPostChat.find((elem) => elem.group_id === +dto.groupId)?.lastReadPostId;
+            // if (!endReadPostId) {
+
+            // }
+
+            const countMessage = await this.getCountPosts(+dto.groupId, endReadPostId);
+
+            const standartLimit = 20; // Количество записей на страницу
+            const offset =
+                +dto.pageNumber > 0
+                    ? countMessage - standartLimit + (+dto.pageNumber - 1) * standartLimit
+                    : countMessage - standartLimit + +dto.pageNumber * standartLimit; // Пропускаем записи для нужной страницы
+
+            const limit = offset < 0 ? offset + standartLimit : standartLimit;
+
+            if (user && offset + standartLimit >= 0 && countMessage) {
+                const { rows } = await this.chatGroupRepository.findAndCountAll({
+                    where: {
+                        groupId: +dto.groupId,
+                        blocked: false,
+                    },
+                    include: { all: true },
+                    order: [['id', Order.ASC]],
+                    offset: offset < 0 ? 0 : offset,
+                    limit,
+                });
+                console.log(rows, 'rows 123');
+                return rows;
+            }
+            // return [new Messages()];
+        } catch (err) {
+            throw new HttpException(`Ошибка в getAllChatPosts: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getCountPosts(groupId: number, endReadPostId: number | undefined): Promise<number> {
+        try {
+            const whereClause: any = {
+                groupId,
+                blocked: false,
+            };
+
+            // Добавляем условие только если endReadPostId определено
+            if (endReadPostId !== undefined) {
+                whereClause.id = {
+                    [Op.lte]: endReadPostId,
+                };
+            }
+
+            const { count } = await this.chatGroupRepository.findAndCountAll({
+                where: whereClause,
+            });
+            return count;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getCountPosts: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async addMessage(req: AuthenticatedRequest, dto: CreatePostToChatDto): Promise<NewPostToChat> {
+        try {
+            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
+            console.log(user, 'user 654');
+
+            if (user) {
+                const messagesChat = await this.chatGroupRepository.create({
+                    groupId: dto.groupId,
+                    location: dto.location,
+                    message: dto.form.message,
+                });
+                console.log(messagesChat, 'messagesChat');
+                await user.$add('messagesChat', messagesChat);
+                const arrFileId = JSON.parse(dto.form.files);
+                arrFileId.map((file: any) => {
+                    messagesChat.$add('file', file.id);
+                });
+
+                // const DATA = {
+                //     v: this.configService.get<string>('VK_VERSION'),
+                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
+                //     client_url: this.configService.get<string>('CLIENT_URL'),
+                // };
+
+                // const usersByResidence = this.usersService.getUsersByResidence(locationUser);
+                // const peer_ids = (await usersByResidence).map((user) => user.vk_id);
+
+                // const params = new URLSearchParams();
+                // params.append('v', DATA.v);
+                // params.append('access_token', DATA.access_token);
+                // params.append('peer_ids', `${peer_ids.join(',')}`);
+                // params.append('random_id', '0');
+                // params.append(
+                //     'message',
+                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
+                // );
+
+                // const response = await fetch('https://api.vk.com/method/messages.send', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/x-www-form-urlencoded',
+                //     },
+                //     body: params.toString(),
+                // });
+
+                // const data = await response.json();
+                // console.log('Успешно отправлено', data);
+
+                return {
+                    groupId: dto.groupId,
+                    messagesChat,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    photo_50: user.photo_50,
+                };
+            }
+
+            throw new HttpException('Сообщение не было отправлено', HttpStatus.FORBIDDEN);
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async joinTheGroup(req: AuthenticatedRequest, id: number) {
+        try {
+            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
+
+            const group = await this.groupsRepository.findByPk(id, {
+                include: [
+                    { model: User, as: 'users' },
+                ],
+            });
+            console.log(group, 'group 123');
+
+            await group.$add('users', [req.user.id]);
+        } catch (err) {
+            throw new HttpException(`Ошибка в getCountNoReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async leaveTheGroup(req: AuthenticatedRequest, id: number) {
+        try {
+            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
+
+            const group = await this.groupsRepository.findByPk(id, {
+                include: [
+                    { model: User, as: 'users' },
+                ],
+            });
+            console.log(group, 'group 123');
+
+            await group.$remove('users', [req.user.id]);
+        } catch (err) {
+            throw new HttpException(`Ошибка в getCountNoReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // async getCountNoReadPosts(req: AuthenticatedRequest): Promise<CountNoReadPostsGroups[]> {
+    //     try {
+    //         const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
+
+    //             const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
+    //             // Итерация по ключам объекта LocationUser
+    //             const messageCountsPromises = residencyKeys.map(async (key) => {
+    //                 const value = dto.residency[key];
+    //                 const allCountMessages = await this.endReadMessageService.getCountMessage(value);
+    //                 const allReadMessages = await this.endReadMessageRepository.findOne({
+    //                     where: {
+    //                         user_id: user.id,
+    //                         location: value,
+    //                     },
+    //                 });
+    //                 const count = allCountMessages - (allReadMessages?.endMessage || 0);
+    //                 return { location: value, count };
+    //             });
+    //             // Ждем завершения всех операций
+    //             const result = await Promise.all(messageCountsPromises);
+    //             return result.reverse();
+    //     } catch (err) {
+    //         throw new HttpException(`Ошибка в getCountNoReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    //     }
+    // }
+}

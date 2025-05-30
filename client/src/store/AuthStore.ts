@@ -33,7 +33,7 @@ export default class AuthStore {
 		this.isAuth = bool;
 	}
 
-	setUser(user: IUser) {
+	setUser = (user: IUser) => {
 		this.user = user;
 	}
 

@@ -24,6 +24,10 @@ import { CreateDeclarationDto } from 'src/common/dtos/create-declaration.dto';
 import { CreateResidencyDto } from 'src/common/dtos/create-residency.dto';
 import { GetDeclarationDto } from 'src/common/dtos/get-declaration.dto';
 import { UpdatePersonaleDto } from 'src/common/dtos/update-personale.dto';
+import { Group } from 'src/common/models/groups/groups.model';
+import { Declaration } from 'src/common/models/users/declaration.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
 import { User } from 'src/common/models/users/user.model';
 import { UsersService } from 'src/users/users.service';
 
@@ -261,6 +265,18 @@ export class UsersController {
         description: 'Неккоректные данные',
     })
     async getUser(@Param('id') id: number): Promise<User> {
-        return await this.usersService.getUserWithResidency(id);
+        return await this.usersService.getUserWithModel(id, [
+            { model: Residency },
+            { model: Declaration },
+            { model: Role },
+            {
+                model: Group,
+                as: 'userGroups',
+            },
+            {
+                model: Group,
+                as: 'adminGroups',
+            },
+        ]);
     }
 }

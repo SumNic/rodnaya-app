@@ -10,6 +10,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/common/models/users/user.model';
 import { OutputJwtTokens } from 'src/common/dtos/output-jwt-tokens.dto';
+import { Group } from 'src/common/models/groups/groups.model';
+import { Declaration } from 'src/common/models/users/declaration.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
 
 @Injectable()
 export class TokensService {
@@ -80,7 +84,19 @@ export class TokensService {
             throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);
         }
 
-        const user = await this.userService.getUserWithResidency(token.userId);
+        const user = await this.userService.getUserWithModel(token.userId, [
+            { model: Residency },
+            { model: Declaration },
+            { model: Role },
+            {
+                model: Group,
+                as: 'userGroups',
+            },
+            {
+                model: Group,
+                as: 'adminGroups',
+            },
+        ]);
 
         if (!user) {
             throw new HttpException('Доступ запрещен', HttpStatus.UNAUTHORIZED);

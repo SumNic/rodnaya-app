@@ -70,7 +70,7 @@ const Exit: React.FC = () => {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

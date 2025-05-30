@@ -1,7 +1,6 @@
 .buttonsPublications {
     display: flex;
     gap: 1rem;
-    padding-bottom: 1rem;
 }
 
 .scroll_messages {

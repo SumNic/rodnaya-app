@@ -34,11 +34,12 @@ export class MessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async addMessage(@Body() dto: CreateMessageDto) {
-        const response = await this.messagesService.addMessage(dto);
+    async addMessage(@Req() req: AuthenticatedRequest, @Body() dto: CreateMessageDto) {
+        const response = await this.messagesService.addMessage(req, dto);
         if (response) {
             this.messagesGateway.sendMessageWebSocket('new_message', {
                 ...dto,
+                id_user: req.user.id,
                 id_message: response.message.id,
                 resydency: response.message.location,
                 first_name: response.first_name,
@@ -63,7 +64,6 @@ export class MessagesController {
     })
     @UseGuards(JwtAuthGuard)
     async getAllMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
-        console.log(query, 'query 123');
         return await this.messagesService.getAllMessage(query);
     }
 

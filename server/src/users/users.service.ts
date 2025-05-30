@@ -116,7 +116,7 @@ export class UsersService {
             });
             return usersFilterResidency.length ? usersFilterResidency : users;
         } catch (err) {
-            throw new HttpException(`Ошибка в getAllUsers: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(`Ошибка в getUsersByResidence: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -131,11 +131,11 @@ export class UsersService {
         }
     }
 
-    async getUserWithResidency(id: number): Promise<User> {
+    async getUserWithModel(id: number, models: any[]): Promise<User> {
         try {
             const user = await this.usersRepository.findOne({
                 where: { id },
-                include: [{ model: Residency }, { model: Declaration }, { model: Role }],
+                include: models,
             });
 
             if (!user) return;

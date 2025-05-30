@@ -16,6 +16,11 @@ import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 import { RespCountNoReadMessagesDto } from 'src/common/dtos/resp-count-no-read-messages.dto';
 import { RespIdNoReadMessagesDto } from 'src/common/dtos/resp-id-no-read-messages.dto copy';
 import { NewMessage } from 'src/common/dtos/new-message.dto';
+import { Group } from 'src/common/models/groups/groups.model';
+import { Declaration } from 'src/common/models/users/declaration.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
 
 @Injectable()
 export class MessagesService {
@@ -27,11 +32,11 @@ export class MessagesService {
         private readonly configService: ConfigService,
     ) {}
 
-    async addMessage(dto: CreateMessageDto): Promise<NewMessage> {
+    async addMessage(req: AuthenticatedRequest, dto: CreateMessageDto): Promise<NewMessage> {
         try {
-            const user = await this.usersService.getUserWithResidency(dto.id_user);
+            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
 
-            if (user && user.secret === dto.secret) {
+            if (user) {
                 const locationUser = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
                 const message = await this.messagesRepository.create({
                     location: locationUser,
@@ -42,36 +47,37 @@ export class MessagesService {
                 arrFileId.map((file: any) => {
                     message.$add('file', file.id);
                 });
+                console.log(message, 'message 654');
 
-                const DATA = {
-                    v: this.configService.get<string>('VK_VERSION'),
-                    access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
-                    client_url: this.configService.get<string>('CLIENT_URL'),
-                };
+                // const DATA = {
+                //     v: this.configService.get<string>('VK_VERSION'),
+                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
+                //     client_url: this.configService.get<string>('CLIENT_URL'),
+                // };
 
-                const usersByResidence = this.usersService.getUsersByResidence(locationUser);
-                const peer_ids = (await usersByResidence).map((user) => user.vk_id);
+                // const usersByResidence = this.usersService.getUsersByResidence(locationUser);
+                // const peer_ids = (await usersByResidence).map((user) => user.vk_id);
 
-                const params = new URLSearchParams();
-                params.append('v', DATA.v);
-                params.append('access_token', DATA.access_token);
-                params.append('peer_ids', `${peer_ids.join(',')}`);
-                params.append('random_id', '0');
-                params.append(
-                    'message',
-                    `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
-                );
+                // const params = new URLSearchParams();
+                // params.append('v', DATA.v);
+                // params.append('access_token', DATA.access_token);
+                // params.append('peer_ids', `${peer_ids.join(',')}`);
+                // params.append('random_id', '0');
+                // params.append(
+                //     'message',
+                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
+                // );
 
-                const response = await fetch('https://api.vk.com/method/messages.send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params.toString(),
-                });
+                // const response = await fetch('https://api.vk.com/method/messages.send', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/x-www-form-urlencoded',
+                //     },
+                //     body: params.toString(),
+                // });
 
-                const data = await response.json();
-                console.log('Успешно отправлено', data);
+                // const data = await response.json();
+                // console.log('Успешно отправлено', data);
 
                 return { message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
@@ -84,7 +90,7 @@ export class MessagesService {
 
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
         try {
-            const user = await this.usersService.getUserWithResidency(+dto.id);
+            const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
             const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
 
             const endReadMessagesId = await this.getEndReadMessagesId({
@@ -101,11 +107,13 @@ export class MessagesService {
 
             const standartLimit = 20; // Количество записей на страницу
             const offset =
-                +dto.pageNumber > 0 ? countMessage - standartLimit + (+dto.pageNumber - 1) * standartLimit : countMessage - standartLimit + (+dto.pageNumber) * standartLimit; // Пропускаем записи для нужной страницы
+                +dto.pageNumber > 0
+                    ? countMessage - standartLimit + (+dto.pageNumber - 1) * standartLimit
+                    : countMessage - standartLimit + +dto.pageNumber * standartLimit; // Пропускаем записи для нужной страницы
 
             const limit = offset < 0 ? offset + standartLimit : standartLimit;
 
-            if (user && user.secret === dto.secret && (offset + standartLimit) >= 0 && countMessage) {
+            if (user && user.secret === dto.secret && offset + standartLimit >= 0 && countMessage) {
                 const { rows } = await this.messagesRepository.findAndCountAll({
                     where: {
                         location,
@@ -116,6 +124,7 @@ export class MessagesService {
                     offset: offset < 0 ? 0 : offset,
                     limit,
                 });
+                console.log(rows, 'rows 321');
                 return rows;
             }
         } catch (err) {
@@ -123,66 +132,9 @@ export class MessagesService {
         }
     }
 
-    // async getNextMessage(dto: GetMessagesDto): Promise<Messages[]> {
-    //     try {
-    //         const user = await this.usersService.getUserWithResidency(+dto.id);
-
-    //         const end_id = +dto.start_message_id;
-    //         const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
-
-    //         const countMessage = await this.getCountMessageFromId(end_id, location);
-
-    //         if (user && user.secret === dto.secret) {
-    //             const { rows } = await this.messagesRepository.findAndCountAll({
-    //                 where: {
-    //                     location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
-    //                     blocked: false,
-    //                 },
-    //                 include: { all: true },
-    //                 order: [['id', Order.ASC]],
-    //                 offset: countMessage,
-    //                 limit: 20,
-    //             });
-    //             if (rows) return rows;
-    //             return [];
-    //         }
-    //     } catch (err) {
-    //         throw new HttpException(`Ошибка в getNextMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-    //     }
-    // }
-
-    // async getPreviousMessage(dto: GetMessagesDto): Promise<Messages[]> {
-    //     try {
-    //         const user = await this.usersService.getUserWithResidency(+dto.id);
-
-    //         const end_id = +dto.start_message_id;
-    //         const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
-
-    //         const countMessage = await this.getCountMessageFromId(end_id, location);
-
-    //         if (user && user.secret === dto.secret && countMessage >= 1) {
-    //             const { rows } = await this.messagesRepository.findAndCountAll({
-    //                 where: {
-    //                     location: user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля',
-    //                     blocked: false,
-    //                 },
-    //                 include: { all: true },
-    //                 order: [['id', Order.ASC]],
-    //                 offset: countMessage - 1 < 20 ? 0 : countMessage - 21,
-    //                 limit: countMessage - 1 < 20 ? countMessage - 1 : 20,
-    //             });
-    //             return rows;
-    //         } else if (!user && user.secret !== dto.secret && countMessage < 1) {
-    //             return;
-    //         }
-    //     } catch (err) {
-    //         throw new HttpException(`Ошибка в getPreviousMessage: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-    //     }
-    // }
-
     async getCountNoReadMessages(dto: EndMessageDto): Promise<RespCountNoReadMessagesDto[]> {
         try {
-            const user = await this.usersService.getUserWithResidency(+dto.id);
+            const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
 
             if (user && user.secret === dto.secret) {
                 const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
@@ -210,7 +162,7 @@ export class MessagesService {
 
     async getEndReadMessagesId(dto: EndMessageDto): Promise<RespIdNoReadMessagesDto[]> {
         try {
-            const user = await this.usersService.getUserWithResidency(+dto.id);
+            const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
 
             if (user && user.secret === dto.secret) {
                 const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];

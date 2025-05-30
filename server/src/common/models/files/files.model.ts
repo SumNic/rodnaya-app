@@ -2,6 +2,7 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne
 import { User } from '../users/user.model';
 import { Messages } from '../messages/messages.model';
 import { Publications } from 'src/common/models/publications/publications.model';
+import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
 
 interface FilesCreationAttrs {
     fileName: string;
@@ -37,4 +38,11 @@ export class Files extends Model<Files, FilesCreationAttrs> {
 
     @BelongsTo(() => Publications)
     publications: Publications;
+
+    @ForeignKey(() => ChatGroup)
+    @Column({ type: DataType.INTEGER })
+    chatId: number;
+
+    @BelongsTo(() => ChatGroup)
+    chat: ChatGroup;
 }

@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-	EXIT_ROUTE,
-	HOME_ROUTE,
-	MESSAGES_ROUTE,
-	PERSONALE_ROUTE,
-	PUBLICATION_ROUTE,
-} from '../../utils/consts';
+import { EXIT_ROUTE, HOME_ROUTE, MESSAGES_ROUTE, PERSONALE_ROUTE, PUBLICATION_ROUTE, GROUP_ROUTE } from '../../utils/consts';
 import { Badge, Menu } from 'antd';
 
 import { useThemeContext } from '../../contexts/ThemeContext';
@@ -25,7 +19,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 
 	const { currentWidth } = useThemeContext();
 
-		const { store } = useStoreContext();
+	const { store } = useStoreContext();
 	const { arrCountNoReadMessages } = store.messageStore;
 
 	const allCountAreZero = arrCountNoReadMessages?.every((item) => item.count <= 0);
@@ -39,15 +33,10 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 
 	menuItems.push({
 		key: PUBLICATION_ROUTE,
-		label: (
-			<Link to={PUBLICATION_ROUTE}>
-				Публикации
-			</Link>
-		),
+		label: <Link to={PUBLICATION_ROUTE}>Публикации</Link>,
 	});
 
 	if (store.authStore.isAuth) {
-		
 		menuItems.push({
 			key: PERSONALE_ROUTE,
 			label: <Link to={`${PERSONALE_ROUTE}/${store.authStore.user.id}`}>Учредитель</Link>,
@@ -56,7 +45,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 		menuItems.push({
 			key: MESSAGES_ROUTE,
 			label: (
-				<Link to={`${MESSAGES_ROUTE}/locality`} className={styles["middle__link"]}>
+				<Link to={`${MESSAGES_ROUTE}/locality`} className={styles['middle__link']}>
 					Сообщения
 					{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot></Badge> : ''}
 				</Link>
@@ -85,6 +74,20 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 		// });
 
 		menuItems.push({
+			key: GROUP_ROUTE,
+			label: (
+				<Link to={`${GROUP_ROUTE}/locality`} className="middle__link">
+					Группы
+					{/* {!allCountAreZero ? (
+	                <Badge style={{ boxShadow: "none" }} dot></Badge>
+	            ) : (
+	                ""
+	            )} */}
+				</Link>
+			),
+		});
+
+		menuItems.push({
 			key: EXIT_ROUTE,
 			label: (
 				<Link to={EXIT_ROUTE} className="middle__link">
@@ -92,7 +95,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 				</Link>
 			),
 		});
-	}
+	}	
 
 	// const items = [
 	// {
@@ -109,10 +112,10 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 	//     ),
 	// },
 	// {
-	//     key: WORKGROUP_ROUTE,
+	//     key: GROUP_ROUTE,
 	//     label: (
 	//         <Link
-	//             to={`${WORKGROUP_ROUTE}/locality`}
+	//             to={`${GROUP_ROUTE}/locality`}
 	//             className="middle__link"
 	//         >
 	//             Десятки
@@ -146,7 +149,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 						fontFamily: 'IzhitsaRegular',
 						fontSize: 16,
 						position: currentWidth && currentWidth < 831 ? 'absolute' : 'relative',
-						top: currentWidth && currentWidth < 831 ? 20 : 0,
+						top: currentWidth && currentWidth < 831 ? 0 : 0,
 						marginTop: currentWidth && currentWidth < 831 ? 30 : 0,
 						left: 0,
 					}}

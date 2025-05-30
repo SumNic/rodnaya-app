@@ -1,0 +1,254 @@
+.buttonsGroup {
+    display: flex;
+    gap: 1rem;
+    padding: 0 1rem 1rem 1rem;
+}
+
+.group {
+    padding: 0 10px;
+    /* overflow-y: scroll; */
+}
+
+/* .group_wrapper {
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+	
+} */
+
+.select-foul {
+	position: relative;
+	width: 170px;
+	:global(.ant-select-selector) {
+		border: none !important;
+		box-shadow: none !important;
+		background: none !important;
+	}
+}
+
+.scroll_messages {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.chatHeaderWrapper {
+	/* top: 50px; */
+	/* margin-top: 50px; */
+    padding: 5px 10px;
+	border-bottom: 1px solid black;
+    margin-left: -10px;
+    margin-right: -10px;
+    display: flex;
+	position: absolute;
+	width: 100%;
+	background-color: white;
+	z-index: 99;
+}
+
+.label {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.danger {
+	color: red;
+}
+
+/* Для мобильных устройств */
+@media (hover: none) {
+	.foul {
+		opacity: 1; /* Оставляем видимым, если включён через useState */
+	}
+}
+
+.share-button {
+	padding: 10px 15px;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	color: white;
+	font-weight: bold;
+}
+
+.modal :global(.ant-modal-content) {
+	padding: 0 !important;
+}
+
+.menuButton {
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	font-size: 18px; /* Размер иконки */
+	cursor: pointer;
+}
+
+.menuButton:hover {
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	font-size: 18px; /* Размер иконки */
+	cursor: pointer;
+	/* color: #1890ff; */
+}
+
+.headerGroup .foul{
+	opacity: 1;
+    gap: 1rem;
+    padding-bottom: 55px;
+}
+
+.wrapper {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+    border-bottom: 1px solid black;
+    margin-bottom: 5px;
+}
+
+.personale_wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.p_style {
+	font-family: -apple-system, system-ui, 'Helvetica Neue', Roboto, sans-serif;
+	font-weight: 500;
+	font-size: 17px;
+	padding: 5px 20px;
+	color: black;
+    word-wrap: break-word;
+}
+
+.residency {
+    display: flex; 
+    gap: 1rem; 
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.buttonsPublications {
+	display: grid;
+    grid-template-columns: repeat(2, 1fr);
+	gap: 10px;
+	padding-bottom: 1rem;
+}
+
+.button {
+	width: 120px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	height: auto;
+    padding-top: 6px;
+}
+
+.groupChatName {
+    font-family: 'IzhitsaRegular', arial;
+    font-size: 17px;
+    color: rgb(13, 70, 128);
+    text-decoration: none;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mes_message {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    color: black;
+    word-break: break-word; 
+    -webkit-hyphens: auto; 
+    -ms-hyphens: auto; 
+    hyphens: auto;
+    white-space: pre-wrap;
+    padding-bottom: 15px;
+}
+
+.menuGroup {
+	height: 16px;
+	display: flex;
+	justify-content: flex-end;
+	flex-grow: 1;
+	opacity: 1;
+	background-color: none;
+}
+
+.groupNameBlock {
+    display: flex;
+    padding-left: 5px;
+}
+
+
+.wrapper {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+    border-bottom: 1px solid black;
+    margin-bottom: 5px;
+    position: relative;
+}
+
+.name__first{
+    font-size: 24px;
+    color: rgb(13, 70, 128);
+    text-align: center;
+}
+
+.mes__wrapper {
+    width: 100%;
+    padding: 12px 10px 0 0;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.mes__wrapper:hover {
+	background-color: #f8f8f8; /* Серый фон */
+}
+
+.mes__wrapper:hover .foul {
+	opacity: 1; /* Показываем при наведении */
+}
+
+.groupName {
+    font-family: 'IzhitsaRegular', arial;
+    font-size: 18px;
+    color: rgb(13, 70, 128);
+    text-decoration: none;
+    justify-content: center;
+}
+
+.foul {
+	height: 16px;
+	display: flex;
+	justify-content: flex-end;
+	flex-grow: 1;
+	opacity: 0;
+	background-color: none;
+}
+
+#messages {
+	bottom: 55px;
+	border: 1px solid rgb(223, 219, 219);
+	border-width: 1px 0 0 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #f4f7f4;
+	width: 100%;
+	z-index: 3;
+	margin: 0 auto;
+}

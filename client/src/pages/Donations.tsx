@@ -32,6 +32,7 @@ const Donations: React.FC = () => {
 								</p>
 							</div>
 							<div className="support-button-container">
+								{/* <button></button> */}
 								<iframe
 									src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=H28j3gJ3nHw.230111&"
 									width="237"
@@ -46,7 +47,7 @@ const Donations: React.FC = () => {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

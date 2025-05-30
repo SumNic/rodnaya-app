@@ -187,7 +187,7 @@ const Publications: React.FC<PublicationsProps> = ({}) => {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

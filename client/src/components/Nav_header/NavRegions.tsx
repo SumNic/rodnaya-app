@@ -7,9 +7,11 @@ import { useMessageContext } from '../../contexts/MessageContext.ts';
 
 interface Props {
 	location: string;
+	route: string;
+	source: string;
 }
 
-function NavRegions(props: Props) {
+const NavRegions: React.FC<Props> = ({location, route, source}) => {
 	const { store } = useStoreContext();
 
 	const { messagesContainerRef } = useMessageContext();
@@ -22,13 +24,13 @@ function NavRegions(props: Props) {
 	let classN1 = '';
 	let classN2 = '';
 
-	if (props.location === 'locality') {
+	if (location === 'locality') {
 		style1 = { borderBottom: 'none', borderRadius: '20px 20px 0 0' };
 		style2 = { backgroundColor: 'white', borderRadius: '20px 0 0 20px' };
 		style3 = { backgroundColor: 'white' };
 		style4 = { backgroundColor: 'white' };
 	}
-	if (props.location === 'region') {
+	if (location === 'region') {
 		style1 = {
 			backgroundColor: 'white',
 			borderRadius: '20px 20px 20px 0',
@@ -43,7 +45,7 @@ function NavRegions(props: Props) {
 		style3 = { backgroundColor: 'white', borderRadius: '20px 0 0 20px' };
 		style4 = { backgroundColor: 'white' };
 	}
-	if (props.location === 'country') {
+	if (location === 'country') {
 		style1 = { backgroundColor: 'white' };
 		style2 = {
 			backgroundColor: 'white',
@@ -59,7 +61,7 @@ function NavRegions(props: Props) {
 		};
 		style4 = { backgroundColor: 'white', borderRadius: '20px 20px 0 20px' };
 	}
-	if (props.location === 'world') {
+	if (location === 'world') {
 		style1 = { backgroundColor: 'white' };
 		style2 = { backgroundColor: 'white' };
 		style3 = {
@@ -93,12 +95,12 @@ function NavRegions(props: Props) {
 			style={index === 0 ? style1 : index === 1 ? style2 : index === 2 ? style3 : style4}
 		>
 			<Link
-				to={`${MESSAGES_ROUTE}/${elem}`}
+				to={`${route}/${elem}`}
 				className="header__link"
 				onClick={() => {
 					const container = messagesContainerRef.current;
 					if (container) {
-						localStorage.setItem(`scrollTop-${props.location}`, container.scrollTop.toString());
+						localStorage.setItem(`scrollTop-${source}-${location}`, container.scrollTop.toString());
 					}
 				}}
 			>
@@ -108,7 +110,7 @@ function NavRegions(props: Props) {
 				{elem === 'world' && 'Мир'}
 			</Link>
 
-			{arrCountNoReadMessages && arrCountNoReadMessages[index]?.count > 0 ? (
+			{route === MESSAGES_ROUTE && arrCountNoReadMessages && arrCountNoReadMessages[index]?.count > 0 ? (
 				<Badge count={arrCountNoReadMessages[index]?.count} style={{ boxShadow: 'none' }}>
 					<div style={{ minWidth: 12, minHeight: 15 }}></div>
 				</Badge>

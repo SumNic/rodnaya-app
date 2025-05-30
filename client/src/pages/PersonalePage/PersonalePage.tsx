@@ -21,6 +21,7 @@ import EditProfile from '../../components/EditProfile';
 import OnChangeForm from '../../components/OnChangeForm';
 import PersonaleData from '../../components/PersonaleData';
 import UploadAvatar from '../../components/UploadAvatar';
+import { PERSONALE_ROUTE } from '../../utils/consts';
 
 const { Title } = Typography;
 
@@ -196,7 +197,7 @@ const PersonalePage: React.FC = () => {
 		<div>
 			<header className="header">
 				<div className="header__wrapper">
-					{currentWidth && currentWidth < 830 && <NavMiddle />}
+					{currentWidth && currentWidth < 830 && <NavMiddle item={PERSONALE_ROUTE} />}
 					<HeaderLogoMobile />
 					<HeaderLogoRegistr />
 				</div>
@@ -204,7 +205,7 @@ const PersonalePage: React.FC = () => {
 
 			<div className="middle">
 				<div className="middle__wrapper">
-					{currentWidth && currentWidth >= 830 && <NavMiddle />}
+					{currentWidth && currentWidth >= 830 && <NavMiddle item={PERSONALE_ROUTE} />}
 					<div className="main__screen main__screen_home">
 						<div id="list_founders" style={{ paddingBottom: '20px' }}>
 							{!store.authStore.isEditProfile && personaleData}
@@ -244,7 +245,7 @@ const PersonalePage: React.FC = () => {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

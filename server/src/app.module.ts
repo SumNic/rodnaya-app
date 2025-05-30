@@ -41,6 +41,14 @@ import { EndReadMessageModule } from 'src/end-read-message/end-read-message.modu
 import { PublicationsController } from './publications/publications.controller';
 import { PublicationsModule } from './publications/publications.module';
 import { Publications } from 'src/common/models/publications/publications.model';
+import { GroupsController } from './groups/groups.controller';
+import { GroupsService } from './groups/groups.service';
+import { GroupsModule } from './groups/groups.module';
+import { Group } from 'src/common/models/groups/groups.model';
+import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { UserGroups } from 'src/common/models/users/user-groups.model';
+import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
+import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 
 @Module({
     imports: [
@@ -87,6 +95,11 @@ import { Publications } from 'src/common/models/publications/publications.model'
                     User,
                     UserRoles,
                     Files,
+                    Group,
+                    ChatGroup,
+                    LastReadPostChat,
+                    UserGroups,
+                    GroupAdmins
                 ],
                 autoLoadModels: true,
                 synchronize: true,
@@ -108,6 +121,7 @@ import { Publications } from 'src/common/models/publications/publications.model'
         LocationModule,
         EndReadMessageModule,
         PublicationsModule,
+        GroupsModule,
     ],
     controllers: [
         AdminController,
@@ -120,6 +134,7 @@ import { Publications } from 'src/common/models/publications/publications.model'
         UsersController,
         LocationController,
         PublicationsController,
+        GroupsController,
     ],
     providers: [],
 })

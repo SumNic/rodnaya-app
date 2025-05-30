@@ -6,13 +6,15 @@ import styles from './MessagesList.module.css';
 import Post from '../../../components/Post/Post.tsx';
 import { observer } from 'mobx-react-lite';
 import { IPosts } from '../../../models/IPosts.ts';
-import { Page } from '../Messages.tsx';
+import { Page } from './Messages.tsx';
+// import { Page } from '../MessagesPage.tsx';
 
 interface Props {
 	posts: IPosts;
 	location: string;
 	lastMessageRef?: React.Ref<HTMLDivElement>;
 	messagesRef?: React.Ref<HTMLDivElement>;
+	groupId?: number;
 }
 
 const indexLocation: Page = {
@@ -29,7 +31,7 @@ const initialValue: Page = {
 	world: 0,
 };
 
-const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef }) => {
+const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef, groupId }) => {
 	const [count, setCount] = useState<typeof initialValue>(initialValue);
 	const [prevCount, setPrevCount] = useState<typeof initialValue>(initialValue);
 
