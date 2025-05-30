@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { Spin } from 'antd';
 import { IGroup } from '../../../models/response/IGroup';
 
 import styles from '../OneGroup.module.css';
-import AboutGroup from '../../GroupPage/components/AboutGroup';
-import { useStoreContext } from '../../../contexts/StoreContext';
 import { observer } from 'mobx-react-lite';
-import ChatGroup from '../../GroupPage/components/ChatGroup';
 
 interface GroupElementProps {
 	group: IGroup;
@@ -15,15 +12,15 @@ interface GroupElementProps {
 }
 
 const GroupElement: React.FC<GroupElementProps> = ({ group, isLoadingGroup }) => {
-	const [isUserMemberGroup, setIsUserMemberGroup] = useState(false);
+	// const [isUserMemberGroup, setIsUserMemberGroup] = useState(false);
 
-	const {store} = useStoreContext();
-	const {user} = store.authStore;
+	// const {store} = useStoreContext();
+	// const {user} = store.authStore;
 
-	useEffect(() => {
-		if (group.users.find((u) => u.id === user.id)) setIsUserMemberGroup(true)
-		else(setIsUserMemberGroup(false))
-	}, [group, user]);
+	// useEffect(() => {
+	// 	if (group.users.find((u) => u.id === user.id)) setIsUserMemberGroup(true)
+	// 	else(setIsUserMemberGroup(false))
+	// }, [group, user]);
 
 	return (
 		<div className={styles.group_wrapper} id="div__messages">

@@ -1,4 +1,3 @@
-import Footer from '../components/Footer';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import { observer } from 'mobx-react-lite';
 import { useLocation, useNavigate } from 'react-router-dom';

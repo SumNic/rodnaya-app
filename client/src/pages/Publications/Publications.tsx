@@ -3,7 +3,6 @@ import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../../components/Nav_middle/NavMiddle';
 import { PUBLICATION_ROUTE } from '../../utils/consts';
-import Footer from '../../components/Footer';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';

@@ -1,6 +1,5 @@
 // import { Context } from '..';
 import ConditionsForm from '../components/ConditionsForm';
-import Footer from '../components/Footer';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import OnChangeForm from '../components/OnChangeForm';
 import { observer } from 'mobx-react-lite';

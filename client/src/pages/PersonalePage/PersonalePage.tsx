@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-import Footer from '../../components/Footer';
 import NavMiddle from '../../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';

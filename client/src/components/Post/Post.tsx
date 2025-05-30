@@ -13,7 +13,7 @@ import {
 	SHARE,
 } from '../../utils/consts';
 
-import { Avatar, Button, Dropdown, MenuProps, message } from 'antd';
+import { Button, Dropdown, MenuProps, message } from 'antd';
 
 import { Buffer } from 'buffer';
 
