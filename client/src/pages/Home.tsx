@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import AuthVkButton from '../components/AuthVkButton';
-import Footer from '../components/Footer';
 import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';

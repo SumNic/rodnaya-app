@@ -31,7 +31,7 @@ const initialValue: Page = {
 	world: 0,
 };
 
-const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef, groupId }) => {
+const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef }) => {
 	const [count, setCount] = useState<typeof initialValue>(initialValue);
 	const [prevCount, setPrevCount] = useState<typeof initialValue>(initialValue);
 

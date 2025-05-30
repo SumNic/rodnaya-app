@@ -7,8 +7,6 @@ import { EndReadPostsGroupsId } from '../models/EndReadPostsGroupsId';
 import { Source } from '../utils/types';
 import { PostToChat } from '../models/PostToChat';
 
-import { observable } from 'mobx';
-
 export default class GroupStore {
     isModalNewGroupOpen: boolean = false;
 	isAboutGroupVisible = new Map<string, boolean>();

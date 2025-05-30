@@ -1,12 +1,12 @@
 import { observer } from 'mobx-react-lite';
-import React, { useState } from 'react';
+import React from 'react';
 
 import styles from '../GroupPage.module.css';
 import { IGroup } from '../../../models/response/IGroup';
 import CustomAvatar from '../../../components/CustomAvatar';
-import { Button, Dropdown, MenuProps } from 'antd';
-import { CloseOutlined, EllipsisOutlined, LogoutOutlined } from '@ant-design/icons';
-import { CHAT, GO_OUT } from '../../../utils/consts';
+import { Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { CHAT } from '../../../utils/consts';
 import { useStoreContext } from '../../../contexts/StoreContext';
 
 interface ChatGroupProps {
@@ -15,10 +15,10 @@ interface ChatGroupProps {
 }
 
 const ChatGroup: React.FC<ChatGroupProps> = ({ group, location }) => {
-	const [visible, setVisible] = useState(false);
+	// const [visible, setVisible] = useState(false);
 
 	const { store } = useStoreContext();
-	const { setIsChatGroupVisible, setIsAboutGroupVisible, setAboutGroup, setSource, leaveTheGroup } = store.groupStore;
+	const { setIsChatGroupVisible, setIsAboutGroupVisible, setAboutGroup, setSource } = store.groupStore;
 
 	const handleGroupClick = (group: IGroup) => {
 		setAboutGroup(location, group);
@@ -27,27 +27,27 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ group, location }) => {
 		setSource(location, CHAT);
 	};
 
-	const options: MenuProps['items'] = [
-		{
-			key: GO_OUT,
-			label: (
-				<div className={`${styles.label} ${styles.danger}`} onClick={() => leaveTheGroup(location, group.id)}>
-					<LogoutOutlined width="23px" style={{ color: 'red' }} /> {GO_OUT}
-				</div>
-			),
-		},
-	];
+	// const options: MenuProps['items'] = [
+	// 	{
+	// 		key: GO_OUT,
+	// 		label: (
+	// 			<div className={`${styles.label} ${styles.danger}`} onClick={() => leaveTheGroup(location, group.id)}>
+	// 				<LogoutOutlined width="23px" style={{ color: 'red' }} /> {GO_OUT}
+	// 			</div>
+	// 		),
+	// 	},
+	// ];
 
-	const handleSelect = (event: any): void => {
-		console.log(event, 'event');
-		// if (event === FOUL_MESSAGES) {
-		// 	setIsFoulModalOpenOk(true);
-		// }
-	};
+	// const handleSelect = (event: any): void => {
+	// 	console.log(event, 'event');
+	// 	// if (event === FOUL_MESSAGES) {
+	// 	// 	setIsFoulModalOpenOk(true);
+	// 	// }
+	// };
 
-	const handleVisibleChange = (flag: boolean) => {
-		setVisible(flag);
-	};
+	// const handleVisibleChange = (flag: boolean) => {
+	// 	setVisible(flag);
+	// };
 
 	function getParticipantsWord(count: number): string {
 		if (count % 10 === 1 && count % 100 !== 11) {
