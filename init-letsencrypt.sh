@@ -1,6 +1,6 @@
 #!/bin/bash
 
-domains=("rod-partya.ru www.rod-partya.ru")
+domains=("rod-partya.ru" "www.rod-partya.ru")
 email="sum_ith@mail.ru" # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
