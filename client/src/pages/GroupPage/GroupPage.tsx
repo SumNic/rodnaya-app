@@ -47,7 +47,7 @@ const GroupPage: React.FC = () => {
 	const navigate = useNavigate();
 
 	const { store } = useStoreContext();
-	const { getAllGroup } = store.groupStore;
+	const { getAllGroup, isChangeGroups } = store.groupStore;
 	const { isAboutGroupVisible, isChatGroupVisible, groupForChat } = store.groupStore;
 
 	const params = useParams();
@@ -88,7 +88,7 @@ const GroupPage: React.FC = () => {
 
 	useEffect(() => {
 		if (location) getGroups(location);
-	}, [location]);
+	}, [location, isChangeGroups]);
 
 	const getGroups = async (location: string) => {
 		try {

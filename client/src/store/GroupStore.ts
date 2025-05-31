@@ -18,6 +18,7 @@ export default class GroupStore {
 
     arrCountNoReadPostsGroups: CountNoReadPostsGroups[] = [];
 	arrLastReadPostsGroupsId: EndReadPostsGroupsId[] = [];
+	isChangeGroups: boolean = false;
 
 	constructor() {
 		makeAutoObservable(this);
@@ -143,24 +144,27 @@ export default class GroupStore {
 		}
 	}
 
-	joinTheGroup = async (location: string, group: IGroup) => {
+	joinTheGroup = async (id: number) => {
 		try {
-			await GroupsService.joinTheGroup(group.id)
-			this.setIsChatGroupVisible(location, true)
-			this.setIsAboutGroupVisible(location, false)
-			this.setGroupForChat(location, group);
+			await GroupsService.joinTheGroup(id)
+			this.setIsChangeGroups(!this.isChangeGroups)
+			
 		} catch (e: any) {
 			return { error: e.response?.data?.message };
 		}
 	}
 
-	leaveTheGroup = async (location: string, id: number) => {
+	leaveTheGroup = async (id: number) => {
 		try {
 			await GroupsService.leaveTheGroup(id)
-			this.setIsChatGroupVisible(location, false)
-			this.setIsAboutGroupVisible(location, false)
+			this.setIsChangeGroups(!this.isChangeGroups)
+			
 		} catch (e: any) {
 			return { error: e.response?.data?.message };
 		}
+	}
+
+	setIsChangeGroups = (isChangeGroups: boolean) => {
+		this.isChangeGroups = isChangeGroups
 	}
 }

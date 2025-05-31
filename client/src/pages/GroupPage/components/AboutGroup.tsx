@@ -10,6 +10,7 @@ import CustomAvatar from '../../../components/CustomAvatar';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import FoundersList from '../../../components/FoundersList';
 import { CHAT } from '../../../utils/consts';
+import { deepCopy } from 'deep-copy-ts';
 
 interface AboutGroupProps {
 	group: IGroup;
@@ -30,6 +31,7 @@ const AboutGroup: React.FC<AboutGroupProps> = ({ group, location }) => {
 		setIsChatGroupVisible,
 		joinTheGroup,
 		leaveTheGroup,
+		setGroupForChat,
 	} = store.groupStore;
 
 	const query = [group.country, group.region, group.locality].filter(Boolean).join(', ');
@@ -48,7 +50,6 @@ const AboutGroup: React.FC<AboutGroupProps> = ({ group, location }) => {
 		setIsAboutGroupVisible(location, false);
 		setAboutGroup(location, undefined);
 	};
-	console.log(user, 'user');
 
 	return (
 		<>
@@ -73,14 +74,25 @@ const AboutGroup: React.FC<AboutGroupProps> = ({ group, location }) => {
 							<Button
 								onClick={
 									isMemberOfGroup
-										? () => {
-												leaveTheGroup(location, group.id);
-												setIsMemberOfGroup(false);
-												setUser({...user, userGroups: user?.userGroups.filter(g => g.id !== group.id)});
+										? async () => {
+												await leaveTheGroup(group.id);
+
+												const copyUser = deepCopy(user);
+												setUser({
+													...copyUser,
+													userGroups: [...copyUser?.userGroups.filter((g) => g.id !== group.id)],
+												});
+												setIsChatGroupVisible(location, false);
+												setIsAboutGroupVisible(location, false);
 										  }
-										: () => {
-												joinTheGroup(location, group);
-												setUser({ ...user, userGroups: { ...user?.userGroups, ...group } });
+										: async () => {
+												await joinTheGroup(group.id);
+
+												const copyUser = deepCopy(user);
+												setUser({ ...copyUser, userGroups: [...copyUser?.userGroups, group] });
+												setIsChatGroupVisible(location, true);
+												setIsAboutGroupVisible(location, false);
+												setGroupForChat(location, group);
 										  }
 								}
 								className={styles.button}

@@ -58,7 +58,7 @@ export default class GroupsService {
 	}
 
 	static async leaveTheGroup(id: number) {
-		return $api.post<number>('/leave-the-group', {id});
+		return $api.post('/leave-the-group', {id});
 	}
 
 	// static async blockedPublications(id_message: number, selectedActionIndex: number): Promise<AxiosResponse<string>> {
