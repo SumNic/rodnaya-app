@@ -4,6 +4,7 @@ import {
 	DOMEN,
 	FOUL_MESSAGES,
 	GO,
+	GROUP,
 	HOST,
 	MESSAGES,
 	MESSAGES_ROUTE,
@@ -84,7 +85,12 @@ const Post: React.FC<PostProps> = ({ post }) => {
 			: []),
 	];
 
-	const sourceFoul = parts.includes(MESSAGES) ? MESSAGES : PUBLICATIONS;
+	const sourceFoul = () => {
+		if (parts.includes(MESSAGES)) return MESSAGES
+		if (parts.includes(PUBLICATIONS)) return PUBLICATIONS
+		if (parts.includes(GROUP)) return GROUP
+		return ''
+	}
 
 	const sendFoul = async (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
 		if (selectedMessage) {
@@ -95,7 +101,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 					selectedRules: selectedRules,
 					selectedActionWithFoul: selectedActionWithFoul,
 					selectedPunishment: selectedPunishment,
-					source: sourceFoul,
+					source: sourceFoul(),
 				});
 
 				if (sendFoulMessage) message.success(`${sendFoulMessage.data}`);

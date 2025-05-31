@@ -1,21 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Order } from 'src/common/constants/order';
+import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateGroupDto } from 'src/common/dtos/create-group.dto';
 import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
 import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
 import { GetPostsGroupDto } from 'src/common/dtos/get-posts-group.dto';
-import { NewMessage } from 'src/common/dtos/new-message.dto';
 import { NewPostToChat } from 'src/common/dtos/new-post-to-chat.dto';
 import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
 import { Group } from 'src/common/models/groups/groups.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
-import { Messages } from 'src/common/models/messages/messages.model';
-import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
-import { Role } from 'src/common/models/users/role.model';
 import { User } from 'src/common/models/users/user.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
 import { UsersService } from 'src/users/users.service';
@@ -255,29 +251,40 @@ export class GroupsService {
         }
     }
 
-    // async getCountNoReadPosts(req: AuthenticatedRequest): Promise<CountNoReadPostsGroups[]> {
-    //     try {
-    //         const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
+    async getPostGroupFromId(id: number): Promise<ChatGroup> {
+        try {
+            const message = await this.chatGroupRepository.findByPk(id);
+            return message;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getPostGroupFromId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-    //             const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
-    //             // Итерация по ключам объекта LocationUser
-    //             const messageCountsPromises = residencyKeys.map(async (key) => {
-    //                 const value = dto.residency[key];
-    //                 const allCountMessages = await this.endReadMessageService.getCountMessage(value);
-    //                 const allReadMessages = await this.endReadMessageRepository.findOne({
-    //                     where: {
-    //                         user_id: user.id,
-    //                         location: value,
-    //                     },
-    //                 });
-    //                 const count = allCountMessages - (allReadMessages?.endMessage || 0);
-    //                 return { location: value, count };
-    //             });
-    //             // Ждем завершения всех операций
-    //             const result = await Promise.all(messageCountsPromises);
-    //             return result.reverse();
-    //     } catch (err) {
-    //         throw new HttpException(`Ошибка в getCountNoReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-    //     }
-    // }
+    async blockedPostGroup(dto: BlockedMessagesDto): Promise<string> {
+        try {
+            const foulMessage = await this.chatGroupRepository.findByPk(dto.id_message);
+            if (dto.selectedActionIndex === 1 && foulMessage) {
+                foulMessage.blocked = true;
+                foulMessage.save();
+                return 'Сообщение заблокировано';
+            }
+            if (dto.selectedActionIndex === 2 && foulMessage) {
+                const userMessages = await this.chatGroupRepository.findAll({
+                    where: {
+                        userId: foulMessage.userId,
+                    },
+                });
+
+                // Заблокировать все сообщения
+                for (const message of userMessages) {
+                    message.blocked = true;
+                    await message.save();
+                }
+
+                return 'Все сообщения пользователя в группах заблокированы';
+            }
+        } catch (err) {
+            throw new HttpException(`Ошибка в blockedMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

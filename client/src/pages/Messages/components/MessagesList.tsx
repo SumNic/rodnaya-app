@@ -138,6 +138,8 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 	useEffect(() => {
 		document.getElementById('div__messages')?.addEventListener('scroll', handleScroll);
 
+		handleScroll();
+
 		return () => {
 			document.getElementById('div__messages')?.removeEventListener('scroll', handleScroll);
 		};

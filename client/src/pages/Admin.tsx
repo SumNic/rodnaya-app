@@ -6,8 +6,9 @@ import { IPost } from '../models/IPost';
 import MessagesService from '../services/MessagesService';
 import UserService from '../services/UserService';
 import { useStoreContext } from '../contexts/StoreContext';
-import { MESSAGES, PUBLICATIONS } from '../utils/consts';
+import { GROUP, MESSAGES, PUBLICATIONS } from '../utils/consts';
 import PublicationsService from '../services/PublicationsService';
+import GroupsService from '../services/GroupsService';
 // import AdminService from './AdminService';
 
 interface FoulSendMessage {
@@ -76,6 +77,10 @@ const Admin: React.FC = () => {
 						const dataPlus = await PublicationsService.getPublicationFromId(message.id_foul_message);
 						return dataPlus.data;
 					}
+					if (message.source === GROUP) {
+						const dataPlus = await GroupsService.getPostGroupFromId(message.id_foul_message);
+						return dataPlus.data;
+					}
 				});
 
 				const results = await Promise.all(promises);
@@ -127,6 +132,14 @@ const Admin: React.FC = () => {
 						if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
 						message.success(`${isDeletedMessages.data}`);
 					}
+					if (selectedFoulMessage.source === GROUP) {
+						const isDeletedMessages = await GroupsService.blockedPostGroup(
+							selectedFoulMessage.foul_message.id,
+							selectedActionIndex
+						);
+						if (!isDeletedMessages.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
+						message.success(`${isDeletedMessages.data}`);
+					}
 				}
 				if (selectedPunishmentIndex > 0) {
 					const isBlockedUser = await UserService.blockedUser(
@@ -136,7 +149,7 @@ const Admin: React.FC = () => {
 					if (!isBlockedUser.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
 					message.success(`${isBlockedUser.data}`);
 				}
-				const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(selectedFoulMessage.foul_message.id);
+				const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(selectedFoulMessage.foul_message.id, selectedFoulMessage.source);
 				if (isCleaningIsComplete.data) setIsModalOpen(false);
 				setIsChangeListFoulMessages((prev) => !prev);
 			}

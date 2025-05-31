@@ -1,7 +1,10 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Recoverable } from 'repl';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Roles } from 'src/auth/guards/roles-auth.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ROLES } from 'src/common/constants/roles';
+import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateGroupDto } from 'src/common/dtos/create-group.dto';
 import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
 import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
@@ -158,49 +161,40 @@ export class GroupsController {
         return await this.groupsService.leaveTheGroup(req, id);
     }
 
-    // @ApiOperation({
-    //     summary: 'Получение количества всех сообщений для определенного location',
-    // })
-    // @Get('/get-count-no-read-posts-groups')
-    // @ApiResponse({
-    //     status: HttpStatus.OK,
-    //     description: 'Декларация добавлена',
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     description: 'Неккоректные данные',
-    // })
-    // @UseGuards(JwtAuthGuard)
-    // async getCountNoReadMessages(@Req() req: AuthenticatedRequest) {
-    //     //: Promise<number>
-    //     return await this.groupsService.getCountNoReadPosts(req);
-    // }
+    @ApiOperation({
+        summary: 'Получение сообщения по его Id',
+    })
+    @Get('/get-post-group-from-id')
+    @ApiBody({ type: Number })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Данные получены',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Неккоректные данные',
+    })
+    @Roles(ROLES.ADMIN)
+    @UseGuards(RolesGuard)
+    @UseGuards(JwtAuthGuard)
+    async getPostGroupFromId(@Query() query: { id_message: number }) {
+        return await this.groupsService.getPostGroupFromId(query.id_message);
+    }
 
-    // @ApiOperation({
-    //     summary: 'Получение id последнего прочитанного сообщения для определенного location',
-    // })
-    // @Get('/get-end-read-messages-id')
-    // @ApiBody({ type: EndMessageDto })
-    // @ApiResponse({
-    //     status: HttpStatus.OK,
-    //     description: 'Данные получены',
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     description: 'Неккоректные данные',
-    // })
-    // @UseGuards(JwtAuthGuard)
-    // async getEndReadMessagesId(@Query() query: EndMessageDto) {
-    //     return await this.messagesService.getEndReadMessagesId(query);
-    // }
-
-    // @ApiOperation({
-    //     summary: 'Устанавливает последнее прочитанное сообщение для определенного location',
-    // })
-    // @Post('/set-end-read-messages-id')
-    // @ApiBody({ type: EndReadMessageDto })
-    // @UseGuards(JwtAuthGuard)
-    // async setEndReadMessagesId(@Req() req: AuthenticatedRequest, @Body() dto: EndReadMessageDto) {
-    //     return await this.messagesService.setEndReadMessagesId(req.user.id, dto); 
-    // }
+    @ApiOperation({ summary: 'Блокировка сообщений' })
+    @Post('/blocked-post-group')
+    @ApiBody({ type: BlockedMessagesDto })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Сообщение добавлено',
+        // type: OutputUserAndTokens,
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Неккоректные данные',
+    })
+    @UseGuards(JwtAuthGuard)
+    async blockedPostGroup(@Body() dto: BlockedMessagesDto): Promise<string> {
+        return await this.groupsService.blockedPostGroup(dto);
+    }
 }

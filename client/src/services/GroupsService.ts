@@ -61,12 +61,18 @@ export default class GroupsService {
 		return $api.post('/leave-the-group', {id});
 	}
 
-	// static async blockedPublications(id_message: number, selectedActionIndex: number): Promise<AxiosResponse<string>> {
-	// 	return $api.post('/blocked-publication', {
-	// 		id_message,
-	// 		selectedActionIndex,
-	// 	});
-	// }
+	static async blockedPostGroup(id_message: number, selectedActionIndex: number): Promise<AxiosResponse<string>> {
+		return $api.post('/blocked-post-group', {
+			id_message,
+			selectedActionIndex,
+		});
+	}
+
+	static async getPostGroupFromId(id_message: number): Promise<AxiosResponse<IPost>> {
+		return $api.get<IPost>('/get-post-group-from-id', {
+			params: { id_message },
+		});
+	}
 
 	// static async getUserPublications(id: number, pageNumber: number): Promise<AxiosResponse<IPost[]>> {
 	// 	return $api.get<IPost[]>('/get-user-publications', {

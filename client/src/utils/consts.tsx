@@ -85,6 +85,7 @@ export const COUNT_RESPONSE_POSTS = 20
 export const MESSAGES = 'messages';
 export const PUBLICATIONS = 'publications';
 export const GROUPS = 'groups';
+export const GROUP = 'group';
 export const CHAT = 'chat';
 
 
