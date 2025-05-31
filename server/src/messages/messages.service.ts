@@ -197,20 +197,24 @@ export class MessagesService {
     }
 
     async getCountMessageFromId(end_id: number, location: string): Promise<number> {
-        try {
-            const { count } = await this.messagesRepository.findAndCountAll({
-                where: {
-                    id: {
-                        [Op.lte]: end_id,
-                    },
-                    location: location,
-                    blocked: false,
-                },
-            });
-            return count;
-        } catch (err) {
-            throw new HttpException(`Ошибка в getCountMessageFromId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+      try {
+        // собираем базовые фильтры
+        const where: Record<string, any> = { location, blocked: false };
+    
+        // если end_id ≠ 0, добавляем условие по id
+        if (end_id !== 0) {
+          where.id = { [Op.lte]: end_id };
         }
+    
+        // один вызов вместо двух
+        const { count } = await this.messagesRepository.findAndCountAll({ where });
+        return count;
+      } catch (err) {
+        throw new HttpException(
+          `Ошибка в getCountMessageFromId: ${err}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
 
     async setEndReadMessagesId(user_id: number, dto: EndReadMessageDto) {
