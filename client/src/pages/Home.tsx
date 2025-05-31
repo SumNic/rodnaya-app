@@ -152,11 +152,13 @@ const Home: React.FC = () => {
 							)}
 
 							<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-								{isMobile ? (
-									<MyButton text="Войти с VK ID" onClick={enterWithVKID} />
-								) : (
-									!store.authStore.isAuth && <AuthVkButton />
-								)}
+								<div style={{ minWidth: '237px' }}>
+									{isMobile ? (
+										<MyButton text="Войти с VK ID" onClick={enterWithVKID} />
+									) : (
+										!store.authStore.isAuth && <AuthVkButton />
+									)}
+								</div>
 							</div>
 
 							<h2 className="founders-subheading">Хотите узнать больше?</h2>
