@@ -20,18 +20,18 @@ const Home: React.FC = () => {
 
 	useEffect(() => {
 		const checkPlatform = () => {
-		const platform = Capacitor.getPlatform(); // Получаем платформу
+			const platform = Capacitor.getPlatform(); // Получаем платформу
 
-		if (platform === 'android' || platform === 'ios') {
-			setIsMobile(true); // Устанавливаем состояние, если приложение работает на мобильной платформе
-		} else {
-			setIsMobile(false); // Устанавливаем состояние, если приложение работает на web
-		}
+			if (platform === 'android' || platform === 'ios') {
+				setIsMobile(true); // Устанавливаем состояние, если приложение работает на мобильной платформе
+			} else {
+				setIsMobile(false); // Устанавливаем состояние, если приложение работает на web
+			}
 		};
 
 		checkPlatform(); // Вызываем функцию для проверки платформы
 	}, []);
-	
+
 	// const [deviceId, setDeviceId] = useState('');
 	const { store } = useStoreContext();
 
@@ -49,7 +49,7 @@ const Home: React.FC = () => {
 		const url = `https://id.vk.com/auth?state=${state}&response_type=code&code_challenge=${codeChallenge}&code_challenge_method=sha256&app_id=${app_id}&v=0.0.2&redirect_uri=vk${app_id}://vk.com&uuid=65464578756465`;
 
 		// if (Capacitor.isNative) {
-	await Browser.open({ url });
+		await Browser.open({ url });
 		// } else {
 		// window.open(url, '_blank'); // В веб-версии
 		// }
@@ -105,11 +105,11 @@ const Home: React.FC = () => {
 
 			// Отправляем POST-запрос
 			const response = await Http.post({
-				url, 
+				url,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded', // Указываем тип данных
 				},
-				data: data.toString(), 
+				data: data.toString(),
 			});
 
 			// Обрабатываем ответ
@@ -145,12 +145,19 @@ const Home: React.FC = () => {
 								Этот ресурс объединяет единомышленников, нацеленных на возвращение энергии Любви в семьи.
 							</p>
 
-							{!store.authStore.isAuth && <p className="founders-call-to-action">
-								Если ты считаешь себя учредителем своей Родной партии, присоединяйся к нам!
-							</p>}
+							{!store.authStore.isAuth && (
+								<p className="founders-call-to-action">
+									Если ты считаешь себя учредителем своей Родной партии, присоединяйся к нам!
+								</p>
+							)}
 
-							{isMobile ? <MyButton text="Войти с VK ID" onClick={enterWithVKID} /> :
-							!store.authStore.isAuth && <AuthVkButton />}
+							<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+								{isMobile ? (
+									<MyButton text="Войти с VK ID" onClick={enterWithVKID} />
+								) : (
+									!store.authStore.isAuth && <AuthVkButton />
+								)}
+							</div>
 
 							<h2 className="founders-subheading">Хотите узнать больше?</h2>
 							<p className="founders-details">
@@ -172,11 +179,11 @@ const Home: React.FC = () => {
 							</ul>
 
 							{/* <div className="rules"> */}
-								<h2 className="founders-subheading">Поддержите наш проект!</h2>
-								<p className="founders-details">
-									Если вы цените наш труд и хотите помочь развивать этот ресурс, вы можете перевести любую сумму, нажав
-									на кнопку ниже. Ваша поддержка важна для нас!
-								</p>
+							<h2 className="founders-subheading">Поддержите наш проект!</h2>
+							<p className="founders-details">
+								Если вы считает полезным этот ресурс и хотите финансово его поддержать, вы можете перевести любую сумму,
+								нажав на кнопку ниже.
+							</p>
 							{/* </div> */}
 							<div className="support-button-container">
 								<iframe
