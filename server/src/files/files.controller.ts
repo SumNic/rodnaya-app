@@ -1,9 +1,12 @@
-import { Controller, HttpException, HttpStatus, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Files } from 'src/common/models/files/files.model';
 import { FilesService } from 'src/files/files.service';
+import * as path from 'path';
+import * as fs from 'fs';
+import { Response } from 'express';
 
 @Controller('api')
 export class FilesController {
@@ -42,4 +45,18 @@ export class FilesController {
         if (!isType) throw new HttpException('Допустимы расширения: jpg, png, jpeg, pdf, doc, rtf, odt', HttpStatus.BAD_REQUEST);
         return await this.filesService.saveFile(file);
     }
+
+    @Get('file/:filename')
+  getFile(@Param('filename') filename: string, @Res() res: Response) {
+    console.log(filename, 'filename');
+    const filePath = path.resolve(__dirname, 'static', filename);
+    console.log(filePath, 'filePath');
+    if (fs.existsSync(filePath)) {
+      console.log(res.sendFile(filePath), 'res.sendFile(filePath)');
+      return res.sendFile(filePath);
+    } else {
+      return res.status(404).send('File not found');
+    }
+  }
+
 }

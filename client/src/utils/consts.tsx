@@ -30,8 +30,8 @@ export const HOST = 'http://localhost';
 export const VK_ID_APP = 52706932;
 // export const HOST = 'https://rod-partya.ru';
 // export const VK_ID_APP = 51729608;
-const PROTOCOL = HOST.startsWith("https://") ? "http" : "http"; // Меняем протокол в зависимости от HOST
-export const DOMEN = `${PROTOCOL}://${new URL(HOST).hostname}:5000`;
+// const PROTOCOL = HOST.startsWith("https://") ? "http" : "http"; // Меняем протокол в зависимости от HOST
+// export const DOMEN = `${PROTOCOL}://${new URL(HOST).hostname}:5000`;
 export const API_URL = `${HOST}/api`;
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"

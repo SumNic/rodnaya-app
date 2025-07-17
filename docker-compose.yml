@@ -45,8 +45,8 @@ services:
     networks:
       nginx_net:
     restart: always
-    mem_limit: 512m
-    cpus: 0.7
+    # mem_limit: 512m
+    # cpus: 0.7
   postgres:
     image: postgres:15
     environment:
@@ -65,6 +65,15 @@ services:
       nginx_net:
     mem_limit: 512m
     cpus: 0.8
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   restart: unless-stopped
+  #   command: tunnel run
+  #   environment:
+  #     - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+  #   networks:
+  #     - nginx_net
+
 
 volumes:
   pgdata:

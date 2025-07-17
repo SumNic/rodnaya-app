@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-	DOMEN,
+	API_URL,
 	FOUL_MESSAGES,
 	GO,
 	GROUP,
@@ -161,7 +161,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 				{post?.files?.map((file) => {
 					let originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8');
 					return (
-						<Link to={`${DOMEN}/${file.fileNameUuid}`} target="_blank" key={file.id} className="name__file">
+						<Link to={`${API_URL}/file/${file.fileNameUuid}`} target="_blank" key={file.id} className="name__file">
 							{originFileName}
 						</Link>
 					);
