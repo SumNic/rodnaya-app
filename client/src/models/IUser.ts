@@ -21,4 +21,5 @@ export interface IUser {
     blockedforever: boolean;
     blockeduntil: Date;
     userGroups: IGroup[];
+    tg_id?: number;
 }

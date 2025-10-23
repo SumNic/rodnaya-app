@@ -247,10 +247,17 @@ export class UsersService {
                     id: dto.user_id,
                 },
             });
-            await personale.update({
-                first_name: dto.first_name,
-                last_name: dto.last_name,
-            });
+            const updateData = {};
+            if (dto.first_name) {
+                updateData['first_name'] = dto.first_name;
+            }
+            if (dto.last_name) {
+                updateData['last_name'] = dto.last_name;
+            }
+            if (dto.tg_id) {
+                updateData['tg_id'] = dto.tg_id;
+            }
+            await personale.update(updateData);
             return personale;
         } catch (err) {
             throw new HttpException(`Ошибка в updatePersonale: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);

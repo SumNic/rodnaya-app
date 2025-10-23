@@ -235,7 +235,17 @@ export default class AuthStore {
 	async updatePersonaleData(secret: string, form: any) {
 		try {
 			const response = await UserService.updatePersonaleData(secret, form);
-			this.setUser({...this.user, first_name: response.data.first_name, last_name: response.data.last_name});
+			const updatedUserData: Partial<IUser> = {};
+			if (response.data.first_name) {
+				updatedUserData['first_name'] = response.data.first_name;
+			}
+			if (response.data.last_name) {
+				updatedUserData['last_name'] = response.data.last_name;
+			}
+			if (response.data.tg_id) {
+				updatedUserData['tg_id'] = response.data.tg_id;
+			}
+			this.setUser({...this.user, ...updatedUserData});
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}

@@ -9,11 +9,19 @@ import { observer } from 'mobx-react-lite';
 import { useMessage } from './hooks/useMessage.hook.ts';
 import { MessageContext } from './contexts/MessageContext.ts';
 import { ConfigProvider } from 'antd';
+import { useEffect } from 'react';
+import WebApp from '@twa-dev/sdk';
 
 function App() {
 	const rodnayaTheme = useTheme();
 	const storeState = useStore();
 	const message = useMessage();
+
+	useEffect(() => {
+		WebApp.ready(); // важно — сообщает Telegram, что Mini App загрузилась
+		WebApp.expand(); // разворачивает Mini App на весь экран
+		WebApp.disableVerticalSwipes(); // запрещает свайпы вверх и вниз
+	}, []);
 
 	return (
 		<BrowserRouter>

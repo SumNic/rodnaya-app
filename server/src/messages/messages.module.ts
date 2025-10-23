@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { EndReadMessageModule } from 'src/end-read-message/end-read-message.module';
 import { MessagesGateway } from 'src/messages/messages.gateway';
+import { TelegramModule } from 'src/telegram/telegram.module';
 
 @Module({
     providers: [MessagesService, MessagesGateway],
@@ -16,6 +17,7 @@ import { MessagesGateway } from 'src/messages/messages.gateway';
         UsersModule,
         AuthModule,
         EndReadMessageModule,
+        TelegramModule
     ],
     controllers: [MessagesController],
     exports: [MessagesService, MessagesGateway],

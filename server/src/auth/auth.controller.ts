@@ -105,13 +105,13 @@ export class AuthController {
 
     @ApiTags('Авторизация')
     @ApiOperation({
-        summary: 'Удалить пользователя',
+        summary: 'Восстановить профиль пользователя',
     })
     @Post('/restore-profile')
     @ApiBody({ type: LogoutUserDto })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Пользователь успешно разлогинен',
+        description: 'Пользователь успешно восстановлен',
     })
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,

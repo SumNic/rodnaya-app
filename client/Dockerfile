@@ -19,9 +19,10 @@ COPY --from=frontend /app/dist /usr/share/nginx/html
 
 # Копируем конфигурацию Nginx
 # ARG ENV=production
-ARG ENV=development
+# ARG ENV=development
+ENV REACT_APP_MODE=$REACT_APP_MODE
 
-COPY nginx.${ENV}.conf /etc/nginx/nginx.conf
+COPY nginx.${REACT_APP_MODE}.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 

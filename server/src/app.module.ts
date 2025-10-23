@@ -49,6 +49,8 @@ import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
 import { UserGroups } from 'src/common/models/users/user-groups.model';
 import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
+import { TelegramService } from './telegram/telegram.service';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
     imports: [
@@ -122,6 +124,7 @@ import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.mode
         EndReadMessageModule,
         PublicationsModule,
         GroupsModule,
+        TelegramModule,
     ],
     controllers: [
         AdminController,
@@ -136,7 +139,7 @@ import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.mode
         PublicationsController,
         GroupsController,
     ],
-    providers: [],
+    providers: [TelegramService],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

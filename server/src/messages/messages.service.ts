@@ -16,11 +16,9 @@ import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 import { RespCountNoReadMessagesDto } from 'src/common/dtos/resp-count-no-read-messages.dto';
 import { RespIdNoReadMessagesDto } from 'src/common/dtos/resp-id-no-read-messages.dto copy';
 import { NewMessage } from 'src/common/dtos/new-message.dto';
-import { Group } from 'src/common/models/groups/groups.model';
-import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
-import { Role } from 'src/common/models/users/role.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
+import { TelegramService } from 'src/telegram/telegram.service';
 
 @Injectable()
 export class MessagesService {
@@ -30,7 +28,8 @@ export class MessagesService {
         private usersService: UsersService,
         private endReadMessageService: EndReadMessageService,
         private readonly configService: ConfigService,
-    ) {}
+        private readonly telegramService: TelegramService
+    ) { }
 
     async addMessage(req: AuthenticatedRequest, dto: CreateMessageDto): Promise<NewMessage> {
         try {
@@ -47,37 +46,18 @@ export class MessagesService {
                 arrFileId.map((file: any) => {
                     message.$add('file', file.id);
                 });
-                console.log(message, 'message 654');
 
-                // const DATA = {
-                //     v: this.configService.get<string>('VK_VERSION'),
-                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
-                //     client_url: this.configService.get<string>('CLIENT_URL'),
-                // };
+                const users = await this.usersService.getUsersByResidence(locationUser);  
 
-                // const usersByResidence = this.usersService.getUsersByResidence(locationUser);
-                // const peer_ids = (await usersByResidence).map((user) => user.vk_id);
-
-                // const params = new URLSearchParams();
-                // params.append('v', DATA.v);
-                // params.append('access_token', DATA.access_token);
-                // params.append('peer_ids', `${peer_ids.join(',')}`);
-                // params.append('random_id', '0');
-                // params.append(
-                //     'message',
-                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
-                // );
-
-                // const response = await fetch('https://api.vk.com/method/messages.send', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/x-www-form-urlencoded',
-                //     },
-                //     body: params.toString(),
-                // });
-
-                // const data = await response.json();
-                // console.log('Успешно отправлено', data);
+                for (const userOfChat of users) {
+                    if (userOfChat.tg_id && userOfChat.tg_id !== user.tg_id) {
+                        await this.telegramService.sendMessage(
+                            userOfChat.tg_id,
+                            message.message,
+                            locationUser
+                        );
+                    }
+                }
 
                 return { message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
@@ -124,7 +104,6 @@ export class MessagesService {
                     offset: offset < 0 ? 0 : offset,
                     limit,
                 });
-                console.log(rows, 'rows 321');
                 return rows;
             }
         } catch (err) {
@@ -197,24 +176,24 @@ export class MessagesService {
     }
 
     async getCountMessageFromId(end_id: number, location: string): Promise<number> {
-      try {
-        // собираем базовые фильтры
-        const where: Record<string, any> = { location, blocked: false };
-    
-        // если end_id ≠ 0, добавляем условие по id
-        if (end_id !== 0) {
-          where.id = { [Op.lte]: end_id };
+        try {
+            // собираем базовые фильтры
+            const where: Record<string, any> = { location, blocked: false };
+
+            // если end_id ≠ 0, добавляем условие по id
+            if (end_id !== 0) {
+                where.id = { [Op.lte]: end_id };
+            }
+
+            // один вызов вместо двух
+            const { count } = await this.messagesRepository.findAndCountAll({ where });
+            return count;
+        } catch (err) {
+            throw new HttpException(
+                `Ошибка в getCountMessageFromId: ${err}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
         }
-    
-        // один вызов вместо двух
-        const { count } = await this.messagesRepository.findAndCountAll({ where });
-        return count;
-      } catch (err) {
-        throw new HttpException(
-          `Ошибка в getCountMessageFromId: ${err}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
     }
 
     async setEndReadMessagesId(user_id: number, dto: EndReadMessageDto) {

@@ -30,9 +30,9 @@ services:
     build:
       context: ./server
       dockerfile: ./Dockerfile
-      target: ${MODE}
+      target: ${MODE:-dev}
     env_file:
-      - ./server/.env.${MODE}
+      - ./server/.env.${MODE-dev}
     volumes:
       - ./server/static:/app/static
       - ./server:/app # Для разработки
@@ -54,7 +54,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     env_file:
-      - ./server/.env.${MODE}
+      - ./server/.env.${MODE:-dev}
     ports:
       - '5020:5432'
     volumes:
@@ -65,14 +65,6 @@ services:
       nginx_net:
     mem_limit: 512m
     cpus: 0.8
-  # cloudflared:
-  #   image: cloudflare/cloudflared:latest
-  #   restart: unless-stopped
-  #   command: tunnel run
-  #   environment:
-  #     - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-  #   networks:
-  #     - nginx_net
 
 
 volumes:

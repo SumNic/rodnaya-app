@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsInt, IsNumber, IsString, Length } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 
 export class UpdatePersonaleDto {
     @ApiProperty({
@@ -14,12 +14,19 @@ export class UpdatePersonaleDto {
         description: 'Новое имя пользователя',
     })
     @IsString({ message: 'Должно быть строкой' })
-    first_name: string;
+    first_name?: string;
 
     @ApiProperty({
         example: 'Фамилия',
         description: 'Новая фамилия пользователя',
     })
     @IsString({ message: 'Должно быть строкой' })
-    last_name: string;
+    last_name?: string;
+
+    @ApiProperty({
+        example: 12342332,
+        description: 'id пользователя в телеграм',
+    })
+    @IsInt({ message: 'Должно быть числом' })
+    tg_id?: number;
 }

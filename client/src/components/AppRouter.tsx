@@ -5,11 +5,24 @@ import { authRoutes, registrationRoutes, errorRoutes, publicRoutes, restoreRoute
 import { ERROR_ROUTE, HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import LogoLoad from './LogoLoad/LogoLoad';
+import WebApp from '@twa-dev/sdk';
 
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
 
+	const updateTgId = async (values: number) => {
+		try {
+			await store.authStore.updatePersonaleData(store.authStore.user.secret, { user_id: store.authStore.user.id, tg_id: values });
+		} catch (error) {
+			console.error(`Ошибка при обновлении данных пользователя: ${error}`);
+		}
+	};
+
 	useEffect(() => {
+		const tgUserId = WebApp.initDataUnsafe?.user?.id;
+		if (tgUserId) {
+			localStorage.setItem("tg_id", `${tgUserId}`);
+		}
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
 			store.authStore.checkAuth();
 		} else {
@@ -19,11 +32,18 @@ const AppRouter: React.FC = () => {
 		}
 	}, []);
 
+	useEffect(() => {
+		const tgId = localStorage.getItem("tg_id");
+		if (store.authStore.isAuth && tgId) {
+			updateTgId(+tgId);
+		}
+	}, [store.authStore.isAuth]);
+
 	return store.authStore.load ? (
 		<LogoLoad />
 	) : (
 		<Routes>
-            {store &&
+			{store &&
 				adminRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
 			{store.authStore.isAuth &&
 				authRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}

@@ -133,7 +133,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 
 	useEffect(() => {
 		setPosts(initialPosts);
-	}, [source]);    
+	}, [source]);
 
 	useEffect(() => {
 		if (messageDataSocket && location) {
@@ -338,8 +338,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	useEffect(() => {
 		if (source === MESSAGES && isScrollTop && location && posts[locationKey].length)
 			loadPreviousMessages(location, prevPage[locationKey]);
-        if (source === CHAT && isScrollTop && group?.id && posts[locationKey].length)
-            loadPreviousPostsGroup(group.id, prevPage[locationKey]);
+		if (source === CHAT && isScrollTop && group?.id && posts[locationKey].length)
+			loadPreviousPostsGroup(group.id, prevPage[locationKey]);
 		setIsScrollTop(false);
 	}, [isScrollTop]);
 
@@ -351,7 +351,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 			if (entries[0].isIntersecting) {
 				setIsScrollEnd((prev) => ({ ...prev, [location]: true }));
 				if (source === MESSAGES) loadMessages(location, nextPage[locationKey]);
-                if (source === CHAT && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
+				if (source === CHAT && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
 			} else {
 				setIsScrollEnd((prev) => ({ ...prev, [location]: false }));
 			}
@@ -386,7 +386,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 		}
 	};
 
-    const loadPostsGroup = async (groupId: number, pageNumber: number = 1) => {
+	const loadPostsGroup = async (groupId: number, pageNumber: number = 1) => {
 		if (isLastMessage[location]) return;
 		try {
 			setIsLoadMessages(true);
@@ -454,7 +454,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 		}
 	};
 
-    const loadPreviousMessages = async (location: string, pageNumber: number) => {
+	const loadPreviousMessages = async (location: string, pageNumber: number) => {
 		if (!messagesContainerRef.current || !messagesRef.current) return;
 
 		const container = messagesRef.current;

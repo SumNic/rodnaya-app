@@ -1,0 +1,40 @@
+services:
+  nginx:
+    ports:
+      - '80:80'
+      - '443:443'
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+    mem_limit: 256m
+    cpus: 0.5
+
+  server:
+    build:
+      target: prod
+    volumes:
+      - ./server/static:/app/static
+      # В prod не монтируем исходный код
+    ports:
+      - 5000:5000
+    command: node dist/main.js  # Prod команда
+    environment:
+      - NODE_ENV=prod
+    mem_limit: 512m
+    cpus: 0.7
+
+  postgres:
+    environment:
+      POSTGRES_DB: prod_db
+    ports:
+      - '5432:5432'  # В prod можно не открывать порт наружу
+    mem_limit: 512m
+    cpus: 0.8
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    restart: unless-stopped
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      nginx_net:
