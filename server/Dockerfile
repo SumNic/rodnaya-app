@@ -1,4 +1,4 @@
-FROM node:alpine As development
+FROM node:alpine As dev
 
 WORKDIR /app
 
@@ -10,13 +10,13 @@ COPY . .
 
 RUN yarn build
 
-FROM node:alpine as production
+FROM node:alpine as prod
 
 WORKDIR /app
 
-COPY --from=development /app/dist ./dist
-COPY --from=development /app/node_modules ./node_modules
-COPY --from=development /app/package.json ./
+COPY --from=dev /app/dist ./dist
+COPY --from=dev /app/node_modules ./node_modules
+COPY --from=dev /app/package.json ./
 
 EXPOSE 5000
 

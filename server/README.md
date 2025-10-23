@@ -14,5 +14,10 @@ MODE=dev docker-compose up
 
 ```
 # Использует prod конфигурацию
-MODE=prod docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+MODE=prod docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+```
+
+```
+# Остановить и удалить контейнеры
+MODE=prod docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
