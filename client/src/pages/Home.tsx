@@ -157,9 +157,16 @@ const Home: React.FC = () => {
 										<MyButton text="Войти с VK ID" onClick={enterWithVKID} />
 									) : (
 										!store.authStore.isAuth && <AuthVkButton />
-									)}
+									)
+									}
 								</div>
+
 							</div>
+							{!store.authStore.isAuth && <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+								<small className="vk-login-note">
+									При входе использовать не мобильное приложение ВКонтакте, а с помощью уведомления!
+								</small>
+							</div>}
 
 							<h2 className="founders-subheading">Хотите узнать больше?</h2>
 							<p className="founders-details">
