@@ -47,6 +47,9 @@ export class MessagesService {
                     message.$add('file', file.id);
                 });
 
+                this.setEndReadMessagesId(user.id, {id_message: message.id, location: locationUser});
+                
+
                 const users = await this.usersService.getUsersByResidence(locationUser);  
 
                 for (const userOfChat of users) {
