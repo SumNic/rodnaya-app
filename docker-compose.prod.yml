@@ -18,8 +18,8 @@ services:
     # command: node dist/main.js  # Prod команда
     environment:
       - NODE_ENV=prod
-    mem_limit: 512m
-    cpus: 0.7
+    # mem_limit: 512m
+    # cpus: 0.7
 
   postgres:
     environment:
