@@ -53,8 +53,8 @@ export class TelegramService implements OnModuleInit {
         try {
             await this.bot.sendMessage(
                 chatId,
-                `📢 *Новое сообщение: ${location}*\n\n` +
-                `📝 ${text}\n\n`,
+                `📝 *Новое сообщение: ${location}*\n` +
+                `${text}\n`,
                 {
                     parse_mode: 'Markdown',
                     reply_markup: {

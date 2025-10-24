@@ -87,4 +87,8 @@ export const GROUPS = 'groups';
 export const GROUP = 'group';
 export const CHAT = 'chat';
 
+export const YANDEX_COUNTER_ID = import.meta.env.DEV 
+	? import.meta.env.VITE_YANDEX_COUNTER_ID_DEV 
+	: import.meta.env.VITE_YANDEX_COUNTER_ID_PROD;
+
 

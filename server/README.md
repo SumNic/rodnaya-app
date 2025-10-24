@@ -4,7 +4,7 @@
 
 ```
 # Автоматически использует docker-compose.override.yml
-docker-compose up
+docker compose up
 
 # Или явно
 MODE=dev docker-compose up

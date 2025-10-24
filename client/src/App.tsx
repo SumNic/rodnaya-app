@@ -11,6 +11,8 @@ import { MessageContext } from './contexts/MessageContext.ts';
 import { ConfigProvider } from 'antd';
 import { useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
+import { YANDEX_COUNTER_ID } from './utils/consts.tsx';
+import { YandexMetrika } from './components/YandexMetrika.tsx';
 
 function App() {
 	const rodnayaTheme = useTheme();
@@ -36,6 +38,7 @@ function App() {
 				<MessageContext.Provider value={message}>
 					<StoreContext.Provider value={storeState}>
 						<ThemeContext.Provider value={rodnayaTheme}>
+							<YandexMetrika counterId={YANDEX_COUNTER_ID} />
 							<AppRouter />
 						</ThemeContext.Provider>
 					</StoreContext.Provider>

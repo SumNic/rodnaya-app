@@ -2,13 +2,15 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { authRoutes, registrationRoutes, errorRoutes, publicRoutes, restoreRoutes, adminRoutes } from '../routes';
-import { ERROR_ROUTE, HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN } from '../utils/consts';
+import { ERROR_ROUTE, HOME_ROUTE, LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_TOKEN, YANDEX_COUNTER_ID } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import LogoLoad from './LogoLoad/LogoLoad';
 import WebApp from '@twa-dev/sdk';
+import { useYandexPageView } from '../hooks/useYandexPageView';
 
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
+	useYandexPageView(YANDEX_COUNTER_ID);	
 
 	const updateTgId = async (values: number) => {
 		try {
