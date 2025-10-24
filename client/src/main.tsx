@@ -3,7 +3,11 @@ import App from './App';
 import React from 'react';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-	<React.StrictMode>
-		<App />
-	</React.StrictMode>
+	import.meta.env.DEV 
+		? <App /> 
+		: (
+			<React.StrictMode>
+				<App />
+			</React.StrictMode>
+		)
 );
