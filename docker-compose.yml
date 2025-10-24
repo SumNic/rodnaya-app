@@ -3,6 +3,10 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        ENV: ${MODE}
+    environment:
+      - ENV=${ENV}
     networks:
       nginx_net:
     volumes:

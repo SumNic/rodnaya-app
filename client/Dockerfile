@@ -1,8 +1,5 @@
 FROM node:alpine as frontend
 
-# ARG NODE_ENV=production
-# ENV NODE_ENV=${NODE_ENV}
-
 WORKDIR /app
 
 COPY package*.json ./
@@ -17,10 +14,8 @@ RUN yarn run build
 FROM nginx:stable-alpine
 COPY --from=frontend /app/dist /usr/share/nginx/html
 
-# Копируем конфигурацию Nginx
-ARG ENV=production
-# ARG ENV=development
-# ENV REACT_APP_MODE=$REACT_APP_MODE
+ARG ENV=dev
+ENV ENV=${ENV}
 
 COPY nginx.${ENV}.conf /etc/nginx/nginx.conf
 
