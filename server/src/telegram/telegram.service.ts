@@ -1,10 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// import TelegramBot from 'node-telegram-bot-api';
-
 import TelegramBot = require('node-telegram-bot-api');
-import { Residency } from 'src/common/models/users/residency.model';
-
 
 @Injectable()
 export class TelegramService implements OnModuleInit {
@@ -13,7 +9,15 @@ export class TelegramService implements OnModuleInit {
     constructor(private readonly configService: ConfigService) { }
 
     async onModuleInit() {
-        this.bot = new TelegramBot(this.configService.get<string>('BOT_TOKEN')!, { polling: true });
+        const webhookUrl = `${this.configService.get<string>('CLIENT_URL')}/api/webhook`;
+        this.bot = new TelegramBot(this.configService.get<string>('BOT_TOKEN')!);
+
+        try {
+            const result = await this.bot.setWebHook(webhookUrl);
+            console.log('Webhook set result:', result);
+        } catch (err) {
+            console.warn('Не удалось установить вебхук, пропускаем:', err.message);
+        }
 
         this.bot.onText(/\/start/, async (msg) => {
             const chatId = msg.chat.id;
@@ -40,13 +44,19 @@ export class TelegramService implements OnModuleInit {
         });
     }
 
+    async handleUpdate(update: any) {
+        this.bot.processUpdate(update);
+    }
+
     async sendMessage(chatId: number | string, text: string, location: any) {
         const appUrl = `${this.configService.get<string>('CLIENT_URL')!}`;
         try {
             await this.bot.sendMessage(
                 chatId,
-                `Новое сообщение в ${location}: ${text}`,
+                `📢 *Новое сообщение: ${location}*\n\n` +
+                `📝 ${text}\n\n`,
                 {
+                    parse_mode: 'Markdown',
                     reply_markup: {
                         inline_keyboard: [
                             [
