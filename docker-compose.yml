@@ -4,9 +4,9 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        ENV: ${MODE}
-    environment:
-      - ENV=${ENV}
+        - MODE=${MODE:-dev}
+    env_file:
+      - .env
     networks:
       nginx_net:
     volumes:
@@ -21,15 +21,6 @@ services:
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     mem_limit: 256m
     cpus: 0.5
-  # certbot:
-  #   image: certbot/certbot
-  #   volumes:
-  #     - ./data/certbot/conf:/etc/letsencrypt
-  #     - ./data/certbot/www:/var/www/certbot
-  #   restart: unless-stopped
-  #   entrypoint:  "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-  #   networks:
-  #     nginx_net:
   server:
     build:
       context: ./server

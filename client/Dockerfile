@@ -14,10 +14,10 @@ RUN yarn run build
 FROM nginx:stable-alpine
 COPY --from=frontend /app/dist /usr/share/nginx/html
 
-ARG ENV=dev
-ENV ENV=${ENV}
+ARG MODE=dev
+ENV MODE=${MODE}
 
-COPY nginx.${ENV}.conf /etc/nginx/nginx.conf
+COPY nginx.${MODE}.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
