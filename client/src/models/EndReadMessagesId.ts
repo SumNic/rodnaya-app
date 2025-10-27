@@ -1,4 +1,4 @@
 export interface EndReadMessagesId {
-    location: string;
-    id: number;
+	location: string;
+	id: number;
 }

@@ -24,7 +24,7 @@ const RestoreUser: React.FC = () => {
 			.restoreProfile(user.id, user.secret)
 			.then(() => store.authStore.loginVk(user.id, user.secret))
 			.then(() => {
-                setIsLoading(false);
+				setIsLoading(false);
 				navigate(PERSONALE_ROUTE);
 			});
 	}

@@ -11,11 +11,11 @@ import { useThemeContext } from '../contexts/ThemeContext';
 
 const Exit: React.FC = () => {
 	const [checked, setChecked] = useState(false);
-    const [ isLoading, setIsLoading ] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const { store } = useStoreContext();
 
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const { currentWidth } = useThemeContext();
 
@@ -25,18 +25,18 @@ const Exit: React.FC = () => {
 
 	const logout = async () => {
 		try {
-            setIsLoading(true)
-            await store.authStore.logout(checked);
-            setIsLoading(false)
-        } catch (error) {
-            setIsLoading(false)
-            console.log(error, 'error');
-        }
+			setIsLoading(true);
+			await store.authStore.logout(checked);
+			setIsLoading(false);
+		} catch (error) {
+			setIsLoading(false);
+			console.log(error, 'error');
+		}
 	};
 
-    const cancelExit = () => {
-        navigate(PERSONALE_ROUTE);
-    };
+	const cancelExit = () => {
+		navigate(PERSONALE_ROUTE);
+	};
 
 	return (
 		<div>
@@ -52,16 +52,16 @@ const Exit: React.FC = () => {
 				<div className="middle__wrapper">
 					{currentWidth && currentWidth >= 830 && <NavMiddle item={EXIT_ROUTE} />}
 					<div className="main__screen main__screen_home">
-						<div id="list_founders" style={{marginTop: '8px'}}>
+						<div id="list_founders" style={{ marginTop: '8px' }}>
 							<Checkbox checked={checked} onChange={handleChange} id="exit">
 								<span style={{ fontSize: '20px', padding: '10px' }}>Выйти со всех устройств?</span>
 							</Checkbox>
-                            <div style={{display: 'flex', justifyContent: 'left', gap: '10px', marginTop: '10px'}}>
-                                <Button onClick={cancelExit}>Отменить</Button>
-                                <Button type="primary" onClick={logout} loading={isLoading}>
-                                    Выйти 
-                                </Button>
-                            </div>
+							<div style={{ display: 'flex', justifyContent: 'left', gap: '10px', marginTop: '10px' }}>
+								<Button onClick={cancelExit}>Отменить</Button>
+								<Button type="primary" onClick={logout} loading={isLoading}>
+									Выйти
+								</Button>
+							</div>
 						</div>
 
 						<div className="main__screen-flag"></div>

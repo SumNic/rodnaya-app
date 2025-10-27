@@ -1,7 +1,7 @@
-import { LocationUser } from "./LocationUser";
+import { LocationUser } from './LocationUser';
 
 export interface GetCountNoReadMessagesDto {
-    id: number,
-    secret: string,
-    residency: LocationUser
+	id: number;
+	secret: string;
+	residency: LocationUser;
 }

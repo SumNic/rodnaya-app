@@ -10,8 +10,7 @@ interface Props {
 	onCancel: () => void;
 }
 
-const Residency: React.FC<Props> = ({onClick, onCancel}) => {
-
+const Residency: React.FC<Props> = ({ onClick, onCancel }) => {
 	const [country, setCountry] = useState<string>('');
 	const [region, setRegion] = useState<string>('');
 	const [locality, setLocality] = useState<string>('');
@@ -61,16 +60,16 @@ const Residency: React.FC<Props> = ({onClick, onCancel}) => {
 	}
 
 	const handleResidencyClickOk = async () => {
-		if (country) setSelectCountry(country)
-		if (region) setSelectRegion(region)
-		if (locality) setSelectLocality(locality)
+		if (country) setSelectCountry(country);
+		if (region) setSelectRegion(region);
+		if (locality) setSelectLocality(locality);
 		onClick();
 	};
 
 	function handleResidencyClickCancel() {
-		setSelectCountry('')
-		setSelectRegion('')
-		setSelectLocality('')
+		setSelectCountry('');
+		setSelectRegion('');
+		setSelectLocality('');
 		onCancel();
 	}
 
@@ -120,7 +119,7 @@ const Residency: React.FC<Props> = ({onClick, onCancel}) => {
 							</Option>
 						))}
 				</Select>
-				
+
 				<div style={{ display: 'flex', justifyContent: 'end', gap: '10px' }}>
 					<Button onClick={handleResidencyClickCancel}>Отменить</Button>
 					<Button type="primary" onClick={handleResidencyClickOk}>

@@ -81,16 +81,16 @@ const Post: React.FC<PostProps> = ({ post }) => {
 						key: GO,
 						label: <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
 					},
-			  ]
+				]
 			: []),
 	];
 
 	const sourceFoul = () => {
-		if (parts.includes(MESSAGES)) return MESSAGES
-		if (parts.includes(PUBLICATIONS)) return PUBLICATIONS
-		if (parts.includes(GROUP)) return GROUP
-		return ''
-	}
+		if (parts.includes(MESSAGES)) return MESSAGES;
+		if (parts.includes(PUBLICATIONS)) return PUBLICATIONS;
+		if (parts.includes(GROUP)) return GROUP;
+		return '';
+	};
 
 	const sendFoul = async (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
 		if (selectedMessage) {
@@ -132,7 +132,9 @@ const Post: React.FC<PostProps> = ({ post }) => {
 	return (
 		<div className={styles['mes__wrapper']}>
 			<div className="buttons-container"></div>
-			<Link to={`${PERSONALE_ROUTE}/${post.user.id}`}><CustomAvatar photoUrl={post.user.photo_50} size={40} names={[post.user.first_name, post.user.last_name]} /></Link>
+			<Link to={`${PERSONALE_ROUTE}/${post.user.id}`}>
+				<CustomAvatar photoUrl={post.user.photo_50} size={40} names={[post.user.first_name, post.user.last_name]} />
+			</Link>
 			<div className="name__first_last">
 				<Link to={`${PERSONALE_ROUTE}/${post.user.id}`} className="name__first">
 					<p className="name__first">{post.user.first_name}</p>

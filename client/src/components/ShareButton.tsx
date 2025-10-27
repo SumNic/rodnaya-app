@@ -9,8 +9,6 @@ interface Props {
 const ShareButton: React.FC<Props> = ({ platform, url, text }) => {
 	const shareUrl = encodeURIComponent(url);
 	const handleShare = () => {
-		
-
 		let shareLink = '';
 		if (platform === 'vk') {
 			shareLink = `https://vk.com/share.php?url=${shareUrl}&title=${text}`;
@@ -32,13 +30,13 @@ const ShareButton: React.FC<Props> = ({ platform, url, text }) => {
 	let share = '';
 	switch (platform) {
 		case 'vk':
-			share = 'Вконтакте'
+			share = 'Вконтакте';
 			break;
 		case 'telegram':
-			share = 'Телеграм'
+			share = 'Телеграм';
 			break;
 		case 'whatsapp':
-			share = 'WhatsApp'
+			share = 'WhatsApp';
 			break;
 	}
 

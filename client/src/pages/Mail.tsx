@@ -23,8 +23,8 @@ const Mail: React.FC = () => {
 					<NavMiddle item={MAIL_ROUTE} />
 					<div className="main__screen main__screen_home">
 						<Title level={2} style={{ fontSize: '18px', marginTop: '50px' }}>
-							Этот раздел находится в разработке. В будущем здесь будет доступна возможность обмена личными
-							сообщениями с другими участниками.
+							Этот раздел находится в разработке. В будущем здесь будет доступна возможность обмена личными сообщениями
+							с другими участниками.
 						</Title>
 
 						<div className="main__screen-flag"></div>

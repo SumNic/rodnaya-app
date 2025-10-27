@@ -1,9 +1,9 @@
 .show-more {
-    color: gray;
-    cursor: pointer;
-    transition: 0.3s;
+	color: gray;
+	cursor: pointer;
+	transition: 0.3s;
 }
 
 .show-more:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }

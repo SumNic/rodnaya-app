@@ -94,38 +94,38 @@ const Group: React.FC<GroupProps> = ({ group, location }) => {
 
 	return (
 		<>
-            <div className={styles['mes__wrapper']}>
-			<div onClick={() => handleGroupClick(group)} style={{ cursor: 'pointer' }}>
-				<CustomAvatar photoUrl={group.avatar} size={40} names={[group.name]} />
-			</div>
-			<div className={styles.groupNameBlock}>
-				<div onClick={() => handleGroupClick(group)} className={styles.groupName} style={{ cursor: 'pointer' }}>
-					{group.name}
+			<div className={styles['mes__wrapper']}>
+				<div onClick={() => handleGroupClick(group)} style={{ cursor: 'pointer' }}>
+					<CustomAvatar photoUrl={group.avatar} size={40} names={[group.name]} />
 				</div>
+				<div className={styles.groupNameBlock}>
+					<div onClick={() => handleGroupClick(group)} className={styles.groupName} style={{ cursor: 'pointer' }}>
+						{group.name}
+					</div>
 
-				<div className={styles.foul}>
-					<Dropdown
-						menu={{ items: options, onClick: handleMenuClick }}
-						onOpenChange={handleVisibleChange}
-						open={visible}
-						trigger={['click']}
-					>
-						<Button type="text" className={styles.menuButton} onClick={() => setSelectedGroup(group)}>
-							<EllipsisOutlined />
-						</Button>
-					</Dropdown>
+					<div className={styles.foul}>
+						<Dropdown
+							menu={{ items: options, onClick: handleMenuClick }}
+							onOpenChange={handleVisibleChange}
+							open={visible}
+							trigger={['click']}
+						>
+							<Button type="text" className={styles.menuButton} onClick={() => setSelectedGroup(group)}>
+								<EllipsisOutlined />
+							</Button>
+						</Dropdown>
+					</div>
 				</div>
+				<div onClick={() => handleGroupClick(group)} className="mes_message" style={{ cursor: 'pointer' }}>
+					<ExpandableText text={group.task.trim()} />
+				</div>
+				<FoulModal
+					isFoulModalOpenOk={isFoulModalOpenOk}
+					sendFoul={sendFoul}
+					onCancel={() => setIsFoulModalOpenOk(false)}
+				/>
 			</div>
-			<div onClick={() => handleGroupClick(group)} className="mes_message" style={{ cursor: 'pointer' }}>
-				<ExpandableText text={group.task.trim()} />
-			</div>
-			<FoulModal
-				isFoulModalOpenOk={isFoulModalOpenOk}
-				sendFoul={sendFoul}
-				onCancel={() => setIsFoulModalOpenOk(false)}
-			/>
-		</div>        
-        </>
+		</>
 	);
 };
 

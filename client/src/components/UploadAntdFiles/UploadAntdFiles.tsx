@@ -33,7 +33,7 @@ function UploadAntdFiles() {
 	const removeFile = (file: UploadFile) => {
 		const newStoreFiles = store.filesStore.files.filter((item) => item.fileName !== file.originFileObj?.name);
 		store.filesStore.createFiles(newStoreFiles);
-	}
+	};
 
 	return (
 		<>

@@ -35,7 +35,7 @@ export default class AuthStore {
 
 	setUser = (user: IUser) => {
 		this.user = user;
-	}
+	};
 
 	setUserFromVk(userFromVk: IUserVk) {
 		this.userFromVk = userFromVk;
@@ -89,7 +89,7 @@ export default class AuthStore {
 			localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
 			this.setAuth(false);
 			this.setUser({} as IUser);
-			if (this.isAdmin) this.setAdmin(false)
+			if (this.isAdmin) this.setAdmin(false);
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
@@ -102,7 +102,7 @@ export default class AuthStore {
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			this.setAuth(false);
 			this.setUser({} as IUser);
-			if (this.isAdmin) this.setAdmin(false)
+			if (this.isAdmin) this.setAdmin(false);
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
@@ -146,12 +146,12 @@ export default class AuthStore {
 		}
 	}
 
-	async checkAdmin () {
+	async checkAdmin() {
 		try {
-			const isAdmin = await AdminService.checkAdmin()
-			if (isAdmin.data)  this.setAdmin(true)
+			const isAdmin = await AdminService.checkAdmin();
+			if (isAdmin.data) this.setAdmin(true);
 		} catch (err) {
-			console.log(`Ошибка в checkAdmin: ${err}`)
+			console.log(`Ошибка в checkAdmin: ${err}`);
 		}
 	}
 
@@ -164,7 +164,7 @@ export default class AuthStore {
 				this.setAuth(false);
 				return;
 			}
-			
+
 			return { data: response.data };
 		} catch (e: any) {
 			if (e.response?.data?.message) {
@@ -217,7 +217,7 @@ export default class AuthStore {
 	async addDeclaration(form: any) {
 		try {
 			const response = await UserService.addDeclaration(form);
-			this.setUser({...this.user, declaration: response.data.declaration});
+			this.setUser({ ...this.user, declaration: response.data.declaration });
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}
@@ -245,7 +245,7 @@ export default class AuthStore {
 			if (response.data.tg_id) {
 				updatedUserData['tg_id'] = response.data.tg_id;
 			}
-			this.setUser({...this.user, ...updatedUserData});
+			this.setUser({ ...this.user, ...updatedUserData });
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}

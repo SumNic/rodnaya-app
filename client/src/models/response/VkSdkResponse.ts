@@ -1,7 +1,7 @@
-import { IUser } from "../IUser";
+import { IUser } from '../IUser';
 
 export interface VkSdkResponse {
-    user: IUser;
-    token: string;
-    refreshToken: string;
+	user: IUser;
+	token: string;
+	refreshToken: string;
 }

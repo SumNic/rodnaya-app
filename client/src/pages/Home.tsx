@@ -157,16 +157,16 @@ const Home: React.FC = () => {
 										<MyButton text="Войти с VK ID" onClick={enterWithVKID} />
 									) : (
 										!store.authStore.isAuth && <AuthVkButton />
-									)
-									}
+									)}
 								</div>
-
 							</div>
-							{!store.authStore.isAuth && <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
-								<small className="vk-login-note">
-									При входе использовать не мобильное приложение ВКонтакте, а с помощью уведомления!
-								</small>
-							</div>}
+							{!store.authStore.isAuth && (
+								<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+									<small className="vk-login-note">
+										При входе использовать не мобильное приложение ВКонтакте, а с помощью уведомления!
+									</small>
+								</div>
+							)}
 
 							<h2 className="founders-subheading">Хотите узнать больше?</h2>
 							<p className="founders-details">
@@ -190,8 +190,8 @@ const Home: React.FC = () => {
 							{/* <div className="rules"> */}
 							<h2 className="founders-subheading">Поддержите наш проект!</h2>
 							<p className="founders-details">
-								Если вы считаете полезным этот ресурс и хотите финансово его поддержать, вы можете перевести любую сумму,
-								нажав на кнопку ниже.
+								Если вы считаете полезным этот ресурс и хотите финансово его поддержать, вы можете перевести любую
+								сумму, нажав на кнопку ниже.
 							</p>
 							{/* </div> */}
 							<div className="support-button-container">

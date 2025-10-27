@@ -1,4 +1,4 @@
 export interface CountNoReadMessages {
-    location: string;
-    count: number;
+	location: string;
+	count: number;
 }

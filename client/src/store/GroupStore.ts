@@ -8,15 +8,15 @@ import { Source } from '../utils/types';
 import { PostToChat } from '../models/PostToChat';
 
 export default class GroupStore {
-    isModalNewGroupOpen: boolean = false;
+	isModalNewGroupOpen: boolean = false;
 	isAboutGroupVisible = new Map<string, boolean>();
-    // isAboutGroupVisible: Record<string, boolean> = observable.object({});
-    isChatGroupVisible: Record<string, boolean> = {};
-    aboutGroup: Record<string, IGroup | undefined> = {};
-    source: Record<string, Source> = {};
-    groupForChat: Record<string, IGroup> = {};
+	// isAboutGroupVisible: Record<string, boolean> = observable.object({});
+	isChatGroupVisible: Record<string, boolean> = {};
+	aboutGroup: Record<string, IGroup | undefined> = {};
+	source: Record<string, Source> = {};
+	groupForChat: Record<string, IGroup> = {};
 
-    arrCountNoReadPostsGroups: CountNoReadPostsGroups[] = [];
+	arrCountNoReadPostsGroups: CountNoReadPostsGroups[] = [];
 	arrLastReadPostsGroupsId: EndReadPostsGroupsId[] = [];
 	isChangeGroups: boolean = false;
 
@@ -24,32 +24,32 @@ export default class GroupStore {
 		makeAutoObservable(this);
 	}
 
-    setIsModalNewGroupOpen(bool: boolean) {
-        this.isModalNewGroupOpen = bool;
-    }
+	setIsModalNewGroupOpen(bool: boolean) {
+		this.isModalNewGroupOpen = bool;
+	}
 
-    setIsAboutGroupVisible = (location: string, bool: boolean) => {
+	setIsAboutGroupVisible = (location: string, bool: boolean) => {
 		this.isAboutGroupVisible.set(location, bool);
-        // this.isAboutGroupVisible[location] = bool;
-    }
+		// this.isAboutGroupVisible[location] = bool;
+	};
 
-    setIsChatGroupVisible = (location: string, bool: boolean) => {
-        this.isChatGroupVisible[location] = bool;
-    }
+	setIsChatGroupVisible = (location: string, bool: boolean) => {
+		this.isChatGroupVisible[location] = bool;
+	};
 
-    setAboutGroup = (location: string, group: IGroup | undefined) => {
-        this.aboutGroup[location] = group;
-    }
+	setAboutGroup = (location: string, group: IGroup | undefined) => {
+		this.aboutGroup[location] = group;
+	};
 
-    setSource = (location: string, source: Source | '') => {
-        this.source[location] = source
-    }
+	setSource = (location: string, source: Source | '') => {
+		this.source[location] = source;
+	};
 
-    setGroupForChat = (location: string, group: IGroup) => {
-        this.groupForChat[location] = group;
-    }
+	setGroupForChat = (location: string, group: IGroup) => {
+		this.groupForChat[location] = group;
+	};
 
-    updateArrCountNoReadPostsGroups = (idGroup: number, count: number) => {
+	updateArrCountNoReadPostsGroups = (idGroup: number, count: number) => {
 		const existingEntry = this.arrCountNoReadPostsGroups.find((item) => item.idGroup === idGroup);
 		if (existingEntry) {
 			existingEntry.count = count;
@@ -57,9 +57,9 @@ export default class GroupStore {
 			// Если записи нет, добавляем новую
 			this.arrCountNoReadPostsGroups.push({ idGroup, count });
 		}
-	}
+	};
 
-    updateArrLastReadPostsGroupsId(idGroup: number, idLastReadPost: number) {
+	updateArrLastReadPostsGroupsId(idGroup: number, idLastReadPost: number) {
 		const existingEntry = this.arrLastReadPostsGroupsId.find((item) => item.idGroup === idGroup);
 		if (existingEntry) {
 			existingEntry.idLastReadPost = idLastReadPost;
@@ -69,7 +69,7 @@ export default class GroupStore {
 		}
 	}
 
-    getCountNoReadPostsGroups = async () => {
+	getCountNoReadPostsGroups = async () => {
 		try {
 			const result = await GroupsService.getCountNoReadPostsGroups();
 			if (result.data) {
@@ -83,7 +83,7 @@ export default class GroupStore {
 		}
 	};
 
-    getLastReadPostsGroupsId = async () => {
+	getLastReadPostsGroupsId = async () => {
 		try {
 			const result = await GroupsService.getLastReadPostsGroupsId();
 			if (result.data) {
@@ -97,10 +97,7 @@ export default class GroupStore {
 		}
 	};
 
-	async updateEndReadPostsGroupsIdInBackEnd(
-		idGroup: number,
-		idLastReadPost: number,
-	) {
+	async updateEndReadPostsGroupsIdInBackEnd(idGroup: number, idLastReadPost: number) {
 		try {
 			await GroupsService.setLastReadPostsGroupsId(idGroup, idLastReadPost);
 		} catch (error) {
@@ -108,7 +105,7 @@ export default class GroupStore {
 		}
 	}
 
-    async createGroup(dto: CreateGroupDto) {
+	async createGroup(dto: CreateGroupDto) {
 		try {
 			const response = await GroupsService.createGroup(dto);
 			return { data: response.data };
@@ -117,7 +114,7 @@ export default class GroupStore {
 		}
 	}
 
-    async getAllGroup(location: string) {
+	async getAllGroup(location: string) {
 		try {
 			const response = await GroupsService.getAllGroups(location);
 			return { data: response.data };
@@ -126,7 +123,7 @@ export default class GroupStore {
 		}
 	}
 
-    async getOneGroup(id: number) {
+	async getOneGroup(id: number) {
 		try {
 			const response = await GroupsService.getGroupFromId(id);
 			return { data: response.data };
@@ -134,8 +131,8 @@ export default class GroupStore {
 			return { error: e.response?.data?.message };
 		}
 	}
-    
-    async sendPostToChat(dto: PostToChat) {
+
+	async sendPostToChat(dto: PostToChat) {
 		try {
 			const response = await GroupsService.sendPost(dto);
 			return { data: response.data };
@@ -146,25 +143,23 @@ export default class GroupStore {
 
 	joinTheGroup = async (id: number) => {
 		try {
-			await GroupsService.joinTheGroup(id)
-			this.setIsChangeGroups(!this.isChangeGroups)
-			
+			await GroupsService.joinTheGroup(id);
+			this.setIsChangeGroups(!this.isChangeGroups);
 		} catch (e: any) {
 			return { error: e.response?.data?.message };
 		}
-	}
+	};
 
 	leaveTheGroup = async (id: number) => {
 		try {
-			await GroupsService.leaveTheGroup(id)
-			this.setIsChangeGroups(!this.isChangeGroups)
-			
+			await GroupsService.leaveTheGroup(id);
+			this.setIsChangeGroups(!this.isChangeGroups);
 		} catch (e: any) {
 			return { error: e.response?.data?.message };
 		}
-	}
+	};
 
 	setIsChangeGroups = (isChangeGroups: boolean) => {
-		this.isChangeGroups = isChangeGroups
-	}
+		this.isChangeGroups = isChangeGroups;
+	};
 }

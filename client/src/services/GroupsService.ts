@@ -23,42 +23,39 @@ export default class GroupsService {
 	}
 
 	//TODO реализовать на бек-енде
-    static async getCountNoReadPostsGroups(): Promise<AxiosResponse<CountNoReadPostsGroups[]>> {
+	static async getCountNoReadPostsGroups(): Promise<AxiosResponse<CountNoReadPostsGroups[]>> {
 		return $api.get<CountNoReadPostsGroups[]>('/get-count-no-read-posts-groups');
 	}
 
 	//TODO реализовать на бек-енде
-    static async getLastReadPostsGroupsId(): Promise<AxiosResponse<EndReadPostsGroupsId[]>> {
+	static async getLastReadPostsGroupsId(): Promise<AxiosResponse<EndReadPostsGroupsId[]>> {
 		return $api.get<EndReadPostsGroupsId[]>('/get-last-read-posts-groups-id');
 	}
 
 	//TODO реализовать на бек-енде
-    static async setLastReadPostsGroupsId(idGroup: number, idLastReadPost: number) {
+	static async setLastReadPostsGroupsId(idGroup: number, idLastReadPost: number) {
 		return $api.post('/set-last-read-posts-groups-id', {
 			idGroup,
 			idLastReadPost,
 		});
 	}
 
-    static async getAllPosts(
-		groupId: number,
-		pageNumber: number,
-	): Promise<AxiosResponse<IPost[]>> {
+	static async getAllPosts(groupId: number, pageNumber: number): Promise<AxiosResponse<IPost[]>> {
 		return $api.get<IPost[]>('/get-all-posts-group', {
 			params: { groupId, pageNumber },
 		});
 	}
 
-    static async sendPost(dto: PostToChat): Promise<AxiosResponse<number>> {
+	static async sendPost(dto: PostToChat): Promise<AxiosResponse<number>> {
 		return $api.post<number>('/send-post-to-chat', dto);
 	}
 
 	static async joinTheGroup(id: number) {
-		return $api.post('/join-the-group', {id});
+		return $api.post('/join-the-group', { id });
 	}
 
 	static async leaveTheGroup(id: number) {
-		return $api.post('/leave-the-group', {id});
+		return $api.post('/leave-the-group', { id });
 	}
 
 	static async blockedPostGroup(id_message: number, selectedActionIndex: number): Promise<AxiosResponse<string>> {

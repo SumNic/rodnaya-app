@@ -6,25 +6,25 @@ import { IGroup } from '../../../models/response/IGroup';
 const { TextArea } = Input;
 
 interface GroupModalProps {
-    visible: boolean;
-    location: string | undefined;
-    onCancel: () => void;
-    onCreate: (group: IGroup) => void;
+	visible: boolean;
+	location: string | undefined;
+	onCancel: () => void;
+	onCreate: (group: IGroup) => void;
 }
 
 const GroupModal: React.FC<GroupModalProps> = ({ visible, location, onCancel, onCreate }) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const { store } = useStoreContext();
-    const {createGroup} = store.groupStore;
-    
+	const [isLoading, setIsLoading] = useState(false);
+	const { store } = useStoreContext();
+	const { createGroup } = store.groupStore;
+
 	const [form] = Form.useForm();
 
 	const handleCreate = async () => {
 		try {
-            setIsLoading(true)
+			setIsLoading(true);
 			const values = await form.validateFields();
 
-			const group = await createGroup({...values, location});
+			const group = await createGroup({ ...values, location });
 
 			form.resetFields(); // Очистка формы
 
@@ -36,9 +36,9 @@ const GroupModal: React.FC<GroupModalProps> = ({ visible, location, onCancel, on
 		} catch (error) {
 			message.error('Пожалуйста, заполните все поля корректно.');
 		} finally {
-            setIsLoading(false)
-            onCancel()
-        }
+			setIsLoading(false);
+			onCancel();
+		}
 	};
 
 	return (
@@ -46,7 +46,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ visible, location, onCancel, on
 			open={visible}
 			title="Создать группу"
 			onCancel={onCancel}
-            loading={isLoading}
+			loading={isLoading}
 			footer={[
 				<Button key="cancel" onClick={onCancel}>
 					Отмена

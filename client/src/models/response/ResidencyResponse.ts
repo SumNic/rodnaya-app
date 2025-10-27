@@ -1,8 +1,8 @@
-import { IUser } from "../IUser";
+import { IUser } from '../IUser';
 
 export interface ResidencyResponse {
-    country: string;
-    region: string;
-    locality: string;
-    users: IUser[];
+	country: string;
+	region: string;
+	locality: string;
+	users: IUser[];
 }

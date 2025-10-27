@@ -67,7 +67,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 	}
 
 	const saveResidencyClickOk = async () => {
-        if (!country || !region || !locality) return message.warning('Необходимо заполнить указанные поля!')
+		if (!country || !region || !locality) return message.warning('Необходимо заполнить указанные поля!');
 
 		setIsLoading(true);
 		if (country && region && locality) {

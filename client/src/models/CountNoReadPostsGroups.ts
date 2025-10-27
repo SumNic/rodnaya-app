@@ -1,4 +1,4 @@
 export interface CountNoReadPostsGroups {
-    idGroup: number;
-    count: number;
+	idGroup: number;
+	count: number;
 }

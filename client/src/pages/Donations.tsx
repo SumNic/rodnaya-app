@@ -5,7 +5,6 @@ import { useThemeContext } from '../contexts/ThemeContext';
 import { HOME_ROUTE } from '../utils/consts';
 
 const Donations: React.FC = () => {
-
 	const { currentWidth } = useThemeContext();
 
 	return (

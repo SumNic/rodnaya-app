@@ -10,11 +10,14 @@ import { useYandexPageView } from '../hooks/useYandexPageView';
 
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
-	useYandexPageView(YANDEX_COUNTER_ID);	
+	useYandexPageView(YANDEX_COUNTER_ID);
 
 	const updateTgId = async (values: number) => {
 		try {
-			await store.authStore.updatePersonaleData(store.authStore.user.secret, { user_id: store.authStore.user.id, tg_id: values });
+			await store.authStore.updatePersonaleData(store.authStore.user.secret, {
+				user_id: store.authStore.user.id,
+				tg_id: values,
+			});
 		} catch (error) {
 			console.error(`Ошибка при обновлении данных пользователя: ${error}`);
 		}
@@ -23,19 +26,19 @@ const AppRouter: React.FC = () => {
 	useEffect(() => {
 		const tgUserId = WebApp.initDataUnsafe?.user?.id;
 		if (tgUserId) {
-			localStorage.setItem("tg_id", `${tgUserId}`);
+			localStorage.setItem('tg_id', `${tgUserId}`);
 		}
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
 			store.authStore.checkAuth();
 		} else {
-			localStorage.removeItem(LOCAL_STORAGE_TOKEN)
-			localStorage.removeItem(LOCAL_STORAGE_DEVICE)
+			localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			store.authStore.setLoad(false);
 		}
 	}, []);
 
 	useEffect(() => {
-		const tgId = localStorage.getItem("tg_id");
+		const tgId = localStorage.getItem('tg_id');
 		if (store.authStore.isAuth && tgId) {
 			updateTgId(+tgId);
 		}
@@ -45,8 +48,7 @@ const AppRouter: React.FC = () => {
 		<LogoLoad />
 	) : (
 		<Routes>
-			{store &&
-				adminRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+			{store && adminRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
 			{store.authStore.isAuth &&
 				authRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
 			{store.authStore.isCondition &&
@@ -62,6 +64,6 @@ const AppRouter: React.FC = () => {
 			<Route path="*" element={<Navigate to={HOME_ROUTE} />} />
 		</Routes>
 	);
-}
+};
 
 export default observer(AppRouter);

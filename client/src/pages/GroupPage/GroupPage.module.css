@@ -1,12 +1,12 @@
 .buttonsGroup {
-    display: flex;
-    gap: 1rem;
-    padding: 0 1rem 1rem 1rem;
+	display: flex;
+	gap: 1rem;
+	padding: 0 1rem 1rem 1rem;
 }
 
 .group {
-    padding: 0 10px;
-    /* overflow-y: scroll; */
+	padding: 0 10px;
+	/* overflow-y: scroll; */
 }
 
 /* .group_wrapper {
@@ -36,11 +36,11 @@
 .chatHeaderWrapper {
 	/* top: 50px; */
 	/* margin-top: 50px; */
-    padding: 5px 10px;
+	padding: 5px 10px;
 	border-bottom: 1px solid black;
-    margin-left: -10px;
-    margin-right: -10px;
-    display: flex;
+	margin-left: -10px;
+	margin-right: -10px;
+	display: flex;
 	position: absolute;
 	width: 100%;
 	background-color: white;
@@ -96,10 +96,10 @@
 	/* color: #1890ff; */
 }
 
-.headerGroup .foul{
+.headerGroup .foul {
 	opacity: 1;
-    gap: 1rem;
-    padding-bottom: 55px;
+	gap: 1rem;
+	padding-bottom: 55px;
 }
 
 .wrapper {
@@ -107,8 +107,8 @@
 	width: 100%;
 	flex-direction: column;
 	align-items: center;
-    border-bottom: 1px solid black;
-    margin-bottom: 5px;
+	border-bottom: 1px solid black;
+	margin-bottom: 5px;
 }
 
 .personale_wrapper {
@@ -123,14 +123,14 @@
 	font-size: 17px;
 	padding: 5px 20px;
 	color: black;
-    word-wrap: break-word;
+	word-wrap: break-word;
 }
 
 .residency {
-    display: flex; 
-    gap: 1rem; 
-    align-items: center;
-    padding-bottom: 15px;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	padding-bottom: 15px;
 }
 
 .buttonsPublications {
@@ -147,32 +147,32 @@
 	justify-content: center;
 	gap: 4px;
 	height: auto;
-    padding-top: 6px;
+	padding-top: 6px;
 }
 
 .groupChatName {
-    font-family: 'IzhitsaRegular', arial;
-    font-size: 17px;
-    color: rgb(13, 70, 128);
-    text-decoration: none;
-    justify-content: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	font-family: 'IzhitsaRegular', arial;
+	font-size: 17px;
+	color: rgb(13, 70, 128);
+	text-decoration: none;
+	justify-content: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .mes_message {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    color: black;
-    word-break: break-word; 
-    -webkit-hyphens: auto; 
-    -ms-hyphens: auto; 
-    hyphens: auto;
-    white-space: pre-wrap;
-    padding-bottom: 15px;
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 16px;
+	color: black;
+	word-break: break-word;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	white-space: pre-wrap;
+	padding-bottom: 15px;
 }
 
 .menuGroup {
@@ -185,32 +185,31 @@
 }
 
 .groupNameBlock {
-    display: flex;
-    padding-left: 5px;
+	display: flex;
+	padding-left: 5px;
 }
-
 
 .wrapper {
 	display: flex;
 	width: 100%;
 	flex-direction: column;
 	align-items: center;
-    border-bottom: 1px solid black;
-    margin-bottom: 5px;
-    position: relative;
+	border-bottom: 1px solid black;
+	margin-bottom: 5px;
+	position: relative;
 }
 
-.name__first{
-    font-size: 24px;
-    color: rgb(13, 70, 128);
-    text-align: center;
+.name__first {
+	font-size: 24px;
+	color: rgb(13, 70, 128);
+	text-align: center;
 }
 
 .mes__wrapper {
-    width: 100%;
-    padding: 12px 10px 0 0;
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
+	width: 100%;
+	padding: 12px 10px 0 0;
+	border-radius: 10px;
+	transition: background-color 0.3s ease;
 }
 
 .mes__wrapper:hover {
@@ -222,11 +221,11 @@
 }
 
 .groupName {
-    font-family: 'IzhitsaRegular', arial;
-    font-size: 18px;
-    color: rgb(13, 70, 128);
-    text-decoration: none;
-    justify-content: center;
+	font-family: 'IzhitsaRegular', arial;
+	font-size: 18px;
+	color: rgb(13, 70, 128);
+	text-decoration: none;
+	justify-content: center;
 }
 
 .foul {

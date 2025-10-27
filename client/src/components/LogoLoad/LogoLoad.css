@@ -1,17 +1,16 @@
-.load__wrapper{
-    margin: 0 auto;
-    position: relative;
-    max-width: 546px;
+.load__wrapper {
+	margin: 0 auto;
+	position: relative;
+	max-width: 546px;
 }
 
 .load {
-    padding: 55px 4%;
-    width: 100%;
-    height: 100vh;
-    background-image: url('../../images/Logotip-Rodnoj-parti-500x500.png');
-    background-size: contain;
-    background-origin: content-box;
-    background-repeat: no-repeat;
-    background-position: center;
+	padding: 55px 4%;
+	width: 100%;
+	height: 100vh;
+	background-image: url('../../images/Logotip-Rodnoj-parti-500x500.png');
+	background-size: contain;
+	background-origin: content-box;
+	background-repeat: no-repeat;
+	background-position: center;
 }
-

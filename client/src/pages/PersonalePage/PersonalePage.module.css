@@ -10,7 +10,7 @@
 	font-size: 17px;
 	padding-top: 5px;
 	color: black;
-    word-wrap: break-word;
+	word-wrap: break-word;
 }
 
 .text {
@@ -18,7 +18,7 @@
 	font-size: 17px;
 	padding-top: 5px;
 	color: black;
-    word-wrap: break-word;
+	word-wrap: break-word;
 }
 
 .wrapper {
@@ -36,7 +36,7 @@
 
 .buttonsPublications {
 	display: grid;
-    grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(4, 1fr);
 	gap: 10px;
 	padding-bottom: 1rem;
 }
@@ -49,39 +49,39 @@
 	justify-content: center;
 	gap: 4px;
 	height: auto;
-    padding-top: 6px;
+	padding-top: 6px;
 }
 
 .buttonsPublications .button:nth-child(2) {
-    padding-top: 5px;
-    gap: 0px;
+	padding-top: 5px;
+	gap: 0px;
 }
 
 .residency {
-    display: flex; 
-    gap: 1rem; 
-    align-items: center;
-    padding-bottom: 15px;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	padding-bottom: 15px;
 }
 
 .edit {
-    border: none !important;
-    box-shadow: none !important; /* Убирает тень, если есть */
+	border: none !important;
+	box-shadow: none !important; /* Убирает тень, если есть */
 }
 
-.avatarWrapper{
-    display: flex;
-    /* flex-wrap: wrap; */
-    justify-content: space-between;
-    gap: 1rem;
+.avatarWrapper {
+	display: flex;
+	/* flex-wrap: wrap; */
+	justify-content: space-between;
+	gap: 1rem;
 }
 
-.photo{
-    width: 200px;
-    height: 100%;
+.photo {
+	width: 200px;
+	height: 100%;
 }
 
-.edit_photo{
-    width: 200px;
-    height: 100%;
+.edit_photo {
+	width: 200px;
+	height: 100%;
 }

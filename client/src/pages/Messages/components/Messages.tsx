@@ -240,9 +240,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
 			}
 
-			if (
-				source === CHAT && messageDataSocket.group_id === group?.id
-			) {
+			if (source === CHAT && messageDataSocket.group_id === group?.id) {
 				setPosts((prev) => {
 					if (newPost) {
 						setScrollDownPage(true);
@@ -513,7 +511,13 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	return (
 		<>
 			{location && (
-				<MessagesList posts={posts} location={location} messagesRef={messagesRef} lastMessageRef={lastMessageRef} groupId={group?.id} />
+				<MessagesList
+					posts={posts}
+					location={location}
+					messagesRef={messagesRef}
+					lastMessageRef={lastMessageRef}
+					groupId={group?.id}
+				/>
 			)}
 			{!isScrollEnd[locationKey] && (
 				<FloatButton

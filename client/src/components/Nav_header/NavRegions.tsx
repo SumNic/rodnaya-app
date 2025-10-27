@@ -11,7 +11,7 @@ interface Props {
 	source: string;
 }
 
-const NavRegions: React.FC<Props> = ({location, route, source}) => {
+const NavRegions: React.FC<Props> = ({ location, route, source }) => {
 	const { store } = useStoreContext();
 
 	const { messagesContainerRef } = useMessageContext();
@@ -87,10 +87,10 @@ const NavRegions: React.FC<Props> = ({location, route, source}) => {
 				index === 0
 					? 'header__item  header__item_second'
 					: index === 1
-					? 'header__item ' + classN1
-					: index === 2
-					? 'header__item ' + classN2
-					: 'header__item'
+						? 'header__item ' + classN1
+						: index === 2
+							? 'header__item ' + classN2
+							: 'header__item'
 			}
 			style={index === 0 ? style1 : index === 1 ? style2 : index === 2 ? style3 : style4}
 		>
@@ -125,6 +125,6 @@ const NavRegions: React.FC<Props> = ({location, route, source}) => {
 			<ul className="header__list">{navMenu}</ul>
 		</nav>
 	);
-}
+};
 
 export default observer(NavRegions);

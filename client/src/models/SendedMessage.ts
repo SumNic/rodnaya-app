@@ -1,6 +1,6 @@
-import { MessageForm } from "./MessageForm";
+import { MessageForm } from './MessageForm';
 
 export interface SendedMessage {
-    location?: string, 
-    form: MessageForm
+	location?: string;
+	form: MessageForm;
 }

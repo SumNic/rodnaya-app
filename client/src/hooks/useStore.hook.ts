@@ -1,8 +1,7 @@
-import store from "../store";
+import store from '../store';
 
 export const useStore = () => {
-
-    return {
-        store,
-    };
+	return {
+		store,
+	};
 };

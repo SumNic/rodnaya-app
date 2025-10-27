@@ -1,90 +1,89 @@
-
-.select-foul{
-    position: relative;
-    width: 170px;
-    :global(.ant-select-selector) {
-        border: none !important;
-        box-shadow: none !important;
-        background: none !important;
-    }
+.select-foul {
+	position: relative;
+	width: 170px;
+	:global(.ant-select-selector) {
+		border: none !important;
+		box-shadow: none !important;
+		background: none !important;
+	}
 }
 
 .scroll_messages {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
-.foul{
-    height: 16px;
-    display: flex;
-    justify-content: flex-end;
-    flex-grow: 1;
-    opacity: 0;
-    background-color: none;
+.foul {
+	height: 16px;
+	display: flex;
+	justify-content: flex-end;
+	flex-grow: 1;
+	opacity: 0;
+	background-color: none;
 }
 
 .mes__wrapper {
-    width: 100%;
-    padding: 6px 10px;
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
+	width: 100%;
+	padding: 6px 10px;
+	border-radius: 10px;
+	transition: background-color 0.3s ease;
 }
 
 .mes__wrapper:hover {
-    background-color: #f8f8f8; /* Серый фон */
+	background-color: #f8f8f8; /* Серый фон */
 }
 
 .mes__wrapper:hover .foul {
-    opacity: 1; /* Показываем при наведении */
+	opacity: 1; /* Показываем при наведении */
 }
 
 .label {
-    display: flex;
-    gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 }
 
 .danger {
-    color: red;
+	color: red;
 }
 
 /* Для мобильных устройств */
 @media (hover: none) {
-    .foul {
-        opacity: 1; /* Оставляем видимым, если включён через useState */
-    }
+	.foul {
+		opacity: 1; /* Оставляем видимым, если включён через useState */
+	}
 }
 
 .share-button {
-    padding: 10px 15px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    color: white;
-    font-weight: bold;
+	padding: 10px 15px;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	color: white;
+	font-weight: bold;
 }
 
 .modal :global(.ant-modal-content) {
-    padding: 0 !important;
+	padding: 0 !important;
 }
 
 .menuButton {
-    border: none;
-    background: none;
-    padding: 0;
-    margin: 0;
-    font-size: 18px; /* Размер иконки */
-    cursor: pointer;
-  }
-  
-  .menuButton:hover {
-    border: none;
-    background: none;
-    padding: 0;
-    margin: 0;
-    font-size: 18px; /* Размер иконки */
-    cursor: pointer;
-    /* color: #1890ff; */
-  }
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	font-size: 18px; /* Размер иконки */
+	cursor: pointer;
+}
+
+.menuButton:hover {
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	font-size: 18px; /* Размер иконки */
+	cursor: pointer;
+	/* color: #1890ff; */
+}

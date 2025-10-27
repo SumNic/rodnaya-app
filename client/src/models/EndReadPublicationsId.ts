@@ -1,4 +1,4 @@
 export interface EndReadPublicationsId {
-    location: string;
-    id: number;
+	location: string;
+	id: number;
 }

@@ -59,7 +59,7 @@ const GroupsList: React.FC<GroupsListProps> = ({ groups, location, isLoadingGrou
 					)}
 					{isChatGroupVisible[location] && groupForChat[location] && (
 						<ChatGroup group={groupForChat[location]} location={location} />
-					)}					
+					)}
 				</div>
 			</Spin>
 		</div>

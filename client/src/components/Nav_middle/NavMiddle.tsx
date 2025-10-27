@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { EXIT_ROUTE, HOME_ROUTE, MESSAGES_ROUTE, PERSONALE_ROUTE, PUBLICATION_ROUTE, GROUP_ROUTE } from '../../utils/consts';
+import {
+	EXIT_ROUTE,
+	HOME_ROUTE,
+	MESSAGES_ROUTE,
+	PERSONALE_ROUTE,
+	PUBLICATION_ROUTE,
+	GROUP_ROUTE,
+} from '../../utils/consts';
 import { Badge, Menu } from 'antd';
 
 import { useThemeContext } from '../../contexts/ThemeContext';
@@ -36,21 +43,31 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 		label: <Link to={PUBLICATION_ROUTE}>Публикации</Link>,
 	});
 
+	menuItems.push({
+		key: MESSAGES_ROUTE,
+		label: (
+			<Link to={`${MESSAGES_ROUTE}/locality`} className={styles['middle__link']}>
+				Сообщения
+				{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot></Badge> : ''}
+			</Link>
+		),
+	});
+
 	if (store.authStore.isAuth) {
 		menuItems.push({
 			key: PERSONALE_ROUTE,
 			label: <Link to={`${PERSONALE_ROUTE}/${store.authStore.user.id}`}>Учредитель</Link>,
 		});
 
-		menuItems.push({
-			key: MESSAGES_ROUTE,
-			label: (
-				<Link to={`${MESSAGES_ROUTE}/locality`} className={styles['middle__link']}>
-					Сообщения
-					{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot></Badge> : ''}
-				</Link>
-			),
-		});
+		// menuItems.push({
+		// 	key: MESSAGES_ROUTE,
+		// 	label: (
+		// 		<Link to={`${MESSAGES_ROUTE}/locality`} className={styles['middle__link']}>
+		// 			Сообщения
+		// 			{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot></Badge> : ''}
+		// 		</Link>
+		// 	),
+		// });
 
 		// menuItems.push({
 		// 	key: MESSAGES_ROUTE,
@@ -95,7 +112,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 				</Link>
 			),
 		});
-	}	
+	}
 
 	// const items = [
 	// {

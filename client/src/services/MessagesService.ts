@@ -15,7 +15,7 @@ export default class MessagesService {
 		id: number,
 		pageNumber: number,
 		secret: string,
-		location: string | undefined,
+		location: string | undefined
 	): Promise<AxiosResponse<IPost[]>> {
 		return $api.get<IPost[]>('/get-all-messages', {
 			params: { id, pageNumber, secret, location },

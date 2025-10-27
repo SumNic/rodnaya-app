@@ -12,38 +12,38 @@ import { IPost } from '../../models/IPost';
 import Footer from '../../components/Footer';
 
 const OnePublication: React.FC = () => {
-    const [isLoadPublications, setIsLoadPublications] = useState(false);
-    const [publication, setPublication] = useState<IPost[]>();
+	const [isLoadPublications, setIsLoadPublications] = useState(false);
+	const [publication, setPublication] = useState<IPost[]>();
 
-    const { currentWidth } = useThemeContext();
+	const { currentWidth } = useThemeContext();
 
-    const { id } = useParams();
+	const { id } = useParams();
 
-    const { store } = useStoreContext();
+	const { store } = useStoreContext();
 	const { getOnePublication } = store.publicationStore;
 
-    useEffect(() => {
+	useEffect(() => {
 		getPublication();
 	}, [id]);
 
 	const getPublication = async () => {
 		try {
 			if (id) {
-                setIsLoadPublications(true);
-			const response = await getOnePublication(+id);
-			if (response?.data) {
-				setPublication([response.data]);
+				setIsLoadPublications(true);
+				const response = await getOnePublication(+id);
+				if (response?.data) {
+					setPublication([response.data]);
+				}
+				setIsLoadPublications(false);
 			}
-			setIsLoadPublications(false);
-            }
 		} catch (err) {
 			setIsLoadPublications(false);
 			console.error(`Ошибка в loadPublications: ${err}`);
 		}
 	};
-    
-    return (
-        <div>
+
+	return (
+		<div>
 			<header className="header">
 				<div className="header__wrapper">
 					{currentWidth && currentWidth < 830 && <NavMiddle item={PUBLICATION_ID_ROUTE} />}
@@ -67,7 +67,7 @@ const OnePublication: React.FC = () => {
 
 			<Footer />
 		</div>
-    );
+	);
 };
 
 export default observer(OnePublication);

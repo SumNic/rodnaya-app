@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 import { PERSONALE_ROUTE } from '../utils/consts';
 
 interface FoundersListProps {
-    founders: IUser[];
+	founders: IUser[];
 }
 
 const FoundersList: React.FC<FoundersListProps> = ({ founders }) => {
-    return (
-        <>
-            {founders.map((user: IUser) => (
+	return (
+		<>
+			{founders.map((user: IUser) => (
 				<li key={user.id} style={{ display: 'flex', flexDirection: 'column' }}>
 					<div className="mes__wrapper_founders">
 						<Link to={PERSONALE_ROUTE + `/${user.id}`}>
@@ -28,8 +28,8 @@ const FoundersList: React.FC<FoundersListProps> = ({ founders }) => {
 					</div>
 				</li>
 			))}
-        </>
-    );
+		</>
+	);
 };
 
 export default FoundersList;

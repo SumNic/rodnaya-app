@@ -1,3 +1,3 @@
 export interface MessageForm {
-    [k: string]: FormDataEntryValue;
+	[k: string]: FormDataEntryValue;
 }

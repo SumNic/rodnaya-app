@@ -13,9 +13,9 @@ export default class LocationStore {
 
 	constructor() {
 		makeAutoObservable(this);
-		this.setSelectCountry = this.setSelectCountry.bind(this)
-		this.setSelectRegion = this.setSelectRegion.bind(this)
-		this.setSelectLocality = this.setSelectLocality.bind(this)
+		this.setSelectCountry = this.setSelectCountry.bind(this);
+		this.setSelectRegion = this.setSelectRegion.bind(this);
+		this.setSelectLocality = this.setSelectLocality.bind(this);
 	}
 
 	setCountry(country: LocationUser[]) {

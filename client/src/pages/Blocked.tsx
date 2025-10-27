@@ -10,7 +10,7 @@ const Blocked: React.FC = () => {
 				height: '100vh',
 				justifyContent: 'center',
 				alignItems: 'center',
-                fontSize: '25px'
+				fontSize: '25px',
 			}}
 		>
 			Ваша страница заблокирована

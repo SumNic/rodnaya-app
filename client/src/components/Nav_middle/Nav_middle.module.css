@@ -1,19 +1,18 @@
 .menu {
-    background: "none"
+	background: 'none';
 }
 
 .selected-menu-item {
-    :global(.ant-menu-item-selected) {
-        background-color: transparent !important; 
-    }
-    
+	:global(.ant-menu-item-selected) {
+		background-color: transparent !important;
+	}
 }
 
 /* .middle__link{ */
-    /* height: 20px !important; */
-    /* color: black;
+/* height: 20px !important; */
+/* color: black;
     text-decoration: none;
     cursor: pointer; */
-    /* padding: 0 !important; */
-    /* margin: 0 !important; */
+/* padding: 0 !important; */
+/* margin: 0 !important; */
 /* } */

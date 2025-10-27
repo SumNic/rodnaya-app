@@ -16,7 +16,7 @@ export default class AdminService {
 		return $api.get<FoulSendMessageResponse[]>('/get-foul-messages');
 	}
 
-    static async fetchCleaningIsComplete(id_foul_message: number, source: string): Promise<AxiosResponse<boolean>> {
-		return $api.post<boolean>('/fetch-cleaning-is-complete', {id_foul_message, source});
+	static async fetchCleaningIsComplete(id_foul_message: number, source: string): Promise<AxiosResponse<boolean>> {
+		return $api.post<boolean>('/fetch-cleaning-is-complete', { id_foul_message, source });
 	}
 }

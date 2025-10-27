@@ -14,9 +14,9 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 	const [selectedPunishment, setSelectedPunishment] = useState<number | null>(null);
 
 	const handleOk = () => {
-        if (!selectedRules.length) {
-            return message.error('Необходимо указать, какие правила нарушены!')
-        }
+		if (!selectedRules.length) {
+			return message.error('Необходимо указать, какие правила нарушены!');
+		}
 		if (selectedActionWithFoul !== null && selectedPunishment !== null) {
 			sendFoul(selectedRules, selectedActionWithFoul, selectedPunishment);
 			resetModal();
@@ -41,7 +41,7 @@ const FoulModal: React.FC<FoulModalProps> = ({ isFoulModalOpenOk, sendFoul, onCa
 		} else {
 			setSelectedRules([...selectedRules, rule]);
 		}
-	};      
+	};
 
 	const handleActionWithFoulChange = (action: string) => {
 		const actionIndex = Object.values(ActionWithFoulMessages).findIndex((p) => p === action);

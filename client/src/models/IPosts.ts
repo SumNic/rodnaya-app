@@ -1,8 +1,8 @@
-import { IPost } from "./IPost";
+import { IPost } from './IPost';
 
 export interface IPosts {
-    locality: IPost[];
-    region: IPost[];
-    country: IPost[];
-    world: IPost[];
-} 
+	locality: IPost[];
+	region: IPost[];
+	country: IPost[];
+	world: IPost[];
+}

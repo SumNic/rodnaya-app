@@ -84,7 +84,7 @@ const AboutGroup: React.FC<AboutGroupProps> = ({ group, location }) => {
 												});
 												setIsChatGroupVisible(location, false);
 												setIsAboutGroupVisible(location, false);
-										  }
+											}
 										: async () => {
 												await joinTheGroup(group.id);
 
@@ -93,7 +93,7 @@ const AboutGroup: React.FC<AboutGroupProps> = ({ group, location }) => {
 												setIsChatGroupVisible(location, true);
 												setIsAboutGroupVisible(location, false);
 												setGroupForChat(location, group);
-										  }
+											}
 								}
 								className={styles.button}
 								icon={isMemberOfGroup ? <LogoutOutlined /> : <LoginOutlined />}

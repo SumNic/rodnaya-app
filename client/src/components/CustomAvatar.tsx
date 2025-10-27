@@ -11,7 +11,7 @@ const CustomAvatar: React.FC<AvatarProps> = ({ photoUrl, size, names }) => {
 	const getInitials = (names: string[]) => {
 		return names.reduce((initial, name) => {
 			return `${initial}${name.trim()[0]?.toUpperCase()}`;
-		}, '')
+		}, '');
 	};
 
 	const colors = ['#fe9000', '#ff6a00', '#ffb800', '#0084ff', '#00bcd4', '#34c759', '#722ed1', '#f5222d'];

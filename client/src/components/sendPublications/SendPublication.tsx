@@ -6,24 +6,23 @@ import UploadAntdFiles from '../UploadAntdFiles/UploadAntdFiles';
 import { useStoreContext } from '../../contexts/StoreContext';
 
 interface SendPublicationProps {
-    handleCancel: ()=> void;
+	handleCancel: () => void;
 }
 
-const SendPublication: React.FC<SendPublicationProps> = ({handleCancel}) => {
-    const [loading, setLoading] = useState<boolean>(false);
+const SendPublication: React.FC<SendPublicationProps> = ({ handleCancel }) => {
+	const [loading, setLoading] = useState<boolean>(false);
 
-    const {store} = useStoreContext();
+	const { store } = useStoreContext();
 
-    const publicationTextRef = useRef<string>('');
-    
-    const cancel = () => {
+	const publicationTextRef = useRef<string>('');
+
+	const cancel = () => {
 		publicationTextRef.current = '';
 		store.filesStore.resetFiles();
-        handleCancel();
-
+		handleCancel();
 	};
 
-    const handleSubmit = async () => {
+	const handleSubmit = async () => {
 		setLoading(true);
 
 		try {
@@ -57,7 +56,7 @@ const SendPublication: React.FC<SendPublicationProps> = ({handleCancel}) => {
 		}
 	};
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (publicationTextRef.current.trim().length > 0 && !e.shiftKey && e.key === 'Enter') {
 			if (e.key === 'Enter') {
 				e.preventDefault();

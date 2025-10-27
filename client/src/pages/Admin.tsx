@@ -149,7 +149,10 @@ const Admin: React.FC = () => {
 					if (!isBlockedUser.data) return message.error('Произошла ошибка на сервере. Повторите попытку позже.');
 					message.success(`${isBlockedUser.data}`);
 				}
-				const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(selectedFoulMessage.foul_message.id, selectedFoulMessage.source);
+				const isCleaningIsComplete = await AdminService.fetchCleaningIsComplete(
+					selectedFoulMessage.foul_message.id,
+					selectedFoulMessage.source
+				);
 				if (isCleaningIsComplete.data) setIsModalOpen(false);
 				setIsChangeListFoulMessages((prev) => !prev);
 			}

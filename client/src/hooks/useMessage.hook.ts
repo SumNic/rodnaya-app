@@ -4,7 +4,7 @@ import { MessageWebsocketResponse } from '../models/response/MessageWebsocketRes
 
 export const useMessage = () => {
 	const [isLoading, setIsLoading] = useState(false);
-	
+
 	const [isLoadMessages, setIsLoadMessages] = useState(false);
 	const [isLoadingPrevious, setIsLoadingPrevious] = useState(false);
 	const [isLoadingNext, setIsLoadingNext] = useState(false);
@@ -16,8 +16,8 @@ export const useMessage = () => {
 	const { store } = useStore();
 
 	const { isAuth, user } = store.authStore;
-	const { getCountNoReadMessages, getLastReadMessageId, arrCountNoReadMessages, updateArrCountNoReadMessages } = store.messageStore;
-
+	const { getCountNoReadMessages, getLastReadMessageId, arrCountNoReadMessages, updateArrCountNoReadMessages } =
+		store.messageStore;
 
 	useEffect(() => {
 		if (isAuth) {
@@ -28,7 +28,9 @@ export const useMessage = () => {
 
 	useEffect(() => {
 		if (arrCountNoReadMessages?.length && messageDataSocket) {
-			const prevCountNoReadMessages = arrCountNoReadMessages.filter((elem) => elem.location === messageDataSocket.resydency);
+			const prevCountNoReadMessages = arrCountNoReadMessages.filter(
+				(elem) => elem.location === messageDataSocket.resydency
+			);
 			if (prevCountNoReadMessages[0] && store.authStore.user.id !== messageDataSocket.id_user) {
 				updateArrCountNoReadMessages(messageDataSocket.resydency, prevCountNoReadMessages[0].count + 1);
 			}
@@ -48,6 +50,6 @@ export const useMessage = () => {
 		setMessageDataSocket,
 		isScrollTop,
 		setIsScrollTop,
-		messagesContainerRef
+		messagesContainerRef,
 	};
 };

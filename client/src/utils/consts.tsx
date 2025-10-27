@@ -22,11 +22,13 @@ export const PAGE_404_ROUTE = '/404_not_faund';
 
 export const DONATIONS_ROUTE = '/donations';
 export const PUBLICATION_ROUTE = '/publications';
-export const PUBLICATION_ID_ROUTE = '/get-publication'
+export const PUBLICATION_ID_ROUTE = '/get-publication';
 
 export const BLOCKED_ROUTE = '/blocked';
 
-export const HOST = import.meta.env.DEV ? 'https://prosaically-permanent-wheatear.cloudpub.ru' : 'https://rod-partya.ru';
+export const HOST = import.meta.env.DEV
+	? 'https://prosaically-permanent-wheatear.cloudpub.ru'
+	: 'https://rod-partya.ru';
 console.log(import.meta.env.DEV, 'process.env.REACT_APP_MODE');
 
 export const VK_ID_APP = import.meta.env.DEV ? import.meta.env.VITE_VK_ID_APP_DEV : import.meta.env.VITE_VK_ID_APP_PROD;
@@ -67,7 +69,7 @@ export enum Rules {
 
 export enum ActionWithFoulMessages {
 	'Удалить данное сообщение',
-	'Удалить все сообщения пользователя'
+	'Удалить все сообщения пользователя',
 }
 
 export enum Punishment {
@@ -79,7 +81,7 @@ export enum Punishment {
 	'Блокировка навсегда.',
 }
 
-export const COUNT_RESPONSE_POSTS = 20
+export const COUNT_RESPONSE_POSTS = 20;
 
 export const MESSAGES = 'messages';
 export const PUBLICATIONS = 'publications';
@@ -87,8 +89,6 @@ export const GROUPS = 'groups';
 export const GROUP = 'group';
 export const CHAT = 'chat';
 
-export const YANDEX_COUNTER_ID = import.meta.env.DEV 
-	? import.meta.env.VITE_YANDEX_COUNTER_ID_DEV 
+export const YANDEX_COUNTER_ID = import.meta.env.DEV
+	? import.meta.env.VITE_YANDEX_COUNTER_ID_DEV
 	: import.meta.env.VITE_YANDEX_COUNTER_ID_PROD;
-
-

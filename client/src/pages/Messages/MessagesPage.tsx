@@ -14,7 +14,7 @@ const { Text } = Typography;
 
 const MessagePage: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
-	
+
 	const navigate = useNavigate();
 
 	const { store } = useStoreContext();

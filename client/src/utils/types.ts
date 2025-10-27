@@ -1,3 +1,3 @@
-import { CHAT, GROUPS } from "./consts";
+import { CHAT, GROUPS } from './consts';
 
-export type Source = typeof GROUPS | typeof CHAT | ''
+export type Source = typeof GROUPS | typeof CHAT | '';

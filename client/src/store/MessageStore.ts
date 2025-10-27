@@ -7,7 +7,7 @@ import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
 
 export default class MessageStore {
 	arrCountNoReadMessages = observable.array<CountNoReadMessages>([]);
-	arrLastReadMessagesId = observable.array<EndReadMessagesId>([]);	
+	arrLastReadMessagesId = observable.array<EndReadMessagesId>([]);
 
 	constructor() {
 		makeAutoObservable(this);
@@ -30,7 +30,7 @@ export default class MessageStore {
 			// Если записи нет, добавляем новую
 			this.arrCountNoReadMessages.push({ location, count });
 		}
-	}	
+	};
 
 	updateArrLastReadMessagesId(location: string, id: number) {
 		const existingEntry = this.arrLastReadMessagesId.find((item) => item.location === location);
@@ -63,7 +63,7 @@ export default class MessageStore {
 			console.log(`Ошибка в getCountNoReadMessages: ${e}`);
 			// return { data: e.response?.data?.message };
 		}
-	};	
+	};
 
 	getLastReadMessageId = async (id: number, secret: string, residency: LocationUser) => {
 		try {
@@ -88,10 +88,7 @@ export default class MessageStore {
 		}
 	};
 
-	async updateEndReadMessagesIdInBackEnd(
-		message_id: number,
-		location: string,
-	) {
+	async updateEndReadMessagesIdInBackEnd(message_id: number, location: string) {
 		try {
 			await MessagesService.setEndReadMessagesId(message_id, location);
 		} catch (error) {
