@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
 import { HOME_ROUTE, GROUP_ROUTE, LOCAL_STORAGE_IS_MY_GROUPS, CHAT, GROUPS } from '../../utils/consts';
-import { Button, Modal, Typography } from 'antd';
+import { Alert, Button, Modal, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import GroupModal from './components/GroupModal';
 
@@ -43,6 +43,7 @@ const GroupPage: React.FC = () => {
 		// Если значение есть, преобразуем его в boolean, иначе используем false
 		return savedValue ? JSON.parse(savedValue) : false;
 	});
+	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -60,7 +61,14 @@ const GroupPage: React.FC = () => {
 		localStorage.setItem(LOCAL_STORAGE_IS_MY_GROUPS, JSON.stringify(isMyGroups));
 	}, [isMyGroups]);
 
+	useEffect(() => {
+		if (!store.authStore.isAuth) {
+			setIsAuthModalOpen(true);
+		}
+	}, [store.authStore.isAuth]);
+
 	const nameLocal = useMemo(() => {
+		if (!store.authStore.isAuth) return;
 		let name = '';
 		switch (location) {
 			case 'locality':
@@ -87,7 +95,7 @@ const GroupPage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		if (location) getGroups(location);
+		if (store.authStore.isAuth && location) getGroups(location);
 	}, [location, isChangeGroups]);
 
 	const getGroups = async (location: string) => {
@@ -125,25 +133,28 @@ const GroupPage: React.FC = () => {
 							</h2>
 						</div>
 						<div style={{ height: '50px' }}></div>
-						{location && !isAboutGroupVisible.get(location) && !isChatGroupVisible[location] && (
-							<div className={styles.buttonsGroup}>
-								<Button
-									onClick={() => setIsCreateGroupModal(true)}
-									style={{ width: '100%', marginTop: 8 }}
-									icon={<PlusOutlined />}
-								>
-									Создать
-								</Button>
-								<Button onClick={() => setIsMyGroups((prev) => !prev)} style={{ width: '100%', marginTop: 8 }}>
-									{isMyGroups ? 'Все группы' : 'Мои группы'}
-								</Button>
-							</div>
-						)}
+						{store.authStore.isAuth &&
+							location &&
+							!isAboutGroupVisible.get(location) &&
+							!isChatGroupVisible[location] && (
+								<div className={styles.buttonsGroup}>
+									<Button
+										onClick={() => setIsCreateGroupModal(true)}
+										style={{ width: '100%', marginTop: 8 }}
+										icon={<PlusOutlined />}
+									>
+										Создать
+									</Button>
+									<Button onClick={() => setIsMyGroups((prev) => !prev)} style={{ width: '100%', marginTop: 8 }}>
+										{isMyGroups ? 'Все группы' : 'Мои группы'}
+									</Button>
+								</div>
+							)}
 
-						{location && (
+						{store.authStore.isAuth && location && (
 							<GroupsList groups={groups} location={location} isLoadingGroup={isLoadingGroup} isMyGroups={isMyGroups} />
 						)}
-						{location && isChatGroupVisible[location] && (
+						{store.authStore.isAuth && location && isChatGroupVisible[location] && (
 							<Messages location={location} source={CHAT} group={groupForChat[location]} />
 						)}
 					</div>
@@ -158,7 +169,21 @@ const GroupPage: React.FC = () => {
 			<Modal open={modalOpen} onOk={() => navigate(HOME_ROUTE)} onCancel={() => setModalOpen(false)} width={400}>
 				<Text>Страница не существует. Вернуться на главную?</Text>
 			</Modal>
-			{/* <Footer /> */}
+			<Modal
+				open={isAuthModalOpen}
+				title="Ошибка"
+				okText="Да"
+				cancelText="Нет"
+				onOk={() => navigate(HOME_ROUTE)}
+				onCancel={() => setIsAuthModalOpen(false)}
+				width={400}
+				centered
+			>
+				<Alert
+					type="error"
+					description="Страница доступна только для авторизованных пользователей. Вернуться на главную?"
+				/>
+			</Modal>
 		</div>
 	);
 };

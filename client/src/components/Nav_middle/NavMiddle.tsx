@@ -53,6 +53,20 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 		),
 	});
 
+	menuItems.push({
+		key: GROUP_ROUTE,
+		label: (
+			<Link to={`${GROUP_ROUTE}/locality`} className="middle__link">
+				Группы
+				{/* {!allCountAreZero ? (
+	                <Badge style={{ boxShadow: "none" }} dot></Badge>
+	            ) : (
+	                ""
+	            )} */}
+			</Link>
+		),
+	});
+
 	if (store.authStore.isAuth) {
 		menuItems.push({
 			key: PERSONALE_ROUTE,
@@ -89,20 +103,6 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 		// 		</Link>
 		// 	),
 		// });
-
-		menuItems.push({
-			key: GROUP_ROUTE,
-			label: (
-				<Link to={`${GROUP_ROUTE}/locality`} className="middle__link">
-					Группы
-					{/* {!allCountAreZero ? (
-	                <Badge style={{ boxShadow: "none" }} dot></Badge>
-	            ) : (
-	                ""
-	            )} */}
-				</Link>
-			),
-		});
 
 		menuItems.push({
 			key: EXIT_ROUTE,

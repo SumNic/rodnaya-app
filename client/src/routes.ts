@@ -46,16 +46,8 @@ export const adminRoutes = [
 
 export const authRoutes = [
 	{
-		path: `${MESSAGES_ROUTE}/:location`,
-		Component: Messages,
-	},
-	{
 		path: EXIT_ROUTE,
 		Component: Exit,
-	},
-	{
-		path: `${GROUP_ROUTE}/:location`,
-		Component: Group,
 	},
 	{
 		path: `${ONE_GROUP_ROUTE}/:id`,
@@ -117,6 +109,14 @@ export const publicRoutes = [
 	{
 		path: `${PUBLICATION_ID_ROUTE}/:id`,
 		Component: OnePublication,
+	},
+	{
+		path: `${MESSAGES_ROUTE}/:location`,
+		Component: Messages,
+	},
+	{
+		path: `${GROUP_ROUTE}/:location`,
+		Component: Group,
 	},
 ];
 

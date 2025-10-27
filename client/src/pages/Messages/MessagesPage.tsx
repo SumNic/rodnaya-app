@@ -2,11 +2,11 @@ import { observer } from 'mobx-react-lite';
 import NavMiddle from '../../components/Nav_middle/NavMiddle.tsx';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile.tsx';
 import NavRegions from '../../components/Nav_header/NavRegions.tsx';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
 import { HOME_ROUTE, MESSAGES, MESSAGES_ROUTE } from '../../utils/consts.tsx';
-import { Modal, Typography } from 'antd';
+import { Alert, Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc.tsx';
 import Messages from './components/Messages.tsx';
 
@@ -14,6 +14,7 @@ const { Text } = Typography;
 
 const MessagePage: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
+	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -23,7 +24,14 @@ const MessagePage: React.FC = () => {
 	const params = useParams();
 	const location: string | undefined = params.location;
 
+	useEffect(() => {
+		if (!store.authStore.isAuth) {
+			setIsAuthModalOpen(true);
+		}
+	}, [store.authStore.isAuth]);
+
 	const nameLocal = useMemo(() => {
+		if (!store.authStore.isAuth) return;
 		let name = '';
 		switch (location) {
 			case 'locality':
@@ -43,7 +51,7 @@ const MessagePage: React.FC = () => {
 				break;
 		}
 		return name;
-	}, [location]);
+	}, [location, store.authStore.isAuth]);
 
 	return (
 		<div>
@@ -63,14 +71,28 @@ const MessagePage: React.FC = () => {
 								{nameLocal}
 							</h2>
 						</div>
-						{location && <Messages location={location} source={MESSAGES} />}
+						{store.authStore.isAuth && location && <Messages location={location} source={MESSAGES} />}
 					</div>
 				</div>
 			</div>
 			<Modal open={modalOpen} onOk={() => navigate(HOME_ROUTE)} onCancel={() => setModalOpen(false)} width={400}>
 				<Text>Страница не существует. Вернуться на главную?</Text>
 			</Modal>
-			{/* <Footer /> */}
+			<Modal
+				open={isAuthModalOpen}
+				title="Ошибка"
+				okText="Да"
+				cancelText="Нет"
+				onOk={() => navigate(HOME_ROUTE)}
+				onCancel={() => setIsAuthModalOpen(false)}
+				width={400}
+				centered
+			>
+				<Alert
+					type="error"
+					description="Страница доступна только для авторизованных пользователей. Вернуться на главную?"
+				/>
+			</Modal>
 		</div>
 	);
 };
