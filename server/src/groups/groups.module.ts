@@ -11,11 +11,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
     providers: [GroupsService, GroupsGateway],
-    imports: [
-        SequelizeModule.forFeature([Group, ChatGroup, LastReadPostChat]),
-        UsersModule,
-        AuthModule,
-    ],
+    imports: [SequelizeModule.forFeature([Group, ChatGroup, LastReadPostChat]), UsersModule, AuthModule],
     controllers: [GroupsController],
     exports: [GroupsService, GroupsGateway],
 })

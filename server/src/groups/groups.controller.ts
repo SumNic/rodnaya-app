@@ -118,7 +118,7 @@ export class GroupsController {
                 first_name: response.first_name,
                 last_name: response.last_name,
                 photo_50: response.photo_50,
-                createdAt: response.messagesChat.createdAt
+                createdAt: response.messagesChat.createdAt,
             });
         }
     }

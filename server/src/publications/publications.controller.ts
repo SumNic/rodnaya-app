@@ -36,11 +36,11 @@ export class PublicationsController {
                 ...dto,
                 id_user: req.user.id,
                 id_publication: response.message.id,
-                resydency: {locality: response.message.locality, region: response.message.region, country: response.message.country},
+                resydency: { locality: response.message.locality, region: response.message.region, country: response.message.country },
                 first_name: response.first_name,
                 last_name: response.last_name,
                 photo_50: response.photo_50,
-                createdAt: response.message.createdAt
+                createdAt: response.message.createdAt,
             });
         }
     }
@@ -95,7 +95,7 @@ export class PublicationsController {
         status: HttpStatus.BAD_REQUEST,
         description: 'Неккоректные данные',
     })
-    async getUserPublication(@Query() query: {id: string, pageNumber: string}): Promise<Publications[]> {
+    async getUserPublication(@Query() query: { id: string; pageNumber: string }): Promise<Publications[]> {
         return await this.publicationsService.getUserPublication(query);
     }
 

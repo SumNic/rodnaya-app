@@ -5,7 +5,7 @@ import { HOST } from 'src/common/constants/hosts';
 @WebSocketGateway({ cors: { origin: `${HOST}` } })
 export class PublicationsGateway {
     @WebSocketServer() server: Server;
-    
+
     handleConnection(client: any) {
         console.log(`Client connected: ${client.id}`);
     }

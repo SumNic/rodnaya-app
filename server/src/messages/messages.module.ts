@@ -12,13 +12,7 @@ import { TelegramModule } from 'src/telegram/telegram.module';
 
 @Module({
     providers: [MessagesService, MessagesGateway],
-    imports: [
-        SequelizeModule.forFeature([Messages, EndReadMessage]),
-        UsersModule,
-        AuthModule,
-        EndReadMessageModule,
-        TelegramModule
-    ],
+    imports: [SequelizeModule.forFeature([Messages, EndReadMessage]), UsersModule, AuthModule, EndReadMessageModule, TelegramModule],
     controllers: [MessagesController],
     exports: [MessagesService, MessagesGateway],
 })

@@ -9,11 +9,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
     providers: [PublicationsService, PublicationsGateway],
-    imports: [
-        SequelizeModule.forFeature([Publications]),
-        UsersModule,
-        AuthModule,
-    ],
+    imports: [SequelizeModule.forFeature([Publications]), UsersModule, AuthModule],
     controllers: [PublicationsController],
     exports: [PublicationsService, PublicationsGateway],
 })

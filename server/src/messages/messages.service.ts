@@ -28,8 +28,8 @@ export class MessagesService {
         private usersService: UsersService,
         private endReadMessageService: EndReadMessageService,
         private readonly configService: ConfigService,
-        private readonly telegramService: TelegramService
-    ) { }
+        private readonly telegramService: TelegramService,
+    ) {}
 
     async addMessage(req: AuthenticatedRequest, dto: CreateMessageDto): Promise<NewMessage> {
         try {
@@ -47,18 +47,13 @@ export class MessagesService {
                     message.$add('file', file.id);
                 });
 
-                this.setEndReadMessagesId(user.id, {id_message: message.id, location: locationUser});
-                
+                this.setEndReadMessagesId(user.id, { id_message: message.id, location: locationUser });
 
-                const users = await this.usersService.getUsersByResidence(locationUser);  
+                const users = await this.usersService.getUsersByResidence(locationUser);
 
                 for (const userOfChat of users) {
                     if (userOfChat.tg_id && userOfChat.tg_id !== user.tg_id) {
-                        await this.telegramService.sendMessage(
-                            userOfChat.tg_id,
-                            message.message,
-                            locationUser
-                        );
+                        await this.telegramService.sendMessage(userOfChat.tg_id, message.message, locationUser);
                     }
                 }
 
@@ -192,10 +187,7 @@ export class MessagesService {
             const { count } = await this.messagesRepository.findAndCountAll({ where });
             return count;
         } catch (err) {
-            throw new HttpException(
-                `Ошибка в getCountMessageFromId: ${err}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new HttpException(`Ошибка в getCountMessageFromId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

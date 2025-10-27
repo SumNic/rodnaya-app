@@ -101,7 +101,7 @@ import { TelegramModule } from './telegram/telegram.module';
                     ChatGroup,
                     LastReadPostChat,
                     UserGroups,
-                    GroupAdmins
+                    GroupAdmins,
                 ],
                 autoLoadModels: true,
                 synchronize: true,

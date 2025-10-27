@@ -224,9 +224,7 @@ export class GroupsService {
     async joinTheGroup(req: AuthenticatedRequest, id: number) {
         try {
             const group = await this.groupsRepository.findByPk(id, {
-                include: [
-                    { model: User, as: 'users' },
-                ],
+                include: [{ model: User, as: 'users' }],
             });
             console.log(group, 'group 123');
 
@@ -239,9 +237,7 @@ export class GroupsService {
     async leaveTheGroup(req: AuthenticatedRequest, id: number) {
         try {
             const group = await this.groupsRepository.findByPk(id, {
-                include: [
-                    { model: User, as: 'users' },
-                ],
+                include: [{ model: User, as: 'users' }],
             });
             console.log(group, 'group 123');
 

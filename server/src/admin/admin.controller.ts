@@ -65,7 +65,7 @@ export class AdminController {
     @Roles(ROLES.ADMIN)
     @UseGuards(RolesGuard)
     @UseGuards(JwtAuthGuard)
-    async fetchCleaningIsComplete(@Body('id_foul_message') id_foul_message: number, @Body('source')source: string): Promise<boolean> {
+    async fetchCleaningIsComplete(@Body('id_foul_message') id_foul_message: number, @Body('source') source: string): Promise<boolean> {
         return await this.adminService.fetchCleaningIsComplete(id_foul_message, source);
     }
 }

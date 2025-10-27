@@ -1,6 +1,6 @@
-import { Table, Column, DataType, ForeignKey, Model } from "sequelize-typescript";
-import { Group } from "src/common/models/groups/groups.model";
-import { User } from "src/common/models/users/user.model";
+import { Table, Column, DataType, ForeignKey, Model } from 'sequelize-typescript';
+import { Group } from 'src/common/models/groups/groups.model';
+import { User } from 'src/common/models/users/user.model';
 
 @Table({ tableName: 'group_admins', createdAt: false, updatedAt: false })
 export class GroupAdmins extends Model<GroupAdmins> {

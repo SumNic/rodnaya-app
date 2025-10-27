@@ -6,7 +6,7 @@ import TelegramBot = require('node-telegram-bot-api');
 export class TelegramService implements OnModuleInit {
     private bot: TelegramBot;
 
-    constructor(private readonly configService: ConfigService) { }
+    constructor(private readonly configService: ConfigService) {}
 
     async onModuleInit() {
         const webhookUrl = `${this.configService.get<string>('CLIENT_URL')}/api/webhook`;
@@ -25,22 +25,18 @@ export class TelegramService implements OnModuleInit {
 
             const appUrl = `${this.configService.get<string>('CLIENT_URL')!}/?tg_id=${tgId}`;
 
-            await this.bot.sendMessage(
-                chatId,
-                'Здравия, Учредитель Родной партии!',
-                {
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                {
-                                    text: '🚀 Перейти в приложение',
-                                    web_app: { url: appUrl },
-                                },
-                            ],
+            await this.bot.sendMessage(chatId, 'Здравия, Учредитель Родной партии!', {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            {
+                                text: '🚀 Перейти в приложение',
+                                web_app: { url: appUrl },
+                            },
                         ],
-                    },
+                    ],
                 },
-            );
+            });
         });
     }
 
@@ -51,24 +47,19 @@ export class TelegramService implements OnModuleInit {
     async sendMessage(chatId: number | string, text: string, location: any) {
         const appUrl = `${this.configService.get<string>('CLIENT_URL')!}`;
         try {
-            await this.bot.sendMessage(
-                chatId,
-                `📝 *Новое сообщение: ${location}*\n` +
-                `${text}\n`,
-                {
-                    parse_mode: 'Markdown',
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                {
-                                    text: '🚀 Перейти в приложение',
-                                    web_app: { url: appUrl },
-                                },
-                            ],
+            await this.bot.sendMessage(chatId, `📝 *Новое сообщение: ${location}*\n` + `${text}\n`, {
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            {
+                                text: '🚀 Перейти в приложение',
+                                web_app: { url: appUrl },
+                            },
                         ],
-                    },
+                    ],
                 },
-            );
+            });
         } catch (err) {
             console.error('Ошибка при отправке сообщения:', err);
         }

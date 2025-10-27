@@ -17,7 +17,7 @@ export class EndMessageDto {
     @IsString({ message: 'Должно быть строкой' })
     secret: string;
 
-    residency: CreateLocationDto
+    residency: CreateLocationDto;
 
     // @ApiProperty({
     //     example: 'Место жительства',
@@ -25,6 +25,4 @@ export class EndMessageDto {
     // })
     // @IsString({ message: 'Должно быть строкой' })
     // location: string;
-
-
 }

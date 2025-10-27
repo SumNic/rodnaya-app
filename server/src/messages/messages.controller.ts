@@ -45,7 +45,7 @@ export class MessagesController {
                 first_name: response.first_name,
                 last_name: response.last_name,
                 photo_50: response.photo_50,
-                createdAt: response.message.createdAt
+                createdAt: response.message.createdAt,
             });
         }
     }
@@ -145,7 +145,7 @@ export class MessagesController {
     @ApiBody({ type: EndReadMessageDto })
     @UseGuards(JwtAuthGuard)
     async setEndReadMessagesId(@Req() req: AuthenticatedRequest, @Body() dto: EndReadMessageDto) {
-        return await this.messagesService.setEndReadMessagesId(req.user.id, dto); 
+        return await this.messagesService.setEndReadMessagesId(req.user.id, dto);
     }
 
     @ApiOperation({

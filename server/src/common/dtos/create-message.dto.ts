@@ -9,7 +9,7 @@ export class CreateMessageDto {
     @IsOptional()
     @IsString({ message: 'Должно быть строкой' })
     location?: string;
-    
+
     form: {
         message: string;
         files: any;

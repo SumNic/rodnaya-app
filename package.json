@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "prepare": "husky install",
+    "format": "yarn workspace client format && yarn workspace server format"
+  },
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "devDependencies": {
+    "husky": "^7"
+  }
+}
