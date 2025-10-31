@@ -7,17 +7,18 @@
 docker compose up
 
 # Или явно
-MODE=dev docker-compose up
+MODE=dev docker compose up
 ```
 
 ## Развёртывание
 
 ```
 # Использует prod конфигурацию
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml build
+MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 ```
 # Остановить и удалить контейнеры
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```

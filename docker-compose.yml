@@ -1,37 +1,35 @@
 services:
   nginx:
+    image: sumnic82/rodnaya-nginx:latest
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.client
       args:
         - MODE=${MODE:-dev}
     env_file:
       - .env
     networks:
       nginx_net:
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
     ports:
       - '80:80'
       - '443:443'
     depends_on:
       - server
     restart: unless-stopped
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     mem_limit: 256m
     cpus: 0.5
   server:
+    image: sumnic82/rodnaya-server:latest
     build:
-      context: ./server
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Dockerfile.server
       target: ${MODE:-dev}
     env_file:
       - ./server/.env.${MODE-dev}
     volumes:
-      - ./server/static:/app/static
-      - ./server:/app # Для разработки
-      - /app/node_modules # Для разработки
+      - ./server/static:/app/server/static
+      - ./server:/app/server # Для разработки
+      - /app/server/node_modules # Для разработки
     ports:
       - 5000:5000
     command: yarn run start:dev # Для разработки

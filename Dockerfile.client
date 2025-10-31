@@ -2,17 +2,17 @@ FROM node:alpine as frontend
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json yarn.lock ./
+COPY client/package.json ./client/
+RUN yarn install --frozen-lockfile
 
-RUN yarn install
-
-COPY . .
-
-RUN yarn run build
+COPY client ./client
+WORKDIR /app/client
+RUN yarn build
 
 # Создаем финальный образ
 FROM nginx:stable-alpine
-COPY --from=frontend /app/dist /usr/share/nginx/html
+COPY --from=frontend /app/client/dist /usr/share/nginx/html
 
 ARG MODE=dev
 ENV MODE=${MODE}

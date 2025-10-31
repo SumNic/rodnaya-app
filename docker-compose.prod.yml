@@ -4,6 +4,9 @@ services:
       - '80:80'
       - '443:443'
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     mem_limit: 256m
     cpus: 0.5
 
@@ -11,7 +14,7 @@ services:
     build:
       target: prod
     volumes:
-      - ./server/static:/app/static
+      - ./server/static:/app/server/static
       # В prod не монтируем исходный код
     ports:
       - 5000:5000

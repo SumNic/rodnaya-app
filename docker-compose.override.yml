@@ -9,9 +9,9 @@ services:
     build:
       target: dev
     volumes:
-      - ./server/static:/app/static
-      - ./server:/app  # Монтируем исходный код для hot reload
-      - /app/node_modules
+      - ./server/static:/app/server/static
+      - ./server:/app/server  # Монтируем исходный код для hot reload
+      - /app/server/node_modules
     ports:
       - 5000:5000
     command: yarn run start:dev  # Dev команда
