@@ -45,6 +45,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd $DEPLOY_PATH
-            git pull
+            # git pull
+            # cd $DEPLOY_PATH
+          
+            # Сбрасываем все локальные изменения и принудительно обновляем
+            git fetch --all
+            git reset --hard origin/main
+            
+            # Игнорируем ошибки прав доступа к certbot
+            chmod -R 755 data/certbot/conf/live/ 2>/dev/null || true
+
             MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
             MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
