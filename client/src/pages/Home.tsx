@@ -6,31 +6,28 @@ import NavMiddle from '../components/Nav_middle/NavMiddle';
 import { observer } from 'mobx-react-lite';
 import { FOUNDERS_ROUTE, HOME_ROUTE } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
-import MyButton from '../components/MyButton/MyButton';
-import { Capacitor } from '@capacitor/core';
-import { Browser } from '@capacitor/browser';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { App } from '@capacitor/app';
 import { Device } from '@capacitor/device';
 import { Http } from '@capacitor-community/http';
 import { useThemeContext } from '../contexts/ThemeContext';
 
 const Home: React.FC = () => {
-	const [isMobile, setIsMobile] = useState(false);
+	// const [isMobile, setIsMobile] = useState(false);
 
-	useEffect(() => {
-		const checkPlatform = () => {
-			const platform = Capacitor.getPlatform(); // Получаем платформу
+	// useEffect(() => {
+	// 	const checkPlatform = () => {
+	// 		const platform = Capacitor.getPlatform(); // Получаем платформу
 
-			if (platform === 'android' || platform === 'ios') {
-				setIsMobile(true); // Устанавливаем состояние, если приложение работает на мобильной платформе
-			} else {
-				setIsMobile(false); // Устанавливаем состояние, если приложение работает на web
-			}
-		};
+	// 		if (platform === 'android' || platform === 'ios') {
+	// 			setIsMobile(true); // Устанавливаем состояние, если приложение работает на мобильной платформе
+	// 		} else {
+	// 			setIsMobile(false); // Устанавливаем состояние, если приложение работает на web
+	// 		}
+	// 	};
 
-		checkPlatform(); // Вызываем функцию для проверки платформы
-	}, []);
+	// 	checkPlatform(); // Вызываем функцию для проверки платформы
+	// }, []);
 
 	// const [deviceId, setDeviceId] = useState('');
 	const { store } = useStoreContext();
