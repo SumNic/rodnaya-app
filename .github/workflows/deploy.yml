@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> ./server/.env.prod
           echo "MODE=prod\nVITE_YANDEX_COUNTER_ID_PROD=104841811" >> .env
+          echo "VITE_VK_ID_APP_PROD=${{ secrets.VITE_VK_ID_APP_PROD }}" >> .env
           MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml build
           MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml push
 

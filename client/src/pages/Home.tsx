@@ -43,17 +43,6 @@ const Home: React.FC = () => {
 	const VKIDRedirectScheme = 'vk' + app_id;
 	const state = 'lxkpdofgprekflererjgjgore';
 	const codeVerifier = 'tr8tHYB2bc2AJenj96cRJXw62aQ_3p8KHQAR6M8M__k';
-	const codeChallenge = '4vTm_rBv33yepcOPURqZT5OsjCCzgC2s5CWU-Mw5bho';
-
-	const enterWithVKID = async () => {
-		const url = `https://id.vk.ru/auth?state=${state}&response_type=code&code_challenge=${codeChallenge}&code_challenge_method=sha256&app_id=${app_id}&v=0.0.2&redirect_uri=vk${app_id}://vk.ru&uuid=65464578756465`;
-
-		// if (Capacitor.isNative) {
-		await Browser.open({ url });
-		// } else {
-		// window.open(url, '_blank'); // В веб-версии
-		// }
-	};
 
 	useEffect(() => {
 		const handleUrlOpen = (event: any) => {
@@ -152,13 +141,7 @@ const Home: React.FC = () => {
 							)}
 
 							<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-								<div style={{ minWidth: '237px' }}>
-									{isMobile ? (
-										<MyButton text="Войти с VK ID" onClick={enterWithVKID} />
-									) : (
-										!store.authStore.isAuth && <AuthVkButton />
-									)}
-								</div>
+								<div style={{ minWidth: '237px' }}>{!store.authStore.isAuth && <AuthVkButton />}</div>
 							</div>
 							{!store.authStore.isAuth && (
 								<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
