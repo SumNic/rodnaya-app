@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: sumnic82/rodnaya-nginx:latest
+    image: sumnic82/rodnaya-nginx:${IMAGE_TAG}
     build:
       context: ./client
       dockerfile: Dockerfile
@@ -19,7 +19,7 @@ services:
     mem_limit: 256m
     cpus: 0.5
   server:
-    image: sumnic82/rodnaya-server:latest
+    image: sumnic82/rodnaya-server:${IMAGE_TAG}
     build:
       context: ./server
       dockerfile: ./Dockerfile
