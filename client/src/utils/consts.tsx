@@ -92,3 +92,5 @@ export const CHAT = 'chat';
 export const YANDEX_COUNTER_ID = import.meta.env.DEV
 	? import.meta.env.VITE_YANDEX_COUNTER_ID_DEV
 	: import.meta.env.VITE_YANDEX_COUNTER_ID_PROD;
+
+console.log(YANDEX_COUNTER_ID, 'YANDEX_COUNTER_ID');
