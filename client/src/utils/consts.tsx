@@ -32,7 +32,7 @@ export const HOST = import.meta.env.DEV
 console.log(import.meta.env.DEV, 'process.env.REACT_APP_MODE');
 
 export const VK_ID_APP = import.meta.env.DEV ? import.meta.env.VITE_VK_ID_APP_DEV : import.meta.env.VITE_VK_ID_APP_PROD;
-
+console.log(VK_ID_APP, 'VK_ID_APP');
 export const API_URL = `${HOST}/api`;
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
