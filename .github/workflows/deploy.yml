@@ -14,6 +14,8 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.vars.outputs.image_tag }}
 
     steps:
       - name: Checkout repository
@@ -49,12 +51,12 @@ jobs:
           host: ${{ env.SERVER_HOST }}
           username: ${{ env.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-          # передаём переменные окружения на сервер
-          envs: DEPLOY_PATH
+          envs: DEPLOY_PATH,IMAGE_TAG
 
           script: |
             cd "$DEPLOY_PATH"
             git pull
-            MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
-            MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }} \
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }} \
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
