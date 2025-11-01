@@ -4,7 +4,7 @@ import HeaderLogoMobile from '../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
 import NavMiddle from '../components/Nav_middle/NavMiddle';
 import { observer } from 'mobx-react-lite';
-import { FOUNDERS_ROUTE, HOME_ROUTE, VK_ID_APP } from '../utils/consts';
+import { FOUNDERS_ROUTE, HOME_ROUTE } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import { useEffect } from 'react';
 import { App } from '@capacitor/app';
