@@ -46,7 +46,7 @@ const Home: React.FC = () => {
 	const codeChallenge = '4vTm_rBv33yepcOPURqZT5OsjCCzgC2s5CWU-Mw5bho';
 
 	const enterWithVKID = async () => {
-		const url = `https://id.vk.com/auth?state=${state}&response_type=code&code_challenge=${codeChallenge}&code_challenge_method=sha256&app_id=${app_id}&v=0.0.2&redirect_uri=vk${app_id}://vk.com&uuid=65464578756465`;
+		const url = `https://id.vk.ru/auth?state=${state}&response_type=code&code_challenge=${codeChallenge}&code_challenge_method=sha256&app_id=${app_id}&v=0.0.2&redirect_uri=vk${app_id}://vk.ru&uuid=65464578756465`;
 
 		// if (Capacitor.isNative) {
 		await Browser.open({ url });
@@ -92,7 +92,7 @@ const Home: React.FC = () => {
 		const deviceId = info.identifier;
 
 		try {
-			const url = 'https://oauth.vk.com/access_token'; // Ваш URL
+			const url = 'https://oauth.vk.ru/access_token'; // Ваш URL
 			// Устанавливаем данные для POST-запроса
 			const data = new URLSearchParams({
 				client_id: `${app_id}`,
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
 				code_verifier: `${codeVerifier}`,
 				device_id: deviceId,
 				code: code,
-				redirect_uri: `vk${app_id}://vk.com`,
+				redirect_uri: `vk${app_id}://vk.ru`,
 			});
 
 			// Отправляем POST-запрос
@@ -181,7 +181,7 @@ const Home: React.FC = () => {
 									</Link>
 								</li>
 								<li>
-									<Link to="https://vk.com/club166722362" className="list_founders">
+									<Link to="https://vk.ru/club166722362" className="list_founders">
 										Родная партия в ВК
 									</Link>
 								</li>

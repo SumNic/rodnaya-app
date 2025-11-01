@@ -106,7 +106,7 @@ const PersonalePage: React.FC = () => {
 	const yandexMapsUrl = `https://yandex.ru/maps/?text=${encodeURIComponent(query)}`;
 
 	const openVkProfile = () => {
-		window.open(`https://vk.com/id${user?.vk_id}`, '_blank');
+		window.open(`https://vk.ru/id${user?.vk_id}`, '_blank');
 	};
 
 	const personaleData = (

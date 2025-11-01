@@ -11,7 +11,7 @@ const ShareButton: React.FC<Props> = ({ platform, url, text }) => {
 	const handleShare = () => {
 		let shareLink = '';
 		if (platform === 'vk') {
-			shareLink = `https://vk.com/share.php?url=${shareUrl}&title=${text}`;
+			shareLink = `https://vk.ru/share.php?url=${shareUrl}&title=${text}`;
 		} else if (platform === 'telegram') {
 			shareLink = `https://t.me/share/url?url=${shareUrl}&text=${text}`;
 		} else if (platform === 'whatsapp') {

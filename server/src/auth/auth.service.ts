@@ -164,7 +164,7 @@ export class AuthService {
             uuid: dto.uuid,
         };
 
-        let response = await fetch('https://api.vk.com/method/auth.exchangeSilentAuthToken', {
+        let response = await fetch('https://api.vk.ru/method/auth.exchangeSilentAuthToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -216,7 +216,7 @@ export class AuthService {
                 access_token: access_token,
             };
 
-            const response = await fetch(`https://api.vk.com/method/users.get?${new URLSearchParams(params).toString()}`, {
+            const response = await fetch(`https://api.vk.ru/method/users.get?${new URLSearchParams(params).toString()}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

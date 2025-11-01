@@ -58,7 +58,7 @@ export class PublicationsService {
                     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/publications/${dto.location}`,
                 );
 
-                const response = await fetch('https://api.vk.com/method/messages.send', {
+                const response = await fetch('https://api.vk.ru/method/messages.send', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
