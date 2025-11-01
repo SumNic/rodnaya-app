@@ -14,11 +14,11 @@ services:
     build:
       target: prod
     volumes:
-      - ./server/static:/app/server/static
+      - ./server/static:/app/static
       # В prod не монтируем исходный код
     ports:
       - 5000:5000
-    # command: node dist/main.js  # Prod команда
+    command: node dist/main.js  # Prod команда
     environment:
       - NODE_ENV=prod
     # mem_limit: 512m

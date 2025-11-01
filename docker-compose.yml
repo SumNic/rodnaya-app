@@ -2,8 +2,8 @@ services:
   nginx:
     image: sumnic82/rodnaya-nginx:latest
     build:
-      context: .
-      dockerfile: Dockerfile.client
+      context: ./client
+      dockerfile: Dockerfile
       args:
         - MODE=${MODE:-dev}
     env_file:
@@ -21,15 +21,15 @@ services:
   server:
     image: sumnic82/rodnaya-server:latest
     build:
-      context: .
-      dockerfile: ./Dockerfile.server
+      context: ./server
+      dockerfile: ./Dockerfile
       target: ${MODE:-dev}
     env_file:
       - ./server/.env.${MODE-dev}
     volumes:
-      - ./server/static:/app/server/static
-      - ./server:/app/server # Для разработки
-      - /app/server/node_modules # Для разработки
+      - ./server/static:/app/static
+      - ./server:/app # Для разработки
+      - /app/node_modules # Для разработки
     ports:
       - 5000:5000
     command: yarn run start:dev # Для разработки
