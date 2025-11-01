@@ -122,6 +122,7 @@ const Home: React.FC = () => {
 						<section id="list_founders" className="founders-section">
 							<h1 className="founders-title">Родная партия</h1>
 							<p>{VK_ID_APP}</p>
+							<p>{VK_ID_APP}</p>
 							<p className="founders-description">
 								Сайт 'Родная партия' создан для тех, кто поддерживает идеи, изложенные в серии книг 'Звенящие кедры
 								России' Владимира Мегре, и учредили свою Родную партию, как это сделал дедушка Анастасии.
