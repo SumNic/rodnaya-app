@@ -56,7 +56,18 @@ jobs:
           script: |
             cd "$DEPLOY_PATH"
             git pull
-            IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }} \
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
-            IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }} \
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            # Тег коммита (уникальный)
+            IMAGE_TAG=$(git rev-parse --short HEAD)
+            echo "Using image tag: $IMAGE_TAG"
+
+            # 1️⃣ Подтягиваем последние образы
+            IMAGE_TAG=$IMAGE_TAG docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+
+            # 2️⃣ Перезапускаем контейнеры
+            IMAGE_TAG=$IMAGE_TAG docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+            # 3️⃣ Удаляем старые, неиспользуемые образы и контейнеры
+            echo "Cleaning up old images..."
+            docker image prune -af --filter "until=12h"
+            docker container prune -f
+            docker volume prune -f
