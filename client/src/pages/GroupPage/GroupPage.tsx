@@ -91,7 +91,7 @@ const GroupPage: React.FC = () => {
 		return name;
 	}, [location]);
 
-	const handleCreateGroup = (newGroup: IGroups) => {
+	const handleCreateGroup = (newGroup: Group) => {
 		setGroups((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], newGroup] }));
 	};
 

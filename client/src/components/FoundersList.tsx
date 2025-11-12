@@ -1,17 +1,17 @@
 import React from 'react';
-import { IUser } from '../models/IUser';
 import { Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import { PERSONALE_ROUTE } from '../utils/consts';
+import { User } from '../services/UserService';
 
 interface FoundersListProps {
-	founders: IUser[];
+	founders: User[];
 }
 
 const FoundersList: React.FC<FoundersListProps> = ({ founders }) => {
 	return (
 		<>
-			{founders.map((user: IUser) => (
+			{founders.map((user: User) => (
 				<li key={user.id} style={{ display: 'flex', flexDirection: 'column' }}>
 					<div className="mes__wrapper_founders">
 						<Link to={PERSONALE_ROUTE + `/${user.id}`}>

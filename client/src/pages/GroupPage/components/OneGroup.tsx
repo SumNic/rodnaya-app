@@ -1,7 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
-// import { IGroup } from '../../../models/response/IGroup';
-
 import styles from '../GroupPage.module.css';
 import CustomAvatar from '../../../components/CustomAvatar';
 import { Button, Dropdown, MenuProps, message } from 'antd';

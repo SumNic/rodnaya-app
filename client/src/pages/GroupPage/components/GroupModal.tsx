@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Button, message } from 'antd';
 import { useStoreContext } from '../../../contexts/StoreContext';
-import { IGroup } from '../../../models/response/IGroup';
+import { Group } from '../../../services/GroupsService';
 
 const { TextArea } = Input;
 
@@ -9,7 +9,7 @@ interface GroupModalProps {
 	visible: boolean;
 	location: string | undefined;
 	onCancel: () => void;
-	onCreate: (group: IGroup) => void;
+	onCreate: (group: Group) => void;
 }
 
 const GroupModal: React.FC<GroupModalProps> = ({ visible, location, onCancel, onCreate }) => {

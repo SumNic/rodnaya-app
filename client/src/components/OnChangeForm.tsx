@@ -3,8 +3,8 @@ import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_END_READ_MESSAGE_ID, PERSONALE_ROUTE } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
-import { LocationUser } from '../models/LocationUser';
 import { Button, message, Select, Typography } from 'antd';
+import { CreateLocationDto } from '../services/MessagesService';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -93,7 +93,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					setMessageBlock(dataStopEditResidency);
 				} else {
 					localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
-					const userWithoutResidency = { ...store.authStore.user, residency: {} as LocationUser };
+					const userWithoutResidency = { ...store.authStore.user, residency: {} as CreateLocationDto };
 					store.authStore.setUser(userWithoutResidency);
 					store.authStore.loginVk(dto.id, dto.secret).then(() => navigate(PERSONALE_ROUTE));
 					store.authStore.setIsEditProfile(false); // закрывается окно редактирования в Personale_page

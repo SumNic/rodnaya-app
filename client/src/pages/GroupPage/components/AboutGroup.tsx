@@ -5,15 +5,16 @@ import React, { useEffect, useState } from 'react';
 import styles from '../GroupPage.module.css';
 import ExpandableText from '../../../components/ExpandableText/ExpandableText';
 import { CloseOutlined, EditOutlined, EnvironmentOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons';
-import { IGroup } from '../../../models/response/IGroup';
+// import { IGroup } from '../../../models/response/IGroup';
 import CustomAvatar from '../../../components/CustomAvatar';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import FoundersList from '../../../components/FoundersList';
 import { CHAT } from '../../../utils/consts';
 import { deepCopy } from 'deep-copy-ts';
+import { Group } from '../../../services/GroupsService';
 
 interface AboutGroupProps {
-	group: IGroup;
+	group: Group;
 	location: string;
 }
 
