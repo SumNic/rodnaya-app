@@ -3,7 +3,9 @@ import $api from '../api_http/index.ts';
 import { IUser } from '../models/IUser';
 import { DeclarationUser } from '../models/DeclarationUser';
 import { PersonaleUser } from '../models/PersonaleUser';
+import { components } from '../utils/api.ts';
 
+export type User = components['schemas']['User'];
 export default class UserService {
 	static async fetchUsers(): Promise<AxiosResponse<IUser[]>> {
 		return $api.get<IUser[]>('/users');

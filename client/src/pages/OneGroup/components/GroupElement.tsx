@@ -1,13 +1,14 @@
 import React from 'react';
 
 import { Spin } from 'antd';
-import { IGroup } from '../../../models/response/IGroup';
+// import { IGroup } from '../../../models/response/IGroup';
 
 import styles from '../OneGroup.module.css';
 import { observer } from 'mobx-react-lite';
+import { Group } from '../../../services/GroupsService';
 
 interface GroupElementProps {
-	group: IGroup;
+	group: Group;
 	isLoadingGroup: boolean;
 }
 

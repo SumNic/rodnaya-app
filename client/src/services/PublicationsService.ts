@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
-import { IPost } from '../models/IPost.ts';
+// import { IPost } from '../models/IPost.ts';
 import { LocationUser } from '../models/LocationUser.ts';
 import { toJS } from 'mobx';
 
@@ -23,8 +23,8 @@ export default class PublicationsService {
 		return res;
 	}
 
-	static async getPublicationFromId(id: number): Promise<AxiosResponse<IPost>> {
-		return $api.get<IPost>(`/get-publication/${id}`);
+	static async getPublicationFromId(id: number): Promise<AxiosResponse<Publication>> {
+		return $api.get<Publication>(`/get-publication/${id}`);
 	}
 
 	static async blockedPublications(id_message: number, selectedActionIndex: number): Promise<AxiosResponse<string>> {
@@ -34,8 +34,8 @@ export default class PublicationsService {
 		});
 	}
 
-	static async getUserPublications(id: number, pageNumber: number): Promise<AxiosResponse<IPost[]>> {
-		return $api.get<IPost[]>('/get-user-publications', {
+	static async getUserPublications(id: number, pageNumber: number): Promise<AxiosResponse<Publication[]>> {
+		return $api.get<Publication[]>('/get-user-publications', {
 			params: { id, pageNumber },
 		});
 	}

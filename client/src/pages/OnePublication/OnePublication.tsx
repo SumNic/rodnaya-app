@@ -8,12 +8,13 @@ import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import PublicationsList from '../Publications/components/PublicationsList';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useParams } from 'react-router-dom';
-import { IPost } from '../../models/IPost';
 import Footer from '../../components/Footer';
+import { PublicationWithPartialUser } from '../Publications/Publications';
+import { Publication } from '../../services/PublicationsService';
 
 const OnePublication: React.FC = () => {
 	const [isLoadPublications, setIsLoadPublications] = useState(false);
-	const [publication, setPublication] = useState<IPost[]>();
+	const [publication, setPublication] = useState<PublicationWithPartialUser[]>();
 
 	const { currentWidth } = useThemeContext();
 
@@ -26,13 +27,18 @@ const OnePublication: React.FC = () => {
 		getPublication();
 	}, [id]);
 
+	const mapApiToPublicationWithLocation = (p: Publication): PublicationWithPartialUser => ({
+		...p,
+		location: '',
+	});
+
 	const getPublication = async () => {
 		try {
 			if (id) {
 				setIsLoadPublications(true);
 				const response = await getOnePublication(+id);
 				if (response?.data) {
-					setPublication([response.data]);
+					setPublication([mapApiToPublicationWithLocation(response.data)]);
 				}
 				setIsLoadPublications(false);
 			}

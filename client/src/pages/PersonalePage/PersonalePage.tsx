@@ -12,7 +12,7 @@ import styles from './PersonalePage.module.css';
 import { Button, Typography } from 'antd';
 import { VkIcon } from '../../UI/icons/VkIcon';
 import { useStoreContext } from '../../contexts/StoreContext';
-import { IPost } from '../../models/IPost';
+// import { IPost } from '../../models/IPost';
 import PublicationsList from '../Publications/components/PublicationsList';
 import { EditIcon } from '../../UI/icons/EditIcon';
 import Declaration from '../../components/Declaration';
@@ -21,6 +21,8 @@ import OnChangeForm from '../../components/OnChangeForm';
 import PersonaleData from '../../components/PersonaleData';
 import UploadAvatar from '../../components/UploadAvatar';
 import { PERSONALE_ROUTE } from '../../utils/consts';
+import { PublicationWithPartialUser } from '../Publications/Publications';
+import { Publication } from '../../services/PublicationsService';
 
 const { Title } = Typography;
 
@@ -29,7 +31,7 @@ const PersonalePage: React.FC = () => {
 	const [isDeclarationVisible, setIsDeclarationVisible] = useState(true);
 	const [isLoadPublications, setIsLoadPublications] = useState(false);
 	const [isPublicationsVisible, setIsPublicationsVisible] = useState(false);
-	const [publications, setPublications] = useState<IPost[]>([]);
+	const [publications, setPublications] = useState<PublicationWithPartialUser[]>([]);
 	const [page, setPage] = useState(1);
 	const [isOwnerPage, setIsOwnerPage] = useState(false);
 
@@ -82,12 +84,18 @@ const PersonalePage: React.FC = () => {
 		if (user?.id) loadUserPublications(user.id);
 	};
 
+	const mapApiToPublicationWithLocation = (p: Publication): PublicationWithPartialUser => ({
+		...p,
+		location: '',
+	});
+
 	const loadUserPublications = async (id: number, pageNumber = 1) => {
 		try {
 			setIsLoadPublications(true);
 			const response = await getUserPublications(id, pageNumber);
 			if (response?.data && response?.data.length > 0) {
-				setPublications((prev) => [...prev, ...response.data]); // Добавляем новые данные
+				const mapData = response.data.map((publication) => mapApiToPublicationWithLocation(publication));
+				setPublications((prev) => [...prev, ...mapData]); // Добавляем новые данные
 				setPage(pageNumber + 1);
 			}
 			setIsLoadPublications(false);

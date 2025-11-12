@@ -1,7 +1,9 @@
+import { Group } from '../services/GroupsService';
+import { CreateLocationDto } from '../services/MessagesService';
 import { DeclarationUser } from './DeclarationUser';
 import { EndReadMessage } from './EndReadMessage';
-import { LocationUser } from './LocationUser';
-import { IGroup } from './response/IGroup';
+// import { LocationUser } from './LocationUser';
+// import { IGroup } from './response/IGroup';
 
 export interface IUser {
 	id: number;
@@ -13,13 +15,13 @@ export interface IUser {
 	isDelProfile: boolean;
 	isRegistration: boolean;
 	dateEditResidency: Date;
-	residency: LocationUser;
+	residency: CreateLocationDto;
 	secret: string;
 	declaration: DeclarationUser;
 	endReadMessage: EndReadMessage[];
 	blocked: boolean;
 	blockedforever: boolean;
 	blockeduntil: Date;
-	userGroups: IGroup[];
+	userGroups: Group[];
 	tg_id?: number;
 }
