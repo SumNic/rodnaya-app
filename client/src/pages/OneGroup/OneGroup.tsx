@@ -8,12 +8,12 @@ import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
-import { IGroup } from '../../models/response/IGroup';
 import GroupElement from './components/GroupElement';
+import { Group } from '../../services/GroupsService';
 
 const OneGroup: React.FC = () => {
 	const [isLoadGroup, setIsLoadGroup] = useState(false);
-	const [group, setGroup] = useState<IGroup>();
+	const [group, setGroup] = useState<Group>();
 
 	const { currentWidth } = useThemeContext();
 

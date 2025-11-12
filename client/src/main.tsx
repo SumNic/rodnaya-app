@@ -6,8 +6,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 	import.meta.env.DEV ? (
 		<App />
 	) : (
-		// <React.StrictMode>
-		<App />
-		// </React.StrictMode>
+		<React.StrictMode>
+			<App />
+		</React.StrictMode>
 	)
 );
