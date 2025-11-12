@@ -1,10 +1,10 @@
-import Post from '../../../components/Post/Post.tsx';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Spin } from 'antd';
 
 import styles from './PublicationsList.module.css';
 import { PublicationWithPartialUser } from '../Publications.tsx';
+import PostForPublication from '../../../components/Post/PostForPublication.tsx';
 
 interface Props {
 	publications: PublicationWithPartialUser[] | undefined;
@@ -59,7 +59,7 @@ const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, l
 								</div>
 							) : null}
 
-							<Post post={post} />
+							<PostForPublication post={post} />
 						</div>
 					);
 				})}

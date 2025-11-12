@@ -2,15 +2,16 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 
 import styles from '../GroupPage.module.css';
-import { IGroup } from '../../../models/response/IGroup';
+// import { IGroup } from '../../../models/response/IGroup';
 import CustomAvatar from '../../../components/CustomAvatar';
 import { Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { CHAT } from '../../../utils/consts';
 import { useStoreContext } from '../../../contexts/StoreContext';
+import { Group } from '../../../services/GroupsService';
 
 interface ChatGroupProps {
-	group: IGroup;
+	group: Group;
 	location: string;
 }
 
@@ -20,7 +21,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ group, location }) => {
 	const { store } = useStoreContext();
 	const { setIsChatGroupVisible, setIsAboutGroupVisible, setAboutGroup, setSource } = store.groupStore;
 
-	const handleGroupClick = (group: IGroup) => {
+	const handleGroupClick = (group: Group) => {
 		setAboutGroup(location, group);
 		setIsAboutGroupVisible(location, true);
 		setIsChatGroupVisible(location, false);

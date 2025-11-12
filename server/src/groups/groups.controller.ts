@@ -82,7 +82,6 @@ export class GroupsController {
         summary: 'Получение всех сообщений для определенной группы',
     })
     @Get('/get-all-posts-group')
-    @ApiBody({ type: GetPostsGroupDto })
     @ApiResponse({
         status: HttpStatus.CREATED,
     })

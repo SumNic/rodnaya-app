@@ -1068,7 +1068,20 @@ export interface components {
 		ManageMessages: Record<string, never>;
 		EndReadMessage: Record<string, never>;
 		LastReadPostChat: Record<string, never>;
-		Group: Record<string, never>;
+		Group: {
+			id: number;
+			name: string;
+			task: string;
+			avatar: string;
+			world: string;
+			country: string;
+			region: string;
+			locality: string;
+			blocked: boolean;
+			userId: number;
+			users: components['schemas']['User'][];
+			admins: components['schemas']['User'][];
+		};
 		User: {
 			id: number;
 			vk_id: number;
@@ -1240,18 +1253,6 @@ export interface components {
 			 * @example Район
 			 */
 			location: string;
-		};
-		GetPostsGroupDto: {
-			/**
-			 * @description ID группы
-			 * @example 1
-			 */
-			groupId: string;
-			/**
-			 * @description Номер страницы
-			 * @example 1
-			 */
-			pageNumber: string;
 		};
 		CreatePostToChatDto: {
 			/**
@@ -1495,11 +1496,7 @@ export interface operations {
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
-			content: {
-				'application/json': components['schemas']['CreateMessageDto'];
-			};
-		};
+		requestBody?: never;
 		responses: {
 			201: {
 				headers: {
@@ -2441,11 +2438,7 @@ export interface operations {
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
-			content: {
-				'application/json': components['schemas']['GetPostsGroupDto'];
-			};
-		};
+		requestBody?: never;
 		responses: {
 			201: {
 				headers: {

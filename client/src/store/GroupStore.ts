@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { CreateGroupDto } from '../models/CreateGroupDto';
-import GroupsService, { CreatePostToChatDto } from '../services/GroupsService';
-import { IGroup } from '../models/response/IGroup';
+import GroupsService, { CreatePostToChatDto, Group } from '../services/GroupsService';
+// import { IGroup } from '../models/response/IGroup';
 import { CountNoReadPostsGroups } from '../models/CountNoReadPostsGroups';
 import { EndReadPostsGroupsId } from '../models/EndReadPostsGroupsId';
 import { Source } from '../utils/types';
@@ -11,9 +11,9 @@ export default class GroupStore {
 	isAboutGroupVisible = new Map<string, boolean>();
 	// isAboutGroupVisible: Record<string, boolean> = observable.object({});
 	isChatGroupVisible: Record<string, boolean> = {};
-	aboutGroup: Record<string, IGroup | undefined> = {};
+	aboutGroup: Record<string, Group | undefined> = {};
 	source: Record<string, Source> = {};
-	groupForChat: Record<string, IGroup> = {};
+	groupForChat: Record<string, Group> = {};
 
 	arrCountNoReadPostsGroups: CountNoReadPostsGroups[] = [];
 	arrLastReadPostsGroupsId: EndReadPostsGroupsId[] = [];
@@ -36,7 +36,7 @@ export default class GroupStore {
 		this.isChatGroupVisible[location] = bool;
 	};
 
-	setAboutGroup = (location: string, group: IGroup | undefined) => {
+	setAboutGroup = (location: string, group: Group | undefined) => {
 		this.aboutGroup[location] = group;
 	};
 
@@ -44,7 +44,7 @@ export default class GroupStore {
 		this.source[location] = source;
 	};
 
-	setGroupForChat = (location: string, group: IGroup) => {
+	setGroupForChat = (location: string, group: Group) => {
 		this.groupForChat[location] = group;
 	};
 

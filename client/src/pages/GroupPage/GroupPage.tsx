@@ -13,19 +13,20 @@ import GroupModal from './components/GroupModal';
 
 import styles from './GroupPage.module.css';
 import GroupsList from './components/GroupsList';
-import { IGroup } from '../../models/response/IGroup';
+// import { IGroup } from '../../models/response/IGroup';
 import Messages from '../Messages/components/Messages';
+import { Group } from '../../services/GroupsService';
 
 const { Text } = Typography;
 
-export interface Groups {
-	locality: IGroup[];
-	region: IGroup[];
-	country: IGroup[];
-	world: IGroup[];
+export interface IGroups {
+	locality: Group[];
+	region: Group[];
+	country: Group[];
+	world: Group[];
 }
 
-const initialGroups: Groups = {
+const initialGroups: IGroups = {
 	locality: [],
 	region: [],
 	country: [],
@@ -34,7 +35,7 @@ const initialGroups: Groups = {
 
 const GroupPage: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
-	const [groups, setGroups] = useState<Groups>(initialGroups);
+	const [groups, setGroups] = useState<IGroups>(initialGroups);
 	const [isCreateGroupModal, setIsCreateGroupModal] = useState(false);
 	const [isLoadingGroup, setIsLoadingGroup] = useState(false);
 	const [isMyGroups, setIsMyGroups] = useState<boolean>(() => {
@@ -55,7 +56,7 @@ const GroupPage: React.FC = () => {
 
 	const location: string | undefined = params.location;
 
-	let locationKey: keyof Groups = location as keyof Groups;
+	let locationKey: keyof IGroups = location as keyof IGroups;
 
 	useEffect(() => {
 		localStorage.setItem(LOCAL_STORAGE_IS_MY_GROUPS, JSON.stringify(isMyGroups));
@@ -90,7 +91,7 @@ const GroupPage: React.FC = () => {
 		return name;
 	}, [location]);
 
-	const handleCreateGroup = (newGroup: IGroup) => {
+	const handleCreateGroup = (newGroup: IGroups) => {
 		setGroups((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], newGroup] }));
 	};
 

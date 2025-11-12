@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import MessagesList from './MessagesList';
-import { IPosts } from '../../../models/IPosts';
+// import { IPosts } from '../../../models/IPostsGroup';
 import { ArrowDownOutlined, PaperClipOutlined } from '@ant-design/icons';
 import { Button, Dropdown, FloatButton, MenuProps } from 'antd';
 import SendMessage from '../../../components/SendMessage/SendMessage';
@@ -12,12 +12,13 @@ import UserService from '../../../services/UserService';
 import { CHAT, COUNT_RESPONSE_POSTS, MESSAGES } from '../../../utils/consts';
 
 import styles from '../MessagesPage.module.css';
-import { IGroup } from '../../../models/response/IGroup';
-import GroupsService from '../../../services/GroupsService';
+// import { IGroup } from '../../../models/response/IGroup';
+import GroupsService, { Group } from '../../../services/GroupsService';
 import UploadAntdFiles from '../../../components/UploadAntdFiles/UploadAntdFiles';
 import AddVideoLink from '../../../components/AddVideoLink';
+import { IMessages } from '../../../models/IMessages.ts';
 
-const initialPosts: IPosts = {
+const initialPosts: IMessages = {
 	locality: [],
 	region: [],
 	country: [],
@@ -69,11 +70,11 @@ const indexLocation: Page = {
 interface MessagesProps {
 	location: string;
 	source: string;
-	group?: IGroup;
+	group?: Group;
 }
 
 const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
-	const [posts, setPosts] = useState<IPosts>(initialPosts);
+	const [posts, setPosts] = useState<IMessages>(initialPosts);
 
 	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
 	const [nextPage, setNextPage] = useState<Page>(initialNextPape);
@@ -112,7 +113,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 
 	const uploadRef = useRef<any>(null);
 
-	let locationKey: keyof IPosts = location as keyof IPosts;
+	let locationKey: keyof IMessages = location as keyof IMessages;
 
 	useEffect(() => {
 		setVideoUrls([]);
@@ -401,6 +402,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 				store.authStore.user.secret,
 				location
 			);
+			console.log(allMessages, 'allMessages');
+
 			if (allMessages.data && allMessages.data.length > 0) {
 				if (posts[locationKey].includes(allMessages.data[0])) return;
 				setPosts((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], ...allMessages.data] }));

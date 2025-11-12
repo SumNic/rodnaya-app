@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { Groups } from '../GroupPage';
+import { IGroups } from '../GroupPage';
 
 import styles from '../GroupPage.module.css';
 import { Spin } from 'antd';
-import { IGroup } from '../../../models/response/IGroup';
+// import { IGroup } from '../../../models/response/IGroup';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import { GROUPS } from '../../../utils/consts';
 import AboutGroup from './AboutGroup';
 import { observer } from 'mobx-react-lite';
-import Group from './Group';
+// import Group from './Group';
 import ChatGroup from './ChatGroup';
+import { Group } from '../../../services/GroupsService';
+import OneGroup from './OneGroup';
 
 interface GroupsListProps {
-	groups: Groups;
+	groups: IGroups;
 	location: string;
 	isLoadingGroup: boolean;
 	isMyGroups: boolean;
 }
 
 const GroupsList: React.FC<GroupsListProps> = ({ groups, location, isLoadingGroup, isMyGroups }) => {
-	const [filteredGroups, setFilteredGroups] = useState<IGroup[]>([]);
+	const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
 
 	const { store } = useStoreContext();
 	const { user } = store.authStore;
@@ -33,7 +35,7 @@ const GroupsList: React.FC<GroupsListProps> = ({ groups, location, isLoadingGrou
 		groupForChat,
 	} = store.groupStore;
 
-	let locationKey: keyof Groups = location as keyof Groups;
+	let locationKey: keyof IGroups = location as keyof IGroups;
 
 	const groupsFromLocation = groups[locationKey];
 
@@ -53,7 +55,7 @@ const GroupsList: React.FC<GroupsListProps> = ({ groups, location, isLoadingGrou
 				<div className={styles.group}>
 					{!isAboutGroupVisible.get(location) &&
 						!isChatGroupVisible[location] &&
-						filteredGroups?.map((group) => <Group key={group.id} group={group} location={location} />)}
+						filteredGroups?.map((group) => <OneGroup key={group.id} group={group} location={location} />)}
 					{isAboutGroupVisible.get(location) && !isChatGroupVisible[location] && aboutGroup[location] && (
 						<AboutGroup group={aboutGroup[location]} location={location} />
 					)}

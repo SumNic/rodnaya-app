@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
-import { IGroup } from '../../../models/response/IGroup';
+// import { IGroup } from '../../../models/response/IGroup';
 
 import styles from '../GroupPage.module.css';
 import CustomAvatar from '../../../components/CustomAvatar';
@@ -13,14 +13,15 @@ import AdminService from '../../../services/AdminService';
 import { EllipsisOutlined } from '@ant-design/icons';
 import ExpandableText from '../../../components/ExpandableText/ExpandableText';
 import FoulModal from '../../Messages/FoulModal/FoulModal';
+import { Group } from '../../../services/GroupsService';
 
 interface GroupProps {
-	group: IGroup;
+	group: Group;
 	location: string;
 }
 
-const Group: React.FC<GroupProps> = ({ group, location }) => {
-	const [selectedGroup, setSelectedGroup] = useState<IGroup>();
+const OneGroup: React.FC<GroupProps> = ({ group, location }) => {
+	const [selectedGroup, setSelectedGroup] = useState<Group>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
 
@@ -40,7 +41,7 @@ const Group: React.FC<GroupProps> = ({ group, location }) => {
 		setVisible(flag);
 	};
 
-	const handleGroupClick = (group: IGroup) => {
+	const handleGroupClick = (group: Group) => {
 		if (group.users.find((u) => u.id === user.id)) {
 			setGroupForChat(location, group);
 			setIsChatGroupVisible(location, true);
@@ -129,4 +130,4 @@ const Group: React.FC<GroupProps> = ({ group, location }) => {
 	);
 };
 
-export default observer(Group);
+export default observer(OneGroup);

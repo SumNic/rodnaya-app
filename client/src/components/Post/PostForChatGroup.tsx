@@ -18,7 +18,6 @@ import { Button, Dropdown, MenuProps, message, Carousel, Image, Modal } from 'an
 
 import { Buffer } from 'buffer';
 
-import { IPost } from '../../models/IPost';
 import AdminService from '../../services/AdminService';
 import { useStoreContext } from '../../contexts/StoreContext';
 import FoulModal from '../../pages/Messages/FoulModal/FoulModal';
@@ -34,11 +33,11 @@ import { PublicationWithPartialUser } from '../../pages/Publications/Publication
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
 
 interface PostProps {
-	post: PublicationWithPartialUser | (IPost & { video?: string[] });
+	post: PublicationWithPartialUser;
 }
 
 const Post: React.FC<PostProps> = ({ post }) => {
-	const [selectedMessage, setSelectedMessage] = useState<PublicationWithPartialUser | (IPost & { video?: string[] })>();
+	const [selectedMessage, setSelectedMessage] = useState<PublicationWithPartialUser>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [isActive, setIsActive] = useState(false);

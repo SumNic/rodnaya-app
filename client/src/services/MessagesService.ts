@@ -9,6 +9,7 @@ import { components } from '../utils/api.ts';
 export type EndMessageDto = components['schemas']['EndMessageDto'];
 export type CreateMessageDto = components['schemas']['CreateMessageDto'];
 export type CreateLocationDto = components['schemas']['CreateLocationDto'];
+export type Message = components['schemas']['Messages'];
 
 export default class MessagesService {
 	static async sendMessage(dto: CreateMessageDto): Promise<AxiosResponse<number>> {
@@ -20,8 +21,8 @@ export default class MessagesService {
 		pageNumber: number,
 		secret: string,
 		location: string | undefined
-	): Promise<AxiosResponse<IPost[]>> {
-		return $api.get<IPost[]>('/get-all-messages', {
+	): Promise<AxiosResponse<Message[]>> {
+		return $api.get<Message[]>('/get-all-messages', {
 			params: { id, pageNumber, secret, location },
 		});
 	}

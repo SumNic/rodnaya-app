@@ -3,14 +3,16 @@ import { useStoreContext } from '../../../contexts/StoreContext.ts';
 import { useMessageContext } from '../../../contexts/MessageContext.ts';
 import { Spin } from 'antd';
 import styles from './MessagesList.module.css';
-import Post from '../../../components/Post/Post.tsx';
 import { observer } from 'mobx-react-lite';
-import { IPosts } from '../../../models/IPosts.ts';
+// import { IPosts } from '../../../models/IPostsGroup.ts';
 import { Page } from './Messages.tsx';
+import PostForMessage from '../../../components/Post/PostForMessage.tsx';
+import { IMessages } from '../../../models/IMessages.ts';
+// import { IPostsMessage } from '../../../models/Messages.ts';
 // import { Page } from '../MessagesPage.tsx';
 
 interface Props {
-	posts: IPosts;
+	posts: IMessages & { createdAt?: Date };
 	location: string;
 	lastMessageRef?: React.Ref<HTMLDivElement>;
 	messagesRef?: React.Ref<HTMLDivElement>;
@@ -52,7 +54,7 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 
 	const { isLoadMessages, setIsScrollTop, messagesContainerRef } = useMessageContext();
 
-	let locationKey: keyof IPosts = location as keyof IPosts;
+	let locationKey: keyof IMessages = location as keyof IMessages;
 
 	const postsFromLocation = posts[locationKey];
 
@@ -161,29 +163,34 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 			)}
 
 			<div id="message__ajax" ref={messagesRef}>
-				{postsFromLocation?.map((post, index, arr) => (
-					<div
-						className={styles.posts}
-						key={post.id}
-						post-id={`${post.id}`}
-						ref={index === postsFromLocation.length - 1 && lastMessageRef ? lastMessageRef : null}
-					>
-						{index === 0 ? (
-							<div className="date__wrapper">
-								<p className="name__time">{new Date(post.createdAt).toLocaleString('ru', options_day)}</p>
-							</div>
-						) : (
-							new Date(post.createdAt).toDateString() !==
-								new Date(arr[index === 0 ? index : index - 1].createdAt).toDateString() && (
+				{postsFromLocation?.map((post, index, arr) => {
+					const prevCreateAt = arr[index === 0 ? index : index - 1].createdAt!;
+					return (
+						<div
+							className={styles.posts}
+							key={post.id}
+							post-id={`${post.id}`}
+							ref={index === postsFromLocation.length - 1 && lastMessageRef ? lastMessageRef : null}
+						>
+							{index === 0 ? (
 								<div className="date__wrapper">
-									<p className="name__time">{new Date(post.createdAt).toLocaleString('ru', options_day)}</p>
+									<p className="name__time">
+										{post.createdAt && new Date(post.createdAt).toLocaleString('ru', options_day)}
+									</p>
 								</div>
-							)
-						)}
+							) : (
+								post.createdAt &&
+								new Date(post.createdAt).toDateString() !== new Date(prevCreateAt).toDateString() && (
+									<div className="date__wrapper">
+										<p className="name__time">{new Date(post.createdAt).toLocaleString('ru', options_day)}</p>
+									</div>
+								)
+							)}
 
-						<Post post={post} />
-					</div>
-				))}
+							<PostForMessage post={post} />
+						</div>
+					);
+				})}
 			</div>
 		</div>
 	);

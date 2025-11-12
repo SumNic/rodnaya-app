@@ -1,27 +1,29 @@
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
 import { CreateGroupDto } from '../models/CreateGroupDto.ts';
-import { IGroup } from '../models/response/IGroup.ts';
+// import { IGroup } from '../models/response/IGroup.ts';
 import { CountNoReadPostsGroups } from '../models/CountNoReadPostsGroups.ts';
 import { EndReadPostsGroupsId } from '../models/EndReadPostsGroupsId.ts';
 import { IPost } from '../models/IPost.ts';
 import { components } from '../utils/api.ts';
 
 export type CreatePostToChatDto = components['schemas']['CreatePostToChatDto'];
+export type ChatGroup = components['schemas']['ChatGroup'];
+export type Group = components['schemas']['Group'];
 
 export default class GroupsService {
-	static async createGroup(dto: CreateGroupDto): Promise<AxiosResponse<IGroup>> {
-		return $api.post<IGroup>('/create-group', dto);
+	static async createGroup(dto: CreateGroupDto): Promise<AxiosResponse<Group>> {
+		return $api.post<Group>('/create-group', dto);
 	}
 
-	static async getAllGroups(location: string): Promise<AxiosResponse<IGroup[]>> {
-		return $api.get<IGroup[]>('/get-all-group', {
+	static async getAllGroups(location: string): Promise<AxiosResponse<Group[]>> {
+		return $api.get<Group[]>('/get-all-group', {
 			params: { location },
 		});
 	}
 
-	static async getGroupFromId(id: number): Promise<AxiosResponse<IGroup>> {
-		return $api.get<IGroup>(`/get-group/${id}`);
+	static async getGroupFromId(id: number): Promise<AxiosResponse<Group>> {
+		return $api.get<Group>(`/get-group/${id}`);
 	}
 
 	//TODO реализовать на бек-енде
@@ -42,8 +44,8 @@ export default class GroupsService {
 		});
 	}
 
-	static async getAllPosts(groupId: number, pageNumber: number): Promise<AxiosResponse<IPost[]>> {
-		return $api.get<IPost[]>('/get-all-posts-group', {
+	static async getAllPosts(groupId: number, pageNumber: number): Promise<AxiosResponse<ChatGroup[]>> {
+		return $api.get<ChatGroup[]>('/get-all-posts-group', {
 			params: { groupId, pageNumber },
 		});
 	}

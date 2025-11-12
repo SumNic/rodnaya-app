@@ -54,7 +54,6 @@ export class MessagesController {
         summary: 'Получение всех сообщений для определенного location',
     })
     @Get('/get-all-messages')
-    @ApiBody({ type: CreateMessageDto })
     @ApiResponse({
         status: HttpStatus.CREATED,
     })
