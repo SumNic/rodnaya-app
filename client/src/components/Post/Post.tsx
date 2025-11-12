@@ -38,7 +38,7 @@ interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({ post }) => {
-	const [selectedMessage, setSelectedMessage] = useState<PublicationWithPartialUser | IPost>();
+	const [selectedMessage, setSelectedMessage] = useState<PublicationWithPartialUser | (IPost & { video?: string[] })>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [isActive, setIsActive] = useState(false);
