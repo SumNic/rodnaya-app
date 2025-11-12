@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { FormDto } from 'src/common/dtos/create-publication.dto';
 
 export class CreateMessageDto {
     @ApiProperty({
@@ -10,8 +12,8 @@ export class CreateMessageDto {
     @IsString({ message: 'Должно быть строкой' })
     location?: string;
 
-    form: {
-        message: string;
-        files: any;
-    };
+    @ApiProperty({ type: FormDto })
+    @ValidateNested()
+    @Type(() => FormDto)
+    form: FormDto;
 }

@@ -3,14 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import { Order } from 'src/common/constants/order';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
-import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
+import { CreatePublicationDto } from 'src/common/dtos/create-publication.dto';
 import { GetPublicationsDto } from 'src/common/dtos/get-publications.dto';
 import { NewPublication } from 'src/common/dtos/new-publication.dto';
-import { Group } from 'src/common/models/groups/groups.model';
 import { Publications } from 'src/common/models/publications/publications.model';
-import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
-import { Role } from 'src/common/models/users/role.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
 import { UsersService } from 'src/users/users.service';
 
@@ -19,57 +16,61 @@ export class PublicationsService {
     constructor(
         @InjectModel(Publications) private readonly publicationsRepository: typeof Publications,
         private usersService: UsersService,
-        private readonly configService: ConfigService,
+        // private readonly configService: ConfigService,
     ) {}
 
-    async addPublication(req: AuthenticatedRequest, dto: CreateMessageDto): Promise<NewPublication> {
+    async addPublication(req: AuthenticatedRequest, dto: CreatePublicationDto): Promise<NewPublication> {
         try {
             const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
 
+            const { form } = dto;
+            const { message, files, video } = form;
+
             if (user) {
-                const message = await this.publicationsRepository.create({
+                const newPublication = await this.publicationsRepository.create({
                     country: user.residency.country,
                     region: user.residency.region,
                     locality: user.residency.locality,
-                    message: dto.form.message,
+                    message,
+                    video,
                 });
-                await user.$add('publications', message);
-                const arrFileId = JSON.parse(dto.form.files);
-                arrFileId.map((file: any) => {
-                    message.$add('file', file.id);
-                });
+                await user.$add('publications', newPublication);
+                files.length &&
+                    files.map((file) => {
+                        newPublication.$add('file', file.id);
+                    });
 
-                const DATA = {
-                    v: this.configService.get<string>('VK_VERSION'),
-                    access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
-                    client_url: this.configService.get<string>('CLIENT_URL'),
-                };
+                // const DATA = {
+                //     v: this.configService.get<string>('VK_VERSION'),
+                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
+                //     client_url: this.configService.get<string>('CLIENT_URL'),
+                // };
 
-                const users = this.usersService.getAllUsers();
-                const peer_ids = (await users).map((user) => user.vk_id);
+                // const users = this.usersService.getAllUsers();
+                // const peer_ids = (await users).map((user) => user.vk_id);
 
-                const params = new URLSearchParams();
-                params.append('v', DATA.v);
-                params.append('access_token', DATA.access_token);
-                params.append('peer_ids', `${peer_ids.join(',')}`);
-                params.append('random_id', '0');
-                params.append(
-                    'publication',
-                    `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/publications/${dto.location}`,
-                );
+                // const params = new URLSearchParams();
+                // params.append('v', DATA.v);
+                // params.append('access_token', DATA.access_token);
+                // params.append('peer_ids', `${peer_ids.join(',')}`);
+                // params.append('random_id', '0');
+                // params.append(
+                //     'publication',
+                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${newPublication.message} \nПерейти к сообщениям: ${DATA.client_url}/publications`,
+                // );
 
-                const response = await fetch('https://api.vk.ru/method/messages.send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params.toString(),
-                });
+                // const response = await fetch('https://api.vk.ru/method/messages.send', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/x-www-form-urlencoded',
+                //     },
+                //     body: params.toString(),
+                // });
 
-                const data = await response.json();
-                console.log('Успешно отправлено', data);
+                // const data = await response.json();
+                // console.log('Успешно отправлено', data);
 
-                return { message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
+                return { message: newPublication, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
 
             throw new HttpException('Сообщение не было отправлено', HttpStatus.FORBIDDEN);

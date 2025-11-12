@@ -12,15 +12,18 @@ export class FilesService {
 
     async saveFile(file: Express.Multer.File): Promise<Files> {
         try {
+            // Исправляем искаженную кодировку имени файла
+            const fixedName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
             const buf1 = Buffer.from(file.buffer);
-            const fileExtention = file.originalname.split('.').pop();
+            const fileExtention = fixedName.split('.').pop();
             const fileNameUuid = uuidv4() + `.${fileExtention}`;
             const filePath = path.resolve(__dirname, '..', '..', 'static');
             if (!fs.existsSync(filePath)) {
                 fs.mkdirSync(filePath, { recursive: true });
             }
             fs.writeFileSync(path.join(filePath, fileNameUuid), buf1);
-            const response = await this.filesRepository.create({ fileName: file.originalname, fileNameUuid });
+            const response = await this.filesRepository.create({ fileName: fixedName, fileNameUuid });
             return response;
         } catch (err) {
             throw new HttpException(`Ошибка в setNewEndReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -14,19 +14,22 @@ import styles from './Publications.module.css';
 import Residency from '../../components/Residency';
 import PublicationsList from './components/PublicationsList';
 import { observer } from 'mobx-react-lite';
-import { IPost } from '../../models/IPost';
 import SendPublication from '../../components/sendPublications/SendPublication';
 import { LocationUser } from '../../models/LocationUser';
+import { Publication, User } from '../../services/PublicationsService';
 
 interface PublicationsProps {}
 
-//TODO Добавить сортировку публикаций
-
-const Publications: React.FC<PublicationsProps> = ({}) => {
+export type PublicationWithPartialUser = Omit<Publication, 'user'> & {
+	user: Partial<User>;
+} & {
+	location: string;
+} & { createdAt?: Date };
+const Publications: React.FC<PublicationsProps> = () => {
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [isFilter, setIsFilter] = useState(false);
 	const [isLoadPublications, setIsLoadPublications] = useState(false);
-	const [publications, setPublications] = useState<IPost[]>([]);
+	const [publications, setPublications] = useState<PublicationWithPartialUser[]>([]);
 	const [page, setPage] = useState(1);
 
 	const { store } = useStoreContext();
@@ -34,9 +37,7 @@ const Publications: React.FC<PublicationsProps> = ({}) => {
 	const { getAllPublications, publictionDataSocket, setPublicationDataSocket } = store.publicationStore;
 
 	const { currentWidth } = useThemeContext();
-
 	const { socket } = useSocket();
-
 	const lastPublicationRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
@@ -58,12 +59,18 @@ const Publications: React.FC<PublicationsProps> = ({}) => {
 		loadPublications(territory);
 	}, [territory]);
 
+	const mapApiToPublicationWithLocation = (p: Publication): PublicationWithPartialUser => ({
+		...p,
+		location: '',
+	});
+
 	const loadPublications = async (territory: LocationUser, pageNumber = 1) => {
 		try {
 			setIsLoadPublications(true);
 			const response = await getAllPublications(territory, pageNumber);
-			if (response?.data && response?.data.length > 0) {
-				setPublications((prev) => [...prev, ...response.data]); // Добавляем новые данные
+			if (response?.data && response.data.length > 0) {
+				const mapped = response.data.map(mapApiToPublicationWithLocation);
+				setPublications((prev) => [...prev, ...mapped]);
 				setPage(pageNumber + 1);
 			}
 			setIsLoadPublications(false);
@@ -73,70 +80,58 @@ const Publications: React.FC<PublicationsProps> = ({}) => {
 		}
 	};
 
-	// Обработчик нажатия кнопки "Добавить публикацию"
-	const handleAddButtonClick = () => {
-		setIsEditing((prev) => !prev);
-	};
-
-	const handleFilterClick = () => {
-		setIsFilter((prev) => !prev);
-	};
-
-	const handleFilterCancel = () => {
-		setIsFilter(false);
-	};
+	const handleAddButtonClick = () => setIsEditing((prev) => !prev);
+	const handleFilterClick = () => setIsFilter((prev) => !prev);
+	const handleFilterCancel = () => setIsFilter(false);
+	const handleCancel = () => setIsEditing(false);
 
 	useEffect(() => {
 		const handleNewMessage = (data: PublicationWebsocketResponse) => {
 			if (!data) return;
-			// setPublications((prev) => prev.push(data))
 			store.publicationStore.setPublicationDataSocket(data);
 		};
 
 		socket?.on('new_publication', handleNewMessage);
-
-		// Очистка при размонтировании
 		return () => {
 			socket?.off('new_publication', handleNewMessage);
 		};
 	}, [socket]);
 
 	useEffect(() => {
-		if (
-			publictionDataSocket &&
-			(territory.locality === publictionDataSocket.resydency.locality ||
-				(!territory.locality && territory.region === publictionDataSocket.resydency.region) ||
-				(!territory.locality && !territory.region && territory.country === publictionDataSocket.resydency.country) ||
-				Object.values(territory).every((value) => !value))
-		) {
-			const arrFileId = JSON.parse(publictionDataSocket.form.files);
-			const newPost: IPost = {
-				id: publictionDataSocket.id_publication,
-				message: publictionDataSocket.form.message,
-				location: publictionDataSocket.resydency.locality,
-				blocked: false,
-				userId: publictionDataSocket.id_user,
-				files: arrFileId,
-				user: {
-					id: publictionDataSocket.id_user,
-					first_name: publictionDataSocket.first_name,
-					last_name: publictionDataSocket.last_name,
-					photo_50: publictionDataSocket.photo_50,
-				},
-				createdAt: publictionDataSocket.createdAt,
-			};
+		if (!publictionDataSocket) return;
 
-			if (newPost) {
-				setPublications((prev) => [newPost, ...prev]);
-				setPublicationDataSocket(undefined);
-			}
-		}
-	}, [publictionDataSocket]);
+		const matchTerritory =
+			territory.locality === publictionDataSocket.resydency.locality ||
+			(!territory.locality && territory.region === publictionDataSocket.resydency.region) ||
+			(!territory.locality && !territory.region && territory.country === publictionDataSocket.resydency.country) ||
+			Object.values(territory).every((value) => !value);
 
-	// Обработчик нажатия кнопки "Отменить"
-	const handleCancel = () => {
-		setIsEditing(false);
-	};
+		if (!matchTerritory) return;
+
+		const arrFileId = publictionDataSocket.form.files || '[]';
+		const newPost: PublicationWithPartialUser = {
+			id: publictionDataSocket.id_publication,
+			message: publictionDataSocket.form.message,
+			video: publictionDataSocket.form.video || [],
+			location: publictionDataSocket.resydency.locality || '',
+			blocked: false,
+			country: '',
+			region: '',
+			locality: '',
+			userId: publictionDataSocket.id_user,
+			files: arrFileId,
+			user: {
+				id: publictionDataSocket.id_user,
+				first_name: publictionDataSocket.first_name,
+				last_name: publictionDataSocket.last_name,
+				photo_50: publictionDataSocket.photo_50,
+			},
+			createdAt: publictionDataSocket.createdAt,
+		};
+
+		setPublications((prev) => [newPost, ...prev]);
+		setPublicationDataSocket(undefined);
+	}, [publictionDataSocket, territory, setPublicationDataSocket]);
 
 	return (
 		<div>
@@ -167,13 +162,14 @@ const Publications: React.FC<PublicationsProps> = ({}) => {
 									Фильтр
 								</Button>
 							</div>
-							{isFilter && <Residency onClick={handleFilterClick} onCancel={handleFilterCancel} />}
 
+							{isFilter && <Residency onClick={handleFilterClick} onCancel={handleFilterCancel} />}
 							{isEditing && (
 								<div style={{ marginTop: 8 }}>
 									<SendPublication handleCancel={handleCancel} />
 								</div>
 							)}
+
 							<PublicationsList
 								publications={publications}
 								lastPublicationRef={lastPublicationRef}
@@ -185,8 +181,6 @@ const Publications: React.FC<PublicationsProps> = ({}) => {
 					</div>
 				</div>
 			</div>
-
-			{/* <Footer /> */}
 		</div>
 	);
 };

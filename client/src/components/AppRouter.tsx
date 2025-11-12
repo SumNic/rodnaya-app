@@ -29,10 +29,12 @@ const AppRouter: React.FC = () => {
 			localStorage.setItem('tg_id', `${tgUserId}`);
 		}
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
+			console.log('checkAuth');
+
 			store.authStore.checkAuth();
 		} else {
-			localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+			// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+			// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			store.authStore.setLoad(false);
 		}
 	}, []);

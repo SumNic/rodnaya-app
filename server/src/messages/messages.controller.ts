@@ -116,7 +116,6 @@ export class MessagesController {
     })
     @UseGuards(JwtAuthGuard)
     async getCountNoReadMessages(@Query() query: EndMessageDto) {
-        //: Promise<number>
         return await this.messagesService.getCountNoReadMessages(query);
     }
 

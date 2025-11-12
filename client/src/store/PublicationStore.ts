@@ -1,6 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { SendedMessage } from '../models/SendedMessage.ts';
-import PublicationsService from '../services/PublicationsService.ts';
+import PublicationsService, { CreatePublicationDto } from '../services/PublicationsService.ts';
 import { PublicationWebsocketResponse } from '../models/response/PublicationWebsocketResponse.ts';
 import { LocationUser } from '../models/LocationUser.ts';
 
@@ -11,7 +10,7 @@ export default class PublicationStore {
 		makeAutoObservable(this);
 	}
 
-	async addPublication(dto: SendedMessage) {
+	async addPublication(dto: CreatePublicationDto) {
 		try {
 			const response = await PublicationsService.sendPublication(dto);
 			return { data: response.data };

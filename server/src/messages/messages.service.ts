@@ -35,29 +35,33 @@ export class MessagesService {
         try {
             const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
 
+            const { form } = dto;
+            const { message, files, video } = form;
+
             if (user) {
                 const locationUser = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
-                const message = await this.messagesRepository.create({
+                const newMessage = await this.messagesRepository.create({
                     location: locationUser,
-                    message: dto.form.message,
+                    message,
+                    video: video,
                 });
-                await user.$add('messages', message);
-                const arrFileId = JSON.parse(dto.form.files);
-                arrFileId.map((file: any) => {
-                    message.$add('file', file.id);
-                });
+                await user.$add('messages', newMessage);
+                files.length &&
+                    files.map((file) => {
+                        newMessage.$add('file', file.id);
+                    });
 
-                this.setEndReadMessagesId(user.id, { id_message: message.id, location: locationUser });
+                this.setEndReadMessagesId(user.id, { id_message: newMessage.id, location: locationUser });
 
                 const users = await this.usersService.getUsersByResidence(locationUser);
 
                 for (const userOfChat of users) {
                     if (userOfChat.tg_id && userOfChat.tg_id !== user.tg_id) {
-                        await this.telegramService.sendMessage(userOfChat.tg_id, message.message, locationUser);
+                        await this.telegramService.sendMessage(userOfChat.tg_id, newMessage.message, locationUser);
                     }
                 }
 
-                return { message, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
+                return { message: newMessage, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
 
             throw new HttpException('Сообщение не было отправлено', HttpStatus.FORBIDDEN);

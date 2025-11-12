@@ -104,7 +104,7 @@ import { TelegramModule } from './telegram/telegram.module';
                     GroupAdmins,
                 ],
                 autoLoadModels: true,
-                synchronize: true,
+                // synchronize: true,
             }),
             inject: [ConfigService],
         }),

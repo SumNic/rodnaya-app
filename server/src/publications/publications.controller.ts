@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/s
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
+import { CreatePublicationDto } from 'src/common/dtos/create-publication.dto';
 import { GetPublicationsDto } from 'src/common/dtos/get-publications.dto';
 import { Publications } from 'src/common/models/publications/publications.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
@@ -19,7 +20,7 @@ export class PublicationsController {
 
     @ApiOperation({ summary: 'Добавление нового сообщения' })
     @Post('/send-publication')
-    @ApiBody({ type: CreateMessageDto })
+    @ApiBody({ type: CreatePublicationDto })
     @ApiResponse({
         status: HttpStatus.CREATED,
         description: 'Сообщение добавлено',
@@ -29,7 +30,7 @@ export class PublicationsController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async addPublication(@Req() req: AuthenticatedRequest, @Body() dto: CreateMessageDto) {
+    async addPublication(@Req() req: AuthenticatedRequest, @Body() dto: CreatePublicationDto) {
         const response = await this.publicationsService.addPublication(req, dto);
         if (response) {
             this.publicationsGateway.sendPublicationWebSocket('new_publication', {
@@ -49,14 +50,8 @@ export class PublicationsController {
         summary: 'Получение всех сообщений для определенного location',
     })
     @Get('/get-all-publications')
-    @ApiBody({ type: CreateMessageDto })
-    @ApiResponse({
-        status: HttpStatus.CREATED,
-    })
-    @ApiResponse({
-        status: HttpStatus.BAD_REQUEST,
-        description: 'Неккоректные данные',
-    })
+    @ApiResponse({ status: 200, description: 'Список публикаций', type: [Publications] })
+    @ApiResponse({ status: 400, description: 'Некорректные данные' })
     async getAllPublication(@Query() query: GetPublicationsDto): Promise<Publications[]> {
         return await this.publicationsService.getAllPublication(query);
     }
@@ -89,7 +84,7 @@ export class PublicationsController {
     @Get('/get-user-publications')
     @ApiBody({ type: CreateMessageDto })
     @ApiResponse({
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,

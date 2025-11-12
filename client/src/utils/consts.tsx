@@ -26,13 +26,14 @@ export const PUBLICATION_ID_ROUTE = '/get-publication';
 
 export const BLOCKED_ROUTE = '/blocked';
 
-export const HOST = import.meta.env.DEV
-	? 'https://prosaically-permanent-wheatear.cloudpub.ru'
-	: 'https://rod-partya.ru';
+// export const HOST = import.meta.env.DEV
+// 	? 'https://prosaically-permanent-wheatear.cloudpub.ru'
+// 	: 'https://rod-partya.ru';
+
+export const HOST = import.meta.env.DEV ? 'http://localhost' : 'https://rod-partya.ru';
 console.log(import.meta.env.DEV, 'process.env.REACT_APP_MODE');
 
 export const VK_ID_APP = import.meta.env.DEV ? import.meta.env.VITE_VK_ID_APP_DEV : import.meta.env.VITE_VK_ID_APP_PROD;
-console.log(VK_ID_APP, 'VK_ID_APP');
 export const API_URL = `${HOST}/api`;
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
@@ -93,4 +94,16 @@ export const YANDEX_COUNTER_ID = import.meta.env.DEV
 	? import.meta.env.VITE_YANDEX_COUNTER_ID_DEV
 	: import.meta.env.VITE_YANDEX_COUNTER_ID_PROD;
 
-console.log(YANDEX_COUNTER_ID, 'YANDEX_COUNTER_ID');
+export const ALLOWED_VIDEO_HOSTS = [
+	'youtube.com',
+	'youtu.be',
+	'vimeo.com',
+	'vk.com',
+	'rutube.ru',
+	'dailymotion.com',
+	'ok.ru',
+	'odnoklassniki.ru',
+	'drive.google.com',
+	'tiktok.com',
+	't.me',
+];

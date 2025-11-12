@@ -1,6 +1,5 @@
 import { makeAutoObservable, observable } from 'mobx';
-import MessagesService from '../services/MessagesService.ts';
-import { SendedMessage } from '../models/SendedMessage.ts';
+import MessagesService, { CreateLocationDto, CreateMessageDto } from '../services/MessagesService.ts';
 import { LocationUser } from '../models/LocationUser.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
 import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
@@ -13,7 +12,7 @@ export default class MessageStore {
 		makeAutoObservable(this);
 	}
 
-	async sendMessage(dto: SendedMessage) {
+	async sendMessage(dto: CreateMessageDto) {
 		try {
 			const response = await MessagesService.sendMessage(dto);
 			return { data: response.data };
@@ -42,13 +41,13 @@ export default class MessageStore {
 		}
 	}
 
-	getCountNoReadMessages = async (id: number, secret: string, residency: LocationUser) => {
+	getCountNoReadMessages = async (id: number, secret: string, residency: CreateLocationDto) => {
 		try {
 			const { country, region, locality } = residency;
-			const residencyUser: LocationUser = { world: 'Земля', country, region, locality };
+			const residencyUser: CreateLocationDto = { world: 'Земля', country, region, locality };
 
 			const dto = {
-				id,
+				id: id.toString(),
 				secret,
 				residency: residencyUser,
 			};

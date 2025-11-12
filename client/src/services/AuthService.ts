@@ -2,6 +2,9 @@ import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
 import { AuthResponse } from '../models/response/AuthResponse';
 import { VkSdkResponse } from '../models/response/VkSdkResponse';
+import { components } from '../utils/api.ts';
+
+export type UuidDevice = components['schemas']['UuidDevice'];
 
 export default class AuthService {
 	static async logout(id: number, uuid: string | null, allDeviceExit: boolean): Promise<void> {
@@ -20,7 +23,8 @@ export default class AuthService {
 		return $api.post<VkSdkResponse>('/set-registration', { id, secret, uuid });
 	}
 
-	static async updateRegistration(device: string | null): Promise<AxiosResponse<AuthResponse>> {
-		return $api.post<AuthResponse>('/refresh-tokens', { uuid: device });
+	static async updateRegistration(device: string): Promise<AxiosResponse<AuthResponse>> {
+		const dto: UuidDevice = { uuid: device };
+		return $api.post<AuthResponse>('/refresh-tokens', dto);
 	}
 }

@@ -509,6 +509,11 @@ html {
 	box-sizing: inherit;
 }
 
+:root {
+	/* colors */
+	--brandColor: #167859;
+}
+
 body {
 	font-family: 'IzhitsaRegular', 'Inter', arial;
 	font-style: normal;
@@ -687,7 +692,7 @@ body {
 }
 
 .middle__wrapper {
-	z-index: -1;
+	z-index: auto;
 	max-width: 830px;
 	display: flex;
 	flex-wrap: nowrap;
@@ -711,12 +716,12 @@ body {
 	border: 1px solid black;
 	border-width: 0 1px;
 	position: relative;
-	width: 546px;
+	flex: 1; /* вместо фиксированной ширины */
+	min-width: 0; /* чтобы slick-track не вылазил */
+	width: auto; /* сбросить фиксированную ширину */
 	background-color: white;
 	-ms-overflow-style: none;
-	/* IE и Edge */
 	scrollbar-width: none;
-	/* Firefox */
 	border-bottom: 1px solid black;
 	border-bottom-left-radius: 20px;
 	border-bottom-right-radius: 20px;
@@ -751,7 +756,7 @@ body {
 
 #list_founders {
 	/* padding: 10px; */
-	padding: 0 10px;
+	padding: 0 7px;
 	width: 100%;
 	height: 100%;
 	overflow-y: scroll;
@@ -1079,6 +1084,10 @@ body {
 .div_name_file {
 	display: block;
 	margin-left: 56px;
+}
+
+.div_name_file_publications {
+	display: flex;
 }
 
 .name__file {
@@ -1741,6 +1750,38 @@ progress {
 
 .show {
 	display: block;
+}
+
+.ant-carousel .slick-dots li {
+	background-color: var(--brandColor); /* основной цвет */
+	width: 10px; /* размер точки */
+	height: 10px;
+	border-radius: 50%;
+	opacity: 0.4;
+	transition: all 0.3s;
+}
+
+/* Активная точка */
+.ant-carousel .slick-dots li.slick-active {
+	width: 10px;
+	height: 10px;
+	opacity: 1;
+	background-color: var(--brandColor);
+}
+
+.ant-carousel .slick-dots li.slick-active::after {
+	opacity: 1;
+	background-color: var(--brandColor);
+}
+
+/* Общий стиль стрелок */
+.ant-carousel .slick-arrow {
+	opacity: 0.7;
+	color: var(--brandColor);
+}
+
+.ant-modal-content {
+	max-height: none !important;
 }
 
 @media screen and (max-width: 830px) {

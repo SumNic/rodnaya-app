@@ -111,21 +111,26 @@ export default class AuthStore {
 	async checkAuth() {
 		try {
 			let device: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
+			if (!device) {
+				this.setAuth(false);
+				return;
+			}
+
 			const response = await AuthService.updateRegistration(device);
 			if (!response.data) {
 				this.setError(true);
 				this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.');
 				this.setAuth(false);
-				localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-				localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+				// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+				// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 				return;
 			}
 			if (response.data.error) {
 				this.setError(true);
 				this.setMessageError(response.data.error.message);
 				this.setAuth(false);
-				localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-				localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+				// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+				// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 				return;
 			}
 			localStorage.setItem('token', response.data.token);

@@ -4,14 +4,12 @@ import { IPost } from '../models/IPost.ts';
 import { GetCountNoReadMessagesDto } from '../models/GetCounNoReadMessages.dto.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
 import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
+import { SendedMessage } from '../models/SendedMessage.ts';
 import { components } from '../utils/api.ts';
 
 export type EndMessageDto = components['schemas']['EndMessageDto'];
-export type CreateMessageDto = components['schemas']['CreateMessageDto'];
-export type CreateLocationDto = components['schemas']['CreateLocationDto'];
-
 export default class MessagesService {
-	static async sendMessage(dto: CreateMessageDto): Promise<AxiosResponse<number>> {
+	static async sendMessage(dto: SendedMessage): Promise<AxiosResponse<number>> {
 		return $api.post<number>('/send-message', dto);
 	}
 

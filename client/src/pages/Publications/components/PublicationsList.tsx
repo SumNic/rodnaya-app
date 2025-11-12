@@ -1,13 +1,13 @@
 import Post from '../../../components/Post/Post.tsx';
 import { observer } from 'mobx-react-lite';
-import { IPost } from '../../../models/IPost.ts';
 import React from 'react';
 import { Spin } from 'antd';
 
 import styles from './PublicationsList.module.css';
+import { PublicationWithPartialUser } from '../Publications.tsx';
 
 interface Props {
-	publications: IPost[] | undefined;
+	publications: PublicationWithPartialUser[] | undefined;
 	isLoadPublications: boolean;
 	lastPublicationRef?: React.Ref<HTMLDivElement>;
 }
@@ -29,13 +29,21 @@ const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, l
 			)}
 			<div id="message__ajax">
 				{publications?.map((post, index, arr) => {
-					const postDate = new Date(post.createdAt);
-					const prevPostDate = index > 0 ? new Date(arr[index - 1].createdAt) : null;
+					const postDate = post.createdAt && new Date(post.createdAt);
+					const prevCreatedAt = arr[index - 1]?.createdAt;
+
+					const prevPostDate =
+						prevCreatedAt instanceof Date
+							? prevCreatedAt
+							: prevCreatedAt
+								? new Date(prevCreatedAt) // если это строка или число
+								: null;
+
 					const today = new Date();
 
 					// Проверяем, совпадает ли дата с сегодняшним днём
 					const isToday =
-						postDate.getDate() === today.getDate() &&
+						postDate?.getDate() === today.getDate() &&
 						postDate.getMonth() === today.getMonth() &&
 						postDate.getFullYear() === today.getFullYear();
 
@@ -45,9 +53,9 @@ const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, l
 							id={`${post.id}`}
 							ref={index === publications.length - 1 && lastPublicationRef ? lastPublicationRef : null}
 						>
-							{index === 0 || (prevPostDate && postDate.toDateString() !== prevPostDate.toDateString()) ? (
+							{index === 0 || (prevPostDate && postDate?.toDateString() !== prevPostDate.toDateString()) ? (
 								<div className="date__wrapper">
-									<p className="name__time">{isToday ? 'Сегодня' : postDate.toLocaleString('ru', options_day)}</p>
+									<p className="name__time">{isToday ? 'Сегодня' : postDate?.toLocaleString('ru', options_day)}</p>
 								</div>
 							) : null}
 

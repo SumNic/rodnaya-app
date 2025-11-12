@@ -1,9 +1,12 @@
-import { message, Button } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
-import React, { useRef, useState } from 'react';
-import { IFiles } from '../../models/IFiles';
-import UploadAntdFiles from '../UploadAntdFiles/UploadAntdFiles';
+import React, { useEffect, useRef, useState } from 'react';
+import { message, Modal } from 'antd';
 import { useStoreContext } from '../../contexts/StoreContext';
+import UploadAntdFiles from '../UploadAntdFiles/UploadAntdFiles';
+import { IFiles } from '../../models/IFiles';
+import TextArea from 'antd/es/input/TextArea';
+import AddVideoLink from '../AddVideoLink';
+
+const MAX_LENGTH = 500;
 
 interface SendPublicationProps {
 	handleCancel: () => void;
@@ -11,32 +14,49 @@ interface SendPublicationProps {
 
 const SendPublication: React.FC<SendPublicationProps> = ({ handleCancel }) => {
 	const [loading, setLoading] = useState<boolean>(false);
-
+	const [videoUrls, setVideoUrls] = useState<string[]>([]);
+	const [videoError, setVideoError] = useState<string | null>(null);
 	const { store } = useStoreContext();
-
 	const publicationTextRef = useRef<string>('');
+	const [error, setError] = useState(false);
+
+	useEffect(() => {
+		publicationTextRef.current = '';
+		setVideoUrls([]);
+		store.filesStore.resetFiles();
+	}, []);
 
 	const cancel = () => {
 		publicationTextRef.current = '';
+		setVideoUrls([]);
 		store.filesStore.resetFiles();
 		handleCancel();
 	};
 
 	const handleSubmit = async () => {
+		if (!publicationTextRef.current.trim()) {
+			setError(true);
+			return;
+		}
+
 		setLoading(true);
 
 		try {
-			const formData = new FormData();
-
-			formData.append('message', publicationTextRef.current);
-
-			const arrIdFiles = store.filesStore.files.map((file: IFiles) => file);
-			formData.append('files', JSON.stringify(arrIdFiles));
+			// файлы
+			const arrIdFiles = store.filesStore.files.map((file: IFiles) => ({
+				id: file.id,
+				fileName: file.fileName,
+				fileNameUuid: file.fileNameUuid,
+			}));
 
 			const dto = {
 				id_user: store.authStore.user.id,
 				secret: store.authStore.user.secret,
-				form: Object.fromEntries(formData.entries()),
+				form: {
+					message: publicationTextRef.current,
+					files: arrIdFiles,
+					video: videoUrls.length ? videoUrls : undefined, // видео может быть необязательным
+				},
 			};
 
 			const response = await store.publicationStore.addPublication(dto);
@@ -45,60 +65,82 @@ const SendPublication: React.FC<SendPublicationProps> = ({ handleCancel }) => {
 				message.error(response.error);
 				return;
 			}
-
-			message.success('Публикация успешно добавлена!');
 			cancel();
 		} catch (error) {
 			console.error('Ошибка в handleSubmit:', error);
 		} finally {
 			setLoading(false);
-			cancel();
 		}
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (publicationTextRef.current.trim().length > 0 && !e.shiftKey && e.key === 'Enter') {
-			if (e.key === 'Enter') {
-				e.preventDefault();
-				handleSubmit();
-			}
-		} else if (
-			publicationTextRef.current.trim() === '' &&
-			((!e.shiftKey && e.key === 'Enter') || (e.shiftKey && e.key === 'Enter'))
-		) {
 			e.preventDefault();
-			message.warning('Поле ввода не может быть пустым');
+			handleSubmit();
 		}
 	};
 
 	const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		publicationTextRef.current = e.target.value;
+		if (e.target.value.trim()) setError(false);
 	};
 
 	return (
-		<>
-			<TextArea
-				rows={4}
-				defaultValue={publicationTextRef.current}
-				onChange={handleTextChange}
-				placeholder="Введите сообщение"
-				disabled={loading}
-				onKeyDown={handleKeyDown}
-			/>
-			<div style={{ marginTop: 8, display: 'flex', justifyContent: 'end', position: 'relative' }}>
-				<div style={{ position: 'absolute', left: '0' }}>
-					<UploadAntdFiles />
+		<Modal
+			open={true}
+			okText={loading ? 'Отправка...' : 'Отправить'}
+			cancelText="Отмена"
+			onOk={handleSubmit}
+			onCancel={cancel}
+			width={600}
+		>
+			<h2 style={{ textAlign: 'center' }}>Новая публикация</h2>
+
+			<div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+				{/* Текстовое поле */}
+				<div style={{ marginBottom: 15, position: 'relative' }}>
+					<TextArea
+						rows={4}
+						defaultValue={publicationTextRef.current}
+						onChange={handleTextChange}
+						placeholder="Введите сообщение"
+						disabled={loading}
+						onKeyDown={handleKeyDown}
+						maxLength={MAX_LENGTH}
+						showCount
+					/>
+					{error && (
+						<div style={{ color: 'red', fontSize: 12, position: 'absolute', bottom: -20, left: 10 }}>
+							Поле обязательно
+						</div>
+					)}
 				</div>
-				<div style={{ textAlign: 'right' }}>
-					<Button onClick={cancel} style={{ marginRight: 8 }}>
-						Отменить
-					</Button>
-					<Button type="primary" onClick={handleSubmit} loading={loading}>
-						Добавить
-					</Button>
+
+				{/* Вставка ссылки на видео */}
+				<AddVideoLink
+					videoUrls={videoUrls}
+					setVideoUrls={setVideoUrls}
+					videoError={videoError}
+					setVideoError={setVideoError}
+					loading={loading}
+				/>
+
+				{/* Блок с файлами */}
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'flex-end',
+						flexWrap: 'wrap',
+						gap: 8,
+					}}
+				>
+					<div style={{ flex: '1 1 auto', minWidth: 0 }}>
+						<UploadAntdFiles />
+					</div>
 				</div>
 			</div>
-		</>
+		</Modal>
 	);
 };
 

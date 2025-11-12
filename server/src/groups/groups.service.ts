@@ -161,20 +161,22 @@ export class GroupsService {
     async addMessage(req: AuthenticatedRequest, dto: CreatePostToChatDto): Promise<NewPostToChat> {
         try {
             const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
-            console.log(user, 'user 654');
+
+            const { form } = dto;
+            const { message, files, video } = form;
 
             if (user) {
                 const messagesChat = await this.chatGroupRepository.create({
                     groupId: dto.groupId,
                     location: dto.location,
-                    message: dto.form.message,
+                    message,
+                    video,
                 });
-                console.log(messagesChat, 'messagesChat');
                 await user.$add('messagesChat', messagesChat);
-                const arrFileId = JSON.parse(dto.form.files);
-                arrFileId.map((file: any) => {
-                    messagesChat.$add('file', file.id);
-                });
+                files.length &&
+                    files.map((file) => {
+                        messagesChat.$add('file', file.id);
+                    });
 
                 // const DATA = {
                 //     v: this.configService.get<string>('VK_VERSION'),

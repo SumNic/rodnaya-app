@@ -14,9 +14,12 @@ import TextArea from 'antd/es/input/TextArea';
 interface SendMessageProps {
 	location: string;
 	groupId?: number | undefined;
+	videoUrls: string[];
+	setVideoUrls: React.Dispatch<React.SetStateAction<string[]>>;
+	setShowVideoInput: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SendMessage: React.FC<SendMessageProps> = ({ location, groupId }) => {
+const SendMessage: React.FC<SendMessageProps> = ({ location, groupId, videoUrls, setVideoUrls, setShowVideoInput }) => {
 	const [messageSent, setMessageSent] = useState<string>('');
 	const [isSendMessage, setIsSendMessage] = useState(false);
 
@@ -52,22 +55,38 @@ const SendMessage: React.FC<SendMessageProps> = ({ location, groupId }) => {
 		try {
 			e.preventDefault();
 
-			const form = e.currentTarget;
-			const formData = new FormData(form);
-
-			const arrIdFiles = store.filesStore.files.map((file: IFiles) => file);
-			formData.append('files', JSON.stringify(arrIdFiles));
-			const formJson = Object.fromEntries(formData.entries());
+			const arrIdFiles = store.filesStore.files.map((file: IFiles) => ({
+				id: file.id,
+				fileName: file.fileName,
+				fileNameUuid: file.fileNameUuid,
+			}));
 
 			const resp_id = groupId
-				? await sendPostToChat({ groupId, location, form: formJson })
-				: await sendMessage({ location, form: formJson });
+				? await sendPostToChat({
+						groupId,
+						location,
+						form: {
+							message: messageSent.trim(),
+							files: arrIdFiles,
+							video: videoUrls.length ? videoUrls : undefined, // видео может быть необязательным
+						},
+					})
+				: await sendMessage({
+						location,
+						form: {
+							message: messageSent.trim(),
+							files: arrIdFiles,
+							video: videoUrls.length ? videoUrls : undefined, // видео может быть необязательным
+						},
+					});
 			if (resp_id.error) {
 				return message.error(resp_id.error);
 			}
 
 			setMessageSent('');
 			store.filesStore.resetFiles();
+			setVideoUrls([]);
+			setShowVideoInput(false);
 			setIsSendMessage(false);
 		} catch (err) {
 			setIsSendMessage(false);

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsString, ValidateNested } from 'class-validator';
 import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 
 export class EndMessageDto {
@@ -17,12 +18,8 @@ export class EndMessageDto {
     @IsString({ message: 'Должно быть строкой' })
     secret: string;
 
+    @ApiProperty({ type: CreateLocationDto })
+    @ValidateNested()
+    @Type(() => CreateLocationDto)
     residency: CreateLocationDto;
-
-    // @ApiProperty({
-    //     example: 'Место жительства',
-    //     description: 'Страна, регион, или район',
-    // })
-    // @IsString({ message: 'Должно быть строкой' })
-    // location: string;
 }

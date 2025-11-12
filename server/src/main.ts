@@ -27,7 +27,10 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('/api/docs', app, document);
 
-    app.useGlobalPipes(new ValidationPipe());
+    const fs = require('fs');
+    fs.writeFileSync('./swagger.json', JSON.stringify(document));
+
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
     await app.listen(configService.get('PORT'), () => console.log(`Server started on port = ${configService.get('PORT')}`));
 }

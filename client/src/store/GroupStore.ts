@@ -1,11 +1,10 @@
 import { makeAutoObservable } from 'mobx';
 import { CreateGroupDto } from '../models/CreateGroupDto';
-import GroupsService from '../services/GroupsService';
+import GroupsService, { CreatePostToChatDto } from '../services/GroupsService';
 import { IGroup } from '../models/response/IGroup';
 import { CountNoReadPostsGroups } from '../models/CountNoReadPostsGroups';
 import { EndReadPostsGroupsId } from '../models/EndReadPostsGroupsId';
 import { Source } from '../utils/types';
-import { PostToChat } from '../models/PostToChat';
 
 export default class GroupStore {
 	isModalNewGroupOpen: boolean = false;
@@ -132,7 +131,7 @@ export default class GroupStore {
 		}
 	}
 
-	async sendPostToChat(dto: PostToChat) {
+	async sendPostToChat(dto: CreatePostToChatDto) {
 		try {
 			const response = await GroupsService.sendPost(dto);
 			return { data: response.data };

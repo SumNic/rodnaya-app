@@ -163,7 +163,7 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 			<div id="message__ajax" ref={messagesRef}>
 				{postsFromLocation?.map((post, index, arr) => (
 					<div
-						className="posts"
+						className={styles.posts}
 						key={post.id}
 						post-id={`${post.id}`}
 						ref={index === postsFromLocation.length - 1 && lastMessageRef ? lastMessageRef : null}

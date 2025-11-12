@@ -30,6 +30,10 @@ const MessagePage: React.FC = () => {
 		}
 	}, [store.authStore.isAuth]);
 
+	useEffect(() => {
+		store.filesStore.resetFiles();
+	}, [location]);
+
 	const nameLocal = useMemo(() => {
 		if (!store.authStore.isAuth) return;
 		let name = '';

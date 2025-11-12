@@ -1,20 +1,26 @@
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
 import { IPost } from '../models/IPost.ts';
-import { SendedMessage } from '../models/SendedMessage.ts';
 import { LocationUser } from '../models/LocationUser.ts';
 import { toJS } from 'mobx';
 
+import type { components } from '../utils/api.ts'; // путь к сгенерированным типам
+
+export type Publication = components['schemas']['Publications'];
+export type User = components['schemas']['User'];
+export type CreatePublicationDto = components['schemas']['CreatePublicationDto'];
+
 export default class PublicationsService {
-	static async sendPublication(dto: SendedMessage): Promise<AxiosResponse<number>> {
+	static async sendPublication(dto: CreatePublicationDto): Promise<AxiosResponse<number>> {
 		return $api.post<number>('/send-publication', dto);
 	}
 
-	static async getAllPublications(territory: LocationUser, pageNumber: number): Promise<AxiosResponse<IPost[]>> {
+	static async getAllPublications(territory: LocationUser, pageNumber: number): Promise<AxiosResponse<Publication[]>> {
 		const territorySerial = toJS(territory);
-		return $api.get<IPost[]>('/get-all-publications', {
+		const res = $api.get<Publication[]>('/get-all-publications', {
 			params: { ...territorySerial, pageNumber },
 		});
+		return res;
 	}
 
 	static async getPublicationFromId(id: number): Promise<AxiosResponse<IPost>> {

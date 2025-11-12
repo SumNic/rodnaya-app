@@ -5,7 +5,9 @@ import { IGroup } from '../models/response/IGroup.ts';
 import { CountNoReadPostsGroups } from '../models/CountNoReadPostsGroups.ts';
 import { EndReadPostsGroupsId } from '../models/EndReadPostsGroupsId.ts';
 import { IPost } from '../models/IPost.ts';
-import { PostToChat } from '../models/PostToChat.ts';
+import { components } from '../utils/api.ts';
+
+export type CreatePostToChatDto = components['schemas']['CreatePostToChatDto'];
 
 export default class GroupsService {
 	static async createGroup(dto: CreateGroupDto): Promise<AxiosResponse<IGroup>> {
@@ -46,7 +48,7 @@ export default class GroupsService {
 		});
 	}
 
-	static async sendPost(dto: PostToChat): Promise<AxiosResponse<number>> {
+	static async sendPost(dto: CreatePostToChatDto): Promise<AxiosResponse<number>> {
 		return $api.post<number>('/send-post-to-chat', dto);
 	}
 

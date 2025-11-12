@@ -4,6 +4,7 @@ export interface IPost {
 	id: number;
 	groupId?: number;
 	message: string;
+	video?: string[];
 	location: string;
 	blocked: boolean;
 	userId: number;

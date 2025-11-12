@@ -48,11 +48,8 @@ export class FilesController {
 
     @Get('file/:filename')
     getFile(@Param('filename') filename: string, @Res() res: Response) {
-        console.log(filename, 'filename');
         const filePath = path.resolve(__dirname, '..', '..', 'static', filename);
-        console.log(filePath, 'filePath');
         if (fs.existsSync(filePath)) {
-            console.log(res.sendFile(filePath), 'res.sendFile(filePath)');
             return res.sendFile(filePath);
         } else {
             return res.status(404).send('File not found');

@@ -8,6 +8,7 @@ export interface PublicationWebsocketResponse {
 	form: {
 		message: string;
 		files: any;
+		video?: string[];
 	};
 	id_publication: number;
 	resydency: {

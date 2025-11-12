@@ -1,21 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import MessagesList from './MessagesList';
 import { IPosts } from '../../../models/IPosts';
-import { ArrowDownOutlined } from '@ant-design/icons';
-import { FloatButton } from 'antd';
+import { ArrowDownOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { Button, Dropdown, FloatButton, MenuProps } from 'antd';
 import SendMessage from '../../../components/SendMessage/SendMessage';
-import UploadFiles from '../../../components/UploadFiles';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import { IPost } from '../../../models/IPost';
 import MessagesService from '../../../services/MessagesService';
 import UserService from '../../../services/UserService';
 import { CHAT, COUNT_RESPONSE_POSTS, MESSAGES } from '../../../utils/consts';
-import icon_attach from '../../../images/clippy-icon1.png';
 
 import styles from '../MessagesPage.module.css';
 import { IGroup } from '../../../models/response/IGroup';
 import GroupsService from '../../../services/GroupsService';
+import UploadAntdFiles from '../../../components/UploadAntdFiles/UploadAntdFiles';
+import AddVideoLink from '../../../components/AddVideoLink';
 
 const initialPosts: IPosts = {
 	locality: [],
@@ -85,8 +85,15 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	const [isLastMessageLoad, setIsLastMessageLoad] = useState(false);
 	const [isLastMessage, setIsLastMessage] = useState<Record<string, boolean>>({});
 
+	const [showVideoInput, setShowVideoInput] = useState(false);
+	const [menuVisible, setMenuVisible] = useState(false);
+	const [width, setWidth] = useState<number>();
+	const [videoUrls, setVideoUrls] = useState<string[]>([]);
+	const [videoError, setVideoError] = useState<string | null>(null);
+
 	const lastMessageRef = useRef<HTMLDivElement | null>(null);
 	const messagesRef = useRef<HTMLDivElement | null>(null);
+	const widthRef = useRef<HTMLDivElement | null>(null);
 
 	const { store } = useStoreContext();
 
@@ -103,7 +110,14 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 		messagesContainerRef,
 	} = useMessageContext();
 
+	const uploadRef = useRef<any>(null);
+
 	let locationKey: keyof IPosts = location as keyof IPosts;
+
+	useEffect(() => {
+		setVideoUrls([]);
+		setVideoError(null);
+	}, [locationKey]);
 
 	const nameLocal = useMemo(() => {
 		let name = '';
@@ -125,6 +139,22 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	}, [location]);
 
 	useEffect(() => {
+		if (widthRef.current) {
+			setWidth(widthRef.current.offsetWidth);
+		}
+
+		// обновляем при изменении размера окна
+		const handleResize = () => {
+			if (widthRef.current) {
+				setWidth(widthRef.current.offsetWidth);
+			}
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
+	useEffect(() => {
 		const savedScrollTop = localStorage.getItem(`scrollTop-${source}-${locationKey}`);
 		if (savedScrollTop && messagesContainerRef.current) {
 			messagesContainerRef.current.scrollTop = parseInt(savedScrollTop, 10);
@@ -137,11 +167,12 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 
 	useEffect(() => {
 		if (messageDataSocket && location) {
-			const arrFileId = JSON.parse(messageDataSocket.form.files);
+			const arrFileId = messageDataSocket.form.files;
 			const newPost: IPost = {
 				id: messageDataSocket.id_message,
 				groupId: messageDataSocket.group_id || -1,
 				message: messageDataSocket.form.message,
+				video: messageDataSocket.form.video || [],
 				location: messageDataSocket.resydency,
 				blocked: false,
 				userId: messageDataSocket.id_user,
@@ -508,6 +539,31 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 		}
 	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
 
+	const handleClick = () => {
+		const input = uploadRef.current?.upload?.uploader?.fileInput;
+		if (input) input.click();
+	};
+
+	const menuItems: MenuProps['items'] = [
+		{
+			key: 'uploadFile',
+			label: <span onClick={handleClick}>Добавить файл</span>,
+		},
+		{
+			key: 'addVideo',
+			label: 'Добавить видео',
+		},
+	];
+
+	const handleMenuClick = ({ key }: { key: string }) => {
+		if (key === 'uploadFile') {
+			if (!videoUrls.length) setShowVideoInput(false);
+		} else if (key === 'addVideo') {
+			setShowVideoInput(true);
+		}
+		setMenuVisible(false);
+	};
+
 	return (
 		<>
 			{location && (
@@ -527,7 +583,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					onClick={scrollToLastMessage}
 				/>
 			)}
-			<div id={styles.messages}>
+			<div id={styles.messages} ref={widthRef}>
 				{timeRemaining !== null ? (
 					<div className={styles['blocked_text']}>
 						<p>Вы заблокированы за нарушение правил.</p>
@@ -535,18 +591,45 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					</div>
 				) : (
 					<>
-						{/*TODO переделать отправку файлов на antd */}
-						<UploadFiles />
+						{showVideoInput && (
+							<div style={{ width: '100%', padding: '8px 15px' }}>
+								<AddVideoLink
+									videoUrls={videoUrls}
+									setVideoUrls={setVideoUrls}
+									videoError={videoError}
+									setVideoError={setVideoError}
+								/>
+							</div>
+						)}
+
+						<div style={{ paddingLeft: '10px' }}>
+							<UploadAntdFiles isHiddenButton={true} uploadRef={uploadRef} width={width} />
+						</div>
 						<div id="forms">
 							<div className="clip">
 								<div className="label-clip">
 									<label htmlFor="fileToUpload">
-										<img className="clippy-icon" src={icon_attach} alt="Прикрепить" />
+										<Dropdown
+											menu={{ items: menuItems, onClick: handleMenuClick }}
+											trigger={['click']}
+											open={menuVisible}
+											onOpenChange={(flag) => setMenuVisible(flag)}
+										>
+											<Button type="text" icon={<PaperClipOutlined style={{ color: '#b1b3b1', fontSize: '35px' }} />} />
+										</Dropdown>
 									</label>
 								</div>
 							</div>
 
-							{location && <SendMessage location={location} groupId={group?.id} />}
+							{location && (
+								<SendMessage
+									location={location}
+									groupId={group?.id}
+									videoUrls={videoUrls}
+									setVideoUrls={setVideoUrls}
+									setShowVideoInput={setShowVideoInput}
+								/>
+							)}
 						</div>
 					</>
 				)}
