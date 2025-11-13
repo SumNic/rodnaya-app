@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import MessagesList from './MessagesList';
-// import { IPosts } from '../../../models/IPostsGroup';
 import { ArrowDownOutlined, PaperClipOutlined } from '@ant-design/icons';
 import { Button, Dropdown, FloatButton, MenuProps } from 'antd';
 import SendMessage from '../../../components/SendMessage/SendMessage';
@@ -12,7 +11,6 @@ import UserService from '../../../services/UserService';
 import { CHAT, COUNT_RESPONSE_POSTS, MESSAGES } from '../../../utils/consts';
 
 import styles from '../MessagesPage.module.css';
-// import { IGroup } from '../../../models/response/IGroup';
 import GroupsService, { Group } from '../../../services/GroupsService';
 import UploadAntdFiles from '../../../components/UploadAntdFiles/UploadAntdFiles';
 import AddVideoLink from '../../../components/AddVideoLink';
@@ -312,7 +310,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 			if (response.status === 200 && response.data) {
 				const blockingEndTimeString = response.data;
 
-				var options: {} = {
+				const options: {} = {
 					year: 'numeric',
 					month: 'long',
 					day: 'numeric',
@@ -402,7 +400,6 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 				store.authStore.user.secret,
 				location
 			);
-			console.log(allMessages, 'allMessages');
 
 			if (allMessages.data && allMessages.data.length > 0) {
 				if (posts[locationKey].includes(allMessages.data[0])) return;
@@ -567,6 +564,13 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 		setMenuVisible(false);
 	};
 
+	const deletePost = (id: number, location: string) => {
+		setPosts((prev) => ({
+			...prev,
+			[location as keyof IMessages]: prev[location as keyof IMessages].filter((post) => post.id !== id),
+		}));
+	};
+
 	return (
 		<>
 			{location && (
@@ -576,6 +580,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					messagesRef={messagesRef}
 					lastMessageRef={lastMessageRef}
 					groupId={group?.id}
+					deletePost={deletePost}
 				/>
 			)}
 			{!isScrollEnd[locationKey] && (

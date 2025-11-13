@@ -45,7 +45,7 @@ import { GroupsController } from './groups/groups.controller';
 import { GroupsService } from './groups/groups.service';
 import { GroupsModule } from './groups/groups.module';
 import { Group } from 'src/common/models/groups/groups.model';
-import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { UserGroups } from 'src/common/models/users/user-groups.model';
 import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
@@ -98,7 +98,7 @@ import { TelegramModule } from './telegram/telegram.module';
                     UserRoles,
                     Files,
                     Group,
-                    ChatGroup,
+                    GroupMessage,
                     LastReadPostChat,
                     UserGroups,
                     GroupAdmins,

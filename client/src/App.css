@@ -1038,6 +1038,8 @@ body {
 .mes_foto {
 	float: left;
 	overflow: auto;
+	object-fit: cover;
+	object-position: center;
 }
 
 .foul_select {

@@ -255,3 +255,9 @@
 	color: rgb(124, 120, 120);
 	align-self: baseline;
 }
+
+.editContainer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}

@@ -13,7 +13,7 @@ import { Group } from 'src/common/models/groups/groups.model';
 import { UserGroups } from 'src/common/models/users/user-groups.model';
 import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
-import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { ApiProperty } from '@nestjs/swagger';
 
 interface UserCreationAttrs {
@@ -134,9 +134,9 @@ export class User extends Model<User, UserCreationAttrs> {
     @HasMany(() => Publications)
     publications: Publications[];
 
-    @ApiProperty({ type: () => [ChatGroup] })
-    @HasMany(() => ChatGroup)
-    messagesChat: ChatGroup[];
+    @ApiProperty({ type: () => [GroupMessage] })
+    @HasMany(() => GroupMessage)
+    messagesChat: GroupMessage[];
 
     @ApiProperty({ type: () => [Group] })
     @BelongsToMany(() => Group, {
@@ -151,4 +151,10 @@ export class User extends Model<User, UserCreationAttrs> {
         as: 'adminGroups', // Алиас для связи
     })
     adminGroups: Group[];
+
+    @ApiProperty({ type: Date })
+    readonly createdAt!: Date;
+
+    @ApiProperty({ type: Date })
+    readonly updatedAt!: Date;
 }

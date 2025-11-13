@@ -1,10 +1,15 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Roles } from 'src/auth/guards/roles-auth.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
 import { CreatePublicationDto } from 'src/common/dtos/create-publication.dto';
+import { DeletePublicationDto } from 'src/common/dtos/delete-publication.dto';
 import { GetPublicationsDto } from 'src/common/dtos/get-publications.dto';
+import { UpdatePublicationDto } from 'src/common/dtos/update-publication.dto';
 import { Publications } from 'src/common/models/publications/publications.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
 import { PublicationsGateway } from 'src/publications/publications.gateway';
@@ -31,7 +36,7 @@ export class PublicationsController {
     })
     @UseGuards(JwtAuthGuard)
     async addPublication(@Req() req: AuthenticatedRequest, @Body() dto: CreatePublicationDto) {
-        const response = await this.publicationsService.addPublication(req, dto);
+        const response = await this.publicationsService.addMessage(req, dto);
         if (response) {
             this.publicationsGateway.sendPublicationWebSocket('new_publication', {
                 ...dto,
@@ -44,6 +49,27 @@ export class PublicationsController {
                 createdAt: response.message.createdAt,
             });
         }
+    }
+
+    @ApiOperation({ summary: 'Редактирование своего сообщения (или админом)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Сообщение обновлено' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @Patch('/edit-publication')
+    async editMessage(@Req() req: AuthenticatedRequest, @Body() dto: UpdatePublicationDto) {
+        return this.publicationsService.editMessage(req.user, dto);
+    }
+
+    @ApiOperation({ summary: 'Удаление своего сообщения (или админом)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Сообщение удалено' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @Delete('/delete-publication')
+    async deleteMessage(@Req() req: AuthenticatedRequest, @Body() dto: DeletePublicationDto) {
+        console.log(dto, 'dto 666');
+        return this.publicationsService.deleteMessage(req.user, dto);
     }
 
     @ApiOperation({

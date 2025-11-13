@@ -4,36 +4,40 @@ import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import { IUser } from '../../models/IUser';
-import UserService from '../../services/UserService';
 import { useThemeContext } from '../../contexts/ThemeContext';
-import { EnvironmentOutlined, MessageOutlined, ReadOutlined, SolutionOutlined } from '@ant-design/icons/lib/icons';
+import {
+	EditOutlined,
+	EnvironmentOutlined,
+	MessageOutlined,
+	ReadOutlined,
+	SolutionOutlined,
+} from '@ant-design/icons/lib/icons';
 import styles from './PersonalePage.module.css';
 import { Button, Typography } from 'antd';
 import { VkIcon } from '../../UI/icons/VkIcon';
 import { useStoreContext } from '../../contexts/StoreContext';
-// import { IPost } from '../../models/IPost';
 import PublicationsList from '../Publications/components/PublicationsList';
 import { EditIcon } from '../../UI/icons/EditIcon';
 import Declaration from '../../components/Declaration';
 import EditProfile from '../../components/EditProfile';
 import OnChangeForm from '../../components/OnChangeForm';
 import PersonaleData from '../../components/PersonaleData';
-import UploadAvatar from '../../components/UploadAvatar';
-import { PERSONALE_ROUTE } from '../../utils/consts';
+import { API_URL, PERSONALE_ROUTE } from '../../utils/consts';
 import { PublicationWithPartialUser } from '../Publications/Publications';
 import { Publication } from '../../services/PublicationsService';
+import UploadAntdFiles from '../../components/UploadAntdFiles/UploadAntdFiles';
+import { parseIsUrlProtocol } from '../../utils/function';
 
 const { Title } = Typography;
 
 const PersonalePage: React.FC = () => {
-	const [user, setuser] = useState<IUser>();
 	const [isDeclarationVisible, setIsDeclarationVisible] = useState(true);
 	const [isLoadPublications, setIsLoadPublications] = useState(false);
 	const [isPublicationsVisible, setIsPublicationsVisible] = useState(false);
 	const [publications, setPublications] = useState<PublicationWithPartialUser[]>([]);
 	const [page, setPage] = useState(1);
 	const [isOwnerPage, setIsOwnerPage] = useState(false);
+	const [isChangeAvatar, setIsChangeAvatar] = useState(false);
 
 	const { id } = useParams();
 
@@ -41,8 +45,11 @@ const PersonalePage: React.FC = () => {
 
 	const { store } = useStoreContext();
 	const { getUserPublications } = store.publicationStore;
+	const { files, resetFiles } = store.filesStore;
+	const { user, updatePersonaleData } = store.authStore;
 
 	const lastPublicationRef = useRef<HTMLDivElement | null>(null);
+	const uploadRef = useRef<any>(null);
 
 	useEffect(() => {
 		if (!lastPublicationRef.current) return;
@@ -59,23 +66,13 @@ const PersonalePage: React.FC = () => {
 	}, [publications]);
 
 	useEffect(() => {
-		getuser();
-	}, [id, store.authStore.user]);
-
-	useEffect(() => {
 		if (store.authStore.user?.id && user?.id && store.authStore.user?.id === user?.id) setIsOwnerPage(true);
 	}, [id, user]);
 
-	const getuser = async () => {
-		try {
-			if (id) {
-				const user = await UserService.getUser(+id);
-				if (user.data) setuser(user.data);
-			}
-		} catch (error) {
-			console.log(`Ошибка в getuser? Personale_kard: ${error}`);
-		}
-	};
+	// Очистка файлов во время загрузки, чтобы сменить аватар, например
+	useEffect(() => {
+		resetFiles();
+	}, [store.filesStore, resetFiles]);
 
 	const handlePublicationsButtonClick = async () => {
 		setPublications([]);
@@ -117,6 +114,18 @@ const PersonalePage: React.FC = () => {
 		window.open(`https://vk.ru/id${user?.vk_id}`, '_blank');
 	};
 
+	useEffect(() => {
+		if (isChangeAvatar && files.length) {
+			updatePersonaleData({ id: user.id, photo_50: files[0].fileNameUuid, photo_max: files[0].fileNameUuid });
+		}
+	}, [isChangeAvatar, files.length]);
+
+	const handleClick = () => {
+		setIsChangeAvatar(true);
+		const input = uploadRef.current?.upload?.uploader?.fileInput;
+		if (input) input.click();
+	};
+
 	const personaleData = (
 		<>
 			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -130,7 +139,13 @@ const PersonalePage: React.FC = () => {
 				)}
 			</div>
 			<div className={styles.wrapper}>
-				<img className={styles.photo} src={user?.photo_max} alt="Ваше фото"></img>
+				<img
+					className={styles.photo}
+					src={
+						user.photo_max && parseIsUrlProtocol(user.photo_max) ? user.photo_max : `${API_URL}/file/${user.photo_max}`
+					}
+					alt="Ваше фото"
+				></img>
 				<div className={styles.personale_wrapper} style={{ paddingBottom: 0 }}>
 					<p className={styles.p_style}>
 						{user?.first_name} {user?.last_name}
@@ -213,29 +228,28 @@ const PersonalePage: React.FC = () => {
 			<div className="middle">
 				<div className="middle__wrapper">
 					{currentWidth && currentWidth >= 830 && <NavMiddle item={PERSONALE_ROUTE} />}
-					<div className="main__screen main__screen_home">
-						<div id="list_founders" style={{ paddingBottom: '20px' }}>
+					<div className={`main__screen main__screen_home ${styles.wrapper}`}>
+						<div id={'list_founders'} style={{ paddingBottom: '20px' }}>
 							{!store.authStore.isEditProfile && personaleData}
 							{store.authStore.isEditProfile && (
 								<>
 									<Title level={2} style={{ textAlign: 'center', fontSize: '20px' }}>
 										Учредитель:
 									</Title>
-									<div className={styles.avatarWrapper}>
-										<UploadAvatar />
-										<img className={styles.edit_photo} src={user?.photo_max} alt="Ваше фото" />
-										<label
-											htmlFor="avatarToUpload"
-											style={{
-												fontSize: '18px',
-											}}
-										>
-											<div style={{ display: 'flex', flexWrap: 'wrap' }}>
-												<p className={styles.text}>Изображение должно быть квадратным.</p>
-												<p className={styles.text}>Сменить изображение?</p>
-												<EditIcon width="20px" fill={currentColorScheme.dragEndDropCollapse} />
-											</div>
-										</label>
+									<UploadAntdFiles isHiddenButton={true} uploadRef={uploadRef} isShowFileList={false} />
+									<div className={styles.avatarWrapper} onClick={handleClick}>
+										<img
+											className={styles.edit_photo}
+											src={
+												user.photo_max && parseIsUrlProtocol(user.photo_max)
+													? user.photo_max
+													: `${API_URL}/file/${user.photo_max}`
+											}
+											alt="Ваше фото"
+										/>
+										<div className={styles.overlay}>
+											<EditOutlined className={styles.edit_icon} />
+										</div>
 									</div>
 								</>
 							)}

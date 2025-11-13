@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
+import { Roles } from 'src/auth/guards/roles-auth.decorator';
 import { ROLES } from 'src/common/constants/roles';
 import { AddRoleDto } from 'src/common/dtos/add-role.dto';
 import { BlockedUserDto } from 'src/common/dtos/blocked-user.dto';
@@ -8,17 +9,18 @@ import { CreateDeclarationDto } from 'src/common/dtos/create-declaration.dto';
 import { CreateResidencyDto } from 'src/common/dtos/create-residency.dto';
 import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { GetDeclarationDto } from 'src/common/dtos/get-declaration.dto';
-import { UpdatePersonaleDto } from 'src/common/dtos/update-personale.dto';
 import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { Role } from 'src/common/models/users/role.model';
 import { Token } from 'src/common/models/users/tokens.model';
 import { User } from 'src/common/models/users/user.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
 import { DeclarationService } from 'src/declaration/declaration.service';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
 import { FilesService } from 'src/files/files.service';
 import { ResidencyService } from 'src/residency/residency.service';
 import { RolesService } from 'src/roles/roles.service';
+import { UpdateUserDto } from 'src/users/users.controller';
 
 @Injectable()
 export class UsersService {
@@ -240,30 +242,6 @@ export class UsersService {
         }
     }
 
-    async updatePersonale(dto: UpdatePersonaleDto): Promise<User> {
-        try {
-            const personale = await this.usersRepository.findOne({
-                where: {
-                    id: dto.user_id,
-                },
-            });
-            const updateData = {};
-            if (dto.first_name) {
-                updateData['first_name'] = dto.first_name;
-            }
-            if (dto.last_name) {
-                updateData['last_name'] = dto.last_name;
-            }
-            if (dto.tg_id) {
-                updateData['tg_id'] = dto.tg_id;
-            }
-            await personale.update(updateData);
-            return personale;
-        } catch (err) {
-            throw new HttpException(`Ошибка в updatePersonale: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     async blockedUser(dto: BlockedUserDto): Promise<string> {
         try {
             const user = await this.getUser(dto.userId);
@@ -434,19 +412,19 @@ export class UsersService {
         }
     }
 
-    async udatePersonaleData(secret: string, form: UpdatePersonaleDto): Promise<User> {
-        try {
-            const user = await this.getUserCleer(form.user_id);
+    async updatePersonaleData(user: AuthenticatedRequest['user'], dto: UpdateUserDto): Promise<User> {
+        const updatingUser = await this.getUserCleer(dto.id);
 
-            if (secret !== user.secret) {
-                throw new HttpException('Нет доступа', HttpStatus.FORBIDDEN);
+        if (!updatingUser) {
+            throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+        }
+        try {
+            const isAdmin = user.roles?.includes(ROLES.ADMIN);
+            if (updatingUser.id !== user.id && !isAdmin) {
+                throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
             }
 
-            const personale = await this.updatePersonale(form);
-
-            const userFromPersonale = await this.getUserCleer(form.user_id);
-
-            return userFromPersonale;
+            return await updatingUser.update(dto);
         } catch (err) {
             throw new HttpException(`Ошибка в udatePersonaleData: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -25,7 +25,7 @@ export class FilesController {
     })
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<Files | Error> {
+    async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<Files> {
         if (file.size > 20000000) throw new HttpException('Размер файла должен быть не более 20мб', HttpStatus.BAD_REQUEST);
         const arrTypeFile = [
             'image/jpg',

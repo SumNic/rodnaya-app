@@ -9,6 +9,8 @@ import type { components } from '../utils/api.ts'; // путь к сгенери
 export type Publication = components['schemas']['Publications'];
 export type User = components['schemas']['User'];
 export type CreatePublicationDto = components['schemas']['CreatePublicationDto'];
+export type UpdatePublicationDto = components['schemas']['UpdatePublicationDto'];
+export type DeletePublicationDto = components['schemas']['DeletePublicationDto'];
 
 export default class PublicationsService {
 	static async sendPublication(dto: CreatePublicationDto): Promise<AxiosResponse<number>> {
@@ -38,5 +40,13 @@ export default class PublicationsService {
 		return $api.get<Publication[]>('/get-user-publications', {
 			params: { id, pageNumber },
 		});
+	}
+
+	static async editMessage(dto: UpdatePublicationDto): Promise<AxiosResponse<string>> {
+		return $api.patch<string>('/edit-publication', dto);
+	}
+
+	static async deleteMessage(dto: DeletePublicationDto): Promise<AxiosResponse<string>> {
+		return $api.delete<string>('/delete-publication', { data: dto });
 	}
 }

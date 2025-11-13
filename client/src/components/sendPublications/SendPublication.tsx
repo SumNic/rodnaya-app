@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { message, Modal } from 'antd';
 import { useStoreContext } from '../../contexts/StoreContext';
 import UploadAntdFiles from '../UploadAntdFiles/UploadAntdFiles';
-import { IFiles } from '../../models/IFiles';
 import TextArea from 'antd/es/input/TextArea';
 import AddVideoLink from '../AddVideoLink';
+import { Files } from '../../hooks/useUploadForm';
+import { CreatePublicationDto } from '../../services/PublicationsService';
 
 const MAX_LENGTH = 500;
 
@@ -24,7 +25,7 @@ const SendPublication: React.FC<SendPublicationProps> = ({ handleCancel }) => {
 		publicationTextRef.current = '';
 		setVideoUrls([]);
 		store.filesStore.resetFiles();
-	}, []);
+	}, [store.filesStore]);
 
 	const cancel = () => {
 		publicationTextRef.current = '';
@@ -43,13 +44,16 @@ const SendPublication: React.FC<SendPublicationProps> = ({ handleCancel }) => {
 
 		try {
 			// файлы
-			const arrIdFiles = store.filesStore.files.map((file: IFiles) => ({
-				id: file.id,
-				fileName: file.fileName,
-				fileNameUuid: file.fileNameUuid,
-			}));
+			const arrIdFiles = store.filesStore.files.map(
+				(file) =>
+					({
+						id: file.id,
+						fileName: file.fileName,
+						fileNameUuid: file.fileNameUuid,
+					}) as Files
+			);
 
-			const dto = {
+			const dto: CreatePublicationDto = {
 				id_user: store.authStore.user.id,
 				secret: store.authStore.user.secret,
 				form: {

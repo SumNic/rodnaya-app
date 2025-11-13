@@ -3,7 +3,7 @@ import { User } from '../services/PublicationsService';
 
 export type MessageWithPartialUser = Omit<Message, 'user'> & {
 	user: Partial<User>;
-} & { createdAt?: Date };
+} & { createdAt?: string };
 
 export interface IMessages {
 	locality: MessageWithPartialUser[];

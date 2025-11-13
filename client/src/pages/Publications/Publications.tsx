@@ -24,7 +24,7 @@ export type PublicationWithPartialUser = Omit<Publication, 'user'> & {
 	user: Partial<User>;
 } & {
 	location: string;
-} & { createdAt?: Date };
+} & { createdAt?: string };
 const Publications: React.FC<PublicationsProps> = () => {
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [isFilter, setIsFilter] = useState(false);
@@ -127,11 +127,16 @@ const Publications: React.FC<PublicationsProps> = () => {
 				photo_50: publictionDataSocket.photo_50,
 			},
 			createdAt: publictionDataSocket.createdAt,
+			updatedAt: '',
 		};
 
 		setPublications((prev) => [newPost, ...prev]);
 		setPublicationDataSocket(undefined);
 	}, [publictionDataSocket, territory, setPublicationDataSocket]);
+
+	const deletePublication = (id: number) => {
+		setPublications((prev) => prev.filter((pub) => pub.id !== id));
+	};
 
 	return (
 		<div>
@@ -174,6 +179,7 @@ const Publications: React.FC<PublicationsProps> = () => {
 								publications={publications}
 								lastPublicationRef={lastPublicationRef}
 								isLoadPublications={isLoadPublications}
+								deletePublication={deletePublication}
 							/>
 						</div>
 

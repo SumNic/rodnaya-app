@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles-auth.decorator';
@@ -6,9 +6,11 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
+import { DeleteMessageDto } from 'src/common/dtos/delete-message.dto';
 import { EndMessageDto } from 'src/common/dtos/end-message.dto';
 import { EndReadMessageDto } from 'src/common/dtos/end-read-message.dto';
 import { GetMessagesDto } from 'src/common/dtos/get-messages.dto';
+import { UpdateMessageDto } from 'src/common/dtos/update-message.dto';
 import { Messages } from 'src/common/models/messages/messages.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
 import { MessagesGateway } from 'src/messages/messages.gateway';
@@ -37,8 +39,6 @@ export class MessagesController {
     async addMessage(@Req() req: AuthenticatedRequest, @Body() dto: CreateMessageDto) {
         const response = await this.messagesService.addMessage(req, dto);
         if (response) {
-            console.log(response, 'response 123');
-
             this.messagesGateway.sendMessageWebSocket('new_message', {
                 ...dto,
                 id_user: req.user.id,
@@ -166,6 +166,26 @@ export class MessagesController {
     @UseGuards(JwtAuthGuard)
     async getMessageFromId(@Query() query: { id_message: number }) {
         return await this.messagesService.getMessageFromId(query.id_message);
+    }
+
+    @ApiOperation({ summary: 'Редактирование своего сообщения (или админом)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Сообщение обновлено' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @Patch('/edit-message')
+    async editMessage(@Req() req: AuthenticatedRequest, @Body() dto: UpdateMessageDto) {
+        return this.messagesService.editMessage(req.user, dto);
+    }
+
+    @ApiOperation({ summary: 'Удаление своего сообщения (или админом)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Сообщение удалено' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @Delete('/delete-message')
+    async deleteMessage(@Req() req: AuthenticatedRequest, @Body() dto: DeleteMessageDto) {
+        return this.messagesService.deleteMessage(req.user, dto);
     }
 
     @ApiOperation({ summary: 'Блокировка сообщений' })

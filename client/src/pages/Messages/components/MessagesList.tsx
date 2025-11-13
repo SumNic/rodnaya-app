@@ -4,12 +4,9 @@ import { useMessageContext } from '../../../contexts/MessageContext.ts';
 import { Spin } from 'antd';
 import styles from './MessagesList.module.css';
 import { observer } from 'mobx-react-lite';
-// import { IPosts } from '../../../models/IPostsGroup.ts';
 import { Page } from './Messages.tsx';
 import PostForMessage from '../../../components/Post/PostForMessage.tsx';
 import { IMessages } from '../../../models/IMessages.ts';
-// import { IPostsMessage } from '../../../models/Messages.ts';
-// import { Page } from '../MessagesPage.tsx';
 
 interface Props {
 	posts: IMessages & { createdAt?: Date };
@@ -17,6 +14,7 @@ interface Props {
 	lastMessageRef?: React.Ref<HTMLDivElement>;
 	messagesRef?: React.Ref<HTMLDivElement>;
 	groupId?: number;
+	deletePost: (id: number, location: string) => void;
 }
 
 const indexLocation: Page = {
@@ -33,7 +31,7 @@ const initialValue: Page = {
 	world: 0,
 };
 
-const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef }) => {
+const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef, deletePost }) => {
 	const [count, setCount] = useState<typeof initialValue>(initialValue);
 	const [prevCount, setPrevCount] = useState<typeof initialValue>(initialValue);
 
@@ -187,7 +185,7 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 								)
 							)}
 
-							<PostForMessage post={post} />
+							<PostForMessage post={post} deletePost={deletePost} />
 						</div>
 					);
 				})}

@@ -3,7 +3,7 @@ import { IUser } from '../models/IUser.ts';
 import AuthService from '../services/AuthService.ts';
 import VkAuthService from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
-import UserService from '../services/UserService.ts';
+import UserService, { UpdateUserDto } from '../services/UserService.ts';
 import { IUserVk } from '../models/IUserVk.ts';
 import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
@@ -80,9 +80,9 @@ export default class AuthStore {
 		this.isAdmin = bool;
 	}
 
-	async logout(allDeviceExit: boolean) {
+	logout = async (allDeviceExit: boolean) => {
 		try {
-			let uuid: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
+			const uuid: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
 			await AuthService.logout(this.user.id, uuid, allDeviceExit);
 			localStorage.removeItem(LOCAL_STORAGE_TOKEN);
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
@@ -93,9 +93,9 @@ export default class AuthStore {
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
-	}
+	};
 
-	async deleteProfile(id: number, secret: string) {
+	deleteProfile = async (id: number, secret: string) => {
 		try {
 			await AuthService.deleteProfile(id, secret);
 			localStorage.removeItem(LOCAL_STORAGE_TOKEN);
@@ -106,11 +106,11 @@ export default class AuthStore {
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
-	}
+	};
 
-	async checkAuth() {
+	checkAuth = async () => {
 		try {
-			let device: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
+			const device: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
 			if (!device) {
 				this.setAuth(false);
 				return;
@@ -149,18 +149,18 @@ export default class AuthStore {
 		} finally {
 			this.setLoad(false);
 		}
-	}
+	};
 
-	async checkAdmin() {
+	checkAdmin = async () => {
 		try {
 			const isAdmin = await AdminService.checkAdmin();
 			if (isAdmin.data) this.setAdmin(true);
 		} catch (err) {
 			console.log(`Ошибка в checkAdmin: ${err}`);
 		}
-	}
+	};
 
-	async registrationVk(payload: any) {
+	registrationVk = async (payload: any) => {
 		try {
 			const response = await VkAuthService.registrationVk(payload);
 			if (!response.data) {
@@ -180,15 +180,15 @@ export default class AuthStore {
 			console.log(e, 'e');
 			// return { error: e.response?.data?.message };
 		}
-	}
+	};
 
-	async loginVk(id: number, secret: string) {
+	loginVk = async (id: number, secret: string) => {
 		try {
 			if (!localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
 				localStorage.setItem(LOCAL_STORAGE_DEVICE, this.uuid);
 			}
 
-			let device: any = localStorage.getItem(LOCAL_STORAGE_DEVICE);
+			const device: any = localStorage.getItem(LOCAL_STORAGE_DEVICE);
 
 			const response = await AuthService.setRegistration(id, secret, device);
 			if (!response.data) {
@@ -208,51 +208,42 @@ export default class AuthStore {
 				this.setAuth(false);
 			}
 		}
-	}
+	};
 
-	async restoreProfile(id: number, secret: string) {
+	restoreProfile = async (id: number, secret: string) => {
 		try {
 			const response = await AuthService.restoreProfile(id, secret);
 			this.setDelProfile(response.data);
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
 		}
-	}
+	};
 
-	async addDeclaration(form: any) {
+	addDeclaration = async (form: any) => {
 		try {
 			const response = await UserService.addDeclaration(form);
 			this.setUser({ ...this.user, declaration: response.data.declaration });
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}
-	}
+	};
 
-	async getDeclaration(id: number) {
+	getDeclaration = async (id: number) => {
 		try {
 			const declaration = await UserService.getDeclaration(id);
 			this.setDeclaration(declaration.data.declaration);
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}
-	}
+	};
 
-	async updatePersonaleData(secret: string, form: any) {
+	updatePersonaleData = async (dto: UpdateUserDto) => {
 		try {
-			const response = await UserService.updatePersonaleData(secret, form);
-			const updatedUserData: Partial<IUser> = {};
-			if (response.data.first_name) {
-				updatedUserData['first_name'] = response.data.first_name;
-			}
-			if (response.data.last_name) {
-				updatedUserData['last_name'] = response.data.last_name;
-			}
-			if (response.data.tg_id) {
-				updatedUserData['tg_id'] = response.data.tg_id;
-			}
-			this.setUser({ ...this.user, ...updatedUserData });
+			const response = await UserService.updatePersonaleData(dto);
+			this.setUser({ ...this.user, ...response.data });
+			return response.data;
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
 		}
-	}
+	};
 }

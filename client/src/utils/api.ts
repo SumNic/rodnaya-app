@@ -190,6 +190,40 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/edit-message': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		/** Редактирование своего сообщения (или админом) */
+		patch: operations['GroupsController_editMessage'];
+		trace?: never;
+	};
+	'/api/delete-message': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		/** Удаление своего сообщения (или админом) */
+		delete: operations['GroupsController_deleteMessage'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/blocked-message': {
 		parameters: {
 			query?: never;
@@ -377,7 +411,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/updata-personale/{secret}': {
+	'/api/updata-personale/{id}': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -387,7 +421,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		/** Изменение персональных данных */
-		post: operations['UsersController_udatePersonaleData'];
+		post: operations['UsersController_updatePersonaleData'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -991,6 +1025,18 @@ export interface components {
 			 */
 			location: string;
 		};
+		UpdateMessageDto: {
+			/** @description ID редактируемого сообщения */
+			id_message: number;
+			/** @description Новый текст сообщения */
+			message: string;
+			/** @description Обновлённые ссылки на видео */
+			video?: string[];
+		};
+		DeleteMessageDto: {
+			/** @description ID удаляемого сообщения */
+			id_message: number;
+		};
 		BlockedMessagesDto: {
 			/**
 			 * @description id сообщения
@@ -1032,8 +1078,12 @@ export interface components {
 			userId: number;
 			user: components['schemas']['User'];
 			files: components['schemas']['Files'][];
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: date-time */
+			updatedAt: string;
 		};
-		ChatGroup: {
+		GroupMessage: {
 			id: number;
 			groupId: number;
 			message: string;
@@ -1043,6 +1093,10 @@ export interface components {
 			userId: number;
 			user: components['schemas']['User'];
 			files: components['schemas']['Files'][];
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: date-time */
+			updatedAt: string;
 		};
 		Files: {
 			id: number;
@@ -1053,7 +1107,7 @@ export interface components {
 			publicationId: number;
 			publications: components['schemas']['Publications'];
 			chatId: number;
-			chat: components['schemas']['ChatGroup'];
+			chat: components['schemas']['GroupMessage'];
 		};
 		Messages: {
 			id: number;
@@ -1064,6 +1118,10 @@ export interface components {
 			userId: number;
 			user: components['schemas']['User'];
 			files: components['schemas']['Files'][];
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: date-time */
+			updatedAt: string;
 		};
 		ManageMessages: Record<string, never>;
 		EndReadMessage: Record<string, never>;
@@ -1115,9 +1173,13 @@ export interface components {
 			endReadMessage: components['schemas']['EndReadMessage'][];
 			lastReadPostChat: components['schemas']['LastReadPostChat'][];
 			publications: components['schemas']['Publications'][];
-			messagesChat: components['schemas']['ChatGroup'][];
+			messagesChat: components['schemas']['GroupMessage'][];
 			userGroups: components['schemas']['Group'][];
 			adminGroups: components['schemas']['Group'][];
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: date-time */
+			updatedAt: string;
 		};
 		OutputUserAndTokens: {
 			/**
@@ -1197,27 +1259,46 @@ export interface components {
 			 */
 			secret: string;
 		};
-		UpdatePersonaleDto: {
+		UpdateUserDto: {
+			id?: number;
+			vk_id?: number;
+			first_name?: string;
+			last_name?: string;
+			photo_50?: string;
+			photo_max?: string;
+			isDelProfile?: boolean;
+			isRegistration?: boolean;
 			/**
-			 * @description id пользователя
-			 * @example 1
+			 * Format: date-time
+			 * @description Дата создания записи
 			 */
-			user_id: number;
+			dateEditResidency?: string;
+			blocked?: boolean;
+			blockedforever?: boolean;
 			/**
-			 * @description Новое имя пользователя
-			 * @example Имя
+			 * Format: date-time
+			 * @description Дата создания записи
 			 */
-			first_name: string;
-			/**
-			 * @description Новая фамилия пользователя
-			 * @example Фамилия
-			 */
-			last_name: string;
-			/**
-			 * @description id пользователя в телеграм
-			 * @example 12342332
-			 */
-			tg_id: number;
+			blockeduntil?: string;
+			secret?: string;
+			tg_id?: number;
+			roles?: components['schemas']['Role'][];
+			residencyId?: number;
+			residency?: components['schemas']['Residency'];
+			tokens?: components['schemas']['Token'][];
+			declaration?: components['schemas']['Declaration'];
+			messages?: components['schemas']['Messages'][];
+			manageMessages?: components['schemas']['ManageMessages'][];
+			endReadMessage?: components['schemas']['EndReadMessage'][];
+			lastReadPostChat?: components['schemas']['LastReadPostChat'][];
+			publications?: components['schemas']['Publications'][];
+			messagesChat?: components['schemas']['GroupMessage'][];
+			userGroups?: components['schemas']['Group'][];
+			adminGroups?: components['schemas']['Group'][];
+			/** Format: date-time */
+			createdAt?: string;
+			/** Format: date-time */
+			updatedAt?: string;
 		};
 		BlockedUserDto: {
 			/**
@@ -1236,6 +1317,18 @@ export interface components {
 			id_user: number;
 			secret: string;
 			form: components['schemas']['FormDto'];
+		};
+		UpdatePublicationDto: {
+			/** @description ID редактируемого сообщения */
+			id_message: number;
+			/** @description Новый текст сообщения */
+			message: string;
+			/** @description Обновлённые ссылки на видео */
+			video?: string[];
+		};
+		DeletePublicationDto: {
+			/** @description ID удаляемого сообщения */
+			id_message: number;
 		};
 		CreateGroupDto: {
 			/**
@@ -1262,6 +1355,18 @@ export interface components {
 			groupId: number;
 			location: string;
 			form: components['schemas']['FormDto'];
+		};
+		UpdateGroupMessageDto: {
+			/** @description ID редактируемого сообщения */
+			id_message: number;
+			/** @description Новый текст сообщения */
+			message: string;
+			/** @description Обновлённые ссылки на видео */
+			video?: string[];
+		};
+		DeleteGroupMessageDto: {
+			/** @description ID удаляемого сообщения */
+			id_message: number;
 		};
 		LogoutUserDto: {
 			/**
@@ -1647,6 +1752,64 @@ export interface operations {
 			};
 		};
 	};
+	GroupsController_editMessage: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['UpdateGroupMessageDto'];
+			};
+		};
+		responses: {
+			/** @description Сообщение обновлено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	GroupsController_deleteMessage: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['DeleteGroupMessageDto'];
+			};
+		};
+		responses: {
+			/** @description Сообщение удалено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
 	MessagesController_blockedMessages: {
 		parameters: {
 			query?: never;
@@ -1957,19 +2120,19 @@ export interface operations {
 			};
 		};
 	};
-	UsersController_udatePersonaleData: {
+	UsersController_updatePersonaleData: {
 		parameters: {
 			query?: never;
 			header?: never;
 			path: {
-				/** @description Кодовое слово */
-				secret: string;
+				/** @description ID пользователя */
+				id: string;
 			};
 			cookie?: never;
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['UpdatePersonaleDto'];
+				'application/json': components['schemas']['UpdateUserDto'];
 			};
 		};
 		responses: {

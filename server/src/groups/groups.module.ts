@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from 'src/auth/auth.module';
-import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { Group } from 'src/common/models/groups/groups.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 import { GroupsController } from 'src/groups/groups.controller';
@@ -11,7 +11,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
     providers: [GroupsService, GroupsGateway],
-    imports: [SequelizeModule.forFeature([Group, ChatGroup, LastReadPostChat]), UsersModule, AuthModule],
+    imports: [SequelizeModule.forFeature([Group, GroupMessage, LastReadPostChat]), UsersModule, AuthModule],
     controllers: [GroupsController],
     exports: [GroupsService, GroupsGateway],
 })

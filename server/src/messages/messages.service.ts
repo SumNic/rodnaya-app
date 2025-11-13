@@ -19,6 +19,9 @@ import { NewMessage } from 'src/common/dtos/new-message.dto';
 import { Residency } from 'src/common/models/users/residency.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
 import { TelegramService } from 'src/telegram/telegram.service';
+import { DeleteMessageDto } from 'src/common/dtos/delete-message.dto';
+import { ROLES } from 'src/common/constants/roles';
+import { UpdateMessageDto } from 'src/common/dtos/update-message.dto';
 
 @Injectable()
 export class MessagesService {
@@ -68,6 +71,44 @@ export class MessagesService {
         } catch (err) {
             throw new HttpException(err?.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Редактирует текст/видео сообщения.
+     * Доступно автору сообщения или администратору.
+     */
+    async editMessage(user: AuthenticatedRequest['user'], dto: UpdateMessageDto): Promise<Messages> {
+        const message = await this.getMessageFromId(dto.id_message); // из existing метода [[citation:1]]
+        if (!message) {
+            throw new HttpException('Сообщение не найдено', HttpStatus.NOT_FOUND);
+        }
+        const isAdmin = user.roles?.includes(ROLES.ADMIN);
+        if (message.userId !== user.id && !isAdmin) {
+            throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
+        }
+        message.message = dto.message;
+        if (dto.video !== undefined) {
+            message.video = dto.video;
+        }
+        await message.save();
+        return message;
+    }
+
+    /**
+     * Удаляет сообщение.
+     * Доступно автору сообщения или администратору.
+     */
+    async deleteMessage(user: AuthenticatedRequest['user'], dto: DeleteMessageDto): Promise<{ message: string }> {
+        const message = await this.getMessageFromId(dto.id_message);
+        if (!message) {
+            throw new HttpException('Сообщение не найдено', HttpStatus.NOT_FOUND);
+        }
+        const isAdmin = user.roles?.includes(ROLES.ADMIN);
+        if (message.userId !== user.id && !isAdmin) {
+            throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
+        }
+        await this.messagesRepository.destroy({ where: { id: dto.id_message } });
+        return { message: 'Сообщение удалено' };
     }
 
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {

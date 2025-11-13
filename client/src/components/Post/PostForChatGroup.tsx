@@ -31,6 +31,7 @@ import ShareButton from '../ShareButton';
 import CustomAvatar from '../CustomAvatar';
 import { PublicationWithPartialUser } from '../../pages/Publications/Publications';
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
+import { parseIsUrlProtocol } from '../../utils/function';
 
 interface PostProps {
 	post: PublicationWithPartialUser;
@@ -54,7 +55,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
 	const parts = path.split('/');
 
-	var options_time: {} = {
+	const options_time: {} = {
 		timezone: 'UTC',
 		hour: 'numeric',
 		minute: 'numeric',
@@ -177,7 +178,11 @@ const Post: React.FC<PostProps> = ({ post }) => {
 			<div className={styles.header}>
 				<Link to={`${PERSONALE_ROUTE}/${post.user.id}`} className={styles.avatarLink}>
 					<CustomAvatar
-						photoUrl={post.user.photo_50}
+						photoUrl={
+							post.user.photo_50 && parseIsUrlProtocol(post.user.photo_50)
+								? post.user.photo_50
+								: `${API_URL}/files/${post.user.photo_50}`
+						}
 						size={40}
 						names={[post.user.first_name || '', post.user.last_name || '']}
 					/>

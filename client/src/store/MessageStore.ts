@@ -1,5 +1,10 @@
 import { makeAutoObservable, observable } from 'mobx';
-import MessagesService, { CreateLocationDto, CreateMessageDto } from '../services/MessagesService.ts';
+import MessagesService, {
+	CreateLocationDto,
+	CreateMessageDto,
+	UpdateMessageDto,
+	DeleteMessageDto,
+} from '../services/MessagesService.ts';
 import { LocationUser } from '../models/LocationUser.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
 import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
@@ -21,12 +26,29 @@ export default class MessageStore {
 		}
 	}
 
+	async editMessage(dto: UpdateMessageDto) {
+		try {
+			const response = await MessagesService.editMessage(dto);
+			return { data: response.data };
+		} catch (e: any) {
+			return { error: e.response?.data?.message };
+		}
+	}
+
+	async deleteMessage(dto: DeleteMessageDto) {
+		try {
+			const response = await MessagesService.deleteMessage(dto);
+			return { data: response.data };
+		} catch (e: any) {
+			return { error: e.response?.data?.message };
+		}
+	}
+
 	updateArrCountNoReadMessages = (location: string, count: number) => {
 		const existingEntry = this.arrCountNoReadMessages.find((item) => item.location === location);
 		if (existingEntry) {
 			existingEntry.count = count;
 		} else {
-			// Если записи нет, добавляем новую
 			this.arrCountNoReadMessages.push({ location, count });
 		}
 	};
@@ -36,7 +58,6 @@ export default class MessageStore {
 		if (existingEntry) {
 			existingEntry.id = id;
 		} else {
-			// Если записи нет, добавляем новую
 			this.arrLastReadMessagesId.push({ location, id });
 		}
 	}
@@ -60,7 +81,6 @@ export default class MessageStore {
 			}
 		} catch (e: any) {
 			console.log(`Ошибка в getCountNoReadMessages: ${e}`);
-			// return { data: e.response?.data?.message };
 		}
 	};
 
@@ -77,13 +97,12 @@ export default class MessageStore {
 
 			const result = await MessagesService.getLastReadMessageId(dto);
 			if (result.data) {
-				result.data.map((elem) => {
+				result.data.forEach((elem) => {
 					this.updateArrLastReadMessagesId(elem.location, elem.id);
 				});
 			}
 		} catch (e: any) {
 			console.log(`Ошибка в getLastReadMessageId: ${e}`);
-			// return { data: e.response?.data?.message };
 		}
 	};
 

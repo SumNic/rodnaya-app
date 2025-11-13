@@ -8,11 +8,17 @@ import { observer } from 'mobx-react-lite';
 
 interface UploadFilesProp {
 	isHiddenButton?: boolean;
+	isShowFileList?: boolean;
 	uploadRef?: React.MutableRefObject<any>;
 	width?: number;
 }
 
-const UploadAntdFiles: React.FC<UploadFilesProp> = ({ isHiddenButton = false, uploadRef, width }) => {
+const UploadAntdFiles: React.FC<UploadFilesProp> = ({
+	isHiddenButton = false,
+	uploadRef,
+	width,
+	isShowFileList = true,
+}) => {
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 
 	const { store } = useStoreContext();
@@ -39,11 +45,11 @@ const UploadAntdFiles: React.FC<UploadFilesProp> = ({ isHiddenButton = false, up
 	const customRequest = async (options: any) => {
 		const { file, onSuccess, onError } = options;
 
-		const result = await store.filesStore.uploadFile('/upload-files', file);
+		const result = await store.filesStore.uploadFile(file);
 
-		if (result.error) {
-			onError(result.error.message);
-			message.error(result.error.message);
+		if (result.data.error) {
+			onError(result.data.error.message);
+			message.error(result.data.error.message);
 		} else {
 			setFileList([...fileList, file]);
 			onSuccess(result.data);
@@ -63,6 +69,7 @@ const UploadAntdFiles: React.FC<UploadFilesProp> = ({ isHiddenButton = false, up
 			<Upload
 				ref={innerUploadRef}
 				fileList={fileList}
+				showUploadList={isShowFileList}
 				onChange={({ fileList }) => setFileList(fileList)}
 				customRequest={customRequest}
 				beforeUpload={beforeUpload}

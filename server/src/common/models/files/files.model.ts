@@ -2,7 +2,7 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne
 import { User } from '../users/user.model';
 import { Messages } from '../messages/messages.model';
 import { Publications } from 'src/common/models/publications/publications.model';
-import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { ApiProperty } from '@nestjs/swagger';
 
 interface FilesCreationAttrs {
@@ -48,11 +48,11 @@ export class Files extends Model<Files, FilesCreationAttrs> {
     publications: Publications;
 
     @ApiProperty({ type: Number })
-    @ForeignKey(() => ChatGroup)
+    @ForeignKey(() => GroupMessage)
     @Column({ type: DataType.INTEGER })
     chatId: number;
 
-    @ApiProperty({ type: () => ChatGroup })
-    @BelongsTo(() => ChatGroup)
-    chat: ChatGroup;
+    @ApiProperty({ type: () => GroupMessage })
+    @BelongsTo(() => GroupMessage)
+    chat: GroupMessage;
 }

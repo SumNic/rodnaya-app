@@ -10,10 +10,16 @@ interface Props {
 	publications: PublicationWithPartialUser[] | undefined;
 	isLoadPublications: boolean;
 	lastPublicationRef?: React.Ref<HTMLDivElement>;
+	deletePublication?: (id: number) => void;
 }
 
-const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, lastPublicationRef }) => {
-	var options_day: {} = {
+const PublicationsList: React.FC<Props> = ({
+	publications,
+	isLoadPublications,
+	lastPublicationRef,
+	deletePublication,
+}) => {
+	const options_day: {} = {
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
@@ -30,7 +36,8 @@ const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, l
 			<div id="message__ajax">
 				{publications?.map((post, index, arr) => {
 					const postDate = post.createdAt && new Date(post.createdAt);
-					const prevCreatedAt = arr[index - 1]?.createdAt;
+
+					const prevCreatedAt = new Date(arr[index - 1]?.createdAt);
 
 					const prevPostDate =
 						prevCreatedAt instanceof Date
@@ -43,7 +50,8 @@ const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, l
 
 					// Проверяем, совпадает ли дата с сегодняшним днём
 					const isToday =
-						postDate?.getDate() === today.getDate() &&
+						postDate &&
+						postDate.getDate() === today.getDate() &&
 						postDate.getMonth() === today.getMonth() &&
 						postDate.getFullYear() === today.getFullYear();
 
@@ -53,13 +61,13 @@ const PublicationsList: React.FC<Props> = ({ publications, isLoadPublications, l
 							id={`${post.id}`}
 							ref={index === publications.length - 1 && lastPublicationRef ? lastPublicationRef : null}
 						>
-							{index === 0 || (prevPostDate && postDate?.toDateString() !== prevPostDate.toDateString()) ? (
+							{index === 0 || (prevPostDate && postDate && postDate.toDateString() !== prevPostDate.toDateString()) ? (
 								<div className="date__wrapper">
 									<p className="name__time">{isToday ? 'Сегодня' : postDate?.toLocaleString('ru', options_day)}</p>
 								</div>
 							) : null}
 
-							<PostForPublication post={post} />
+							<PostForPublication post={post} deletePublication={deletePublication} />
 						</div>
 					);
 				})}

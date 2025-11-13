@@ -7,15 +7,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
 import { HOME_ROUTE, GROUP_ROUTE, LOCAL_STORAGE_IS_MY_GROUPS, CHAT, GROUPS } from '../../utils/consts';
-import { Alert, Button, Modal, Typography } from 'antd';
+import { Button, Modal, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import GroupModal from './components/GroupModal';
 
 import styles from './GroupPage.module.css';
 import GroupsList from './components/GroupsList';
-// import { IGroup } from '../../models/response/IGroup';
 import Messages from '../Messages/components/Messages';
 import { Group } from '../../services/GroupsService';
+import AuthVkButton from '../../components/AuthVkButton';
 
 const { Text } = Typography;
 
@@ -172,18 +172,17 @@ const GroupPage: React.FC = () => {
 			</Modal>
 			<Modal
 				open={isAuthModalOpen}
-				title="Ошибка"
-				okText="Да"
-				cancelText="Нет"
 				onOk={() => navigate(HOME_ROUTE)}
 				onCancel={() => setIsAuthModalOpen(false)}
-				width={400}
 				centered
+				footer={''}
 			>
-				<Alert
-					type="error"
-					description="Страница доступна только для авторизованных пользователей. Вернуться на главную?"
-				/>
+				<div className={styles.authWrapper}>
+					<div className={styles.authMessage}>Эта страница доступна только авторизованным пользователям!</div>
+					<div className={styles.authButtonWrapper}>
+						<AuthVkButton />
+					</div>
+				</div>
 			</Modal>
 		</div>
 	);

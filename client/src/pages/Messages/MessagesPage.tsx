@@ -6,9 +6,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
 import { HOME_ROUTE, MESSAGES, MESSAGES_ROUTE } from '../../utils/consts.tsx';
-import { Alert, Modal, Typography } from 'antd';
+import { Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc.tsx';
 import Messages from './components/Messages.tsx';
+import AuthVkButton from '../../components/AuthVkButton.tsx';
+import styles from './MessagesPage.module.css';
 
 const { Text } = Typography;
 
@@ -84,18 +86,17 @@ const MessagePage: React.FC = () => {
 			</Modal>
 			<Modal
 				open={isAuthModalOpen}
-				title="Ошибка"
-				okText="Да"
-				cancelText="Нет"
 				onOk={() => navigate(HOME_ROUTE)}
 				onCancel={() => setIsAuthModalOpen(false)}
-				width={400}
 				centered
+				footer={''}
 			>
-				<Alert
-					type="error"
-					description="Страница доступна только для авторизованных пользователей. Вернуться на главную?"
-				/>
+				<div className={styles.authWrapper}>
+					<div className={styles.authMessage}>Эта страница доступна только авторизованным пользователям!</div>
+					<div className={styles.authButtonWrapper}>
+						<AuthVkButton />
+					</div>
+				</div>
 			</Modal>
 		</div>
 	);

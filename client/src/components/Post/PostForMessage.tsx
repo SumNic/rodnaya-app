@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
 	API_URL,
+	DELETE_MESSAGES,
+	EDIT_MESSAGES,
 	FOUL_MESSAGES,
 	GO,
 	GROUP,
@@ -26,17 +28,21 @@ import styles from './Post.module.css';
 import ExpandableText from '../ExpandableText/ExpandableText';
 import { DangerIcon } from '../../UI/icons/DangerIcon';
 import { observer } from 'mobx-react-lite';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, SendOutlined } from '@ant-design/icons';
 import ShareButton from '../ShareButton';
 import CustomAvatar from '../CustomAvatar';
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
 import { MessageWithPartialUser } from '../../models/IMessages';
+import { DeleteMessageDto, UpdateMessageDto } from '../../services/MessagesService';
+import TextArea from 'antd/es/input/TextArea';
+import { parseIsUrlProtocol } from '../../utils/function';
 
 interface PostProps {
 	post: MessageWithPartialUser;
+	deletePost: (id: number, location: string) => void;
 }
 
-const PostForMessage: React.FC<PostProps> = ({ post }) => {
+const PostForMessage: React.FC<PostProps> = ({ post, deletePost }) => {
 	const [selectedMessage, setSelectedMessage] = useState<MessageWithPartialUser>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
@@ -44,6 +50,8 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 	const [width, setWidth] = useState<number>(0);
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 	const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedText, setEditedText] = useState(post.message);
 
 	const divRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +66,21 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 		timezone: 'UTC',
 		hour: 'numeric',
 		minute: 'numeric',
+	};
+
+	const getLocationOfPathname = (path: string | undefined) => {
+		switch (path) {
+			case 'locality':
+				return 'locality';
+			case 'region':
+				return 'region';
+			case 'country':
+				return 'country';
+			case 'world':
+				return 'world';
+			default:
+				return null;
+		}
 	};
 
 	useEffect(() => {
@@ -79,34 +102,6 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 	const splitRoute = MESSAGES_ROUTE.split('/');
 
 	const url = `${HOST}/${PUBLICATION_ID_ROUTE}/${post.id}`;
-
-	const options: MenuProps['items'] = [
-		{
-			key: FOUL_MESSAGES,
-			label: (
-				<div className={`${styles.label} ${styles.danger}`}>
-					<DangerIcon width="23px" fill="red" /> {FOUL_MESSAGES}
-				</div>
-			),
-		},
-		...(!parts.includes(splitRoute[1])
-			? [
-					{
-						key: SHARE,
-						title: 'Поделиться',
-						label: <>{SHARE}</>,
-						children: ['vk', 'telegram', 'whatsapp'].map((platform) => ({
-							key: platform,
-							label: <ShareButton platform={platform} url={url} text={selectedMessage?.message || ''} />,
-						})),
-					},
-					{
-						key: GO,
-						label: <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
-					},
-				]
-			: []),
-	];
 
 	const sourceFoul = () => {
 		if (parts.includes(MESSAGES)) return MESSAGES;
@@ -134,9 +129,24 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 		}
 	};
 
+	// функция для начала редактирования
+	const startEditing = () => {
+		setIsEditing(true);
+		setEditedText(selectedMessage?.message || '');
+	};
+
+	// функция для отправки изменений
+	const sendEditedMessage = async () => {
+		if (!editedText.trim()) return;
+		await handleEditMessage(editedText.trim());
+		setIsEditing(false);
+	};
+
 	const handleSelect = (event: string): void => {
 		if (event === FOUL_MESSAGES) {
 			setIsFoulModalOpenOk(true);
+		} else if (event === EDIT_MESSAGES) {
+			startEditing();
 		}
 	};
 
@@ -151,6 +161,95 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 	const handleVisibleChange = (flag: boolean) => {
 		setVisible(flag);
 	};
+
+	const handleEditMessage = async (updatedText: string) => {
+		if (!selectedMessage) return;
+
+		try {
+			const dto: UpdateMessageDto = {
+				id_message: selectedMessage.id,
+				message: updatedText,
+			};
+			const result = await store.messageStore.editMessage(dto);
+
+			if (result.data) {
+				message.success('Сообщение обновлено');
+				selectedMessage.message = updatedText; // обновляем локально
+			} else if (result.error) {
+				message.error(result.error);
+			}
+		} catch (err) {
+			message.error('Ошибка при редактировании сообщения');
+			console.error(err);
+		}
+	};
+
+	const handleDeleteMessage = async () => {
+		if (!selectedMessage) return;
+
+		try {
+			const dto: DeleteMessageDto = {
+				id_message: selectedMessage.id,
+			};
+			const result = await store.messageStore.deleteMessage(dto);
+
+			if (result.data) {
+				const location = getLocationOfPathname(parts.at(-1));
+				if (!location) return;
+				message.success('Сообщение удалено');
+				deletePost(selectedMessage.id, location);
+			} else if (result.error) {
+				message.error(result.error);
+			}
+		} catch (err) {
+			message.error('Ошибка при удалении сообщения');
+			console.error(err);
+		}
+	};
+
+	const options: MenuProps['items'] = [
+		{
+			key: EDIT_MESSAGES,
+			label: store.authStore.user.id === selectedMessage?.user.id && (
+				<div className={`${styles.label}`}>
+					<EditOutlined width="23px" /> {EDIT_MESSAGES}
+				</div>
+			),
+		},
+		{
+			key: DELETE_MESSAGES,
+			label: store.authStore.user.id === selectedMessage?.user.id && (
+				<div className={`${styles.label}`} onClick={handleDeleteMessage}>
+					<DeleteOutlined width="23px" /> {DELETE_MESSAGES}
+				</div>
+			),
+		},
+		...(!parts.includes(splitRoute[1])
+			? [
+					{
+						key: SHARE,
+						title: 'Поделиться',
+						label: <>{SHARE}</>,
+						children: ['vk', 'telegram', 'whatsapp'].map((platform) => ({
+							key: platform,
+							label: <ShareButton platform={platform} url={url} text={selectedMessage?.message || ''} />,
+						})),
+					},
+					{
+						key: GO,
+						label: <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
+					},
+				]
+			: []),
+		{
+			key: FOUL_MESSAGES,
+			label: store.authStore.user.id !== selectedMessage?.user.id && (
+				<div className={`${styles.label} ${styles.danger}`}>
+					<DangerIcon width="23px" fill="red" /> {FOUL_MESSAGES}
+				</div>
+			),
+		},
+	];
 
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 	const files = post?.files || [];
@@ -177,7 +276,11 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 			<div className={styles.header}>
 				<Link to={`${PERSONALE_ROUTE}/${post.user.id}`} className={styles.avatarLink}>
 					<CustomAvatar
-						photoUrl={post.user.photo_50}
+						photoUrl={
+							post.user.photo_50 && parseIsUrlProtocol(post.user.photo_50)
+								? post.user.photo_50
+								: `${API_URL}/file/${post.user.photo_50}`
+						}
 						size={40}
 						names={[post.user.first_name || '', post.user.last_name || '']}
 					/>
@@ -219,7 +322,22 @@ const PostForMessage: React.FC<PostProps> = ({ post }) => {
 				</div>
 			</div>
 			<div className={styles.messageBody}>
-				<ExpandableText text={post.message.trim()} />
+				{isEditing ? (
+					<div className={styles.editContainer}>
+						<TextArea
+							value={editedText}
+							onChange={(e) => setEditedText(e.target.value)}
+							autoSize={{ minRows: 2, maxRows: 4 }}
+						/>
+						<Button
+							type="text"
+							icon={<SendOutlined style={{ color: '#b1b3b1', fontSize: '30px', paddingLeft: '15px' }} />}
+							onClick={sendEditedMessage}
+						/>
+					</div>
+				) : (
+					<ExpandableText text={post.message.trim()} />
+				)}
 			</div>
 			{!!otherFiles.length && (
 				<div className={styles.filesList}>

@@ -2,10 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import { Order } from 'src/common/constants/order';
+import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreatePublicationDto } from 'src/common/dtos/create-publication.dto';
+import { DeletePublicationDto } from 'src/common/dtos/delete-publication.dto';
 import { GetPublicationsDto } from 'src/common/dtos/get-publications.dto';
 import { NewPublication } from 'src/common/dtos/new-publication.dto';
+import { UpdatePublicationDto } from 'src/common/dtos/update-publication.dto';
 import { Publications } from 'src/common/models/publications/publications.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
@@ -19,7 +22,7 @@ export class PublicationsService {
         // private readonly configService: ConfigService,
     ) {}
 
-    async addPublication(req: AuthenticatedRequest, dto: CreatePublicationDto): Promise<NewPublication> {
+    async addMessage(req: AuthenticatedRequest, dto: CreatePublicationDto): Promise<NewPublication> {
         try {
             const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
 
@@ -77,6 +80,44 @@ export class PublicationsService {
         } catch (err) {
             throw new HttpException(err?.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Редактирует текст/видео сообщения.
+     * Доступно автору сообщения или администратору.
+     */
+    async editMessage(user: AuthenticatedRequest['user'], dto: UpdatePublicationDto): Promise<Publications> {
+        const message = await this.getPublicationFromId(dto.id_message); // из existing метода [[citation:1]]
+        if (!message) {
+            throw new HttpException('Сообщение не найдено', HttpStatus.NOT_FOUND);
+        }
+        const isAdmin = user.roles?.includes(ROLES.ADMIN);
+        if (message.userId !== user.id && !isAdmin) {
+            throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
+        }
+        message.message = dto.message;
+        if (dto.video !== undefined) {
+            message.video = dto.video;
+        }
+        await message.save();
+        return message;
+    }
+
+    /**
+     * Удаляет сообщение.
+     * Доступно автору сообщения или администратору.
+     */
+    async deleteMessage(user: AuthenticatedRequest['user'], dto: DeletePublicationDto): Promise<{ message: string }> {
+        const message = await this.getPublicationFromId(dto.id_message);
+        if (!message) {
+            throw new HttpException('Сообщение не найдено', HttpStatus.NOT_FOUND);
+        }
+        const isAdmin = user.roles?.includes(ROLES.ADMIN);
+        if (message.userId !== user.id && !isAdmin) {
+            throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
+        }
+        await this.publicationsRepository.destroy({ where: { id: dto.id_message } });
+        return { message: 'Сообщение удалено' };
     }
 
     async getAllPublication(dto: GetPublicationsDto): Promise<Publications[]> {

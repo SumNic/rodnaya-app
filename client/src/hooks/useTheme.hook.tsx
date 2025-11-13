@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { theme, ThemeConfig } from 'antd';
+import { theme } from 'antd';
 import colorScheme from '../app/styles/ColorScheme';
 import { SMARTPHONE_WIDTH } from '../utils/consts';
 
@@ -11,26 +11,6 @@ import { SMARTPHONE_WIDTH } from '../utils/consts';
 export type DeviceType = 'smartphoneVertical' | 'smartphoneHorizontal' | 'tablet';
 
 const initialTheme = localStorage.getItem('BOAT_CLOUD_THEME');
-
-const defaultTheme: ThemeConfig = {
-	algorithm: initialTheme !== 'dark' ? theme.defaultAlgorithm : theme.darkAlgorithm,
-	token: {
-		colorPrimary: colorScheme.LightThemeBrandColor,
-		colorSuccess: colorScheme.lightThemeSuccessPrimary,
-		colorError: colorScheme.error,
-		colorWarning: colorScheme.lightThemeWarningPrimary,
-		colorInfo: colorScheme.lightThemeInfoPrimary,
-		colorTextBase: colorScheme.textColorBase,
-		fontFamily: 'Montserrat',
-		fontSize: 16,
-		// algorithm: theme.darkAlgorithm,
-		// components: {
-		// 	Card: {
-		// 		backgroundColor: '#FFFFFF',
-		// 	},
-		// },
-	},
-};
 
 export interface CurrentColorScheme {
 	brandColor: string;
@@ -127,7 +107,6 @@ export const useTheme = () => {
 	const [isInitialRender, setIsInitialRender] = useState(true);
 	const [currentWidth, setCurrentWidth] = useState<number>();
 	const [isLightTheme, setIsLightTheme] = useState(initialTheme !== 'dark');
-	const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(defaultTheme);
 	const [currentColorScheme, setCurrentColorScheme] = useState<CurrentColorScheme>(
 		initialTheme !== 'dark' ? lightScheme : darkScheme
 	);
@@ -154,11 +133,6 @@ export const useTheme = () => {
 		const newAlgorithm = [isLightTheme ? theme.defaultAlgorithm : theme.darkAlgorithm];
 		if (deviceType === 'smartphoneVertical' || deviceType === 'smartphoneHorizontal')
 			newAlgorithm.push(theme.compactAlgorithm);
-
-		setCurrentTheme((prev) => ({
-			...prev,
-			algorithm: newAlgorithm,
-		}));
 	}, [deviceType]);
 
 	const switchTheme = (isLight: boolean) => {
@@ -168,16 +142,6 @@ export const useTheme = () => {
 		const newAlgorithm = [isLight ? theme.defaultAlgorithm : theme.darkAlgorithm];
 		if (deviceType === 'smartphoneVertical' || deviceType === 'smartphoneHorizontal')
 			newAlgorithm.push(theme.compactAlgorithm);
-
-		setCurrentTheme((prev) => ({
-			...prev,
-			algorithm: newAlgorithm,
-			token: {
-				...prev.token,
-				// colorPrimary: isLight ? colorScheme.brandColor : colorScheme.brandColorDark,
-				colorTextBase: isLight ? colorScheme.textColorBase : '#FFF',
-			},
-		}));
 	};
 
 	useEffect(() => {
@@ -203,11 +167,6 @@ export const useTheme = () => {
 	}, []);
 
 	return {
-		currentTheme,
-		isLightTheme,
-		switchTheme,
-		deviceType,
-		getDeviceType,
 		currentColorScheme,
 		currentWidth,
 	};

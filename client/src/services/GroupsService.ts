@@ -8,7 +8,7 @@ import { IPost } from '../models/IPost.ts';
 import { components } from '../utils/api.ts';
 
 export type CreatePostToChatDto = components['schemas']['CreatePostToChatDto'];
-export type ChatGroup = components['schemas']['ChatGroup'];
+export type GroupMessage = components['schemas']['GroupMessage'];
 export type Group = components['schemas']['Group'];
 
 export default class GroupsService {
@@ -44,8 +44,8 @@ export default class GroupsService {
 		});
 	}
 
-	static async getAllPosts(groupId: number, pageNumber: number): Promise<AxiosResponse<ChatGroup[]>> {
-		return $api.get<ChatGroup[]>('/get-all-posts-group', {
+	static async getAllPosts(groupId: number, pageNumber: number): Promise<AxiosResponse<GroupMessage[]>> {
+		return $api.get<GroupMessage[]>('/get-all-posts-group', {
 			params: { groupId, pageNumber },
 		});
 	}

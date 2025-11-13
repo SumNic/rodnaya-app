@@ -2,13 +2,16 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Order } from 'src/common/constants/order';
+import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateGroupDto } from 'src/common/dtos/create-group.dto';
 import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
+import { DeleteGroupMessageDto } from 'src/common/dtos/delete-group-message.dto';
 import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
 import { GetPostsGroupDto } from 'src/common/dtos/get-posts-group.dto';
-import { NewPostToChat } from 'src/common/dtos/new-post-to-chat.dto';
-import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { NewGroupMessage } from 'src/common/dtos/new-post-to-chat.dto';
+import { UpdateGroupMessageDto } from 'src/common/dtos/update-group-message.dto';
+import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { Group } from 'src/common/models/groups/groups.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 import { Residency } from 'src/common/models/users/residency.model';
@@ -20,8 +23,7 @@ import { UsersService } from 'src/users/users.service';
 export class GroupsService {
     constructor(
         @InjectModel(Group) private readonly groupsRepository: typeof Group,
-        @InjectModel(ChatGroup) private readonly chatGroupRepository: typeof ChatGroup,
-        @InjectModel(ChatGroup) private readonly lastReadPostChatRepository: typeof LastReadPostChat,
+        @InjectModel(GroupMessage) private readonly groupMessagesRepository: typeof GroupMessage,
         private usersService: UsersService,
         // private readonly configService: ConfigService,
     ) {}
@@ -96,7 +98,7 @@ export class GroupsService {
         }
     }
 
-    async getAllChatPosts(req: AuthenticatedRequest, dto: GetPostsGroupDto): Promise<ChatGroup[]> {
+    async getAllChatPosts(req: AuthenticatedRequest, dto: GetPostsGroupDto): Promise<GroupMessage[]> {
         try {
             const user = await this.usersService.getUserWithModel(req.user.id, [{ model: LastReadPostChat }]);
 
@@ -116,7 +118,7 @@ export class GroupsService {
             const limit = offset < 0 ? offset + standartLimit : standartLimit;
 
             if (user && offset + standartLimit >= 0 && countMessage) {
-                const { rows } = await this.chatGroupRepository.findAndCountAll({
+                const { rows } = await this.groupMessagesRepository.findAndCountAll({
                     where: {
                         groupId: +dto.groupId,
                         blocked: false,
@@ -149,7 +151,7 @@ export class GroupsService {
                 };
             }
 
-            const { count } = await this.chatGroupRepository.findAndCountAll({
+            const { count } = await this.groupMessagesRepository.findAndCountAll({
                 where: whereClause,
             });
             return count;
@@ -158,7 +160,7 @@ export class GroupsService {
         }
     }
 
-    async addMessage(req: AuthenticatedRequest, dto: CreatePostToChatDto): Promise<NewPostToChat> {
+    async addMessage(req: AuthenticatedRequest, dto: CreatePostToChatDto): Promise<NewGroupMessage> {
         try {
             const user = await this.usersService.getUserWithModel(req.user.id, [{ model: Residency }]);
 
@@ -166,7 +168,7 @@ export class GroupsService {
             const { message, files, video } = form;
 
             if (user) {
-                const messagesChat = await this.chatGroupRepository.create({
+                const messagesChat = await this.groupMessagesRepository.create({
                     groupId: dto.groupId,
                     location: dto.location,
                     message,
@@ -223,6 +225,53 @@ export class GroupsService {
         }
     }
 
+    /**
+     * Редактирует текст/видео сообщения.
+     * Доступно автору сообщения или администратору.
+     */
+    async editMessage(user: AuthenticatedRequest['user'], dto: UpdateGroupMessageDto): Promise<GroupMessage> {
+        const message = await this.getMessageFromId(dto.id_message); // из existing метода [[citation:1]]
+        if (!message) {
+            throw new HttpException('Сообщение не найдено', HttpStatus.NOT_FOUND);
+        }
+        const isAdmin = user.roles?.includes(ROLES.ADMIN);
+        if (message.userId !== user.id && !isAdmin) {
+            throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
+        }
+        message.message = dto.message;
+        if (dto.video !== undefined) {
+            message.video = dto.video;
+        }
+        await message.save();
+        return message;
+    }
+
+    /**
+     * Удаляет сообщение.
+     * Доступно автору сообщения или администратору.
+     */
+    async deleteMessage(user: AuthenticatedRequest['user'], dto: DeleteGroupMessageDto): Promise<{ message: string }> {
+        const message = await this.getMessageFromId(dto.id_message);
+        if (!message) {
+            throw new HttpException('Сообщение не найдено', HttpStatus.NOT_FOUND);
+        }
+        const isAdmin = user.roles?.includes(ROLES.ADMIN);
+        if (message.userId !== user.id && !isAdmin) {
+            throw new HttpException('Недостаточно прав', HttpStatus.FORBIDDEN);
+        }
+        await this.groupMessagesRepository.destroy({ where: { id: dto.id_message } });
+        return { message: 'Сообщение удалено' };
+    }
+
+    async getMessageFromId(id: number): Promise<GroupMessage> {
+        try {
+            const message = await this.groupMessagesRepository.findByPk(id);
+            return message;
+        } catch (err) {
+            throw new HttpException(`Ошибка в getMessageFromId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     async joinTheGroup(req: AuthenticatedRequest, id: number) {
         try {
             const group = await this.groupsRepository.findByPk(id, {
@@ -249,9 +298,9 @@ export class GroupsService {
         }
     }
 
-    async getPostGroupFromId(id: number): Promise<ChatGroup> {
+    async getPostGroupFromId(id: number): Promise<GroupMessage> {
         try {
-            const message = await this.chatGroupRepository.findByPk(id);
+            const message = await this.groupMessagesRepository.findByPk(id);
             return message;
         } catch (err) {
             throw new HttpException(`Ошибка в getPostGroupFromId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -260,14 +309,14 @@ export class GroupsService {
 
     async blockedPostGroup(dto: BlockedMessagesDto): Promise<string> {
         try {
-            const foulMessage = await this.chatGroupRepository.findByPk(dto.id_message);
+            const foulMessage = await this.groupMessagesRepository.findByPk(dto.id_message);
             if (dto.selectedActionIndex === 1 && foulMessage) {
                 foulMessage.blocked = true;
                 foulMessage.save();
                 return 'Сообщение заблокировано';
             }
             if (dto.selectedActionIndex === 2 && foulMessage) {
-                const userMessages = await this.chatGroupRepository.findAll({
+                const userMessages = await this.groupMessagesRepository.findAll({
                     where: {
                         userId: foulMessage.userId,
                     },

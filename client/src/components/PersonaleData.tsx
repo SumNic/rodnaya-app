@@ -2,17 +2,18 @@ import { observer } from 'mobx-react-lite';
 import { useStoreContext } from '../contexts/StoreContext';
 import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
+import { UpdateUserDto } from '../services/UserService';
 
 const PersonaleData: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const { store } = useStoreContext();
 
-	const handleSubmit = async (values: any) => {
+	const handleSubmit = async (values: UpdateUserDto) => {
 		try {
 			setIsLoading(true);
 			// Обновляем данные пользователя
-			await store.authStore.updatePersonaleData(store.authStore.user.secret, values);
+			await store.authStore.updatePersonaleData(values);
 			setIsLoading(false);
 			store.authStore.setIsEditProfile(false); // Закрываем окно редактирования в Personale_page
 		} catch (error) {
@@ -37,12 +38,12 @@ const PersonaleData: React.FC = () => {
 			}}
 			onFinish={handleSubmit}
 			initialValues={{
-				user_id: store.authStore.user.id,
+				id: store.authStore.user.id,
 				first_name: store.authStore.user.first_name,
 				last_name: store.authStore.user.last_name,
 			}}
 		>
-			<Form.Item name="user_id" style={{ display: 'none' }}>
+			<Form.Item name="id" style={{ display: 'none' }}>
 				<Input type="hidden" />
 			</Form.Item>
 

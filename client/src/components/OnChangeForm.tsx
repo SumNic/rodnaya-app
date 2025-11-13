@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_END_READ_MESSAGE_ID, PERSONALE_ROUTE } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import { Button, message, Select, Typography } from 'antd';
-import { CreateLocationDto } from '../services/MessagesService';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -81,7 +80,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 			try {
 				const response = await store.locationStore.saveResidency(dto);
 				if (response.error) {
-					var options: {} = {
+					let options: {} = {
 						year: 'numeric',
 						month: 'long',
 						day: 'numeric',
@@ -89,11 +88,14 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 						hour: 'numeric',
 						minute: 'numeric',
 					};
-					let dataStopEditResidency = new Date(+response.error).toLocaleString('ru', options);
+					const dataStopEditResidency = new Date(+response.error).toLocaleString('ru', options);
 					setMessageBlock(dataStopEditResidency);
 				} else {
 					localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
-					const userWithoutResidency = { ...store.authStore.user, residency: {} as CreateLocationDto };
+					const userWithoutResidency = {
+						...store.authStore.user,
+						residency: { world: '', country: '', region: '', locality: '' },
+					};
 					store.authStore.setUser(userWithoutResidency);
 					store.authStore.loginVk(dto.id, dto.secret).then(() => navigate(PERSONALE_ROUTE));
 					store.authStore.setIsEditProfile(false); // закрывается окно редактирования в Personale_page
@@ -126,7 +128,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					onClick={resetCountry}
 					style={{ width: '100%', marginBottom: '10px' }}
 				>
-					{store.locationStore.country.map((item: any, index: any) => (
+					{store.locationStore.country.map((item, index) => (
 						<Option key={index} value={item.country}>
 							{item.country}
 						</Option>
@@ -141,7 +143,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 				>
 					{country &&
 						clickCount &&
-						store.locationStore.region.map((item: any, index: any) => (
+						store.locationStore.region.map((item, index) => (
 							<Option key={index} value={item.region}>
 								{item.region}
 							</Option>
@@ -156,7 +158,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					disabled={!region} // Дизаблим, если не выбрана область
 				>
 					{region &&
-						store.locationStore.locality.map((item: any, index: any) => (
+						store.locationStore.locality.map((item, index) => (
 							<Option key={index} value={item.locality}>
 								{item.locality}
 							</Option>

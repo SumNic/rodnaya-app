@@ -3,15 +3,15 @@ import { User } from '../users/user.model';
 import { Files } from 'src/common/models/files/files.model';
 import { ApiProperty } from '@nestjs/swagger';
 
-interface ChatGroupsCreationAttrs {
+interface GroupMessagesCreationAttrs {
     groupId: number;
     location: string;
     message: string;
     video?: string[];
 }
 
-@Table({ tableName: `chatGroups` })
-export class ChatGroup extends Model<ChatGroup, ChatGroupsCreationAttrs> {
+@Table({ tableName: `groupMessages` })
+export class GroupMessage extends Model<GroupMessage, GroupMessagesCreationAttrs> {
     @ApiProperty({ type: Number })
     @Column({
         type: DataType.INTEGER,

@@ -24,7 +24,7 @@ export const useMessage = () => {
 			getCountNoReadMessages(user.id, user.secret, user.residency);
 			getLastReadMessageId(user.id, user.secret, user.residency);
 		}
-	}, [store.authStore.isAuth]);
+	}, [store.authStore.isAuth, getCountNoReadMessages, getLastReadMessageId]);
 
 	useEffect(() => {
 		if (arrCountNoReadMessages?.length && messageDataSocket) {
@@ -35,7 +35,7 @@ export const useMessage = () => {
 				updateArrCountNoReadMessages(messageDataSocket.resydency, prevCountNoReadMessages[0].count + 1);
 			}
 		}
-	}, [messageDataSocket]);
+	}, [messageDataSocket, arrCountNoReadMessages]);
 
 	return {
 		isLoading,

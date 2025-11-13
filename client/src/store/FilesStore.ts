@@ -1,10 +1,10 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { IFiles } from '../models/IFiles';
-import $api from '../api_http';
 import { UploadFile } from 'antd';
+import { Files } from '../hooks/useUploadForm';
+import FileService from '../services/FileService';
 
 export default class FilesStore {
-	files: IFiles[] = [];
+	files: Files[] = [];
 	progressLoadValue = 0;
 	nameFile = '';
 	isLoading = false;
@@ -13,50 +13,42 @@ export default class FilesStore {
 		makeAutoObservable(this);
 	}
 
-	setFiles(file: IFiles) {
+	setFiles = (file: Files) => {
 		this.files.push(file);
-	}
+	};
 
-	resetFiles() {
+	resetFiles = () => {
 		this.files = [];
 		this.progressLoadValue = 0;
 		this.nameFile = '';
 		this.isLoading = false;
-	}
+	};
 
-	createFiles(files: IFiles[]) {
+	createFiles = (files: Files[]) => {
 		this.files = files;
-	}
+	};
 
-	setProgressLoadValue(nbr: number) {
+	setProgressLoadValue = (nbr: number) => {
 		this.progressLoadValue = nbr;
-	}
+	};
 
-	setNameFile(str: string) {
+	setNameFile = (str: string) => {
 		this.nameFile = str;
-	}
+	};
 
-	setIsLoading(value: boolean) {
+	setIsLoading = (value: boolean) => {
 		this.isLoading = value;
-	}
+	};
 
-	// Новый метод для загрузки файлов
-	async uploadFile(url: string, file: File) {
+	uploadFile = async (file: File) => {
 		this.setIsLoading(true);
 		this.setProgressLoadValue(0);
 
-		const formData = new FormData();
-		formData.append('file', file);
-
 		try {
-			const response = await $api.post(url, formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-				onUploadProgress: (progressEvent: any) => {
-					const total = progressEvent.total || 1;
-					runInAction(() => {
-						this.progressLoadValue = Math.min((progressEvent.loaded / total) * 100, 100);
-					});
-				},
+			const response = await FileService.uploadFile(file, (progress) => {
+				runInAction(() => {
+					this.progressLoadValue = progress;
+				});
 			});
 
 			if (response.status === 201) {
@@ -72,11 +64,11 @@ export default class FilesStore {
 				this.setIsLoading(false);
 			});
 			console.error('Ошибка загрузки файла:', error);
-			return { error };
+			return { data: error.response?.data?.message };
 		}
-	}
+	};
 
-	removeFile(file: UploadFile) {
+	removeFile = (file: UploadFile) => {
 		try {
 			const newStoreFiles = this.files.filter((item) => item.fileName !== file.originFileObj?.name);
 			this.createFiles(newStoreFiles);
@@ -85,5 +77,5 @@ export default class FilesStore {
 			console.error(`Ошибка в removeFile: ${error}`);
 			return { error };
 		}
-	}
+	};
 }

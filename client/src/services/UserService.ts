@@ -2,10 +2,10 @@ import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
 import { IUser } from '../models/IUser';
 import { DeclarationUser } from '../models/DeclarationUser';
-import { PersonaleUser } from '../models/PersonaleUser';
 import { components } from '../utils/api.ts';
 
 export type User = components['schemas']['User'];
+export type UpdateUserDto = components['schemas']['UpdateUserDto'];
 export default class UserService {
 	static async fetchUsers(): Promise<AxiosResponse<IUser[]>> {
 		return $api.get<IUser[]>('/users');
@@ -23,8 +23,8 @@ export default class UserService {
 		return $api.get<DeclarationUser>(`/get-declaration/${id}`);
 	}
 
-	static async updatePersonaleData(secret: string, form: PersonaleUser): Promise<AxiosResponse<IUser>> {
-		return $api.post<IUser>(`/updata-personale/${secret}`, form);
+	static async updatePersonaleData(dto: UpdateUserDto): Promise<AxiosResponse<IUser>> {
+		return $api.post<IUser>('/updata-personale', dto);
 	}
 
 	static async blockedUser(userId: number, selectedPunishmentIndex: number): Promise<AxiosResponse<string>> {

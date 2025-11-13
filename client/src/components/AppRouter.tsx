@@ -14,8 +14,8 @@ const AppRouter: React.FC = () => {
 
 	const updateTgId = async (values: number) => {
 		try {
-			await store.authStore.updatePersonaleData(store.authStore.user.secret, {
-				user_id: store.authStore.user.id,
+			await store.authStore.updatePersonaleData({
+				id: store.authStore.user.id,
 				tg_id: values,
 			});
 		} catch (error) {
@@ -29,8 +29,6 @@ const AppRouter: React.FC = () => {
 			localStorage.setItem('tg_id', `${tgUserId}`);
 		}
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
-			console.log('checkAuth');
-
 			store.authStore.checkAuth();
 		} else {
 			// localStorage.removeItem(LOCAL_STORAGE_TOKEN);

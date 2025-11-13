@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles-auth.decorator';
@@ -7,9 +7,11 @@ import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { CreateGroupDto } from 'src/common/dtos/create-group.dto';
 import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
+import { DeleteGroupMessageDto } from 'src/common/dtos/delete-group-message.dto';
 import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
 import { GetPostsGroupDto } from 'src/common/dtos/get-posts-group.dto';
-import { ChatGroup } from 'src/common/models/groups/chatGroups.model';
+import { UpdateGroupMessageDto } from 'src/common/dtos/update-group-message.dto';
+import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { Group } from 'src/common/models/groups/groups.model';
 import { Messages } from 'src/common/models/messages/messages.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
@@ -90,7 +92,7 @@ export class GroupsController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getAllChatPosts(@Req() req: AuthenticatedRequest, @Query() query: GetPostsGroupDto): Promise<ChatGroup[]> {
+    async getAllChatPosts(@Req() req: AuthenticatedRequest, @Query() query: GetPostsGroupDto): Promise<GroupMessage[]> {
         return await this.groupsService.getAllChatPosts(req, query);
     }
 
@@ -120,6 +122,26 @@ export class GroupsController {
                 createdAt: response.messagesChat.createdAt,
             });
         }
+    }
+
+    @ApiOperation({ summary: 'Редактирование своего сообщения (или админом)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Сообщение обновлено' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @Patch('/edit-group-message')
+    async editMessage(@Req() req: AuthenticatedRequest, @Body() dto: UpdateGroupMessageDto) {
+        return this.groupsService.editMessage(req.user, dto);
+    }
+
+    @ApiOperation({ summary: 'Удаление своего сообщения (или админом)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Сообщение удалено' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @Delete('/delete-group-message')
+    async deleteMessage(@Req() req: AuthenticatedRequest, @Body() dto: DeleteGroupMessageDto) {
+        return this.groupsService.deleteMessage(req.user, dto);
     }
 
     @ApiOperation({

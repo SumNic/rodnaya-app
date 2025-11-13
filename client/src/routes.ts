@@ -19,7 +19,7 @@ import {
 	GROUP_ROUTE,
 	ONE_GROUP_ROUTE,
 } from './utils/consts';
-import Home from './pages/Home';
+import Home from './pages/Home/Home.tsx';
 import VkCallback from './pages/VkCallback';
 import Error_Page from './pages/Error_Page';
 import Registration from './pages/Registration';

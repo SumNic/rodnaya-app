@@ -16,5 +16,5 @@ export interface PublicationWebsocketResponse {
 		region: string;
 		country: string;
 	};
-	createdAt: Date;
+	createdAt: string;
 }

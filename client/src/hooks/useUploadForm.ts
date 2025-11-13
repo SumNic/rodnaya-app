@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index';
+import { components } from '../utils/api';
+
+export type Files = components['schemas']['Files'];
 
 export function useUploadForm(url: string) {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [progress, setProgress] = useState<number>(0);
 
-	const uploadForm = async (formData: FormData): Promise<AxiosResponse<any>> => {
+	const uploadForm = async (formData: FormData): Promise<AxiosResponse<Files>> => {
 		setProgress(0);
 		setIsLoading(true);
 		const response = await $api.post(url, formData, {

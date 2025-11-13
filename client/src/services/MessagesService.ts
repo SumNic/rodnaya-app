@@ -8,12 +8,22 @@ import { components } from '../utils/api.ts';
 
 export type EndMessageDto = components['schemas']['EndMessageDto'];
 export type CreateMessageDto = components['schemas']['CreateMessageDto'];
+export type UpdateMessageDto = components['schemas']['UpdateMessageDto'];
+export type DeleteMessageDto = components['schemas']['DeleteMessageDto'];
 export type CreateLocationDto = components['schemas']['CreateLocationDto'];
 export type Message = components['schemas']['Messages'];
 
 export default class MessagesService {
 	static async sendMessage(dto: CreateMessageDto): Promise<AxiosResponse<number>> {
 		return $api.post<number>('/send-message', dto);
+	}
+
+	static async editMessage(dto: UpdateMessageDto): Promise<AxiosResponse<string>> {
+		return $api.patch<string>('/edit-message', dto);
+	}
+
+	static async deleteMessage(dto: DeleteMessageDto): Promise<AxiosResponse<string>> {
+		return $api.delete<string>('/delete-message', { data: dto });
 	}
 
 	static async getAllMessages(

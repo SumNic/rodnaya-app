@@ -8,12 +8,13 @@ import {
     Param,
     Post,
     Query,
+    Req,
     UploadedFile,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags, PartialType } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles-auth.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -29,7 +30,10 @@ import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { Role } from 'src/common/models/users/role.model';
 import { User } from 'src/common/models/users/user.model';
+import { AuthenticatedRequest } from 'src/common/types/types';
 import { UsersService } from 'src/users/users.service';
+
+export class UpdateUserDto extends PartialType(User) {}
 
 @Controller('api')
 export class UsersController {
@@ -166,28 +170,21 @@ export class UsersController {
 
     @ApiTags('Изменение данных')
     @ApiOperation({ summary: 'Изменение персональных данных' })
-    @Post('/updata-personale/:secret')
-    @ApiBody({ type: UpdatePersonaleDto })
-    @ApiParam({
-        name: 'secret',
-        example: 'sdfsdfsd',
-        required: true,
-        description: 'Кодовое слово',
-        type: String,
-    })
+    @Post('/updata-personale')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ROLES.USER, ROLES.ADMIN)
+    @ApiBody({ type: UpdateUserDto })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
     @ApiResponse({
         status: HttpStatus.CREATED,
-        description: 'Декларация добавлена',
-        // type: OutputUserAndTokens,
+        description: 'Данные обновлены',
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
         description: 'Неккоректные данные',
     })
-    @UseGuards(JwtAuthGuard)
-    async udatePersonaleData(@Param('secret') secret: string, @Body() form: any) {
-        //! UpdatePersonaleDto либо any
-        return await this.usersService.udatePersonaleData(secret, form);
+    async updatePersonaleData(@Req() req: AuthenticatedRequest, @Body() dto: UpdateUserDto) {
+        return await this.usersService.updatePersonaleData(req.user, dto);
     }
 
     @ApiTags('Изменение данных')

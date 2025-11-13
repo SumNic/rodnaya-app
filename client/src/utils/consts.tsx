@@ -51,6 +51,8 @@ export const LOCAL_STORAGE_TOKEN = 'token';
 export const LOCAL_STORAGE_IS_MY_GROUPS = 'isMyGroups';
 
 export const FOUL_MESSAGES = 'Нарушение';
+export const EDIT_MESSAGES = 'Редактировать';
+export const DELETE_MESSAGES = 'Удалить';
 export const SHARE = 'Поделиться';
 export const GO = 'Перейти';
 export const GO_OUT = 'Выйти';

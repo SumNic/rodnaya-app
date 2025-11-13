@@ -1,8 +1,9 @@
 import { Avatar } from 'antd';
 import React from 'react';
+import { observer } from 'mobx-react-lite';
 
 interface AvatarProps {
-	photoUrl: string | undefined;
+	photoUrl?: string;
 	size: number;
 	names: string[];
 }
@@ -38,4 +39,4 @@ const CustomAvatar: React.FC<AvatarProps> = ({ photoUrl, size, names }) => {
 	);
 };
 
-export default CustomAvatar;
+export default observer(CustomAvatar);

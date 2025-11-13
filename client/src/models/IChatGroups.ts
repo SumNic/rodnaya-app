@@ -1,8 +1,8 @@
-import { ChatGroup } from '../services/GroupsService';
+import { GroupMessage } from '../services/GroupsService';
 
-export interface IChatGroup {
-	locality: ChatGroup[];
-	region: ChatGroup[];
-	country: ChatGroup[];
-	world: ChatGroup[];
+export interface IGroupMessage {
+	locality: GroupMessage[];
+	region: GroupMessage[];
+	country: GroupMessage[];
+	world: GroupMessage[];
 }
