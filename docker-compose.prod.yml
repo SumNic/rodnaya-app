@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: sumnic82/rodnaya-nginx:${IMAGE_TAG}
+    # image: sumnic82/rodnaya-nginx:${IMAGE_TAG}
     ports:
       - '80:80'
       - '443:443'
@@ -12,7 +12,7 @@ services:
     cpus: 0.5
 
   server:
-    image: sumnic82/rodnaya-server:${IMAGE_TAG}
+    # image: sumnic82/rodnaya-server:${IMAGE_TAG}
     build:
       target: prod
     volumes:

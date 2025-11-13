@@ -48,4 +48,10 @@ export class Messages extends Model<Messages, MessagesCreationAttrs> {
     @ApiProperty({ type: () => [Files] })
     @HasMany(() => Files)
     files: Files[];
+
+    @ApiProperty({ type: Date })
+    readonly createdAt!: Date;
+
+    @ApiProperty({ type: Date })
+    readonly updatedAt!: Date;
 }

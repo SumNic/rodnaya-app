@@ -53,4 +53,10 @@ export class ChatGroup extends Model<ChatGroup, ChatGroupsCreationAttrs> {
     @ApiProperty({ type: () => [Files] })
     @HasMany(() => Files)
     files: Files[];
+
+    @ApiProperty({ type: Date })
+    readonly createdAt!: Date;
+
+    @ApiProperty({ type: Date })
+    readonly updatedAt!: Date;
 }

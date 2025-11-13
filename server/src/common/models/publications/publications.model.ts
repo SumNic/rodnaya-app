@@ -58,4 +58,10 @@ export class Publications extends Model<Publications, PublicationsCreationAttrs>
     @ApiProperty({ type: () => [Files] })
     @HasMany(() => Files)
     files: Files[];
+
+    @ApiProperty({ type: Date })
+    readonly createdAt!: Date;
+
+    @ApiProperty({ type: Date })
+    readonly updatedAt!: Date;
 }

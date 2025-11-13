@@ -37,6 +37,8 @@ export class MessagesController {
     async addMessage(@Req() req: AuthenticatedRequest, @Body() dto: CreateMessageDto) {
         const response = await this.messagesService.addMessage(req, dto);
         if (response) {
+            console.log(response, 'response 123');
+
             this.messagesGateway.sendMessageWebSocket('new_message', {
                 ...dto,
                 id_user: req.user.id,
