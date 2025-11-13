@@ -17,6 +17,7 @@ WORKDIR /app
 COPY --from=dev /app/dist ./dist
 COPY --from=dev /app/node_modules ./node_modules
 COPY --from=dev /app/package.json ./
+COPY --from=dev /app/sequelize.config.js ./
 
 EXPOSE 5000
 
