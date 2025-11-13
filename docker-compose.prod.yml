@@ -20,7 +20,7 @@ services:
       # В prod не монтируем исходный код
     ports:
       - 5000:5000
-    command: sh -c "npx sequelize-cli db:migrate && yarn start:prod" # Prod команда
+    command: sh -c "yarn migrate && yarn start:prod" # Prod команда
     environment:
       - NODE_ENV=prod
     # mem_limit: 512m
