@@ -26,8 +26,8 @@ services:
       - ./server/.env.${MODE-dev}
     volumes:
       - ./server/static:/app/static
-      - ./server:/app # Для разработки
-      - /app/node_modules # Для разработки
+      # - ./server:/app # Для разработки
+      # - /app/node_modules # Для разработки
     ports:
       - 5000:5000
     command: yarn start:dev # Для разработки
