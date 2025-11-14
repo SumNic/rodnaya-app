@@ -2,44 +2,45 @@ services:
   nginx:
     image: sumnic82/rodnaya-nginx:${IMAGE_TAG}
     ports:
-      - '80:80'
-      - '443:443'
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+      - "80:80"
+      - "443:443"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
-    mem_limit: 256m
-    cpus: 0.5
+    networks:
+      - app_net
 
   server:
     image: sumnic82/rodnaya-server:${IMAGE_TAG}
-    build:
-      target: prod
+    env_file:
+      - ./server/.env.prod
     volumes:
       - ./server/static:/app/static
-      # В prod не монтируем исходный код 
-    ports:
-      - 5000:5000
     command: yarn migrate && yarn start:prod
-    environment:
-      - NODE_ENV=prod
-    # mem_limit: 512m
-    # cpus: 0.7
+    networks:
+      - app_net
 
   postgres:
-    environment:
-      POSTGRES_DB: prod_db
-    ports:
-      - '5432:5432'  # В prod можно не открывать порт наружу
-    mem_limit: 512m
-    cpus: 0.8
+    image: postgres:15
+    env_file:
+      - ./server/.env.prod
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_net
 
   certbot:
     image: certbot/certbot
     volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/ccertbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
-    restart: unless-stopped
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    command: >
+      /bin/sh -c 'while :; do certbot renew; sleep 12h; done'
     networks:
-      nginx_net:
+      - app_net
+    restart: unless-stopped
+
+networks:
+  app_net:
+volumes:
+  pgdata:

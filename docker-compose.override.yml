@@ -1,27 +1,9 @@
 services:
-  nginx:
-    ports:
-      - '80:80'
-    # В dev режиме не используем SSL
-    command: 'nginx -g "daemon off;"'
-
   server:
-    build:
-      target: dev
     volumes:
-      - ./server/static:/app/static
-      - ./server:/app  # Монтируем исходный код для hot reload
+      - ./server:/app
       - /app/node_modules
-    ports:
-      - 5000:5000
-    command: yarn run start:dev  # Dev команда
-    environment:
-      - NODE_ENV=dev
-    # Убираем лимиты для разработки
+    command: yarn start:dev
 
-  postgres:
-    environment:
-      POSTGRES_DB: prod_db
-    ports:
-      - '5020:5432'
-    # В dev можно убрать лимиты или сделать их меньше
+  nginx:
+    command: nginx -g "daemon off;"

@@ -6,7 +6,6 @@ on:
       - main
 
 env:
-  DOCKER_COMPOSE_FILE: docker-compose.yml
   SERVER_USER: sumnic            # ← замени на имя пользователя сервера (например ubuntu)
   SERVER_HOST: 77.222.55.226      # ← замени на IP или домен
   DEPLOY_PATH: /home/sumnic/rodnaya-app  # ← путь до проекта на сервере
@@ -29,16 +28,18 @@ jobs:
 
       - name: Set image tag
         id: vars
-        run: echo "IMAGE_TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+        run: |
+          echo "image_tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=${GITHUB_SHA}" >> $GITHUB_ENV
 
       - name: Build and push Docker images
         run: |
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> ./server/.env.prod
-          echo "MODE=prod" >> .env
-          echo "VITE_VK_ID_APP_PROD=${{ secrets.VITE_VK_ID_APP_PROD }}" >> ./client/.env
-          echo "VITE_YANDEX_COUNTER_ID_PROD=104841811" >> ./client/.env
-          MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml build --build-arg IMAGE_TAG=${IMAGE_TAG}
-          MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml push
+          IMAGE_TAG=${GITHUB_SHA}
+          docker build -t sumnic82/rodnaya-nginx:$IMAGE_TAG ./client
+          docker build -t sumnic82/rodnaya-server:$IMAGE_TAG ./server
+
+          docker push sumnic82/rodnaya-nginx:$IMAGE_TAG
+          docker push sumnic82/rodnaya-server:$IMAGE_TAG
 
   deploy:
     runs-on: ubuntu-latest
@@ -57,17 +58,11 @@ jobs:
             cd "$DEPLOY_PATH"
             git pull
             # Тег коммита (уникальный)
-            IMAGE_TAG=$(git rev-parse --short HEAD)
+            IMAGE_TAG=$(git rev-parse HEAD)
             echo "Using image tag: $IMAGE_TAG"
+            export IMAGE_TAG
 
-            # 1️⃣ Подтягиваем последние образы
-            IMAGE_TAG=$IMAGE_TAG docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
 
-            # 2️⃣ Перезапускаем контейнеры
-            IMAGE_TAG=$IMAGE_TAG docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-
-            # 3️⃣ Удаляем старые, неиспользуемые образы и контейнеры
-            echo "Cleaning up old images..."
-            docker image prune -af --filter "until=12h"
-            docker container prune -f
-            docker volume prune -f
+            docker image prune -af --filter "until=24h"
