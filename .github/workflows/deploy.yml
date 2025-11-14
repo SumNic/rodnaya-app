@@ -35,7 +35,11 @@ jobs:
       - name: Build and push Docker images
         run: |
           IMAGE_TAG=${GITHUB_SHA}
-          docker build -t sumnic82/rodnaya-nginx:$IMAGE_TAG ./client
+          docker build \
+            --build-arg MODE=prod \
+            -t sumnic82/rodnaya-nginx:$IMAGE_TAG \
+            ./client
+
           docker build -t sumnic82/rodnaya-server:$IMAGE_TAG ./server
 
           docker push sumnic82/rodnaya-nginx:$IMAGE_TAG
