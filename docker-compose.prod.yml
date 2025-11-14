@@ -16,7 +16,7 @@ services:
       - ./server/.env.prod
     volumes:
       - ./server/static:/app/static
-    command: yarn migrate && yarn start:prod
+    # command: yarn migrate && yarn start:prod
     networks:
       - app_net
 
