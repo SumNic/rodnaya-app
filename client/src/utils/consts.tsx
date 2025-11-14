@@ -33,7 +33,7 @@ export const BLOCKED_ROUTE = '/blocked';
 export const HOST = import.meta.env.DEV ? 'http://localhost' : 'https://rod-partya.ru';
 console.log(import.meta.env.DEV, 'process.env.REACT_APP_MODE');
 
-export const VK_ID_APP = import.meta.env.DEV ? import.meta.env.VITE_VK_ID_APP_DEV : import.meta.env.VITE_VK_ID_APP_PROD;
+export const VK_ID_APP = import.meta.env.DEV ? 52706932 : 51729608;
 export const API_URL = `${HOST}/api`;
 
 export const SMARTPHONE_WIDTH = 450; // При смене также необходимо заменить в css-файлах "@media (max-width: 450px)"
@@ -92,9 +92,7 @@ export const GROUPS = 'groups';
 export const GROUP = 'group';
 export const CHAT = 'chat';
 
-export const YANDEX_COUNTER_ID = import.meta.env.DEV
-	? import.meta.env.VITE_YANDEX_COUNTER_ID_DEV
-	: import.meta.env.VITE_YANDEX_COUNTER_ID_PROD;
+export const YANDEX_COUNTER_ID = import.meta.env.DEV ? 104827200 : 104841811;
 
 export const ALLOWED_VIDEO_HOSTS = [
 	'youtube.com',

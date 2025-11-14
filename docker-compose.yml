@@ -3,9 +3,7 @@ services:
     build:
       context: ./client
       args:
-        - MODE=${MODE:-dev}
-    env_file:
-      - ./client/.env
+        - MODE=dev
     ports:
       - "80:80"
     depends_on:
