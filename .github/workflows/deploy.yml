@@ -37,10 +37,14 @@ jobs:
           IMAGE_TAG=${GITHUB_SHA}
           docker build \
             --build-arg MODE=prod \
+            --build-arg VITE_VK_ID_APP_PROD=${{ secrets.VITE_VK_ID_APP_PROD }} \
+            --build-arg VITE_YANDEX_COUNTER_ID_PROD=104841811 \
             -t sumnic82/rodnaya-nginx:$IMAGE_TAG \
             ./client
 
-          docker build -t sumnic82/rodnaya-server:$IMAGE_TAG ./server
+          docker build \
+            --build-arg POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            -t sumnic82/rodnaya-server:$IMAGE_TAG ./server
 
           docker push sumnic82/rodnaya-nginx:$IMAGE_TAG
           docker push sumnic82/rodnaya-server:$IMAGE_TAG
