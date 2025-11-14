@@ -17,7 +17,7 @@ services:
       target: prod
     volumes:
       - ./server/static:/app/static
-      # В prod не монтируем исходный код
+      # В prod не монтируем исходный код 
     ports:
       - 5000:5000
     command: yarn migrate && yarn start:prod
