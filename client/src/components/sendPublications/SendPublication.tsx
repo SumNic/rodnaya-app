@@ -7,7 +7,7 @@ import AddVideoLink from '../AddVideoLink';
 import { Files } from '../../hooks/useUploadForm';
 import { CreatePublicationDto } from '../../services/PublicationsService';
 
-const MAX_LENGTH = 500;
+const MAX_LENGTH = 2000;
 
 interface SendPublicationProps {
 	handleCancel: () => void;
@@ -98,7 +98,7 @@ const SendPublication: React.FC<SendPublicationProps> = ({ handleCancel }) => {
 			onCancel={cancel}
 			width={600}
 		>
-			<h2 style={{ textAlign: 'center' }}>Новая публикация</h2>
+			<h2 style={{ textAlign: 'center', fontWeight: 400 }}>Новая публикация</h2>
 
 			<div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
 				{/* Текстовое поле */}
