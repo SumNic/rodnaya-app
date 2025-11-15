@@ -140,12 +140,12 @@ const PersonalePage: React.FC = () => {
 			</div>
 			<div className={styles.wrapper}>
 				<img
-					className={styles.photo}
+					className={styles.profile_photo}
 					src={
 						user.photo_max && parseIsUrlProtocol(user.photo_max) ? user.photo_max : `${API_URL}/file/${user.photo_max}`
 					}
 					alt="Ваше фото"
-				></img>
+				/>
 				<div className={styles.personale_wrapper} style={{ paddingBottom: 0 }}>
 					<p className={styles.p_style}>
 						{user?.first_name} {user?.last_name}

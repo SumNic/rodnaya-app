@@ -535,6 +535,7 @@ ol {
 .name__local_founders {
 	font-family: 'IzhitsaRegular', arial;
 	font-size: 25px;
+	font-weight: 400;
 	margin: 4px 0;
 	text-align: center;
 	color: rgb(43, 112, 43);
@@ -868,6 +869,7 @@ ol {
 .name__local {
 	font-family: 'IzhitsaRegular', arial;
 	font-size: 22px;
+	font-weight: 400;
 	margin: 13px 0;
 	text-align: center;
 }
