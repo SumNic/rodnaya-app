@@ -8,6 +8,9 @@ import { FOUNDERS_ROUTE, HOME_ROUTE } from '../../utils/consts';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useThemeContext } from '../../contexts/ThemeContext';
 import styles from './Home.module.css';
+import { Typography } from 'antd';
+
+const { Paragraph } = Typography;
 
 const Home: React.FC = () => {
 	const { store } = useStoreContext();
@@ -27,24 +30,107 @@ const Home: React.FC = () => {
 			<div className="middle">
 				<div className={'middle__wrapper'}>
 					{currentWidth && currentWidth >= 830 && <NavMiddle item={HOME_ROUTE} />}
-					<div className={`main__screen main__screen_home ${styles.wrapper}`}>
-						<section id="list_founders" className={styles['founders-section']}>
-							<h1 className={styles['founders-title']}>Родная партия</h1>
+					<div className={styles.wrapper}>
+						<section id="list_founders">
+							<div style={{ display: 'flex', justifyContent: 'center', width: '100' }}>
+								<h1 className={styles['founders-title']}>
+									🌿 Родная партия — объединение людей, создающих пространство Любви
+								</h1>
+							</div>
 
-							<p className={styles['founders-description']}>
-								Сайт 'Родная партия' создан для тех, кто поддерживает идеи, изложенные в серии книг 'Звенящие кедры
-								России' Владимира Мегре, и учредили свою Родную партию, как это сделал дедушка Анастасии.
-							</p>
+							<div className={styles.wrapper_p}>
+								<div className={styles['founders-section']}>
+									<p className={styles['founders-description']}>
+										<strong>Родная партия</strong> — это сообщество людей, которым близки идеи серии{' '}
+										<em>«Звенящие кедры России»</em> и которые стремятся вернуть в жизнь народа образы жизни, обряды и
+										традиции, способные навечно сохранять любовь в семьях.
+									</p>
+								</div>
+							</div>
 
-							<p className={styles['founders-description']}>
-								Этот ресурс объединяет единомышленников, нацеленных на возвращение энергии Любви в семьи.
-							</p>
-
-							{!store.authStore.isAuth && (
-								<p className={styles['founders-call-to-action']}>
-									Если ты считаешь себя учредителем своей Родной партии, присоединяйся к нам!
+							<div className={styles.wrapper_p}>
+								<p className={styles['founders-description']}>
+									&nbsp;Это движение не имеет властного центра.
+									<br />
+									Каждый человек сам управляет своей жизнью, а важные решения принимаются{' '}
+									<strong>вечевым способом</strong> — открыто, честно, в согласии и уважении.
 								</p>
-							)}
+							</div>
+
+							<h2 className={styles['founders-subheading']}>🌱 Что такое Родная партия?</h2>
+
+							<div className={styles.wrapper_p}>
+								<p className={styles['founders-description']}>
+									&nbsp;Это не формальная структура и не обычная политическая организация.
+									<br />
+									&nbsp;Родная партия <strong>не нуждается в официальной регистрации</strong>, потому что она создаётся
+									не документами, а людьми — их светлыми мыслями, добрыми делами и стремлением к созиданию.
+									<br />
+									&nbsp;Каждый человек, который разделяет эти идеи, может <strong>учредить свою Родную партию</strong>,
+									так же как это сделал дедушка Анастасии.
+									<br />
+									&nbsp;А этот сайт создан для того, чтобы <strong>объединять таких учредителей</strong>, чтобы мы могли
+									видеть друг друга, общаться, поддерживать и усиливать общее дело.
+								</p>
+							</div>
+
+							<h2 className={styles['founders-subheading']}>💛 Наша миссия</h2>
+
+							<div className={styles.wrapper_p}>
+								<p className={styles['founders-description']}>
+									&nbsp;Мы стремимся, чтобы тема любви в семьях звучала не только в личных разговорах, но и{' '}
+									<strong>на уровне народа и страны</strong>.
+									<br />
+									&nbsp;Ведь если в каждой семье хранится Любовь — процветает и весь народ.
+									<br />
+									&nbsp;Мы хотим, чтобы в обществе звучали темы:
+								</p>
+							</div>
+
+							<div style={{ display: 'flex', justifyContent: 'center' }}>
+								<Typography>
+									<Paragraph>
+										<ul>
+											<li>любви</li>
+											<li>нравственности</li>
+											<li>родовых традиций</li>
+											<li>созидательного образа жизни</li>
+											<li>духовной чистоты</li>
+											<li>воспитания гармоничных детей</li>
+										</ul>
+									</Paragraph>
+								</Typography>
+							</div>
+
+							<div className={styles.wrapper_p}>
+								<p className={styles['founders-description']}>
+									&nbsp;Это то, что веками было естественной основой жизни людей. И оно должно вернуться.
+								</p>
+							</div>
+
+							<h2 className={styles['founders-subheading']}>🤝 Присоединяйтесь</h2>
+
+							<div className={styles.wrapper_p}>
+								<p className={styles['founders-description']}>
+									&nbsp;По ссылкам ниже вы можете увидеть список учредителей Родной партии и вступить в наше открытое
+									сообщество:
+								</p>
+							</div>
+
+							<div style={{ display: 'flex', justifyContent: 'center' }}>
+								<ul className={styles['founders-list']}>
+									<li>
+										<Link to={FOUNDERS_ROUTE} className="list_founders">
+											Учредители Родной партии
+										</Link>
+									</li>
+									<li>
+										<Link to="https://vk.ru/club166722362" className="list_founders">
+											Родная партия в ВК
+										</Link>
+									</li>
+								</ul>
+							</div>
 
 							<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
 								<div style={{ minWidth: '237px' }}>{!store.authStore.isAuth && <AuthVkButton />}</div>
@@ -55,33 +141,17 @@ const Home: React.FC = () => {
 								</div>
 							)}
 
-							<h2 className={styles['founders-subheading']}>Хотите узнать больше?</h2>
-							<p className={styles['founders-details']}>
-								Перейдите по ссылкам ниже, чтобы увидеть список учредителей Родной партии и присоединиться к нам в
-								ВКонтакте:
-							</p>
-
-							<ul className={styles['founders-list']}>
-								<li>
-									<Link to={FOUNDERS_ROUTE} className="list_founders">
-										Учредители Родной партии
-									</Link>
-								</li>
-								<li>
-									<Link to="https://vk.ru/club166722362" className="list_founders">
-										Родная партия в ВК
-									</Link>
-								</li>
-							</ul>
-
 							{/* <div className="rules"> */}
-							<h2 className={styles['founders-subheading']}>Поддержите наш проект!</h2>
-							<p className={styles['founders-details']}>
-								Если вы считаете полезным этот ресурс и хотите финансово его поддержать, вы можете перевести любую
-								сумму, нажав на кнопку ниже.
-							</p>
+							<h2 className={styles['founders-subheading']}>🙏 Поддержите проект</h2>
+							<div className={styles.wrapper_p}>
+								<p className={styles['founders-description']}>
+									&nbsp;Если вы считаете важным наше общее дело и хотите помочь развитию ресурса, вы можете внести
+									посильный вклад, нажав на кнопку ниже.
+								</p>
+							</div>
+
 							{/* </div> */}
-							<div className="support-button-container">
+							<div className="support-button-container" style={{ paddingBottom: '30px' }}>
 								<iframe
 									src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=H28j3gJ3nHw.230111&"
 									width="237"

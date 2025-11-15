@@ -1,12 +1,30 @@
 .wrapper {
-	padding: 0 40px;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid black;
+	border-width: 0 1px;
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	width: auto;
+	background-color: white;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	border-bottom: 1px solid black;
+	border-bottom-left-radius: 20px;
+	border-bottom-right-radius: 20px;
+	max-width: 546px;
 }
 
-@media (max-width: 1024px) {
+.wrapper_p {
+	padding: 10px 20px;
+}
+
+/* @media (max-width: 1024px) {
 	.wrapper {
 		padding: 0 24px;
 	}
-}
+} */
 
 @media (max-width: 768px) {
 	.wrapper {
@@ -15,20 +33,23 @@
 }
 
 .founders-section {
-	max-width: 1000px;
+	/* max-width: 1000px; */
 	margin: 0 auto;
-	padding: 50px 20px;
+	padding: 20px;
 	text-align: center;
-	background-color: #f5f5f5;
+	background-color: #d3e2e2;
 	border-radius: 15px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .founders-title {
-	font-size: 36px;
+	font-size: 30px;
+	font-weight: 400;
 	color: #2e6c45;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	line-height: 1.2;
+	display: flex;
+	justify-content: center;
 }
 
 .founders-description {
@@ -36,7 +57,8 @@
 	color: #353434;
 	font-family: 'Inter', serif;
 	line-height: 1.6;
-	margin-bottom: 20px;
+	text-align: justify;
+	/* margin-bottom: 20px; */
 }
 
 .founders-call-to-action {
@@ -49,8 +71,9 @@
 
 .founders-subheading {
 	font-size: 28px;
+	font-weight: 400;
 	color: #2e6c45;
-	margin-bottom: 15px;
+	/* margin-bottom: 5px; */
 }
 
 .founders-details {

@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css?family=Lora');
+@import url('https://fonts.googleapis.com/css?family=Inter');
+
 *,
 *::before,
 *::after {
@@ -6,7 +9,7 @@
 	box-sizing: border-box;
 }
 
-html,
+/* html,
 body,
 div,
 span,
@@ -93,7 +96,7 @@ video {
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
-}
+} */
 
 a:hover {
 	color: #167859;
