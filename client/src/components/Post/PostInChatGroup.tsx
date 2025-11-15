@@ -1,20 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-	API_URL,
-	FOUL_MESSAGES,
-	GO,
-	GROUP,
-	HOST,
-	MESSAGES,
-	MESSAGES_ROUTE,
-	PERSONALE_ROUTE,
-	PUBLICATION_ID_ROUTE,
-	PUBLICATIONS,
-	SHARE,
-} from '../../utils/consts';
+import { API_URL, FOUL_MESSAGES, GROUP, MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
 
-import { Button, Dropdown, MenuProps, message, Carousel, Image, Modal } from 'antd';
+import { Button, message, Carousel, Image, Modal } from 'antd';
 
 import { Buffer } from 'buffer';
 
@@ -24,27 +12,32 @@ import FoulModal from '../../pages/Messages/FoulModal/FoulModal';
 
 import styles from './Post.module.css';
 import ExpandableText from '../ExpandableText/ExpandableText';
-import { DangerIcon } from '../../UI/icons/DangerIcon';
 import { observer } from 'mobx-react-lite';
-import { PlusOutlined } from '@ant-design/icons';
-import ShareButton from '../ShareButton';
+import { SendOutlined } from '@ant-design/icons';
 import CustomAvatar from '../CustomAvatar';
-import { PublicationWithPartialUser } from '../../pages/Publications/Publications';
+// import { PublicationWithPartialUser } from '../../pages/Publications/Publications';
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
 import { parseIsUrlProtocol } from '../../utils/function';
+import PostActions from './PostActions';
+import { DeleteGroupMessageDto, UpdateGroupMessageDto } from '../../services/GroupsService';
+import TextArea from 'antd/es/input/TextArea';
+import { MessageWithPartialUser } from '../../models/IMessages';
 
 interface PostProps {
-	post: PublicationWithPartialUser;
+	post: MessageWithPartialUser;
+	deletePost: (id: number, location: string) => void;
 }
 
-const Post: React.FC<PostProps> = ({ post }) => {
-	const [selectedMessage, setSelectedMessage] = useState<PublicationWithPartialUser>();
+const PostInChatGroup: React.FC<PostProps> = ({ post, deletePost }) => {
+	const [selectedMessage, setSelectedMessage] = useState<MessageWithPartialUser>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [isActive, setIsActive] = useState(false);
 	const [width, setWidth] = useState<number>(0);
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 	const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedText, setEditedText] = useState(post.message);
 
 	const divRef = useRef<HTMLDivElement>(null);
 
@@ -59,6 +52,21 @@ const Post: React.FC<PostProps> = ({ post }) => {
 		timezone: 'UTC',
 		hour: 'numeric',
 		minute: 'numeric',
+	};
+
+	const getLocationOfPathname = (path: string | undefined) => {
+		switch (path) {
+			case 'locality':
+				return 'locality';
+			case 'region':
+				return 'region';
+			case 'country':
+				return 'country';
+			case 'world':
+				return 'world';
+			default:
+				return null;
+		}
 	};
 
 	useEffect(() => {
@@ -77,45 +85,6 @@ const Post: React.FC<PostProps> = ({ post }) => {
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
-	const splitRoute = MESSAGES_ROUTE.split('/');
-
-	const url = `${HOST}/${PUBLICATION_ID_ROUTE}/${post.id}`;
-
-	const options: MenuProps['items'] = [
-		{
-			key: FOUL_MESSAGES,
-			label: (
-				<div className={`${styles.label} ${styles.danger}`}>
-					<DangerIcon width="23px" fill="red" /> {FOUL_MESSAGES}
-				</div>
-			),
-		},
-		...(!parts.includes(splitRoute[1])
-			? [
-					{
-						key: SHARE,
-						title: 'Поделиться',
-						label: <>{SHARE}</>,
-						children: ['vk', 'telegram', 'whatsapp'].map((platform) => ({
-							key: platform,
-							label: <ShareButton platform={platform} url={url} text={selectedMessage?.message || ''} />,
-						})),
-					},
-					{
-						key: GO,
-						label: <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
-					},
-				]
-			: []),
-	];
-
-	const sourceFoul = () => {
-		if (parts.includes(MESSAGES)) return MESSAGES;
-		if (parts.includes(PUBLICATIONS)) return PUBLICATIONS;
-		if (parts.includes(GROUP)) return GROUP;
-		return '';
-	};
-
 	const sendFoul = async (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
 		if (selectedMessage) {
 			try {
@@ -125,7 +94,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 					selectedRules: selectedRules,
 					selectedActionWithFoul: selectedActionWithFoul,
 					selectedPunishment: selectedPunishment,
-					source: sourceFoul(),
+					source: GROUP,
 				});
 
 				if (sendFoulMessage) message.success(`${sendFoulMessage.data}`);
@@ -151,6 +120,56 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
 	const handleVisibleChange = (flag: boolean) => {
 		setVisible(flag);
+	};
+
+	const sendEditedMessage = async () => {
+		if (!editedText.trim()) return;
+		await handleEditMessage(editedText.trim());
+		setIsEditing(false);
+	};
+
+	const handleEditMessage = async (updatedText: string) => {
+		if (!selectedMessage) return;
+
+		try {
+			const dto: UpdateGroupMessageDto = {
+				id_message: selectedMessage.id,
+				message: updatedText,
+			};
+			const result = await store.groupStore.editMessage(dto);
+
+			if (result.data) {
+				message.success('Сообщение обновлено');
+				selectedMessage.message = updatedText;
+			} else if (result.error) {
+				message.error(result.error);
+			}
+		} catch {
+			message.error('Ошибка при редактировании сообщения');
+		}
+	};
+
+	const handleDeleteMessage = async () => {
+		if (!selectedMessage) return;
+
+		try {
+			const dto: DeleteGroupMessageDto = {
+				id_message: selectedMessage.id,
+			};
+
+			const result = await store.groupStore.deleteMessage(dto);
+
+			if (result.data) {
+				const location = getLocationOfPathname(parts.at(-1));
+				if (!location) return;
+				message.success('Сообщение удалено');
+				deletePost(selectedMessage.id, location);
+			} else if (result.error) {
+				message.error(result.error);
+			}
+		} catch {
+			message.error('Ошибка при удалении сообщения');
+		}
 	};
 
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
@@ -200,31 +219,36 @@ const Post: React.FC<PostProps> = ({ post }) => {
 						{post.createdAt && new Date(post.createdAt).toLocaleString('ru', options_time)}
 					</p>
 				</div>
-				<div className={styles.actions}>
-					<div className={`${styles.foul} ${isActive ? styles.show : ''}`}>
-						<Dropdown
-							menu={{ items: options, onClick: handleMenuClick }}
-							onOpenChange={handleVisibleChange}
-							open={visible}
-							trigger={['click']}
-						>
-							<Button
-								type="text"
-								shape="circle"
-								size="small"
-								className={styles.menuButton}
-								icon={<PlusOutlined />}
-								onClick={(e) => {
-									e.stopPropagation();
-									setSelectedMessage(post);
-								}}
-							/>
-						</Dropdown>
-					</div>
-				</div>
+				<PostActions
+					isActive={isActive}
+					visible={visible}
+					handleMenuClick={handleMenuClick}
+					handleVisibleChange={handleVisibleChange}
+					setSelectedMessage={setSelectedMessage}
+					post={post}
+					handleDeletePost={handleDeleteMessage}
+					userId={selectedMessage?.user.id}
+					source={MESSAGES}
+					message={selectedMessage?.message}
+				/>
 			</div>
 			<div className={styles.messageBody}>
-				<ExpandableText text={post.message.trim()} />
+				{isEditing ? (
+					<div className={styles.editContainer}>
+						<TextArea
+							value={editedText}
+							onChange={(e) => setEditedText(e.target.value)}
+							autoSize={{ minRows: 2, maxRows: 4 }}
+						/>
+						<Button
+							type="text"
+							icon={<SendOutlined style={{ fontSize: '30px', paddingLeft: '15px' }} />}
+							onClick={sendEditedMessage}
+						/>
+					</div>
+				) : (
+					<ExpandableText text={post.message.trim()} />
+				)}
 			</div>
 			{!!otherFiles.length && (
 				<div className={styles.filesList}>
@@ -299,4 +323,4 @@ const Post: React.FC<PostProps> = ({ post }) => {
 	);
 };
 
-export default observer(Post);
+export default observer(PostInChatGroup);

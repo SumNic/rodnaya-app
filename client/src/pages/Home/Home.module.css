@@ -27,15 +27,14 @@
 .founders-title {
 	font-size: 36px;
 	color: #2e6c45;
-	font-family: 'Merriweather', serif;
 	margin-bottom: 20px;
 	line-height: 1.2;
 }
 
 .founders-description {
-	font-size: 20px;
+	font-size: 18px;
 	color: #353434;
-	font-family: 'Lora', serif;
+	font-family: 'Inter', serif;
 	line-height: 1.6;
 	margin-bottom: 20px;
 }
@@ -51,7 +50,6 @@
 .founders-subheading {
 	font-size: 28px;
 	color: #2e6c45;
-	font-family: 'Merriweather', serif;
 	margin-bottom: 15px;
 }
 

@@ -4,7 +4,7 @@ import { Spin } from 'antd';
 
 import styles from './PublicationsList.module.css';
 import { PublicationWithPartialUser } from '../Publications.tsx';
-import PostForPublication from '../../../components/Post/PostForPublication.tsx';
+import PostInPublication from '../../../components/Post/PostInPublications.tsx';
 
 interface Props {
 	publications: PublicationWithPartialUser[] | undefined;
@@ -67,7 +67,7 @@ const PublicationsList: React.FC<Props> = ({
 								</div>
 							) : null}
 
-							<PostForPublication post={post} deletePublication={deletePublication} />
+							<PostInPublication post={post} deletePublication={deletePublication} />
 						</div>
 					);
 				})}

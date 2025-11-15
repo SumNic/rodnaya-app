@@ -10,6 +10,8 @@ import { components } from '../utils/api.ts';
 export type CreatePostToChatDto = components['schemas']['CreatePostToChatDto'];
 export type GroupMessage = components['schemas']['GroupMessage'];
 export type Group = components['schemas']['Group'];
+export type UpdateGroupMessageDto = components['schemas']['UpdateGroupMessageDto'];
+export type DeleteGroupMessageDto = components['schemas']['DeleteGroupMessageDto'];
 
 export default class GroupsService {
 	static async createGroup(dto: CreateGroupDto): Promise<AxiosResponse<Group>> {
@@ -52,6 +54,14 @@ export default class GroupsService {
 
 	static async sendPost(dto: CreatePostToChatDto): Promise<AxiosResponse<number>> {
 		return $api.post<number>('/send-post-to-chat', dto);
+	}
+
+	static async editMessage(dto: UpdateGroupMessageDto): Promise<AxiosResponse<string>> {
+		return $api.patch<string>('/edit-group-message', dto);
+	}
+
+	static async deleteMessage(dto: DeleteGroupMessageDto): Promise<AxiosResponse<string>> {
+		return $api.delete<string>('/delete-group-message', { data: dto });
 	}
 
 	static async joinTheGroup(id: number) {

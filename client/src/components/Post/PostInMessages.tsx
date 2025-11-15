@@ -1,22 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-	API_URL,
-	DELETE_MESSAGES,
-	EDIT_MESSAGES,
-	FOUL_MESSAGES,
-	GO,
-	GROUP,
-	HOST,
-	MESSAGES,
-	MESSAGES_ROUTE,
-	PERSONALE_ROUTE,
-	PUBLICATION_ID_ROUTE,
-	PUBLICATIONS,
-	SHARE,
-} from '../../utils/consts';
+import { API_URL, EDIT_MESSAGES, FOUL_MESSAGES, MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
 
-import { Button, Dropdown, MenuProps, message, Carousel, Image, Modal } from 'antd';
+import { Button, message, Carousel, Image, Modal } from 'antd';
 
 import { Buffer } from 'buffer';
 
@@ -26,24 +12,24 @@ import FoulModal from '../../pages/Messages/FoulModal/FoulModal';
 
 import styles from './Post.module.css';
 import ExpandableText from '../ExpandableText/ExpandableText';
-import { DangerIcon } from '../../UI/icons/DangerIcon';
 import { observer } from 'mobx-react-lite';
-import { DeleteOutlined, EditOutlined, PlusOutlined, SendOutlined } from '@ant-design/icons';
-import ShareButton from '../ShareButton';
+import { SendOutlined } from '@ant-design/icons';
 import CustomAvatar from '../CustomAvatar';
-import { PublicationWithPartialUser } from '../../pages/Publications/Publications';
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
-import { parseIsUrlProtocol } from '../../utils/function';
-import { DeletePublicationDto, UpdatePublicationDto } from '../../services/PublicationsService';
+import { MessageWithPartialUser } from '../../models/IMessages';
+import { DeleteMessageDto, UpdateMessageDto } from '../../services/MessagesService';
 import TextArea from 'antd/es/input/TextArea';
+import { parseIsUrlProtocol } from '../../utils/function';
+
+import PostActions from './PostActions';
 
 interface PostProps {
-	post: PublicationWithPartialUser;
-	deletePublication?: (id: number) => void;
+	post: MessageWithPartialUser;
+	deletePost: (id: number, location: string) => void;
 }
 
-const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) => {
-	const [selectedMessage, setSelectedMessage] = useState<PublicationWithPartialUser>();
+const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
+	const [selectedMessage, setSelectedMessage] = useState<MessageWithPartialUser>();
 	const [isFoulModalOpenOk, setIsFoulModalOpenOk] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [isActive, setIsActive] = useState(false);
@@ -62,10 +48,25 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 
 	const parts = path.split('/');
 
-	var options_time: {} = {
+	const options_time: {} = {
 		timezone: 'UTC',
 		hour: 'numeric',
 		minute: 'numeric',
+	};
+
+	const getLocationOfPathname = (path: string | undefined) => {
+		switch (path) {
+			case 'locality':
+				return 'locality';
+			case 'region':
+				return 'region';
+			case 'country':
+				return 'country';
+			case 'world':
+				return 'world';
+			default:
+				return null;
+		}
 	};
 
 	useEffect(() => {
@@ -73,7 +74,6 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 			setWidth(divRef.current.offsetWidth);
 		}
 
-		// обновляем при изменении размера окна
 		const handleResize = () => {
 			if (divRef.current) {
 				setWidth(divRef.current.offsetWidth);
@@ -84,27 +84,16 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
-	const splitRoute = MESSAGES_ROUTE.split('/');
-
-	const url = `${HOST}/${PUBLICATION_ID_ROUTE}/${post.id}`;
-
-	const sourceFoul = () => {
-		if (parts.includes(MESSAGES)) return MESSAGES;
-		if (parts.includes(PUBLICATIONS)) return PUBLICATIONS;
-		if (parts.includes(GROUP)) return GROUP;
-		return '';
-	};
-
 	const sendFoul = async (selectedRules: number[], selectedActionWithFoul: number, selectedPunishment: number) => {
 		if (selectedMessage) {
 			try {
 				const sendFoulMessage = await AdminService.reportViolation({
 					id_cleaner: store.authStore.user.id,
 					id_foul_message: selectedMessage.id,
-					selectedRules: selectedRules,
-					selectedActionWithFoul: selectedActionWithFoul,
-					selectedPunishment: selectedPunishment,
-					source: sourceFoul(),
+					selectedRules,
+					selectedActionWithFoul,
+					selectedPunishment,
+					source: MESSAGES,
 				});
 
 				if (sendFoulMessage) message.success(`${sendFoulMessage.data}`);
@@ -112,6 +101,17 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 				console.error(`Ошибка в sendFoul: ${err}`);
 			}
 		}
+	};
+
+	const startEditing = () => {
+		setIsEditing(true);
+		setEditedText(selectedMessage?.message || '');
+	};
+
+	const sendEditedMessage = async () => {
+		if (!editedText.trim()) return;
+		await handleEditMessage(editedText.trim());
+		setIsEditing(false);
 	};
 
 	const handleSelect = (event: string): void => {
@@ -122,127 +122,69 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 		}
 	};
 
-	const startEditing = () => {
-		setIsEditing(true);
-		setEditedText(selectedMessage?.message || '');
-	};
-
 	const handleMenuClick = (e: any) => {
-		console.log(e, 'e');
-
-		if (e.key === 'share') {
-			return;
-		}
-		handleSelect(e.key); // Обработка выбора основного пункта меню
+		if (e.key === 'share') return;
+		handleSelect(e.key);
 	};
 
 	const handleVisibleChange = (flag: boolean) => {
 		setVisible(flag);
 	};
 
-	const handleEditPublication = async (updatedText: string) => {
+	const handleEditMessage = async (updatedText: string) => {
 		if (!selectedMessage) return;
 
 		try {
-			const dto: UpdatePublicationDto = {
+			const dto: UpdateMessageDto = {
 				id_message: selectedMessage.id,
 				message: updatedText,
 			};
-			const result = await store.publicationStore.editMessage(dto);
+			const result = await store.messageStore.editMessage(dto);
 
 			if (result.data) {
 				message.success('Сообщение обновлено');
-				selectedMessage.message = updatedText; // обновляем локально
+				selectedMessage.message = updatedText;
 			} else if (result.error) {
 				message.error(result.error);
 			}
-		} catch (err) {
-			message.error('Ошибка при редактировании публикации');
-			console.error(err);
+		} catch {
+			message.error('Ошибка при редактировании сообщения');
 		}
 	};
 
-	const handleDeletePublication = async () => {
+	const handleDeleteMessage = async () => {
 		if (!selectedMessage) return;
 
 		try {
-			const dto: DeletePublicationDto = {
+			const dto: DeleteMessageDto = {
 				id_message: selectedMessage.id,
 			};
-			const result = await store.publicationStore.deleteMessage(dto);
+
+			const result = await store.messageStore.deleteMessage(dto);
 
 			if (result.data) {
-				message.success('Публикация удалена');
-				if (deletePublication) deletePublication(selectedMessage.id);
+				const location = getLocationOfPathname(parts.at(-1));
+				if (!location) return;
+				message.success('Сообщение удалено');
+				deletePost(selectedMessage.id, location);
 			} else if (result.error) {
 				message.error(result.error);
 			}
-		} catch (err) {
-			message.error('Ошибка при удалении публикации');
-			console.error(err);
+		} catch {
+			message.error('Ошибка при удалении сообщения');
 		}
-	};
-
-	const options: MenuProps['items'] = [
-		{
-			key: EDIT_MESSAGES,
-			label: store.authStore.user.id === selectedMessage?.user.id && (
-				<div className={`${styles.label}`}>
-					<EditOutlined width="23px" /> {EDIT_MESSAGES}
-				</div>
-			),
-		},
-		{
-			key: DELETE_MESSAGES,
-			label: store.authStore.user.id === selectedMessage?.user.id && (
-				<div className={`${styles.label}`} onClick={handleDeletePublication}>
-					<DeleteOutlined width="23px" /> {DELETE_MESSAGES}
-				</div>
-			),
-		},
-		...(!parts.includes(splitRoute[1])
-			? [
-					{
-						key: SHARE,
-						title: 'Поделиться',
-						label: <>{SHARE}</>,
-						children: ['vk', 'telegram', 'whatsapp'].map((platform) => ({
-							key: platform,
-							label: <ShareButton platform={platform} url={url} text={selectedMessage?.message || ''} />,
-						})),
-					},
-					{
-						key: GO,
-						label: <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
-					},
-				]
-			: []),
-		{
-			key: FOUL_MESSAGES,
-			label: (
-				<div className={`${styles.label} ${styles.danger}`}>
-					<DangerIcon width="23px" fill="red" /> {FOUL_MESSAGES}
-				</div>
-			),
-		},
-	];
-
-	const sendEditedMessage = async () => {
-		if (!editedText.trim()) return;
-		await handleEditPublication(editedText.trim());
-		setIsEditing(false);
 	};
 
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 	const files = post?.files || [];
 	const imageFiles = files.filter((file) => {
-		const originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8');
-		const ext = originFileName.split('.').pop()?.toLowerCase() || '';
+		const name = Buffer.from(file.fileName, 'latin1').toString('utf8');
+		const ext = name.split('.').pop()?.toLowerCase() || '';
 		return imageExtensions.includes(ext);
 	});
 	const otherFiles = files.filter((file) => {
-		const originFileName = Buffer.from(file.fileName, 'latin1').toString('utf8');
-		const ext = originFileName.split('.').pop()?.toLowerCase() || '';
+		const name = Buffer.from(file.fileName, 'latin1').toString('utf8');
+		const ext = name.split('.').pop()?.toLowerCase() || '';
 		return !imageExtensions.includes(ext);
 	});
 
@@ -250,8 +192,7 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 		<div
 			className={`${styles['mes__wrapper']} ${isActive ? styles.active : ''}`}
 			onClick={(e) => {
-				const target = e.target as HTMLElement;
-				if (target.closest('a, button')) return;
+				if ((e.target as HTMLElement).closest('a, button')) return;
 				setIsActive((prev) => !prev);
 			}}
 		>
@@ -267,6 +208,7 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 						names={[post.user.first_name || '', post.user.last_name || '']}
 					/>
 				</Link>
+
 				<div className={styles.name__first_last}>
 					<div className={styles.nameRow}>
 						<Link to={`${PERSONALE_ROUTE}/${post.user.id}`} className={styles.name__first}>
@@ -276,33 +218,27 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 							<p className={styles.name__first}>{post.user.last_name}</p>
 						</Link>
 					</div>
+
 					<p className={styles.name__time}>
 						{post.createdAt && new Date(post.createdAt).toLocaleString('ru', options_time)}
 					</p>
 				</div>
-				<div className={styles.actions}>
-					<div className={`${styles.foul} ${isActive ? styles.show : ''}`}>
-						<Dropdown
-							menu={{ items: options, onClick: handleMenuClick }}
-							onOpenChange={handleVisibleChange}
-							open={visible}
-							trigger={['click']}
-						>
-							<Button
-								type="text"
-								shape="circle"
-								size="small"
-								className={styles.menuButton}
-								icon={<PlusOutlined />}
-								onClick={(e) => {
-									e.stopPropagation();
-									setSelectedMessage(post);
-								}}
-							/>
-						</Dropdown>
-					</div>
-				</div>
+
+				{/* ⬇⬇⬇ NEW COMPONENT HERE ⬇⬇⬇ */}
+				<PostActions
+					isActive={isActive}
+					visible={visible}
+					handleMenuClick={handleMenuClick}
+					handleVisibleChange={handleVisibleChange}
+					setSelectedMessage={setSelectedMessage}
+					post={post}
+					handleDeletePost={handleDeleteMessage}
+					userId={selectedMessage?.user.id}
+					source={MESSAGES}
+					message={selectedMessage?.message}
+				/>
 			</div>
+
 			<div className={styles.messageBody}>
 				{isEditing ? (
 					<div className={styles.editContainer}>
@@ -313,7 +249,7 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 						/>
 						<Button
 							type="text"
-							icon={<SendOutlined style={{ color: '#b1b3b1', fontSize: '30px', paddingLeft: '15px' }} />}
+							icon={<SendOutlined style={{ fontSize: '30px', paddingLeft: '15px' }} />}
 							onClick={sendEditedMessage}
 						/>
 					</div>
@@ -321,15 +257,14 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 					<ExpandableText text={post.message.trim()} />
 				)}
 			</div>
+
 			{!!otherFiles.length && (
 				<div className={styles.filesList}>
 					{otherFiles.map((file) => {
 						const href = `${API_URL}/file/${file.fileNameUuid}`;
 						return (
 							<div key={file.id} className={styles.fileItem}>
-								<span className={styles.fileBullet} aria-hidden>
-									📎
-								</span>
+								<span className={styles.fileBullet}>📎</span>
 								<a href={href} target="_blank" rel="noreferrer" className={styles.fileLinkCompact}>
 									{file.fileName}
 								</a>
@@ -338,13 +273,13 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 					})}
 				</div>
 			)}
+
 			{(imageFiles.length > 0 || (post.video && post.video.length > 0)) && (
 				<div className={styles.attachments} ref={divRef}>
 					<Carousel
 						dots={imageFiles.length + (post.video?.length || 0) > 1}
 						arrows={imageFiles.length + (post.video?.length || 0) > 1}
 					>
-						{/* Картинки */}
 						{imageFiles.map((file) => {
 							const href = `${API_URL}/file/${file.fileNameUuid}`;
 							return (
@@ -356,7 +291,6 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 							);
 						})}
 
-						{/* Видео */}
 						{post.video?.map((videoUrl, index) => (
 							<div key={`vid-${index}`}>
 								<PostVideoAttachment
@@ -378,6 +312,7 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 				sendFoul={sendFoul}
 				onCancel={() => setIsFoulModalOpenOk(false)}
 			/>
+
 			<Modal
 				open={isVideoModalOpen}
 				footer={null}
@@ -394,4 +329,4 @@ const PostForPublication: React.FC<PostProps> = ({ post, deletePublication }) =>
 	);
 };
 
-export default observer(PostForPublication);
+export default observer(PostInMessages);

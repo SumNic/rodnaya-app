@@ -581,6 +581,7 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					lastMessageRef={lastMessageRef}
 					groupId={group?.id}
 					deletePost={deletePost}
+					source={source}
 				/>
 			)}
 			{!isScrollEnd[locationKey] && (

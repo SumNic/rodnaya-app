@@ -1,6 +1,11 @@
 import { makeAutoObservable } from 'mobx';
 import { CreateGroupDto } from '../models/CreateGroupDto';
-import GroupsService, { CreatePostToChatDto, Group } from '../services/GroupsService';
+import GroupsService, {
+	CreatePostToChatDto,
+	DeleteGroupMessageDto,
+	Group,
+	UpdateGroupMessageDto,
+} from '../services/GroupsService';
 // import { IGroup } from '../models/response/IGroup';
 import { CountNoReadPostsGroups } from '../models/CountNoReadPostsGroups';
 import { EndReadPostsGroupsId } from '../models/EndReadPostsGroupsId';
@@ -134,6 +139,24 @@ export default class GroupStore {
 	async sendPostToChat(dto: CreatePostToChatDto) {
 		try {
 			const response = await GroupsService.sendPost(dto);
+			return { data: response.data };
+		} catch (e: any) {
+			return { error: e.response?.data?.message };
+		}
+	}
+
+	async editMessage(dto: UpdateGroupMessageDto) {
+		try {
+			const response = await GroupsService.editMessage(dto);
+			return { data: response.data };
+		} catch (e: any) {
+			return { error: e.response?.data?.message };
+		}
+	}
+
+	async deleteMessage(dto: DeleteGroupMessageDto) {
+		try {
+			const response = await GroupsService.deleteMessage(dto);
 			return { data: response.data };
 		} catch (e: any) {
 			return { error: e.response?.data?.message };
