@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Dropdown, MenuProps } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Dropdown, MenuProps, Modal } from 'antd';
+import { DeleteOutlined, EditOutlined, FileSearchOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from './Post.module.css';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { Link } from 'react-router-dom';
@@ -15,9 +15,10 @@ import {
 	PUBLICATIONS,
 	HOST,
 } from '../../utils/consts';
-import ShareButton from '../ShareButton';
 import { PublicationWithPartialUser } from '../../pages/Publications/Publications';
 import { MessageWithPartialUser } from '../../models/IMessages';
+
+import { message as antdMessage } from 'antd';
 
 interface PostActionsProps {
 	isActive: boolean;
@@ -42,11 +43,32 @@ const PostActions: React.FC<PostActionsProps> = ({
 	handleDeletePost,
 	userId,
 	source,
-	message,
 }) => {
 	const { store } = useStoreContext();
 
-	const url = `${HOST}/${PUBLICATION_ID_ROUTE}/${post.id}`;
+	const url = `${HOST}${PUBLICATION_ID_ROUTE}/${post.id}`;
+
+	const copyLink = async () => {
+		try {
+			await navigator.clipboard.writeText(url);
+			antdMessage.success('Ссылка скопирована');
+		} catch (e) {
+			antdMessage.error('Не удалось скопировать ссылку');
+		}
+	};
+
+	const confirmDelete = () => {
+		Modal.confirm({
+			title: 'Удалить сообщение?',
+			content: 'Это действие необратимо.',
+			okText: 'Удалить',
+			cancelText: 'Отмена',
+			okType: 'danger',
+			onOk: () => {
+				handleDeletePost();
+			},
+		});
+	};
 
 	const options: MenuProps['items'] = [
 		...(store.authStore.user.id !== userId
@@ -72,7 +94,7 @@ const PostActions: React.FC<PostActionsProps> = ({
 					{
 						key: DELETE_MESSAGES,
 						label: store.authStore.user.id === userId && (
-							<div className={`${styles.label}`} onClick={handleDeletePost}>
+							<div className={`${styles.label} ${styles.danger}`} onClick={confirmDelete}>
 								<DeleteOutlined width="23px" /> {DELETE_MESSAGES}
 							</div>
 						),
@@ -84,15 +106,20 @@ const PostActions: React.FC<PostActionsProps> = ({
 					{
 						key: SHARE,
 						title: 'Поделиться',
-						label: source === PUBLICATIONS && SHARE,
-						children: ['vk', 'telegram', 'whatsapp'].map((platform) => ({
-							key: platform,
-							label: <ShareButton platform={platform} url={url} text={message || ''} />,
-						})),
+						label: source === PUBLICATIONS && (
+							<div className={styles.label} onClick={copyLink}>
+								<PlusOutlined /> {SHARE}
+							</div>
+						),
 					},
 					{
 						key: GO,
-						label: source === PUBLICATIONS && <Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>,
+						label: source === PUBLICATIONS && (
+							<div className={`${styles.label}`}>
+								<FileSearchOutlined />
+								<Link to={`${PUBLICATION_ID_ROUTE}/${post.id}`}>{GO}</Link>
+							</div>
+						),
 					},
 				]
 			: []),
