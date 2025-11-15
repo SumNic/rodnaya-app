@@ -13,7 +13,7 @@ const ExpandableText = ({ text }: { text: string }) => {
 	const toggleExpand = () => setIsExpanded(!isExpanded);
 
 	// Преобразуем JSX в строку
-	const plainText = text.replace(/<[^>]+>/g, ''); // Убираем HTML-теги
+	const plainText = text; // Убираем HTML-теги
 	const shouldTruncate = plainText.length > maxLength;
 
 	// Обрезаем строку и снова применяем renderTextWithLinks
@@ -81,7 +81,7 @@ const ExpandableText = ({ text }: { text: string }) => {
 
 	return (
 		<>
-			{renderTextWithLinks(displayedText)}
+			<div className={styles['text-container']}>{renderTextWithLinks(displayedText)}</div>
 			{shouldTruncate && (
 				<span className={styles['show-more']} onClick={toggleExpand}>
 					{isExpanded ? 'Скрыть' : 'Показать ещё'}

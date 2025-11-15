@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL, EDIT_MESSAGES, FOUL_MESSAGES, GROUP, PERSONALE_ROUTE, PUBLICATIONS } from '../../utils/consts';
 
-import { Button, message, Carousel, Image, Modal } from 'antd';
+import { message, Carousel, Image, Modal } from 'antd';
 
 import { Buffer } from 'buffer';
 
@@ -13,14 +13,13 @@ import FoulModal from '../../pages/Messages/FoulModal/FoulModal';
 import styles from './Post.module.css';
 import ExpandableText from '../ExpandableText/ExpandableText';
 import { observer } from 'mobx-react-lite';
-import { SendOutlined } from '@ant-design/icons';
 import CustomAvatar from '../CustomAvatar';
 import { PublicationWithPartialUser } from '../../pages/Publications/Publications';
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
 import { parseIsUrlProtocol } from '../../utils/function';
 import { DeletePublicationDto, UpdatePublicationDto } from '../../services/PublicationsService';
-import TextArea from 'antd/es/input/TextArea';
 import PostActions from './PostActions';
+import EditingPost from './EditingPost';
 
 interface PostProps {
 	post: PublicationWithPartialUser;
@@ -152,12 +151,6 @@ const PostInPublications: React.FC<PostProps> = ({ post, deletePublication }) =>
 		}
 	};
 
-	const sendEditedMessage = async () => {
-		if (!editedText.trim()) return;
-		await handleEditPublication(editedText.trim());
-		setIsEditing(false);
-	};
-
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 	const files = post?.files || [];
 	const imageFiles = files.filter((file) => {
@@ -220,18 +213,12 @@ const PostInPublications: React.FC<PostProps> = ({ post, deletePublication }) =>
 			</div>
 			<div className={styles.messageBody}>
 				{isEditing ? (
-					<div className={styles.editContainer}>
-						<TextArea
-							value={editedText}
-							onChange={(e) => setEditedText(e.target.value)}
-							autoSize={{ minRows: 2, maxRows: 4 }}
-						/>
-						<Button
-							type="text"
-							icon={<SendOutlined style={{ color: '#b1b3b1', fontSize: '30px', paddingLeft: '15px' }} />}
-							onClick={sendEditedMessage}
-						/>
-					</div>
+					<EditingPost
+						editedText={editedText}
+						setEditedText={setEditedText}
+						setIsEditing={setIsEditing}
+						handleEditPost={handleEditPublication}
+					/>
 				) : (
 					<ExpandableText text={post.message.trim()} />
 				)}

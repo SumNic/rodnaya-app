@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { API_URL, EDIT_MESSAGES, FOUL_MESSAGES, MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
 
-import { Button, message, Carousel, Image, Modal } from 'antd';
+import { message, Carousel, Image, Modal } from 'antd';
 
 import { Buffer } from 'buffer';
 
@@ -13,15 +13,14 @@ import FoulModal from '../../pages/Messages/FoulModal/FoulModal';
 import styles from './Post.module.css';
 import ExpandableText from '../ExpandableText/ExpandableText';
 import { observer } from 'mobx-react-lite';
-import { SendOutlined } from '@ant-design/icons';
 import CustomAvatar from '../CustomAvatar';
 import { PostVideoAttachment, PostVideoModalContent } from './PostVideo';
 import { MessageWithPartialUser } from '../../models/IMessages';
 import { DeleteMessageDto, UpdateMessageDto } from '../../services/MessagesService';
-import TextArea from 'antd/es/input/TextArea';
 import { parseIsUrlProtocol } from '../../utils/function';
 
 import PostActions from './PostActions';
+import EditingPost from './EditingPost';
 
 interface PostProps {
 	post: MessageWithPartialUser;
@@ -106,12 +105,6 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 	const startEditing = () => {
 		setIsEditing(true);
 		setEditedText(selectedMessage?.message || '');
-	};
-
-	const sendEditedMessage = async () => {
-		if (!editedText.trim()) return;
-		await handleEditMessage(editedText.trim());
-		setIsEditing(false);
 	};
 
 	const handleSelect = (event: string): void => {
@@ -241,18 +234,12 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 
 			<div className={styles.messageBody}>
 				{isEditing ? (
-					<div className={styles.editContainer}>
-						<TextArea
-							value={editedText}
-							onChange={(e) => setEditedText(e.target.value)}
-							autoSize={{ minRows: 2, maxRows: 4 }}
-						/>
-						<Button
-							type="text"
-							icon={<SendOutlined style={{ fontSize: '30px', paddingLeft: '15px' }} />}
-							onClick={sendEditedMessage}
-						/>
-					</div>
+					<EditingPost
+						editedText={editedText}
+						setEditedText={setEditedText}
+						setIsEditing={setIsEditing}
+						handleEditPost={handleEditMessage}
+					/>
 				) : (
 					<ExpandableText text={post.message.trim()} />
 				)}

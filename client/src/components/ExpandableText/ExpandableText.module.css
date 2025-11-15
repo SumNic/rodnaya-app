@@ -7,3 +7,7 @@
 .show-more:hover {
 	text-decoration: underline;
 }
+
+.text-container {
+	white-space: pre-line; /* Сохраняет переносы строк */
+}

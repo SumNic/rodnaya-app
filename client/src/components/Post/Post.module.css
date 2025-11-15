@@ -260,4 +260,11 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	gap: 8px; /* расстояние между TextArea и кнопками */
+}
+
+.buttonsWrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
