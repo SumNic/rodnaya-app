@@ -210,6 +210,15 @@ export default class AuthStore {
 		}
 	};
 
+	getUser = async (id: number) => {
+		try {
+			const profile = await UserService.getUser(id);
+			return { data: profile.data };
+		} catch (e: any) {
+			return { data: e.response?.data?.message };
+		}
+	};
+
 	restoreProfile = async (id: number, secret: string) => {
 		try {
 			const response = await AuthService.restoreProfile(id, secret);

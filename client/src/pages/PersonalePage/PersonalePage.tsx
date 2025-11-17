@@ -28,6 +28,7 @@ import { Publication } from '../../services/PublicationsService';
 import UploadAntdFiles from '../../components/UploadAntdFiles/UploadAntdFiles';
 import { parseIsUrlProtocol } from '../../utils/function';
 import ExpandableText from '../../components/ExpandableText/ExpandableText';
+import { User } from '../../services/UserService';
 
 const { Title } = Typography;
 
@@ -39,6 +40,7 @@ const PersonalePage: React.FC = () => {
 	const [page, setPage] = useState(1);
 	const [isOwnerPage, setIsOwnerPage] = useState(false);
 	const [isChangeAvatar, setIsChangeAvatar] = useState(false);
+	const [profile, setProfile] = useState<User | null>(null);
 
 	const { id } = useParams();
 
@@ -53,11 +55,22 @@ const PersonalePage: React.FC = () => {
 	const uploadRef = useRef<any>(null);
 
 	useEffect(() => {
+		if (!id) return;
+
+		const fetchProfile = async () => {
+			const result = await store.authStore.getUser(Number(id));
+			setProfile(result.data);
+		};
+
+		fetchProfile();
+	}, [id]);
+
+	useEffect(() => {
 		if (!lastPublicationRef.current) return;
 
 		const observer = new IntersectionObserver((entries) => {
-			if (entries[0].isIntersecting && user?.id) {
-				loadUserPublications(user.id, page);
+			if (entries[0].isIntersecting && profile?.id) {
+				loadUserPublications(profile.id, page);
 			}
 		});
 
@@ -67,8 +80,8 @@ const PersonalePage: React.FC = () => {
 	}, [publications]);
 
 	useEffect(() => {
-		if (store.authStore.user?.id && user?.id && store.authStore.user?.id === user?.id) setIsOwnerPage(true);
-	}, [id, user]);
+		if (store.authStore.user?.id && profile?.id && store.authStore.user?.id === profile.id) setIsOwnerPage(true);
+	}, [id, user, profile]);
 
 	// Очистка файлов во время загрузки, чтобы сменить аватар, например
 	useEffect(() => {
@@ -79,7 +92,7 @@ const PersonalePage: React.FC = () => {
 		setPublications([]);
 		setIsDeclarationVisible(false);
 		setIsPublicationsVisible(true);
-		if (user?.id) loadUserPublications(user.id);
+		if (profile?.id) loadUserPublications(profile.id);
 	};
 
 	const mapApiToPublicationWithLocation = (p: Publication): PublicationWithPartialUser => ({
@@ -108,16 +121,18 @@ const PersonalePage: React.FC = () => {
 		setIsDeclarationVisible(true);
 	};
 
-	const query = [user?.residency.country, user?.residency.region, user?.residency.locality].filter(Boolean).join(', ');
+	const query = [profile?.residency.country, profile?.residency.region, profile?.residency.locality]
+		.filter(Boolean)
+		.join(', ');
 	const yandexMapsUrl = `https://yandex.ru/maps/?text=${encodeURIComponent(query)}`;
 
 	const openVkProfile = () => {
-		window.open(`https://vk.ru/id${user?.vk_id}`, '_blank');
+		window.open(`https://vk.ru/id${profile?.vk_id}`, '_blank');
 	};
 
 	useEffect(() => {
 		if (isChangeAvatar && files.length) {
-			updatePersonaleData({ id: user.id, photo_50: files[0].fileNameUuid, photo_max: files[0].fileNameUuid });
+			updatePersonaleData({ id: profile?.id, photo_50: files[0].fileNameUuid, photo_max: files[0].fileNameUuid });
 		}
 	}, [isChangeAvatar, files.length]);
 
@@ -143,20 +158,22 @@ const PersonalePage: React.FC = () => {
 				<img
 					className={styles.profile_photo}
 					src={
-						user.photo_max && parseIsUrlProtocol(user.photo_max) ? user.photo_max : `${API_URL}/file/${user.photo_max}`
+						profile?.photo_max && parseIsUrlProtocol(profile?.photo_max)
+							? profile?.photo_max
+							: `${API_URL}/file/${profile?.photo_max}`
 					}
 					alt="Ваше фото"
 				/>
 				<div className={styles.personale_wrapper} style={{ paddingBottom: 0 }}>
 					<p className={styles.p_style}>
-						{user?.first_name} {user?.last_name}
+						{profile?.first_name} {profile?.last_name}
 					</p>
 					<div className={styles.residency}>
 						<a href={yandexMapsUrl} target="_blank" rel="noopener noreferrer" title="Открыть в Яндекс.Картах">
 							<EnvironmentOutlined />
 						</a>
 						<p className={styles.p_style}>
-							{user?.residency.country}, {user?.residency.region}, {user?.residency.locality}
+							{profile?.residency.country}, {profile?.residency.region}, {profile?.residency.locality}
 						</p>
 					</div>
 
@@ -182,14 +199,14 @@ const PersonalePage: React.FC = () => {
 							onClick={handleDeclarationButtonClick}
 							className={styles.button}
 							icon={<ReadOutlined />}
-							disabled={!user?.declaration?.declaration}
+							disabled={!profile?.declaration?.declaration}
 						>
 							{currentWidth && currentWidth > 550 ? 'Декларация' : ''}
 						</Button>
 					</div>
 				</div>
 			</div>
-			{isDeclarationVisible && user?.declaration?.declaration && (
+			{isDeclarationVisible && profile?.declaration?.declaration && (
 				<>
 					<div style={{ width: '100%', display: 'block' }}>
 						<h2 style={{ fontSize: '21px', marginBottom: 0, textAlign: 'center', fontWeight: 400 }}>
@@ -197,7 +214,7 @@ const PersonalePage: React.FC = () => {
 						</h2>
 					</div>
 					<div style={{ width: '100%', fontFamily: 'Inter' }}>
-						<ExpandableText text={user?.declaration?.declaration} />
+						<ExpandableText text={profile?.declaration?.declaration} />
 					</div>
 				</>
 			)}
@@ -242,9 +259,9 @@ const PersonalePage: React.FC = () => {
 										<img
 											className={styles.edit_photo}
 											src={
-												user.photo_max && parseIsUrlProtocol(user.photo_max)
-													? user.photo_max
-													: `${API_URL}/file/${user.photo_max}`
+												profile?.photo_max && parseIsUrlProtocol(profile.photo_max)
+													? profile.photo_max
+													: `${API_URL}/file/${profile?.photo_max}`
 											}
 											alt="Ваше фото"
 										/>
