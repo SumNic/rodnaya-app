@@ -8,7 +8,6 @@ import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import PublicationsList from '../Publications/components/PublicationsList';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useParams } from 'react-router-dom';
-import Footer from '../../components/Footer';
 import { PublicationWithPartialUser } from '../Publications/Publications';
 import { Publication } from '../../services/PublicationsService';
 
@@ -71,7 +70,7 @@ const OnePublication: React.FC = () => {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

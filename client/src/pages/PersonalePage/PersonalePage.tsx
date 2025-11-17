@@ -27,6 +27,7 @@ import { PublicationWithPartialUser } from '../Publications/Publications';
 import { Publication } from '../../services/PublicationsService';
 import UploadAntdFiles from '../../components/UploadAntdFiles/UploadAntdFiles';
 import { parseIsUrlProtocol } from '../../utils/function';
+import ExpandableText from '../../components/ExpandableText/ExpandableText';
 
 const { Title } = Typography;
 
@@ -191,12 +192,12 @@ const PersonalePage: React.FC = () => {
 			{isDeclarationVisible && user?.declaration?.declaration && (
 				<>
 					<div style={{ width: '100%', display: 'block' }}>
-						<h2 style={{ fontSize: '21px', marginBottom: 0, textAlign: 'center' }}>Декларация моей Родной партии:</h2>
+						<h2 style={{ fontSize: '21px', marginBottom: 0, textAlign: 'center', fontWeight: 400 }}>
+							Декларация моей Родной партии:
+						</h2>
 					</div>
-					<div style={{ width: '100%' }}>
-						<p className={styles.p_style} style={{ whiteSpace: 'pre' }}>
-							{user?.declaration?.declaration}
-						</p>
+					<div style={{ width: '100%', fontFamily: 'Inter' }}>
+						<ExpandableText text={user?.declaration?.declaration} />
 					</div>
 				</>
 			)}

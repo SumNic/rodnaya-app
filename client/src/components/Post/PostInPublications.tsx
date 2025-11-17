@@ -41,11 +41,13 @@ const PostInPublications: React.FC<PostProps> = ({ post, deletePublication }) =>
 
 	const { store } = useStoreContext();
 
-	var options_time: {} = {
+	const options_time: {} = {
 		timezone: 'UTC',
 		hour: 'numeric',
 		minute: 'numeric',
 	};
+
+	const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
 	useEffect(() => {
 		if (divRef.current) {
@@ -168,9 +170,18 @@ const PostInPublications: React.FC<PostProps> = ({ post, deletePublication }) =>
 		<div
 			className={`${styles['mes__wrapper']} ${isActive ? styles.active : ''}`}
 			onClick={(e) => {
+				if (!isMobile) return; // на десктопе клик ничего не делает
 				const target = e.target as HTMLElement;
 				if (target.closest('a, button')) return;
 				setIsActive((prev) => !prev);
+			}}
+			onMouseEnter={() => {
+				if (isMobile) return; // на мобиле hover не нужен
+				setIsActive(true);
+			}}
+			onMouseLeave={() => {
+				if (isMobile) return;
+				setIsActive(false);
 			}}
 		>
 			<div className={styles.header}>

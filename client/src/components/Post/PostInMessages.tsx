@@ -53,6 +53,8 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 		minute: 'numeric',
 	};
 
+	const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
 	const getLocationOfPathname = (path: string | undefined) => {
 		switch (path) {
 			case 'locality':
@@ -185,8 +187,18 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 		<div
 			className={`${styles['mes__wrapper']} ${isActive ? styles.active : ''}`}
 			onClick={(e) => {
-				if ((e.target as HTMLElement).closest('a, button')) return;
+				if (!isMobile) return; // на десктопе клик ничего не делает
+				const target = e.target as HTMLElement;
+				if (target.closest('a, button')) return;
 				setIsActive((prev) => !prev);
+			}}
+			onMouseEnter={() => {
+				if (isMobile) return; // на мобиле hover не нужен
+				setIsActive(true);
+			}}
+			onMouseLeave={() => {
+				if (isMobile) return;
+				setIsActive(false);
 			}}
 		>
 			<div className={styles.header}>

@@ -75,7 +75,7 @@ function Declaration() {
 			</Form.Item>
 
 			<Form.Item name="declaration">
-				<TextArea id="text1" style={{ fontSize: '14px' }} rows={20} onKeyDown={handleKeyDown} />
+				<TextArea id="text1" style={{ fontSize: '14px' }} rows={6} onKeyDown={handleKeyDown} />
 			</Form.Item>
 
 			<div style={{ display: 'flex', justifyContent: 'end', gap: '10px' }}>

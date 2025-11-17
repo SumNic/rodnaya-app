@@ -2,18 +2,16 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne
 import { User } from '../users/user.model';
 import { Files } from '../files/files.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { PublicationComments } from 'src/common/models/publications/publications-comments.model';
+import { Publications } from 'src/common/models/publications/publications.model';
 
-interface PublicationsCreationAttrs {
-    country: string;
-    region: string;
-    locality: string;
+interface PublicationCommentsCreationAttrs {
+    location: string;
     message: string;
     video?: string[];
 }
 
-@Table({ tableName: `publications` })
-export class Publications extends Model<Publications, PublicationsCreationAttrs> {
+@Table({ tableName: `publication_comments` })
+export class PublicationComments extends Model<PublicationComments, PublicationCommentsCreationAttrs> {
     @ApiProperty({ type: Number })
     @Column({
         type: DataType.INTEGER,
@@ -25,44 +23,24 @@ export class Publications extends Model<Publications, PublicationsCreationAttrs>
 
     @ApiProperty({ type: String })
     @Column({ type: DataType.TEXT, allowNull: false })
-    message: string;
+    text: string;
 
     @ApiProperty({ type: [String] })
     @Column({ type: DataType.ARRAY(DataType.STRING), allowNull: true })
     video: string[];
-
-    @ApiProperty({ type: String })
-    @Column({ type: DataType.STRING, allowNull: false })
-    country: string;
-
-    @ApiProperty({ type: String })
-    @Column({ type: DataType.STRING, allowNull: false })
-    region: string;
-
-    @ApiProperty({ type: String })
-    @Column({ type: DataType.STRING, allowNull: false })
-    locality: string;
 
     @ApiProperty({ type: Boolean })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
     blocked: boolean;
 
     @ApiProperty({ type: Number })
-    @ForeignKey(() => User)
+    @ForeignKey(() => Publications)
     @Column({ type: DataType.INTEGER })
-    userId: number;
+    piblicationId: number;
 
-    @ApiProperty({ type: () => User })
-    @BelongsTo(() => User)
-    user: User;
-
-    @ApiProperty({ type: () => [Files] })
-    @HasMany(() => Files)
-    files: Files[];
-
-    @ApiProperty({ type: () => [PublicationComments] })
-    @HasMany(() => PublicationComments)
-    comments: PublicationComments[];
+    @ApiProperty({ type: () => Publications })
+    @BelongsTo(() => Publications)
+    publication: Publications;
 
     @ApiProperty({ type: Date })
     readonly createdAt!: Date;

@@ -1,11 +1,11 @@
 require('dotenv').config();
 
 module.exports = {
-  dev: {
+  development: {
     url: process.env.POSTGRES_URI,
     dialect: 'postgres',       // ← обязательно!
   },
-  prod: {
+  production: {
     url: process.env.POSTGRES_URI,
     dialect: 'postgres',       // ← обязательно!
   },

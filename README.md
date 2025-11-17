@@ -14,8 +14,8 @@ MODE=dev docker compose up
 
 ```
 # Использует prod конфигурацию
-MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml build
-MODE=prod docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 ```

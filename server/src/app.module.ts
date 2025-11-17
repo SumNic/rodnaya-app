@@ -51,6 +51,7 @@ import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 import { TelegramService } from './telegram/telegram.service';
 import { TelegramModule } from './telegram/telegram.module';
+import { PublicationComments } from 'src/common/models/publications/publications-comments.model';
 
 @Module({
     imports: [
@@ -102,6 +103,7 @@ import { TelegramModule } from './telegram/telegram.module';
                     LastReadPostChat,
                     UserGroups,
                     GroupAdmins,
+                    PublicationComments,
                 ],
                 autoLoadModels: true,
                 // synchronize: true,
