@@ -94,7 +94,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
 					const userWithoutResidency = {
 						...store.authStore.user,
-						residency: { world: '', country: '', region: '', locality: '' },
+						residency: {},
 					};
 					store.authStore.setUser(userWithoutResidency);
 					store.authStore.loginVk(dto.id, dto.secret).then(() => navigate(PERSONALE_ROUTE));

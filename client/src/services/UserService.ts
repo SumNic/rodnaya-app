@@ -4,6 +4,7 @@ import { DeclarationUser } from '../models/DeclarationUser';
 import { components } from '../utils/api.ts';
 
 export type User = components['schemas']['User'];
+export type Residency = components['schemas']['Residency'];
 export type UpdateUserDto = components['schemas']['UpdateUserDto'];
 export default class UserService {
 	static async fetchUsers(): Promise<AxiosResponse<User[]>> {

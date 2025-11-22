@@ -8,6 +8,7 @@ import MessagesService, {
 import { LocationUser } from '../models/LocationUser.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
 import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
+import { Residency } from '../services/UserService.ts';
 
 export default class MessageStore {
 	arrCountNoReadMessages = observable.array<CountNoReadMessages>([]);
@@ -62,7 +63,7 @@ export default class MessageStore {
 		}
 	}
 
-	getCountNoReadMessages = async (id: number, secret: string, residency: CreateLocationDto) => {
+	getCountNoReadMessages = async (id: number, secret: string, residency: Residency) => {
 		try {
 			const { country, region, locality } = residency;
 			const residencyUser: CreateLocationDto = { world: 'Земля', country, region, locality };
