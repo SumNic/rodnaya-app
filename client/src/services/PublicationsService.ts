@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
-// import { IPost } from '../models/IPost.ts';
 import { LocationUser } from '../models/LocationUser.ts';
 import { toJS } from 'mobx';
 

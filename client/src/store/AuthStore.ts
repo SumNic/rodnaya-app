@@ -1,5 +1,4 @@
 import { makeAutoObservable } from 'mobx';
-import { IUser } from '../models/IUser.ts';
 import AuthService from '../services/AuthService.ts';
 import VkAuthService from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
