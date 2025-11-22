@@ -35,10 +35,13 @@ const ExpandableText = ({ text }: { text: string }) => {
 	// Функция для преобразования URL в отображаемый текст
 	const formatUrl = (url: string): string => {
 		try {
-			const { hostname } = new URL(url); // Извлекаем имя хоста из URL
-			return `${hostname}...`; // Возвращаем имя хоста с многоточием
+			if (url.length < 20) return url; // показываем полностью
+
+			const { hostname } = new URL(/^https?:\/\//i.test(url) ? url : 'https://' + url);
+
+			return `${hostname}...`;
 		} catch (error) {
-			return url; // Если произошла ошибка, возвращаем оригинальный URL
+			return url;
 		}
 	};
 
@@ -56,6 +59,7 @@ const ExpandableText = ({ text }: { text: string }) => {
 						<a
 							key={index}
 							href="#"
+							className={styles.link}
 							onClick={(e) => {
 								e.preventDefault(); // Предотвращаем переход по ссылке сразу
 								showModal(part); // Показываем модальное окно

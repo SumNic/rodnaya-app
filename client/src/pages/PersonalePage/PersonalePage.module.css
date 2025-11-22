@@ -43,14 +43,21 @@
 }
 
 .button {
-	width: 120px;
+	width: 110px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	gap: 4px;
 	height: auto;
-	padding-top: 6px;
+	padding: 6px;
+}
+
+.titleH2 {
+	font-size: 21px;
+	margin-bottom: 0;
+	text-align: center;
+	font-weight: 400;
 }
 
 .buttonsPublications .button:nth-child(2) {

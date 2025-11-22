@@ -66,6 +66,10 @@ const PersonalePage: React.FC = () => {
 	}, [id]);
 
 	useEffect(() => {
+		setProfile(user);
+	}, [user]);
+
+	useEffect(() => {
 		if (!lastPublicationRef.current) return;
 
 		const observer = new IntersectionObserver((entries) => {
@@ -209,9 +213,7 @@ const PersonalePage: React.FC = () => {
 			{isDeclarationVisible && profile?.declaration?.declaration && (
 				<>
 					<div style={{ width: '100%', display: 'block' }}>
-						<h2 style={{ fontSize: '21px', marginBottom: 0, textAlign: 'center', fontWeight: 400 }}>
-							Декларация моей Родной партии:
-						</h2>
+						<h2 className={styles.titleH2}>Декларация моей Родной партии:</h2>
 					</div>
 					<div style={{ width: '100%', fontFamily: 'Inter' }}>
 						<ExpandableText text={profile?.declaration?.declaration} />
@@ -221,7 +223,7 @@ const PersonalePage: React.FC = () => {
 			{isPublicationsVisible && (
 				<>
 					<div style={{ width: '100%', display: 'block' }}>
-						<h2 style={{ fontSize: '21px', marginBottom: 0, textAlign: 'center' }}>Публикации:</h2>
+						<h2 className={styles.titleH2}>Публикации:</h2>
 					</div>
 					<PublicationsList
 						publications={publications}

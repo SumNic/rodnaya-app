@@ -3,13 +3,13 @@ import { IUser } from '../models/IUser.ts';
 import AuthService from '../services/AuthService.ts';
 import VkAuthService from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
-import UserService, { UpdateUserDto } from '../services/UserService.ts';
+import UserService, { UpdateUserDto, User } from '../services/UserService.ts';
 import { IUserVk } from '../models/IUserVk.ts';
 import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
 
 export default class AuthStore {
-	user = {} as IUser;
+	user = {} as User;
 	userFromVk = {} as IUserVk;
 	isAuth = false;
 	isAuthVk = false;
@@ -33,7 +33,7 @@ export default class AuthStore {
 		this.isAuth = bool;
 	}
 
-	setUser = (user: IUser) => {
+	setUser = (user: User) => {
 		this.user = user;
 	};
 
@@ -88,7 +88,7 @@ export default class AuthStore {
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
 			this.setAuth(false);
-			this.setUser({} as IUser);
+			this.setUser({} as User);
 			if (this.isAdmin) this.setAdmin(false);
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
@@ -101,7 +101,7 @@ export default class AuthStore {
 			localStorage.removeItem(LOCAL_STORAGE_TOKEN);
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			this.setAuth(false);
-			this.setUser({} as IUser);
+			this.setUser({} as User);
 			if (this.isAdmin) this.setAdmin(false);
 		} catch (e: any) {
 			console.log(e.response?.data?.message);
@@ -125,14 +125,14 @@ export default class AuthStore {
 				// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 				return;
 			}
-			if (response.data.error) {
-				this.setError(true);
-				this.setMessageError(response.data.error.message);
-				this.setAuth(false);
-				// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-				// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
-				return;
-			}
+			// if (response.data.) {
+			// 	this.setError(true);
+			// 	this.setMessageError(response.data.error.message);
+			// 	this.setAuth(false);
+			// 	// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+			// 	// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+			// 	return;
+			// }
 			localStorage.setItem('token', response.data.token);
 			this.setAuth(true);
 			this.setUser(response.data.user);
