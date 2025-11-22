@@ -1,14 +1,14 @@
 import { makeAutoObservable } from 'mobx';
 import { ResidencyUser } from '../models/ResidencyUser.ts';
 import { LocationUser } from '../models/LocationUser.ts';
-import { ResidencyResponse } from '../models/response/ResidencyResponse.ts';
 import LocationService from '../services/LocationService.ts';
+import { Residency } from '../services/UserService.ts';
 
 export default class LocationStore {
 	country = [] as LocationUser[];
 	region = [] as LocationUser[];
 	locality = [] as LocationUser[];
-	isResidency = [] as ResidencyResponse[];
+	isResidency = [] as Residency[];
 	territory = {} as LocationUser;
 
 	constructor() {
@@ -42,7 +42,7 @@ export default class LocationStore {
 		this.territory = { ...this.territory, locality };
 	}
 
-	setResidency(isResidency: ResidencyResponse[]) {
+	setResidency(isResidency: Residency[]) {
 		this.isResidency = isResidency;
 	}
 

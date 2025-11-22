@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
 import { LocationUser } from '../models/LocationUser';
-import { ResidencyResponse } from '../models/response/ResidencyResponse.ts';
 import { ResidencyUser } from '../models/ResidencyUser.ts';
+import { Residency } from './UserService.ts';
 
 export default class LocationService {
 	static async fetchCountryUsers(): Promise<AxiosResponse<LocationUser[]>> {
@@ -17,8 +17,8 @@ export default class LocationService {
 		return $api.get<LocationUser[]>('/locality/' + region);
 	}
 
-	static async getResidencyUsers(): Promise<AxiosResponse<ResidencyResponse[]>> {
-		return $api.get<ResidencyResponse[]>('/all-residencys');
+	static async getResidencyUsers(): Promise<AxiosResponse<Residency[]>> {
+		return $api.get<Residency[]>('/all-residencys');
 	}
 
 	static async createResidencyUsers(dto: ResidencyUser): Promise<AxiosResponse<ResidencyUser>> {
