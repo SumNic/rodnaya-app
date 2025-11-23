@@ -22,10 +22,10 @@ import {
 import Home from './pages/Home/Home.tsx';
 import VkCallback from './pages/VkCallback';
 import Error_Page from './pages/Error_Page';
-import Registration from './pages/Registration';
+import Registration from './pages/Registration/Registration.tsx';
 import Exit from './pages/Exit';
 import Founders from './pages/Founders';
-import RestoreUser from './pages/RestoreUser';
+import RestoreUser from './pages/RestoreUser/RestoreUser.tsx';
 import Rules from './pages/Rules';
 import Mail from './pages/Mail';
 import Messages from './pages/Messages/MessagesPage.tsx';

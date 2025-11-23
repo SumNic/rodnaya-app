@@ -44,11 +44,11 @@ export class User extends Model<User, UserCreationAttrs> {
     last_name: string;
 
     @ApiProperty({ type: String })
-    @Column({ type: DataType.STRING, allowNull: true })
+    @Column({ type: DataType.TEXT, allowNull: true })
     photo_50: string;
 
     @ApiProperty({ type: String })
-    @Column({ type: DataType.STRING, allowNull: true })
+    @Column({ type: DataType.TEXT, allowNull: true })
     photo_max: string;
 
     @ApiProperty({ type: Boolean })

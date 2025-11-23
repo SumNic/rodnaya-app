@@ -27,3 +27,5 @@ dist-ssr
 .env.production
 
 /rodnaya-app-mobil
+
+/android

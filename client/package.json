@@ -13,10 +13,12 @@
 	"dependencies": {
 		"@ant-design/icons": "^5.5.1",
 		"@capacitor-community/http": "^1.4.1",
+		"@capacitor/android": "^7.4.4",
 		"@capacitor/app": "^6.0.2",
 		"@capacitor/browser": "^6.0.4",
-		"@capacitor/core": "^6.2.0",
+		"@capacitor/core": "^7.4.4",
 		"@capacitor/device": "^6.0.2",
+		"@capacitor/splash-screen": "^7.0.3",
 		"@twa-dev/sdk": "^8.0.2",
 		"@vkid/sdk": "^1.1.0",
 		"antd": "^5.19.1",
@@ -35,6 +37,8 @@
 		"uuid": "^10.0.0"
 	},
 	"devDependencies": {
+		"@capacitor/assets": "^3.0.5",
+		"@capacitor/cli": "^7.4.4",
 		"@types/lodash": "^4.17.13",
 		"@types/node": "^20.14.11",
 		"@types/qs": "^6.9.17",

@@ -4,7 +4,15 @@ import VkAuthService from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
 import UserService, { UpdateUserDto, User } from '../services/UserService.ts';
 import { IUserVk } from '../models/IUserVk.ts';
-import { LOCAL_STORAGE_DEVICE, LOCAL_STORAGE_END_READ_MESSAGE_ID, LOCAL_STORAGE_TOKEN } from '../utils/consts.tsx';
+import {
+	BLOCKED_ROUTE,
+	LOCAL_STORAGE_DEVICE,
+	LOCAL_STORAGE_END_READ_MESSAGE_ID,
+	LOCAL_STORAGE_TOKEN,
+	PERSONALE_ROUTE,
+	REGISTRATION_ROUTE,
+	RESTORE_PROFILE_ROUTE,
+} from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
 
 export default class AuthStore {
@@ -178,6 +186,26 @@ export default class AuthStore {
 			}
 			console.log(e, 'e');
 			// return { error: e.response?.data?.message };
+		}
+	};
+
+	registration = async (payload: {}, navigate: (path: string, options?: any) => void) => {
+		const registrVk = await this.registrationVk(payload);
+		if (!registrVk?.data) return;
+		if (registrVk.data.isDelProfile) {
+			this.setDelProfile(true);
+			navigate(RESTORE_PROFILE_ROUTE, {
+				state: { user: registrVk.data },
+			});
+		} else if (!registrVk.data.isRegistration && registrVk.data.blockedforever) {
+			return navigate(BLOCKED_ROUTE);
+		} else if (!registrVk.data.isRegistration && registrVk.data.id) {
+			this.setIsCondition(true);
+			this.setUser(registrVk.data);
+			navigate(REGISTRATION_ROUTE);
+		} else if (registrVk.data.isRegistration && registrVk.data.id) {
+			await this.loginVk(registrVk.data.id, registrVk.data.secret);
+			navigate(PERSONALE_ROUTE);
 		}
 	};
 

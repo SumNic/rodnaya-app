@@ -1,10 +1,14 @@
-import HeaderLogoRegistr from '../components/HeaderLogo/HeaderLogoRegistr';
+import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
 import { observer } from 'mobx-react-lite';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { HOME_ROUTE, PERSONALE_ROUTE } from '../utils/consts';
-import { useStoreContext } from '../contexts/StoreContext';
+import { HOME_ROUTE, PERSONALE_ROUTE } from '../../utils/consts';
+import { useStoreContext } from '../../contexts/StoreContext';
 import { Button, Typography } from 'antd';
 import React, { useState } from 'react';
+import { useThemeContext } from '../../contexts/ThemeContext';
+import NavMiddle from '../../components/Nav_middle/NavMiddle';
+import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
+import styles from './RestoreUser.module.css';
 
 const { Title } = Typography;
 
@@ -14,6 +18,8 @@ const RestoreUser: React.FC = () => {
 	const { store } = useStoreContext();
 
 	const navigate = useNavigate();
+
+	const { currentWidth } = useThemeContext();
 
 	const location = useLocation();
 	const { user } = location.state;
@@ -37,12 +43,17 @@ const RestoreUser: React.FC = () => {
 	return (
 		<div>
 			<header className="header">
-				<HeaderLogoRegistr />
+				<div className="header__wrapper">
+					{currentWidth && currentWidth < 830 && <NavMiddle item={PERSONALE_ROUTE} />}
+					<HeaderLogoMobile />
+					<HeaderLogoRegistr />
+				</div>
 			</header>
 
 			<div className="middle">
 				<div className="middle__wrapper">
-					<div className="main__screen main__screen__registr" style={{ backgroundSize: '491.4px 491.4px' }}>
+					{currentWidth && currentWidth >= 830 && <NavMiddle item={PERSONALE_ROUTE} />}
+					<div className={`main__screen main__screen_home ${styles.wrapper}`}>
 						<div className="form__registr" style={{ textAlign: 'justify' }}>
 							<Title level={2} style={{ fontSize: '18px' }}>
 								Ваш профиль удалён. Хотите восстановить свой профиль?

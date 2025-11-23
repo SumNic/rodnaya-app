@@ -68,6 +68,7 @@ const PersonalePage: React.FC = () => {
 	useEffect(() => {
 		setProfile(user);
 	}, [user]);
+	console.log(user, 'user');
 
 	useEffect(() => {
 		if (!lastPublicationRef.current) return;
@@ -84,7 +85,8 @@ const PersonalePage: React.FC = () => {
 	}, [publications]);
 
 	useEffect(() => {
-		if (store.authStore.user?.id && profile?.id && store.authStore.user?.id === profile.id) setIsOwnerPage(true);
+		if (store.authStore.user?.id && profile?.id && store.authStore.user.id === profile.id) setIsOwnerPage(true);
+		else setIsOwnerPage(false);
 	}, [id, user, profile]);
 
 	// Очистка файлов во время загрузки, чтобы сменить аватар, например
