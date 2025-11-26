@@ -1,9 +1,10 @@
-import { Body, Controller, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OutputUserAndTokens } from 'src/common/dtos/output-user-and-tokens.dto';
 import { UuidDevice } from 'src/common/dtos/uuid-device.dto';
 import { TokensService } from 'src/tokens/tokens.service';
 import { Request, Response } from 'express';
+import { PkceCode } from 'src/common/dtos/pkce-code.dto';
 
 @Controller('api')
 export class TokensController {
@@ -33,13 +34,29 @@ export class TokensController {
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
     ): Promise<OutputUserAndTokens> {
-        const newToken = await this.tokenService.updateTokens(dto.uuid, req.cookies.refreshToken);
+        const refreshTokenMobile = req['refreshToken'];
+        const newToken = await this.tokenService.updateTokens(dto.uuid, req.cookies.refreshToken || refreshTokenMobile);
         res.cookie('refreshToken', newToken.refreshToken, {
-            maxAge: 30 * 24 * 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: 'lax',
         });
 
         return newToken;
+    }
+
+    @ApiTags('Токены')
+    @ApiOperation({
+        summary: 'Обновить токены для пользователя (требуется refreshToken в заголовке)',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Операция прошла успешно.',
+        type: PkceCode,
+    })
+    @Get('/pkce')
+    async generate(): Promise<PkceCode> {
+        const pkce = this.tokenService.createPKCE();
+        return pkce; // { code_verifier, code_challenge }
     }
 }

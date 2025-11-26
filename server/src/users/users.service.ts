@@ -118,6 +118,7 @@ export class UsersService {
             });
             return usersFilterResidency.length ? usersFilterResidency : users;
         } catch (err) {
+            console.error(err, 'Ошибка в getUsersByResidence');
             throw new HttpException(`Ошибка в getUsersByResidence: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

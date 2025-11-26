@@ -12,6 +12,7 @@ import { User } from 'src/common/models/users/user.model';
 import { Response } from 'express';
 import { VkLoginSdkDto } from 'src/common/dtos/vk-login-sdk.dto';
 import { LogoutUserDto } from 'src/common/dtos/logout-user.dto';
+import { VkLoginAndroidDto } from 'src/common/dtos/vk-login-android';
 
 @Controller('api')
 export class AuthController {
@@ -64,7 +65,7 @@ export class AuthController {
     async setRegistration(@Body() dto: CreateRegistrationDto, @Res({ passthrough: true }) res: Response): Promise<OutputUserAndTokens> {
         const registration = await this.authService.setRegistration(dto);
         res.cookie('refreshToken', registration.refreshToken, {
-            maxAge: 30 * 24 * 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: 'lax',
         });
@@ -134,9 +135,25 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: 'Пользователь уже существует',
     })
-    @ApiBody({ type: VkLoginSdkDto })
     async registrationVk(@Body() dto: VkLoginSdkDto) {
         return await this.authService.vkLogin(dto);
+    }
+
+    @ApiTags('Авторизация')
+    @ApiOperation({ summary: 'Auth через VK SDK' })
+    @Post('/loginByVkAndroid')
+    @ApiBody({ type: VkLoginAndroidDto })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Успешная регистрация',
+        type: User,
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Пользователь уже существует',
+    })
+    async loginByVkAndroid(@Body() dto: VkLoginAndroidDto): Promise<User> {
+        return await this.authService.vkAndroidLogin(dto);
     }
 
     @ApiTags('Авторизация')

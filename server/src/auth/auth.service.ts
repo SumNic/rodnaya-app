@@ -9,9 +9,14 @@ import { TokensService } from 'src/tokens/tokens.service';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { VkLoginSdkDto } from 'src/common/dtos/vk-login-sdk.dto';
+import { VkLoginAndroidDto } from 'src/common/dtos/vk-login-android';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
+    private readonly tokenUrl = 'https://id.vk.ru/oauth2/auth';
+    private readonly userUrl = 'https://id.vk.ru/oauth2/user_info';
+
     constructor(
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
@@ -87,11 +92,12 @@ export class AuthService {
                 candidate.tokens = [newRefreshToken];
                 await candidate.save();
             } else {
-                const updateRefreshToken = await this.tokenService.updateRefreshToken({
+                await this.tokenService.updateRefreshToken({
                     uuid,
                     refreshToken: hashRefreshToken,
                 });
             }
+
             return { user: candidate, secret: candidate.secret, ...tokens };
         } catch (error) {
             throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -156,6 +162,85 @@ export class AuthService {
         }
     }
 
+    async vkAndroidLogin(dto: VkLoginAndroidDto): Promise<User> {
+        if (dto.device_id && dto.code && dto.code_verifier) {
+            const params = new URLSearchParams();
+            params.append('grant_type', 'authorization_code');
+            params.append('code', dto.code);
+            params.append('code_verifier', dto.code_verifier);
+            params.append('client_id', this.configService.get<string>('CLIENT_ID_VK_ANDROID'));
+            params.append('device_id', dto.device_id);
+            params.append('redirect_uri', this.configService.get<string>('REDIRECT_URI_VK_ANDROID'));
+
+            const response = await axios.post(this.tokenUrl, params, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            // return response.data;
+            console.log(response.data, 'response.data');
+
+            const { access_token } = response.data;
+
+            if (access_token) {
+                const userVk = await this.getUserFromVK(access_token, dto.device_id);
+
+                if (!userVk) {
+                    throw new HttpException('Во время авторизации произошла ошибка.', HttpStatus.UNAUTHORIZED);
+                }
+                console.log(userVk.user.user_id, 'userVk.user_id');
+
+                const candidate = await this.userService.getUserByVkId(userVk.user.user_id); // Проверяем, есть ли пользователь с данным ID в базе данных
+                console.log(candidate, 'candidate');
+
+                if (candidate && !candidate.isDelProfile) return candidate;
+
+                // if (candidate && candidate.isDelProfile) {
+                //     // Восстановление профиля
+                //     return await this.userService.updateUser({
+                //         vk_id: userVk.user.user_id,
+                //         first_name: userVk.user.first_name,
+                //         last_name: userVk.user.last_name,
+                //         photo_50: userVk.user.avatar,
+                //         photo_max: userVk.user.avatar,
+                //     });
+                // }
+
+                const newUser = await this.userService.createUser({
+                    vk_id: userVk.user.user_id,
+                    first_name: userVk.user.first_name,
+                    last_name: userVk.user.last_name,
+                    photo_50: userVk.user.avatar,
+                    photo_max: userVk.user.avatar,
+                    secret: dto.device_id,
+                });
+
+                return newUser;
+            }
+        }
+        return null;
+    }
+
+    async getUserFromVK(access_token: string, device_id: string) {
+        const params = new URLSearchParams();
+        params.append('access_token', access_token);
+        params.append('client_id', this.configService.get<string>('CLIENT_ID_VK_ANDROID'));
+        params.append('device_id', device_id);
+
+        const response = await axios.post(this.userUrl, params, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
+
+        if (response.status !== 200) {
+            throw new Error('Failed to fetch user data from VK');
+        }
+        console.log(response.data, 'response.data');
+        return response.data;
+    }
+
     async getOrCreateUser(dto: VkLoginSdkDto): Promise<User> {
         const DATA = {
             v: this.configService.get<string>('VK_VERSION'),
@@ -181,16 +266,16 @@ export class AuthService {
 
                 if (candidate && !candidate.isDelProfile) return candidate;
 
-                if (candidate && candidate.isDelProfile) {
-                    // Восстановление профиля
-                    return await this.userService.updateUser({
-                        vk_id: userVk.id,
-                        first_name: userVk.first_name,
-                        last_name: userVk.last_name,
-                        photo_50: userVk.photo_50,
-                        photo_max: userVk.photo_max,
-                    });
-                }
+                // if (candidate && candidate.isDelProfile) {
+                //     // Восстановление профиля
+                //     return await this.userService.updateUser({
+                //         vk_id: userVk.id,
+                //         first_name: userVk.first_name,
+                //         last_name: userVk.last_name,
+                //         photo_50: userVk.photo_50,
+                //         photo_max: userVk.photo_max,
+                //     });
+                // }
 
                 const newUser = await this.userService.createUser({
                     vk_id: userVk.id,

@@ -14,6 +14,7 @@ import { Group } from 'src/common/models/groups/groups.model';
 import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { Role } from 'src/common/models/users/role.model';
+import { randomBytes, createHash } from 'crypto';
 
 @Injectable()
 export class TokensService {
@@ -130,11 +131,11 @@ export class TokensService {
         };
         const accessSettings = {
             secret: this.configService.get<string>('JWT_SECRET'),
-            expiresIn: '1h',
+            expiresIn: '15m',
         };
         const refreshSettings = {
             secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-            expiresIn: '30d',
+            expiresIn: '7d',
         };
         const token = await this.jwtService.signAsync(payload, accessSettings);
         const refreshToken = await this.jwtService.signAsync(payload, refreshSettings);
@@ -142,5 +143,22 @@ export class TokensService {
             token,
             refreshToken,
         };
+    }
+
+    generateRandomString(length: number = 64): string {
+        return randomBytes(length).toString('base64url'); // base64-url safe
+    }
+
+    sha256Base64Url(input: string): string {
+        const hash = createHash('sha256').update(input).digest();
+        // base64-url encode
+        return hash.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    createPKCE() {
+        const code_verifier = this.generateRandomString(64);
+        const code_challenge = this.sha256Base64Url(code_verifier);
+        const state = this.generateRandomString(32);
+        return { code_verifier, code_challenge, state };
     }
 }

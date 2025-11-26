@@ -62,7 +62,7 @@ export class Publications extends Model<Publications, PublicationsCreationAttrs>
 
     @ApiProperty({ type: () => [PublicationComments] })
     @HasMany(() => PublicationComments)
-    comments: PublicationComments[];
+    comments?: PublicationComments[];
 
     @ApiProperty({ type: Date })
     readonly createdAt!: Date;

@@ -128,6 +128,7 @@ const Publications: React.FC<PublicationsProps> = () => {
 			},
 			createdAt: publictionDataSocket.createdAt,
 			updatedAt: '',
+			comments: [],
 		};
 
 		setPublications((prev) => [newPost, ...prev]);

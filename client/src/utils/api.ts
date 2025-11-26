@@ -204,7 +204,7 @@ export interface paths {
 		options?: never;
 		head?: never;
 		/** Редактирование своего сообщения (или админом) */
-		patch: operations['GroupsController_editMessage'];
+		patch: operations['MessagesController_editMessage'];
 		trace?: never;
 	};
 	'/api/delete-message': {
@@ -218,7 +218,7 @@ export interface paths {
 		put?: never;
 		post?: never;
 		/** Удаление своего сообщения (или админом) */
-		delete: operations['GroupsController_deleteMessage'];
+		delete: operations['MessagesController_deleteMessage'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -303,6 +303,23 @@ export interface paths {
 		put?: never;
 		/** Обновить токены для пользователя (требуется refreshToken в заголовке) */
 		post: operations['TokensController_refreshTokens'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/pkce': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Обновить токены для пользователя (требуется refreshToken в заголовке) */
+		get: operations['TokensController_generate'];
+		put?: never;
+		post?: never;
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -411,7 +428,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/updata-personale/{id}': {
+	'/api/updata-personale': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -581,6 +598,40 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/edit-publication': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		/** Редактирование своего сообщения (или админом) */
+		patch: operations['PublicationsController_editMessage'];
+		trace?: never;
+	};
+	'/api/delete-publication': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		/** Удаление своего сообщения (или админом) */
+		delete: operations['PublicationsController_deleteMessage'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/get-all-publications': {
 		parameters: {
 			query?: never;
@@ -734,6 +785,40 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/edit-group-message': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		/** Редактирование своего сообщения (или админом) */
+		patch: operations['GroupsController_editMessage'];
+		trace?: never;
+	};
+	'/api/delete-group-message': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		/** Удаление своего сообщения (или админом) */
+		delete: operations['GroupsController_deleteMessage'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/join-the-group': {
 		parameters: {
 			query?: never;
@@ -881,6 +966,23 @@ export interface paths {
 		put?: never;
 		/** Auth через VK SDK */
 		post: operations['AuthController_registrationVk'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/loginByVkAndroid': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Auth через VK SDK */
+		post: operations['AuthController_loginByVkAndroid'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1064,9 +1166,25 @@ export interface components {
 			 */
 			uuid: string;
 		};
-		Role: Record<string, never>;
+		Role: {
+			id: number;
+			value: string;
+			users: components['schemas']['User'][];
+		};
 		Token: Record<string, never>;
 		Declaration: Record<string, never>;
+		PublicationComments: {
+			id: number;
+			text: string;
+			video: string[];
+			blocked: boolean;
+			piblicationId: number;
+			publication: components['schemas']['Publications'];
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
 		Publications: {
 			id: number;
 			message: string;
@@ -1078,6 +1196,7 @@ export interface components {
 			userId: number;
 			user: components['schemas']['User'];
 			files: components['schemas']['Files'][];
+			comments: components['schemas']['PublicationComments'][];
 			/** Format: date-time */
 			createdAt: string;
 			/** Format: date-time */
@@ -1202,6 +1321,23 @@ export interface components {
 			 * @example aksjwelWe4kjldfksjas
 			 */
 			refreshToken: string;
+		};
+		PkceCode: {
+			/**
+			 * @description code_verifier
+			 * @example sdfsdf
+			 */
+			code_verifier: string;
+			/**
+			 * @description code_challenge
+			 * @example aksjwelWe4kjldfksjas
+			 */
+			code_challenge: string;
+			/**
+			 * @description random string
+			 * @example aksjwelWe4kjldfksjas
+			 */
+			state: string;
 		};
 		AddRoleDto: {
 			/**
@@ -1413,6 +1549,23 @@ export interface components {
 			 * @example Q-w-rLTxyi02R206ST3-lJi7siJazRnjIw3lU6ISIotanzuIibpSqzwONRZb-gSyC1OeFUd2uBzGX2QWPxMoPcPtA8EqnPp77NjnxZ2Vthx50nSeJ1D-plvRXMkv0JJofSMYknato7__m4UXYnak9QmMbnmRym0chJpW0im3uyyvzDehy2vNYNgMv4ZdB_lvrpxRh6HDyZugVFVTBH-B68XuHg-xGAB0OtRTjWd4yP_atlryHaeZHH5kcyPZQWsi2jhS2iawbRXqccrmJF0DurCcLG2Yw4UbzHfdV0DBOlhhtd86os81ZgMrSzTtLx1utIvWu9-EdvGIqZBOXteZS-uRLQzZKL86_08IBKfC0gaDSAWtgQjphXfC7EJCRLZdZB7T3LLc2Ce4jeq3Y4JzNuAEMA
 			 */
 			token: string;
+		};
+		VkLoginAndroidDto: {
+			/**
+			 * @description device_id VK
+			 * @example QGvH-8oEHe7seNqn5
+			 */
+			device_id: string;
+			/**
+			 * @description Токен доступа VK
+			 * @example Q-w-rLTxyi02R206ST3..
+			 */
+			code: string;
+			/**
+			 * @description Токен доступа VK
+			 * @example Q-w-rLTxyi02R206ST3..
+			 */
+			code_verifier: string;
 		};
 	};
 	responses: never;
@@ -1752,7 +1905,7 @@ export interface operations {
 			};
 		};
 	};
-	GroupsController_editMessage: {
+	MessagesController_editMessage: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -1761,7 +1914,7 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['UpdateGroupMessageDto'];
+				'application/json': components['schemas']['UpdateMessageDto'];
 			};
 		};
 		responses: {
@@ -1781,7 +1934,7 @@ export interface operations {
 			};
 		};
 	};
-	GroupsController_deleteMessage: {
+	MessagesController_deleteMessage: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -1790,7 +1943,7 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['DeleteGroupMessageDto'];
+				'application/json': components['schemas']['DeleteMessageDto'];
 			};
 		};
 		responses: {
@@ -1941,6 +2094,26 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	TokensController_generate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Операция прошла успешно. */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['PkceCode'];
+				};
 			};
 		};
 	};
@@ -2124,10 +2297,7 @@ export interface operations {
 		parameters: {
 			query?: never;
 			header?: never;
-			path: {
-				/** @description ID пользователя */
-				id: string;
-			};
+			path?: never;
 			cookie?: never;
 		};
 		requestBody: {
@@ -2136,7 +2306,7 @@ export interface operations {
 			};
 		};
 		responses: {
-			/** @description Декларация добавлена */
+			/** @description Данные обновлены */
 			201: {
 				headers: {
 					[name: string]: unknown;
@@ -2145,6 +2315,13 @@ export interface operations {
 			};
 			/** @description Неккоректные данные */
 			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
 				headers: {
 					[name: string]: unknown;
 				};
@@ -2380,6 +2557,64 @@ export interface operations {
 			};
 			/** @description Неккоректные данные */
 			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	PublicationsController_editMessage: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['UpdatePublicationDto'];
+			};
+		};
+		responses: {
+			/** @description Сообщение обновлено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	PublicationsController_deleteMessage: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['DeletePublicationDto'];
+			};
+		};
+		responses: {
+			/** @description Сообщение удалено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
 				headers: {
 					[name: string]: unknown;
 				};
@@ -2640,6 +2875,64 @@ export interface operations {
 			};
 			/** @description Неккоректные данные */
 			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	GroupsController_editMessage: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['UpdateGroupMessageDto'];
+			};
+		};
+		responses: {
+			/** @description Сообщение обновлено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	GroupsController_deleteMessage: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['DeleteGroupMessageDto'];
+			};
+		};
+		responses: {
+			/** @description Сообщение удалено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Нет прав */
+			403: {
 				headers: {
 					[name: string]: unknown;
 				};
@@ -2911,6 +3204,37 @@ export interface operations {
 		requestBody: {
 			content: {
 				'application/json': components['schemas']['VkLoginSdkDto'];
+			};
+		};
+		responses: {
+			/** @description Успешная регистрация */
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['User'];
+				};
+			};
+			/** @description Пользователь уже существует */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	AuthController_loginByVkAndroid: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['VkLoginAndroidDto'];
 			};
 		};
 		responses: {

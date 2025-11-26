@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import AuthService from '../services/AuthService.ts';
-import VkAuthService from '../services/VkAuthService.ts';
+import VkAuthService, { VkLoginAndroidDto } from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
 import UserService, { UpdateUserDto, User } from '../services/UserService.ts';
 import { IUserVk } from '../models/IUserVk.ts';
@@ -14,6 +14,7 @@ import {
 	RESTORE_PROFILE_ROUTE,
 } from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
+import { TokenStorage } from '../services/TokenStorage.ts';
 
 export default class AuthStore {
 	user = {} as User;
@@ -94,6 +95,7 @@ export default class AuthStore {
 			localStorage.removeItem(LOCAL_STORAGE_TOKEN);
 			localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
+			await TokenStorage.removeRefresh();
 			this.setAuth(false);
 			this.setUser({} as User);
 			if (this.isAdmin) this.setAdmin(false);
@@ -140,7 +142,9 @@ export default class AuthStore {
 			// 	// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			// 	return;
 			// }
-			localStorage.setItem('token', response.data.token);
+			localStorage.setItem(LOCAL_STORAGE_TOKEN, response.data.token);
+			await TokenStorage.setRefresh(response.data.refreshToken);
+
 			this.setAuth(true);
 			this.setUser(response.data.user);
 		} catch (e: any) {
@@ -167,9 +171,40 @@ export default class AuthStore {
 		}
 	};
 
+	getPkceCode = async () => {
+		try {
+			const pkce = await VkAuthService.getPkcecode();
+			if (pkce.data) return pkce.data;
+		} catch (err) {
+			console.log(`Ошибка в getPkceCode: ${err}`);
+		}
+	};
+
 	registrationVk = async (payload: any) => {
 		try {
 			const response = await VkAuthService.registrationVk(payload);
+			if (!response.data) {
+				this.setError(true);
+				this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.');
+				this.setAuth(false);
+				return;
+			}
+
+			return { data: response.data };
+		} catch (e: any) {
+			if (e.response?.data?.message) {
+				this.setError(true);
+				this.setMessageError(e.response.data.message);
+				this.setAuth(false);
+			}
+			console.log(e, 'e');
+			// return { error: e.response?.data?.message };
+		}
+	};
+
+	registrVkAndroid = async (payload: VkLoginAndroidDto) => {
+		try {
+			const response = await VkAuthService.registrVkAndroid(payload);
 			if (!response.data) {
 				this.setError(true);
 				this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.');
@@ -209,6 +244,27 @@ export default class AuthStore {
 		}
 	};
 
+	androidRegistration = async (payload: VkLoginAndroidDto, navigate: (path: string, options?: any) => void) => {
+		const registrVk = await this.registrVkAndroid(payload);
+
+		if (!registrVk?.data) return;
+		if (registrVk.data.isDelProfile) {
+			this.setDelProfile(true);
+			navigate(RESTORE_PROFILE_ROUTE, {
+				state: { user: registrVk.data },
+			});
+		} else if (!registrVk.data.isRegistration && registrVk.data.blockedforever) {
+			return navigate(BLOCKED_ROUTE);
+		} else if (!registrVk.data.isRegistration && registrVk.data.id) {
+			this.setIsCondition(true);
+			this.setUser(registrVk.data);
+			navigate(REGISTRATION_ROUTE);
+		} else if (registrVk.data.isRegistration && registrVk.data.id) {
+			await this.loginVk(registrVk.data.id, registrVk.data.secret);
+			navigate(PERSONALE_ROUTE);
+		}
+	};
+
 	loginVk = async (id: number, secret: string) => {
 		try {
 			if (!localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
@@ -226,6 +282,8 @@ export default class AuthStore {
 			}
 
 			localStorage.setItem(LOCAL_STORAGE_TOKEN, response.data.token);
+			await TokenStorage.setRefresh(response.data.refreshToken);
+
 			this.setAuth(true);
 			this.setUser(response.data.user);
 		} catch (e: any) {

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthVkButton from '../../components/AuthVkButton';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
@@ -8,12 +8,13 @@ import { FOUNDERS_ROUTE, HOME_ROUTE } from '../../utils/consts';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useThemeContext } from '../../contexts/ThemeContext';
 import styles from './Home.module.css';
-import { Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import MyButton from '../../components/MyButton/MyButton';
 
 import { Browser } from '@capacitor/browser';
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
+import store from '../../store';
 
 const { Paragraph } = Typography;
 
@@ -21,12 +22,24 @@ const VK_CLIENT_ID = 54345890;
 const REDIRECT_URI = 'vk54345890://vk.ru/blank.html?oauth2_params=base64(scope="")';
 
 export async function loginWithVkMobile() {
-	const authUrl = `https://id.vk.ru/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-		REDIRECT_URI
-	)}&response_type=code&code_challenge=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU&code_challenge_method=S256&state=_1-uCZoVPW9r8LdIueLUCgXcOHVyTJAwSB_r3gihYzc`;
+	const { getPkceCode } = store.authStore;
 
-	await Browser.open({ url: authUrl });
-	// https://id.vk.ru/authorize?response_type=code&client_id=12345&scope=email%20phone&redirect_uri=https%3A%2F%2Fyour.site&state=XXXRandomZZZ&code_challenge=K8KAyQ82WSEncryptedVerifierGYUDj8K&code_challenge_method=S256
+	try {
+		const pkce = await getPkceCode();
+
+		if (pkce) {
+			localStorage.setItem('vk_pkce_code_verifier', pkce.code_verifier);
+			localStorage.setItem('vk_auth_state', pkce.state);
+		}
+
+		const authUrl = `https://id.vk.ru/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(
+			REDIRECT_URI
+		)}&response_type=code&code_challenge=${pkce?.code_challenge}&code_challenge_method=S256&state=${pkce?.state}`;
+
+		await Browser.open({ url: authUrl });
+	} catch (error) {
+		console.error(error, 'error in loginWithVkMobile');
+	}
 }
 
 const Home: React.FC = () => {
@@ -34,6 +47,8 @@ const Home: React.FC = () => {
 	const { store } = useStoreContext();
 
 	const { currentWidth } = useThemeContext();
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (mobileLogin) loginWithVkMobile();
@@ -97,6 +112,8 @@ const Home: React.FC = () => {
 							</div>
 
 							<h2 className={styles['founders-subheading']}>💛 Наша миссия</h2>
+
+							<Button onClick={() => navigate('/register')}>Button to registr</Button>
 
 							<div className={styles.wrapper_p}>
 								<p className={styles['founders-description']}>

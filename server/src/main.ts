@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from 'src/common/filters/rpc-exception.filter';
+import { CustomSocketIoAdapter } from 'src/common/adapters/CustomSocketIoAdapter';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -17,9 +18,15 @@ async function bootstrap() {
 
     app.enableCors({
         credentials: true,
-        // origin: configService.get('CLIENT_URL'),
-        origin: '*',
+        origin: ['capacitor://localhost', 'http://localhost', configService.get('CLIENT_URL'), 'vk54345890://localhost', 'vk54345890://'],
+        // origin: '*',
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token'],
+        methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     });
+
+    // Configure Socket.IO adapter
+    app.useWebSocketAdapter(new CustomSocketIoAdapter(app, configService));
+
     app.useGlobalFilters(new HttpExceptionFilter());
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));

@@ -52,6 +52,7 @@ import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.mode
 import { TelegramService } from './telegram/telegram.service';
 import { TelegramModule } from './telegram/telegram.module';
 import { PublicationComments } from 'src/common/models/publications/publications-comments.model';
+import { RefreshTokenMiddleware } from 'src/common/middleware/refresh-token.middleware';
 
 @Module({
     imports: [
@@ -145,6 +146,6 @@ import { PublicationComments } from 'src/common/models/publications/publications
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(cookieParser()).forRoutes('*');
+        consumer.apply(cookieParser(), RefreshTokenMiddleware).forRoutes('*');
     }
 }
