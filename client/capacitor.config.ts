@@ -13,7 +13,8 @@ const config: CapacitorConfig = {
 		},
 	},
 	server: {
-		androidScheme: 'vk54345890', // Это должна быть та же схема, что указана в OAuth2
+		androidScheme: 'http', // Это должна быть та же схема, что указана в OAuth2
+		hostname: 'localhost',
 	},
 };
 

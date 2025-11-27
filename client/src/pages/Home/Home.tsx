@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AuthVkButton from '../../components/AuthVkButton';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
@@ -8,7 +8,7 @@ import { FOUNDERS_ROUTE, HOME_ROUTE } from '../../utils/consts';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useThemeContext } from '../../contexts/ThemeContext';
 import styles from './Home.module.css';
-import { Button, Typography } from 'antd';
+import { Typography } from 'antd';
 import MyButton from '../../components/MyButton/MyButton';
 
 import { Browser } from '@capacitor/browser';
@@ -47,8 +47,6 @@ const Home: React.FC = () => {
 	const { store } = useStoreContext();
 
 	const { currentWidth } = useThemeContext();
-
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (mobileLogin) loginWithVkMobile();
@@ -112,8 +110,6 @@ const Home: React.FC = () => {
 							</div>
 
 							<h2 className={styles['founders-subheading']}>💛 Наша миссия</h2>
-
-							<Button onClick={() => navigate('/register')}>Button to registr</Button>
 
 							<div className={styles.wrapper_p}>
 								<p className={styles['founders-description']}>
