@@ -13,8 +13,8 @@ const config: CapacitorConfig = {
 		},
 	},
 	server: {
-		androidScheme: 'https', // Это должна быть та же схема, что указана в OAuth2
-		hostname: 'rod-partya.ru', // Это должен быть домен, на котором развернута ваша веб-страница
+		androidScheme: 'http',
+		hostname: 'localhost',
 	},
 };
 
