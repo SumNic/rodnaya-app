@@ -10,11 +10,14 @@ import {
 	LOCAL_STORAGE_END_READ_MESSAGE_ID,
 	LOCAL_STORAGE_TOKEN,
 	PERSONALE_ROUTE,
+	REDIRECT_URI,
 	REGISTRATION_ROUTE,
 	RESTORE_PROFILE_ROUTE,
+	VK_CLIENT_ID,
 } from '../utils/consts.tsx';
 import AdminService from '../services/AdminService.ts';
 import { TokenStorage } from '../services/TokenStorage.ts';
+import { Browser } from '@capacitor/browser';
 
 export default class AuthStore {
 	user = {} as User;
@@ -338,6 +341,25 @@ export default class AuthStore {
 			return response.data;
 		} catch (e: any) {
 			return { data: e.response?.data?.message };
+		}
+	};
+
+	loginWithVkMobile = async () => {
+		try {
+			const pkce = await this.getPkceCode();
+
+			if (pkce) {
+				localStorage.setItem('vk_pkce_code_verifier', pkce.code_verifier);
+				localStorage.setItem('vk_auth_state', pkce.state);
+			}
+
+			const authUrl = `https://id.vk.ru/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(
+				REDIRECT_URI
+			)}&response_type=code&code_challenge=${pkce?.code_challenge}&code_challenge_method=S256&state=${pkce?.state}`;
+
+			await Browser.open({ url: authUrl });
+		} catch (error) {
+			console.error(error, 'error in loginWithVkMobile');
 		}
 	};
 }

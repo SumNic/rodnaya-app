@@ -18,7 +18,6 @@ import { Group } from '../../services/GroupsService';
 import AuthVkButton from '../../components/AuthVkButton';
 import { Capacitor } from '@capacitor/core';
 import MyButton from '../../components/MyButton/MyButton';
-import { loginWithVkMobile } from '../Home/Home';
 
 const { Text } = Typography;
 
@@ -53,8 +52,8 @@ const GroupPage: React.FC = () => {
 	const navigate = useNavigate();
 
 	const { store } = useStoreContext();
-	const { getAllGroup, isChangeGroups } = store.groupStore;
-	const { isAboutGroupVisible, isChatGroupVisible, groupForChat } = store.groupStore;
+	const { getAllGroup, isChangeGroups, isAboutGroupVisible, isChatGroupVisible, groupForChat } = store.groupStore;
+	const { loginWithVkMobile } = store.authStore;
 
 	const params = useParams();
 

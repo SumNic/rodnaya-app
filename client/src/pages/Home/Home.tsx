@@ -10,43 +10,17 @@ import { useThemeContext } from '../../contexts/ThemeContext';
 import styles from './Home.module.css';
 import { Typography } from 'antd';
 import MyButton from '../../components/MyButton/MyButton';
-
-import { Browser } from '@capacitor/browser';
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import store from '../../store';
 
 const { Paragraph } = Typography;
-
-const VK_CLIENT_ID = 54345890;
-const REDIRECT_URI = 'vk54345890://vk.ru/blank.html?oauth2_params=base64(scope="")';
-
-export async function loginWithVkMobile() {
-	const { getPkceCode } = store.authStore;
-
-	try {
-		const pkce = await getPkceCode();
-
-		if (pkce) {
-			localStorage.setItem('vk_pkce_code_verifier', pkce.code_verifier);
-			localStorage.setItem('vk_auth_state', pkce.state);
-		}
-
-		const authUrl = `https://id.vk.ru/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-			REDIRECT_URI
-		)}&response_type=code&code_challenge=${pkce?.code_challenge}&code_challenge_method=S256&state=${pkce?.state}`;
-
-		await Browser.open({ url: authUrl });
-	} catch (error) {
-		console.error(error, 'error in loginWithVkMobile');
-	}
-}
 
 const Home: React.FC = () => {
 	const [mobileLogin, setMobileLogin] = useState(false);
 	const { store } = useStoreContext();
 
 	const { currentWidth } = useThemeContext();
+	const { loginWithVkMobile } = store.authStore;
 
 	useEffect(() => {
 		if (mobileLogin) loginWithVkMobile();

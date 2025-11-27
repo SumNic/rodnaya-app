@@ -107,3 +107,6 @@ export const ALLOWED_VIDEO_HOSTS = [
 	'tiktok.com',
 	't.me',
 ];
+
+export const VK_CLIENT_ID = 54345890;
+export const REDIRECT_URI = 'vk54345890://vk.ru/blank.html?oauth2_params=base64(scope="")';

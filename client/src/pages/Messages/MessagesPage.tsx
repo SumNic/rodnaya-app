@@ -13,7 +13,6 @@ import AuthVkButton from '../../components/AuthVkButton.tsx';
 import styles from './MessagesPage.module.css';
 import MyButton from '../../components/MyButton/MyButton.tsx';
 import { Capacitor } from '@capacitor/core';
-import { loginWithVkMobile } from '../Home/Home.tsx';
 
 const { Text } = Typography;
 
@@ -25,7 +24,7 @@ const MessagePage: React.FC = () => {
 	const navigate = useNavigate();
 
 	const { store } = useStoreContext();
-	const { user } = store.authStore;
+	const { user, loginWithVkMobile } = store.authStore;
 
 	const params = useParams();
 	const location: string | undefined = params.location;
