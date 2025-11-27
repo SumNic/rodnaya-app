@@ -33,6 +33,8 @@ const VkAppUrlHandler = () => {
 				}
 
 				if (!stateFromUrl || !storedState || stateFromUrl !== storedState) {
+					console.log(stateFromUrl, storedState, 'stateFromUrl, storedState');
+
 					store.authStore.setError(true);
 					store.authStore.setMessageError('Ошибка в VkCallback: несовпадение state');
 					return;
