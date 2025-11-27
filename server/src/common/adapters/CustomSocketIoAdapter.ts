@@ -13,7 +13,7 @@ export class CustomSocketIoAdapter extends IoAdapter {
 
     createIOServer(port: number, options?: ServerOptions) {
         const corsOptions: ServerOptions['cors'] = {
-            origin: [this.configService.get('CLIENT_URL'), 'vk54345890://'],
+            origin: [this.configService.get('CLIENT_URL'), 'vk54345890://', 'http://localhost', 'capacitor://localhost'],
             methods: ['GET', 'POST'],
             credentials: true,
         };

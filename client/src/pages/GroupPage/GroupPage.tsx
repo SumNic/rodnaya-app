@@ -16,6 +16,9 @@ import GroupsList from './components/GroupsList';
 import Messages from '../Messages/components/Messages';
 import { Group } from '../../services/GroupsService';
 import AuthVkButton from '../../components/AuthVkButton';
+import { Capacitor } from '@capacitor/core';
+import MyButton from '../../components/MyButton/MyButton';
+import { loginWithVkMobile } from '../Home/Home';
 
 const { Text } = Typography;
 
@@ -45,6 +48,7 @@ const GroupPage: React.FC = () => {
 		return savedValue ? JSON.parse(savedValue) : false;
 	});
 	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+	const [mobileLogin, setMobileLogin] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -61,6 +65,10 @@ const GroupPage: React.FC = () => {
 	useEffect(() => {
 		localStorage.setItem(LOCAL_STORAGE_IS_MY_GROUPS, JSON.stringify(isMyGroups));
 	}, [isMyGroups]);
+
+	useEffect(() => {
+		if (mobileLogin) loginWithVkMobile();
+	}, [mobileLogin]);
 
 	useEffect(() => {
 		if (!store.authStore.isAuth) {
@@ -180,7 +188,15 @@ const GroupPage: React.FC = () => {
 				<div className={styles.authWrapper}>
 					<div className={styles.authMessage}>Эта страница доступна только авторизованным пользователям!</div>
 					<div className={styles.authButtonWrapper}>
-						<AuthVkButton />
+						{Capacitor.isNativePlatform() ? (
+							<div style={{ maxWidth: '237px', width: '100%', marginRight: '10px' }}>
+								<MyButton text="Войти с VK ID" onClick={() => setMobileLogin(true)} />
+							</div>
+						) : (
+							<div style={{ minWidth: '237px' }}>
+								<AuthVkButton />
+							</div>
+						)}
 					</div>
 				</div>
 			</Modal>

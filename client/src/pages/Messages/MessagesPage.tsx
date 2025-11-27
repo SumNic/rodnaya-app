@@ -11,12 +11,16 @@ import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc.tsx';
 import Messages from './components/Messages.tsx';
 import AuthVkButton from '../../components/AuthVkButton.tsx';
 import styles from './MessagesPage.module.css';
+import MyButton from '../../components/MyButton/MyButton.tsx';
+import { Capacitor } from '@capacitor/core';
+import { loginWithVkMobile } from '../Home/Home.tsx';
 
 const { Text } = Typography;
 
 const MessagePage: React.FC = () => {
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+	const [mobileLogin, setMobileLogin] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -35,6 +39,10 @@ const MessagePage: React.FC = () => {
 	useEffect(() => {
 		store.filesStore.resetFiles();
 	}, [location]);
+
+	useEffect(() => {
+		if (mobileLogin) loginWithVkMobile();
+	}, [mobileLogin]);
 
 	const nameLocal = useMemo(() => {
 		if (!store.authStore.isAuth) return;
@@ -94,7 +102,15 @@ const MessagePage: React.FC = () => {
 				<div className={styles.authWrapper}>
 					<div className={styles.authMessage}>Эта страница доступна только авторизованным пользователям!</div>
 					<div className={styles.authButtonWrapper}>
-						<AuthVkButton />
+						{Capacitor.isNativePlatform() ? (
+							<div style={{ maxWidth: '237px', width: '100%', marginRight: '10px' }}>
+								<MyButton text="Войти с VK ID" onClick={() => setMobileLogin(true)} />
+							</div>
+						) : (
+							<div style={{ minWidth: '237px' }}>
+								<AuthVkButton />
+							</div>
+						)}
 					</div>
 				</div>
 			</Modal>
