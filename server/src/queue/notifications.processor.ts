@@ -1,11 +1,15 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import admin from 'src/common/firebase/firebase-admin';
+import { DeviceTokensService } from 'src/device-tokens/device-tokens.service';
 // import admin from 'firebase-admin';
 import { TelegramService } from 'src/telegram/telegram.service';
 
 @Processor('notifications')
 export class NotificationsProcessor extends WorkerHost {
-    constructor(private readonly telegramService: TelegramService) {
+    constructor(
+        private readonly telegramService: TelegramService,
+        private readonly deviceTokensService: DeviceTokensService,
+    ) {
         super(); // обязательно!
     }
     async process(job) {
@@ -14,7 +18,7 @@ export class NotificationsProcessor extends WorkerHost {
         const tasks = [];
 
         for (const user of users) {
-            const skip = user.id !== user.id;
+            const skip = user.id === user.id;
             if (skip) continue;
 
             if (Array.isArray(user.userDeviceTokens)) {
@@ -40,7 +44,14 @@ export class NotificationsProcessor extends WorkerHost {
                                     route: '/messages/locality',
                                 },
                             })
-                            .catch((err) => console.log('SEND ERROR:', err)),
+                            .catch(async (err) => {
+                                console.log('SEND ERROR:', err);
+
+                                if (err.code === 'messaging/registration-token-not-registered') {
+                                    await this.deviceTokensService.deleteDeviceToken(device.token);
+                                    console.log('🔥 Токен удалён как невалидный:', device.token);
+                                }
+                            }),
                     );
                 }
             }

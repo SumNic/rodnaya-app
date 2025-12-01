@@ -48,4 +48,14 @@ export class DeviceTokensService {
             throw new HttpException(err?.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    async deleteDeviceToken(token: string) {
+        try {
+            await this.deviceTokenRepository.destroy({
+                where: { token },
+            });
+        } catch (err) {
+            console.error(err, 'error in deleteDeviceToken');
+        }
+    }
 }
