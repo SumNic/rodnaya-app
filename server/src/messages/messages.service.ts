@@ -22,6 +22,9 @@ import { TelegramService } from 'src/telegram/telegram.service';
 import { DeleteMessageDto } from 'src/common/dtos/delete-message.dto';
 import { ROLES } from 'src/common/constants/roles';
 import { UpdateMessageDto } from 'src/common/dtos/update-message.dto';
+import admin from 'src/common/firebase/firebase-admin';
+import { UserDeviceToken } from 'src/common/models/users/userDeviceToken.model';
+import { NotificationsService } from 'src/queue/notifications.service';
 
 @Injectable()
 export class MessagesService {
@@ -32,6 +35,7 @@ export class MessagesService {
         private endReadMessageService: EndReadMessageService,
         private readonly configService: ConfigService,
         private readonly telegramService: TelegramService,
+        private notificationsService: NotificationsService,
     ) {}
 
     async addMessage(req: AuthenticatedRequest, dto: CreateMessageDto): Promise<NewMessage> {
@@ -49,26 +53,23 @@ export class MessagesService {
                     video: video,
                 });
                 await user.$add('messages', newMessage);
-                files.length &&
-                    files.map((file) => {
-                        newMessage.$add('file', file.id);
-                    });
+
+                // Привязываем файлы (если есть)
+                if (files?.length > 0) {
+                    await Promise.all(files.map((file) => newMessage.$add('file', file.id)));
+                }
 
                 this.setEndReadMessagesId(user.id, { id_message: newMessage.id, location: locationUser });
 
                 const users = await this.usersService.getUsersByResidence(locationUser);
-
-                for (const userOfChat of users) {
-                    if (userOfChat.tg_id && userOfChat.tg_id !== user.tg_id) {
-                        await this.telegramService.sendMessage(userOfChat.tg_id, newMessage.message, locationUser);
-                    }
-                }
+                await this.notificationsService.addNotifications(users, newMessage.message, locationUser);
 
                 return { message: newMessage, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
 
             throw new HttpException('Сообщение не было отправлено', HttpStatus.FORBIDDEN);
         } catch (err) {
+            console.error(err, 'error in addMessage');
             throw new HttpException(err?.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

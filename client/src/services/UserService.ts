@@ -6,6 +6,7 @@ import { components } from '../utils/api.ts';
 export type User = components['schemas']['User'];
 export type Residency = components['schemas']['Residency'];
 export type UpdateUserDto = components['schemas']['UpdateUserDto'];
+export type AddFcmDeviceTokenDto = components['schemas']['AddFcmDeviceTokenDto'];
 export default class UserService {
 	static async fetchUsers(): Promise<AxiosResponse<User[]>> {
 		return $api.get<User[]>('/users');
@@ -35,5 +36,9 @@ export default class UserService {
 		return $api.get<Date>('/check-blocked', {
 			params: { userId },
 		});
+	}
+
+	static async addFcmUserToken(dto: AddFcmDeviceTokenDto) {
+		return $api.post('/fcm-device-tokens', dto);
 	}
 }

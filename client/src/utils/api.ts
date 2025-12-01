@@ -887,6 +887,23 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/fcm-device-tokens': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Добавить FCM токены для пользователя */
+		post: operations['DeviceTokensController_addDeviceToken'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/logout': {
 		parameters: {
 			query?: never;
@@ -1172,6 +1189,7 @@ export interface components {
 			users: components['schemas']['User'][];
 		};
 		Token: Record<string, never>;
+		UserDeviceToken: Record<string, never>;
 		Declaration: Record<string, never>;
 		PublicationComments: {
 			id: number;
@@ -1286,6 +1304,7 @@ export interface components {
 			residencyId: number;
 			residency: components['schemas']['Residency'];
 			tokens: components['schemas']['Token'][];
+			userDeviceTokens: components['schemas']['UserDeviceToken'][];
 			declaration: components['schemas']['Declaration'];
 			messages: components['schemas']['Messages'][];
 			manageMessages: components['schemas']['ManageMessages'][];
@@ -1422,6 +1441,7 @@ export interface components {
 			residencyId?: number;
 			residency?: components['schemas']['Residency'];
 			tokens?: components['schemas']['Token'][];
+			userDeviceTokens?: components['schemas']['UserDeviceToken'][];
 			declaration?: components['schemas']['Declaration'];
 			messages?: components['schemas']['Messages'][];
 			manageMessages?: components['schemas']['ManageMessages'][];
@@ -1503,6 +1523,24 @@ export interface components {
 		DeleteGroupMessageDto: {
 			/** @description ID удаляемого сообщения */
 			id_message: number;
+		};
+		AddFcmDeviceTokenDto: {
+			/**
+			 * @description fcm токен
+			 * @example sdfsdfs
+			 */
+			token: string;
+			/**
+			 * @description Идентификатор девайса
+			 * @example 1
+			 */
+			deviceId?: string;
+			/**
+			 * @description Платформа девайса
+			 * @example android
+			 * @enum {string}
+			 */
+			platform: 'android' | 'ios' | 'web' | 'unknown';
 		};
 		LogoutUserDto: {
 			/**
@@ -3041,6 +3079,42 @@ export interface operations {
 			};
 			/** @description Неккоректные данные */
 			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	DeviceTokensController_addDeviceToken: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['AddFcmDeviceTokenDto'];
+			};
+		};
+		responses: {
+			/** @description Операция прошла успешно. */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description JWT токен не указан в заголовках */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Некоректный JWT токен */
+			403: {
 				headers: {
 					[name: string]: unknown;
 				};

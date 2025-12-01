@@ -14,6 +14,7 @@ import WebApp from '@twa-dev/sdk';
 import { YANDEX_COUNTER_ID } from './utils/consts.tsx';
 import { YandexMetrika } from './components/YandexMetrika.tsx';
 import VkAppUrlHandler from './components/VkAppUrlHandler.tsx';
+import { PushInit } from './components/PushInit.tsx';
 
 function App() {
 	const rodnayaTheme = useTheme();
@@ -40,6 +41,7 @@ function App() {
 					<StoreContext.Provider value={storeState}>
 						<ThemeContext.Provider value={rodnayaTheme}>
 							<VkAppUrlHandler />
+							<PushInit />
 							<YandexMetrika counterId={YANDEX_COUNTER_ID} />
 							<AppRouter />
 						</ThemeContext.Provider>

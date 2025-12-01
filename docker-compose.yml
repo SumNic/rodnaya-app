@@ -12,6 +12,11 @@ services:
       - app_net
     restart: unless-stopped
 
+  redis:
+    image: redis:7
+    container_name: redis
+    networks:
+      - app_net
 
   server:
     build:
@@ -23,6 +28,9 @@ services:
       - "5000:5000"
     depends_on:
     - postgres
+    - redis
+    environment:
+      REDIS_HOST: redis
     networks:
       - app_net
     restart: always

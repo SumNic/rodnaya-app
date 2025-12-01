@@ -1,4 +1,5 @@
 import AuthStore from './AuthStore';
+import CommonStore from './CommonStore';
 import FilesStore from './FilesStore';
 import GroupStore from './GroupStore';
 import LocationStore from './LocationStore';
@@ -12,6 +13,7 @@ class RootStore {
 	locationStore: LocationStore;
 	filesStore: FilesStore;
 	groupStore: GroupStore;
+	commonStore: CommonStore;
 
 	constructor() {
 		this.authStore = new AuthStore();
@@ -20,6 +22,7 @@ class RootStore {
 		this.locationStore = new LocationStore();
 		this.filesStore = new FilesStore();
 		this.groupStore = new GroupStore();
+		this.commonStore = new CommonStore();
 	}
 }
 

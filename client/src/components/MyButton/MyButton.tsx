@@ -3,7 +3,7 @@ import styles from './MyButton.module.css';
 
 interface MyButtonProps {
 	text: string;
-	onClick: () => void;
+	onClick?: () => void;
 }
 
 const MyButton: React.FC<MyButtonProps> = ({ text, onClick }) => {

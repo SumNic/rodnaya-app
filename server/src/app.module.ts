@@ -42,7 +42,6 @@ import { PublicationsController } from './publications/publications.controller';
 import { PublicationsModule } from './publications/publications.module';
 import { Publications } from 'src/common/models/publications/publications.model';
 import { GroupsController } from './groups/groups.controller';
-import { GroupsService } from './groups/groups.service';
 import { GroupsModule } from './groups/groups.module';
 import { Group } from 'src/common/models/groups/groups.model';
 import { GroupMessage } from 'src/common/models/groups/groupMessage';
@@ -53,6 +52,11 @@ import { TelegramService } from './telegram/telegram.service';
 import { TelegramModule } from './telegram/telegram.module';
 import { PublicationComments } from 'src/common/models/publications/publications-comments.model';
 import { RefreshTokenMiddleware } from 'src/common/middleware/refresh-token.middleware';
+import { UserDeviceToken } from 'src/common/models/users/userDeviceToken.model';
+import { DeviceTokensController } from './device-tokens/device-tokens.controller';
+import { DeviceTokensModule } from 'src/device-tokens/device-tokens.module';
+import { BullModule } from '@nestjs/bullmq';
+import { InfoModule } from './info/info.module';
 
 @Module({
     imports: [
@@ -105,6 +109,7 @@ import { RefreshTokenMiddleware } from 'src/common/middleware/refresh-token.midd
                     UserGroups,
                     GroupAdmins,
                     PublicationComments,
+                    UserDeviceToken,
                 ],
                 autoLoadModels: true,
                 // synchronize: true,
@@ -113,6 +118,12 @@ import { RefreshTokenMiddleware } from 'src/common/middleware/refresh-token.midd
         }),
         ServeStaticModule.forRoot({
             rootPath: path.resolve(__dirname, '..', 'static'),
+        }),
+        BullModule.forRoot({
+            connection: {
+                host: process.env.REDIS_HOST || 'redis',
+                port: Number(process.env.REDIS_PORT) || 6379,
+            },
         }),
         AuthModule,
         AdminModule,
@@ -128,6 +139,8 @@ import { RefreshTokenMiddleware } from 'src/common/middleware/refresh-token.midd
         PublicationsModule,
         GroupsModule,
         TelegramModule,
+        DeviceTokensModule,
+        InfoModule,
     ],
     controllers: [
         AdminController,
@@ -141,6 +154,7 @@ import { RefreshTokenMiddleware } from 'src/common/middleware/refresh-token.midd
         LocationController,
         PublicationsController,
         GroupsController,
+        DeviceTokensController,
     ],
     providers: [TelegramService],
 })

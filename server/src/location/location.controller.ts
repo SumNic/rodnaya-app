@@ -17,7 +17,7 @@ export class LocationController {
         summary: 'Добавить место жительства',
     })
     @ApiBody({
-        type: CreateLocationDto,
+        type: [CreateLocationDto],
     })
     @ApiResponse({
         status: HttpStatus.CREATED,

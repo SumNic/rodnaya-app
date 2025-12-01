@@ -7,3 +7,10 @@ export interface AuthenticatedRequest extends Request {
         //   username: string;
     };
 }
+
+export enum DevicePlatform {
+    ANDROID = 'android',
+    IOS = 'ios',
+    WEB = 'web',
+    UNKNOWN = 'unknown',
+}

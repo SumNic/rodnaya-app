@@ -26,9 +26,7 @@ export const PUBLICATION_ID_ROUTE = '/get-publication';
 
 export const BLOCKED_ROUTE = '/blocked';
 
-// export const HOST = import.meta.env.DEV
-// 	? 'http://localhost'
-// 	: 'https://prosaically-permanent-wheatear.cloudpub.ru';
+// export const HOST = 'https://prosaically-permanent-wheatear.cloudpub.ru';
 
 export const HOST = import.meta.env.DEV ? 'http://localhost' : 'https://rod-partya.ru';
 console.log(import.meta.env.DEV, 'process.env.REACT_APP_MODE');

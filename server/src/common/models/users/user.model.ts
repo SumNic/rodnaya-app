@@ -15,6 +15,7 @@ import { GroupAdmins } from 'src/common/models/groups/group-admins.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserDeviceToken } from 'src/common/models/users/userDeviceToken.model';
 
 interface UserCreationAttrs {
     user_id: string;
@@ -109,6 +110,10 @@ export class User extends Model<User, UserCreationAttrs> {
     @ApiProperty({ type: () => [Token] })
     @HasMany(() => Token)
     tokens: Token[];
+
+    @ApiProperty({ type: () => [UserDeviceToken] })
+    @HasMany(() => UserDeviceToken)
+    userDeviceTokens: UserDeviceToken[];
 
     @ApiProperty({ type: () => Declaration })
     @HasOne(() => Declaration)

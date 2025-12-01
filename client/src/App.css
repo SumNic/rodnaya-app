@@ -191,10 +191,10 @@ ol {
 
 .header {
 	position: fixed;
-	top: 5px;
 	left: center;
 	width: 100%;
 	z-index: 5;
+	top: calc(env(safe-area-inset-top, 0px) + 5px);
 }
 
 .header__wrapper {
@@ -345,11 +345,11 @@ ol {
 
 .middle {
 	position: fixed;
-	top: 55px;
-	bottom: 5px;
 	left: center;
 	width: 100%;
 	overflow: hidden;
+	bottom: calc(env(safe-area-inset-bottom, 0px) + 5px);
+	top: calc(env(safe-area-inset-top, 0px) + 55px);
 }
 
 .middle__wrapper {

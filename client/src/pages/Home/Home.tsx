@@ -8,15 +8,18 @@ import { FOUNDERS_ROUTE, HOME_ROUTE } from '../../utils/consts';
 import { useStoreContext } from '../../contexts/StoreContext';
 import { useThemeContext } from '../../contexts/ThemeContext';
 import styles from './Home.module.css';
-import { Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import MyButton from '../../components/MyButton/MyButton';
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
+import WebApp from '@twa-dev/sdk';
 
 const { Paragraph } = Typography;
 
 const Home: React.FC = () => {
 	const [mobileLogin, setMobileLogin] = useState(false);
+	const [isTelegram, setIsTelegram] = useState(false);
+
 	const { store } = useStoreContext();
 
 	const { currentWidth } = useThemeContext();
@@ -25,6 +28,14 @@ const Home: React.FC = () => {
 	useEffect(() => {
 		if (mobileLogin) loginWithVkMobile();
 	}, [mobileLogin]);
+
+	useEffect(() => {
+		if (WebApp.isActive) {
+			setIsTelegram(true);
+		} else {
+			setIsTelegram(false);
+		}
+	}, []);
 
 	return (
 		<div>
@@ -159,6 +170,44 @@ const Home: React.FC = () => {
 									<small className={styles['vk-login-note']}>Для входа использовать уведомление ВКонтакте</small>
 								</div>
 							)}
+
+							{!Capacitor.isNativePlatform() && !isTelegram && (
+								<>
+									<h2 className={styles['founders-subheading']}>📲 Скачайте наше приложение</h2>
+									<div className={styles.wrapper_p}>
+										<p className={styles['founders-description']}>
+											Хотите использовать наше приложение на Android? Просто скачайте его по ссылке ниже!
+										</p>
+									</div>
+									<div style={{ display: 'flex', justifyContent: 'center' }}>
+										<a
+											href="https://storage.yandexcloud.net/new-carpet/app/app-release.apk"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<Button type="primary" style={{ padding: '20px' }}>
+												Скачать для Android
+											</Button>
+										</a>
+									</div>
+
+									<h2 className={styles['founders-subheading']}>💬 Откройте приложение в Телеграм</h2>
+									<div className={styles.wrapper_p}>
+										<p className={styles['founders-description']}>
+											Присоединяйтесь к нашему сообществу через Telegram, чтобы получать актуальные новости и общаться с
+											другими участниками!
+										</p>
+									</div>
+									<div style={{ display: 'flex', justifyContent: 'center' }}>
+										<a href="https://t.me/rodnaya_partya_bot" target="_blank" rel="noopener noreferrer">
+											<Button type="primary" style={{ padding: '20px' }}>
+												Открыть в Telegram
+											</Button>
+										</a>
+									</div>
+								</>
+							)}
+							<h2 className={styles['founders-subheading']}>{isTelegram}</h2>
 
 							{/* <div className="rules"> */}
 							<h2 className={styles['founders-subheading']}>🙏 Поддержите проект</h2>

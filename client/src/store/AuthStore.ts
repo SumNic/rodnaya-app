@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import AuthService from '../services/AuthService.ts';
 import VkAuthService, { VkLoginAndroidDto } from '../services/VkAuthService.ts';
 import { v4 as uuidv4 } from 'uuid';
-import UserService, { UpdateUserDto, User } from '../services/UserService.ts';
+import UserService, { AddFcmDeviceTokenDto, UpdateUserDto, User } from '../services/UserService.ts';
 import { IUserVk } from '../models/IUserVk.ts';
 import {
 	BLOCKED_ROUTE,
@@ -360,6 +360,15 @@ export default class AuthStore {
 			await Browser.open({ url: authUrl });
 		} catch (error) {
 			console.error(error, 'error in loginWithVkMobile');
+		}
+	};
+
+	addFcmDeviceToken = async (dto: AddFcmDeviceTokenDto) => {
+		try {
+			return await UserService.addFcmUserToken(dto);
+		} catch (e: any) {
+			console.error(e.response?.data?.message, 'error in addFcmDeviceToken');
+			return { data: e.response?.data?.message };
 		}
 	};
 }

@@ -12,10 +12,11 @@ export const TokenStorage = {
 
 	async setRefresh(token: string) {
 		if (Capacitor.isNativePlatform()) {
-			await Preferences.set({
-				key: 'refresh_token',
-				value: token,
-			});
+			const current = await Preferences.get({ key: 'refresh_token' });
+
+			if (current.value !== token) {
+				await Preferences.set({ key: 'refresh_token', value: token });
+			}
 		}
 	},
 

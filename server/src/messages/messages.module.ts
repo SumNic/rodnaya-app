@@ -9,10 +9,18 @@ import { AuthModule } from 'src/auth/auth.module';
 import { EndReadMessageModule } from 'src/end-read-message/end-read-message.module';
 import { MessagesGateway } from 'src/messages/messages.gateway';
 import { TelegramModule } from 'src/telegram/telegram.module';
+import { QueueModule } from 'src/queue/queue.module';
 
 @Module({
     providers: [MessagesService, MessagesGateway],
-    imports: [SequelizeModule.forFeature([Messages, EndReadMessage]), UsersModule, AuthModule, EndReadMessageModule, TelegramModule],
+    imports: [
+        SequelizeModule.forFeature([Messages, EndReadMessage]),
+        UsersModule,
+        AuthModule,
+        EndReadMessageModule,
+        TelegramModule,
+        QueueModule,
+    ],
     controllers: [MessagesController],
     exports: [MessagesService, MessagesGateway],
 })

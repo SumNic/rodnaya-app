@@ -7,9 +7,11 @@ import { useStoreContext } from '../contexts/StoreContext';
 import LogoLoad from './LogoLoad/LogoLoad';
 import WebApp from '@twa-dev/sdk';
 import { useYandexPageView } from '../hooks/useYandexPageView';
+import { Modal } from 'antd';
 
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
+	const { getInfo, commonInfo, isCommonInfoModal, setIsCommonInfoModal } = store.commonStore;
 	useYandexPageView(YANDEX_COUNTER_ID);
 
 	const updateTgId = async (values: number) => {
@@ -31,10 +33,10 @@ const AppRouter: React.FC = () => {
 		if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && localStorage.getItem(LOCAL_STORAGE_DEVICE)) {
 			store.authStore.checkAuth();
 		} else {
-			// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-			// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 			store.authStore.setLoad(false);
 		}
+
+		getInfo();
 	}, []);
 
 	useEffect(() => {
@@ -47,22 +49,39 @@ const AppRouter: React.FC = () => {
 	return store.authStore.load ? (
 		<LogoLoad />
 	) : (
-		<Routes>
-			{store && adminRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.authStore.isAuth &&
-				authRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.authStore.isCondition &&
-				!store.authStore.isDelProfile &&
-				registrationRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.authStore.isDelProfile &&
-				restoreRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{!store.authStore.isError &&
-				publicRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.authStore.isError &&
-				errorRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
-			{store.authStore.isError && <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />}
-			<Route path="*" element={<Navigate to={HOME_ROUTE} />} />
-		</Routes>
+		<>
+			<Routes>
+				{store && adminRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+				{store.authStore.isAuth &&
+					authRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+				{store.authStore.isCondition &&
+					!store.authStore.isDelProfile &&
+					registrationRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+				{store.authStore.isDelProfile &&
+					restoreRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+				{!store.authStore.isError &&
+					publicRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+				{store.authStore.isError &&
+					errorRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+				{store.authStore.isError && <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />}
+				<Route path="*" element={<Navigate to={HOME_ROUTE} />} />
+			</Routes>
+			{commonInfo && (
+				<Modal
+					title="Информация"
+					open={isCommonInfoModal}
+					onOk={commonInfo.handleOk}
+					onCancel={() => {
+						commonInfo.handleCancel();
+						setIsCommonInfoModal(false);
+					}}
+					okText="Да"
+					cancelText="Нет"
+				>
+					<p>{commonInfo.message}</p>
+				</Modal>
+			)}
+		</>
 	);
 };
 

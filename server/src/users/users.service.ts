@@ -14,6 +14,7 @@ import { Residency } from 'src/common/models/users/residency.model';
 import { Role } from 'src/common/models/users/role.model';
 import { Token } from 'src/common/models/users/tokens.model';
 import { User } from 'src/common/models/users/user.model';
+import { UserDeviceToken } from 'src/common/models/users/userDeviceToken.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
 import { DeclarationService } from 'src/declaration/declaration.service';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
@@ -111,9 +112,11 @@ export class UsersService {
     async getUsersByResidence(residency: string): Promise<User[]> {
         try {
             const users = await this.usersRepository.findAll({
-                include: { model: Residency },
+                include: [{ model: Residency }, { model: UserDeviceToken }],
             });
+
             const usersFilterResidency = users.filter((user) => {
+                if (!user.residency) return false;
                 return user.residency.locality === residency || user.residency.region === residency || user.residency.country === residency;
             });
             return usersFilterResidency.length ? usersFilterResidency : users;
