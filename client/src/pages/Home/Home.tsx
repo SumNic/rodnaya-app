@@ -30,7 +30,7 @@ const Home: React.FC = () => {
 	}, [mobileLogin]);
 
 	useEffect(() => {
-		if (WebApp.isActive) {
+		if (WebApp.initDataUnsafe?.user) {
 			setIsTelegram(true);
 		} else {
 			setIsTelegram(false);
