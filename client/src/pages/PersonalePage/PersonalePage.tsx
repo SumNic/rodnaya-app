@@ -68,7 +68,6 @@ const PersonalePage: React.FC = () => {
 	useEffect(() => {
 		setProfile(user);
 	}, [user]);
-	console.log(user, 'user');
 
 	useEffect(() => {
 		if (!lastPublicationRef.current) return;

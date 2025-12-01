@@ -20,7 +20,6 @@ export default class CommonStore {
 	getInfo = async () => {
 		try {
 			const res = await CommonService.getInfo();
-			console.log(res.data, 'res.data');
 
 			if (!res.data) {
 				this.setIsCommonInfoModal(false);
