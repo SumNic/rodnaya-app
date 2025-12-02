@@ -149,6 +149,11 @@ const Home: React.FC = () => {
 											Родная партия в ВК
 										</Link>
 									</li>
+									<li>
+										<Link to="/rules" className="list_founders">
+											Правила сайта
+										</Link>
+									</li>
 								</ul>
 							</div>
 
