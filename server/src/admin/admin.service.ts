@@ -30,6 +30,7 @@ export class AdminService {
             const foulMessage = await this.adminRepository.create(dto);
             if (foulMessage) return 'Ваше обращение принято!';
         } catch (err) {
+            console.error(err, 'error in reportViolation');
             throw new HttpException(`Ошибка в reportViolation: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -47,6 +48,7 @@ export class AdminService {
             });
             return getAllFoulMessages;
         } catch (err) {
+            console.error(err, 'error in getFoulMessages');
             throw new HttpException(`Ошибка в getFoulMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -65,6 +67,7 @@ export class AdminService {
             }
             return false;
         } catch (err) {
+            console.error(err, 'error in fetchCleaningIsComplete');
             throw new HttpException(`Ошибка в fetchCleaningIsComplete: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

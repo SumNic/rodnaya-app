@@ -32,6 +32,7 @@ export class AuthService {
         try {
             return await this.tokenService.removeRefreshToken(dto);
         } catch (err) {
+            console.error(err, 'error in logout');
             throw new HttpException(`Ошибка в logout: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -46,8 +47,9 @@ export class AuthService {
             }
 
             throw new HttpException('Нет доступа', HttpStatus.UNAUTHORIZED);
-        } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (err) {
+            console.error(err, 'error in handleValidateUserWithRoles');
+            throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -70,8 +72,9 @@ export class AuthService {
             }
 
             return await this.login(candidate, dto.uuid);
-        } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (err) {
+            console.error(err, 'error in setRegistration');
+            throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -99,8 +102,9 @@ export class AuthService {
             }
 
             return { user: candidate, secret: candidate.secret, ...tokens };
-        } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (err) {
+            console.error(err, 'error in login');
+            throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -127,8 +131,9 @@ export class AuthService {
             });
             await user.save();
             return;
-        } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (err) {
+            console.error(err, 'error in deleteProfile');
+            throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

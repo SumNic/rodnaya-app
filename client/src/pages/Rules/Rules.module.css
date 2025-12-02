@@ -1,0 +1,163 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid black;
+	border-width: 0 1px;
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	width: auto;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	border-bottom: 1px solid black;
+	border-bottom-left-radius: 20px;
+	border-bottom-right-radius: 20px;
+	max-width: 546px;
+
+	overflow-y: scroll;
+	scrollbar-width: none;
+
+	background-image: url('../../images/Logotip-Rodnoj-parti-500x500.png');
+	background-size: contain;
+	background-origin: content-box;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-color: white;
+
+	padding: 0 7px;
+}
+
+.wrapper_p {
+	padding: 10px 20px;
+}
+
+/* @media (max-width: 1024px) {
+	.wrapper {
+		padding: 0 24px;
+	}
+} */
+
+@media (max-width: 768px) {
+	.wrapper {
+		padding: 0 8px;
+	}
+}
+
+.founders-section {
+	/* max-width: 1000px; */
+	margin: 0 auto;
+	padding: 20px;
+	text-align: center;
+	background-color: #d3e2e2;
+	border-radius: 15px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.founders-title {
+	font-size: 28px;
+	font-weight: 400;
+	color: #2e6c45;
+	margin-bottom: 10px;
+	line-height: 1.2;
+	display: flex;
+	justify-content: center;
+}
+
+.founders-description {
+	font-size: 16px;
+	color: #353434;
+	font-family: 'Inter', serif;
+	line-height: 1.2;
+	text-align: justify;
+	/* margin-bottom: 20px; */
+}
+
+.founders-call-to-action {
+	font-size: 20px;
+	font-family: 'Lora', serif;
+	color: #2e6c45;
+	font-weight: bold;
+	margin: 20px 0;
+}
+
+.founders-subheading {
+	font-size: 26px;
+	font-weight: 400;
+	color: #2e6c45;
+	padding-top: 20px;
+	/* margin-bottom: 5px; */
+}
+
+.founders-details {
+	font-size: 16px;
+	color: #4a4a4a;
+	font-family: 'Lora', serif;
+	line-height: 1.6;
+	margin-bottom: 20px;
+}
+
+.founders-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.founders-list li {
+	margin: 10px 0;
+}
+
+.founders-list .list_founders {
+	text-decoration: none;
+	color: #2e6c45;
+	font-size: 18px;
+	transition: color 0.3s;
+}
+
+.founders-list .list_founders:hover {
+	color: #0a4e29;
+}
+
+/* Кнопки */
+.support-button-container {
+	margin-top: 40px;
+}
+
+.support-button iframe {
+	border-radius: 8px;
+}
+
+.vk-login-note {
+	font-size: 14px;
+	color: #7c7c7c;
+	font-family: 'Lora', serif;
+	margin-top: 10px;
+	font-weight: 400;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 600px) {
+	.founders-title {
+		font-size: 28px;
+	}
+
+	.founders-description {
+		font-size: 16px;
+	}
+
+	.founders-call-to-action {
+		font-size: 18px;
+	}
+
+	.founders-subheading {
+		font-size: 24px;
+	}
+
+	.founders-details {
+		font-size: 14px;
+	}
+
+	.support-button iframe {
+		width: 100%;
+		height: 50px;
+	}
+}

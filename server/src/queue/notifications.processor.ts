@@ -21,6 +21,10 @@ export class NotificationsProcessor extends WorkerHost {
             const skip = user.id === user.id;
             if (skip) continue;
 
+            if (user.tg_id && user.tg_id !== user.tg_id) {
+                await this.telegramService.sendMessage(user.tg_id, message, location);
+            }
+
             if (Array.isArray(user.userDeviceTokens)) {
                 for (const device of user.userDeviceTokens) {
                     if (!device.token) continue;

@@ -26,7 +26,6 @@ import Registration from './pages/Registration/Registration.tsx';
 import Exit from './pages/Exit';
 import Founders from './pages/Founders';
 import RestoreUser from './pages/RestoreUser/RestoreUser.tsx';
-import Rules from './pages/Rules';
 import Mail from './pages/Mail';
 import Messages from './pages/Messages/MessagesPage.tsx';
 import Blocked from './pages/Blocked.tsx';
@@ -36,6 +35,7 @@ import Publications from './pages/Publications/Publications.tsx';
 import OnePublication from './pages/OnePublication/OnePublication.tsx';
 import PersonalePage from './pages/PersonalePage/PersonalePage.tsx';
 import OneGroup from './pages/OneGroup/OneGroup.tsx';
+import Rules from './pages/Rules/Rules.tsx';
 
 export const adminRoutes = [
 	{

@@ -11,6 +11,7 @@ export class DeclarationService {
         try {
             return await this.declarationRepository.create({ declaration: declaration });
         } catch (err) {
+            console.error(err, 'error in deleteProfile');
             throw new HttpException(`Ошибка в createDeclaration: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -25,6 +26,7 @@ export class DeclarationService {
             await declaration.update({ declaration: dto.declaration });
             return declaration;
         } catch (err) {
+            console.error(err, 'error in deleteProfile');
             throw new HttpException(`Ошибка в updateDeclaration: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -38,6 +40,7 @@ export class DeclarationService {
             });
             return await declaration.destroy();
         } catch (err) {
+            console.error(err, 'error in deleteProfile');
             throw new HttpException(`Ошибка в deleteDeclaration: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
