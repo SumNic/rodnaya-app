@@ -16,7 +16,7 @@ export class InfoService {
             });
 
             return {
-                message: `Доступна новая версия приложения ${info?.version_app}`,
+                message: `Доступна новая версия приложения ${info?.version_app}. Обновить?`,
                 action: 'update_app',
                 version: info?.version_app,
             };
