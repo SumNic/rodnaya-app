@@ -8,6 +8,8 @@ const $api = axios.create({
 	baseURL: API_URL,
 });
 
+let isRefreshing = false;
+
 $api.interceptors.request.use(async (config) => {
 	const accessToken = localStorage.getItem(LOCAL_STORAGE_TOKEN);
 	const refreshToken = await TokenStorage.getRefresh();
@@ -31,13 +33,18 @@ $api.interceptors.response.use(
 			return Promise.reject(err);
 		}
 
-		const device: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
-
 		// Обработка 401 ошибки (токен истек)
-		if (err.response.status === 401 && !originalRequest._retry && device) {
-			originalRequest._retry = true;
+		if (err.response.status === 401 && !isRefreshing) {
+			isRefreshing = true;
 
 			try {
+				const device: string | null = localStorage.getItem(LOCAL_STORAGE_DEVICE);
+
+				if (!device) {
+					isRefreshing = false;
+					return Promise.reject(err);
+				}
+
 				const res = await AuthService.updateRegistration(device);
 
 				localStorage.setItem(LOCAL_STORAGE_TOKEN, res.data.token);
@@ -47,8 +54,11 @@ $api.interceptors.response.use(
 				originalRequest.headers['Authorization'] = `Bearer ${res.data.token}`;
 				originalRequest.headers['x-refresh-token'] = res.data.refreshToken;
 
+				isRefreshing = false;
 				return $api.request(originalRequest);
 			} catch (e) {
+				isRefreshing = false;
+
 				return Promise.reject(e);
 			}
 		}

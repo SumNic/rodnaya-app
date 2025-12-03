@@ -11,19 +11,15 @@ import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
 import { UsersService } from 'src/users/users.service';
 import { EndMessageDto } from 'src/common/dtos/end-message.dto';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
-import { ConfigService } from '@nestjs/config';
 import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 import { RespCountNoReadMessagesDto } from 'src/common/dtos/resp-count-no-read-messages.dto';
-import { RespIdNoReadMessagesDto } from 'src/common/dtos/resp-id-no-read-messages.dto copy';
+import { RespIdNoReadMessagesDto } from 'src/common/dtos/resp-id-no-read-messages.dto';
 import { NewMessage } from 'src/common/dtos/new-message.dto';
 import { Residency } from 'src/common/models/users/residency.model';
 import { AuthenticatedRequest } from 'src/common/types/types';
-import { TelegramService } from 'src/telegram/telegram.service';
 import { DeleteMessageDto } from 'src/common/dtos/delete-message.dto';
 import { ROLES } from 'src/common/constants/roles';
 import { UpdateMessageDto } from 'src/common/dtos/update-message.dto';
-import admin from 'src/common/firebase/firebase-admin';
-import { UserDeviceToken } from 'src/common/models/users/userDeviceToken.model';
 import { NotificationsService } from 'src/queue/notifications.service';
 
 @Injectable()
@@ -33,8 +29,6 @@ export class MessagesService {
         @InjectModel(EndReadMessage) private readonly endReadMessageRepository: typeof EndReadMessage,
         private usersService: UsersService,
         private endReadMessageService: EndReadMessageService,
-        private readonly configService: ConfigService,
-        private readonly telegramService: TelegramService,
         private notificationsService: NotificationsService,
     ) {}
 

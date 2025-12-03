@@ -8,11 +8,21 @@ import LogoLoad from './LogoLoad/LogoLoad';
 import WebApp from '@twa-dev/sdk';
 import { useYandexPageView } from '../hooks/useYandexPageView';
 import { Modal } from 'antd';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
 	const { getInfo, commonInfo, isCommonInfoModal, setIsCommonInfoModal } = store.commonStore;
 	useYandexPageView(YANDEX_COUNTER_ID);
+
+	const actions: Record<string, () => void> = {
+		update_app: async () => {
+			await Browser.open({
+				url: 'https://storage.yandexcloud.net/new-carpet/app/app-release.apk', // ссылка на приложение
+			});
+		},
+	};
 
 	const updateTgId = async (values: number) => {
 		try {
@@ -66,13 +76,16 @@ const AppRouter: React.FC = () => {
 				{store.authStore.isError && <Route path="*" element={<Navigate to={ERROR_ROUTE} />} />}
 				<Route path="*" element={<Navigate to={HOME_ROUTE} />} />
 			</Routes>
-			{commonInfo && (
+			{Capacitor.isNativePlatform() && (
 				<Modal
 					title="Информация"
 					open={isCommonInfoModal}
-					onOk={commonInfo.handleOk}
+					onOk={() => {
+						const act = actions[commonInfo.action];
+						if (act) act();
+						setIsCommonInfoModal(false);
+					}}
 					onCancel={() => {
-						commonInfo.handleCancel();
 						setIsCommonInfoModal(false);
 					}}
 					okText="Да"

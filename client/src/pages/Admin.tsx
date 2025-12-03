@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Modal, Radio, Button, message } from 'antd';
+import { Table, Modal, Radio, Button, message, Input } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import AdminService from '../services/AdminService';
 import { IPost } from '../models/IPost';
 import MessagesService from '../services/MessagesService';
 import UserService from '../services/UserService';
-import { useStoreContext } from '../contexts/StoreContext';
 import { GROUP, MESSAGES, PUBLICATIONS } from '../utils/consts';
 import PublicationsService from '../services/PublicationsService';
 import GroupsService from '../services/GroupsService';
-// import AdminService from './AdminService';
+import store from '../store';
 
 interface FoulSendMessage {
 	id: string; // Добавлен уникальный ключ
@@ -30,11 +29,13 @@ const Admin: React.FC = () => {
 	const [selectedPunishment, setSelectedPunishment] = useState<number | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isChangeListFoulMessages, setIsChangeListFoulMessages] = useState(false);
+	const [versionApp, setVersionApp] = useState('');
 
-	const { store } = useStoreContext();
+	const { commonStore } = store;
 
 	useEffect(() => {
 		store.authStore.checkAdmin();
+		commonStore.getInfo();
 		const fetchFoulMessages = async () => {
 			try {
 				const allFoulMessages = await AdminService.getFoulMessages();
@@ -108,6 +109,20 @@ const Admin: React.FC = () => {
 		setSelectedActionWithFoul(null);
 		setSelectedPunishment(null);
 		setIsModalOpen(true);
+	};
+
+	const handleAddVersionApp = async () => {
+		if (!versionApp.trim()) {
+			return message.warning('Введите версию приложения');
+		}
+
+		try {
+			await commonStore.addVersionMobileApp(versionApp.trim());
+			message.success('Версия мобильного приложения добавлена');
+			setVersionApp('');
+		} catch (e) {
+			message.error('Не удалось добавить версию приложения');
+		}
 	};
 
 	const handleOk = async () => {
@@ -253,34 +268,49 @@ const Admin: React.FC = () => {
 		'Block forever',
 	];
 
-	return (
+	return store.authStore.isAdmin ? (
 		<>
-			{store.authStore.isAdmin ? (
-				<>
-					<Table dataSource={foulMessages} columns={columns} rowKey="id" />
-					<Modal title="Edit Foul Message" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-						<h3>Message Actions</h3>
-						<Radio.Group
-							options={actionOptions}
-							value={selectedActionWithFoul !== null ? selectedActionWithFoul : undefined}
-							onChange={(e) => setSelectedActionWithFoul(e.target.value)}
-							optionType="button"
-							buttonStyle="solid"
-						/>
-						<h3>Punishment</h3>
-						<Radio.Group
-							options={punishmentOptions}
-							value={selectedPunishment !== null ? selectedPunishment : undefined}
-							onChange={(e) => setSelectedPunishment(e.target.value)}
-							optionType="button"
-							buttonStyle="solid"
-						/>
-					</Modal>
-				</>
-			) : (
-				''
-			)}
+			<div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+				<div>
+					<strong>Текущая версия мобильного приложения: </strong>
+					{commonStore.commonInfo?.version || 'нет данных'}
+				</div>
+
+				<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+					<Input
+						placeholder="Версия мобильного приложения (например, 1.0.0)"
+						value={versionApp}
+						onChange={(e) => setVersionApp(e.target.value)}
+						style={{ maxWidth: 300 }}
+					/>
+					<Button type="primary" onClick={handleAddVersionApp}>
+						Добавить версию приложения
+					</Button>
+				</div>
+			</div>
+
+			<Table dataSource={foulMessages} columns={columns} rowKey="id" />
+			<Modal title="Edit Foul Message" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+				<h3>Message Actions</h3>
+				<Radio.Group
+					options={actionOptions}
+					value={selectedActionWithFoul !== null ? selectedActionWithFoul : undefined}
+					onChange={(e) => setSelectedActionWithFoul(e.target.value)}
+					optionType="button"
+					buttonStyle="solid"
+				/>
+				<h3>Punishment</h3>
+				<Radio.Group
+					options={punishmentOptions}
+					value={selectedPunishment !== null ? selectedPunishment : undefined}
+					onChange={(e) => setSelectedPunishment(e.target.value)}
+					optionType="button"
+					buttonStyle="solid"
+				/>
+			</Modal>
 		</>
+	) : (
+		''
 	);
 };
 

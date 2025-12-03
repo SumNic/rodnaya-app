@@ -133,8 +133,8 @@ export default class AuthStore {
 				this.setError(true);
 				this.setMessageError('Произошла ошибка на сервере. Повторите ошибку позже.');
 				this.setAuth(false);
-				// localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-				// localStorage.removeItem(LOCAL_STORAGE_DEVICE);
+				localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+				localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 				return;
 			}
 			// if (response.data.) {
@@ -159,6 +159,7 @@ export default class AuthStore {
 				localStorage.removeItem(LOCAL_STORAGE_TOKEN);
 				localStorage.removeItem(LOCAL_STORAGE_DEVICE);
 				localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
+				await TokenStorage.removeRefresh();
 			}
 		} finally {
 			this.setLoad(false);

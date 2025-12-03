@@ -904,6 +904,40 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/add-version-app': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Версия приложения */
+		post: operations['InfoController_addOVersionApp'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/get-common-info': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Размещение общей информации в модельном окне */
+		get: operations['InfoController_getInfo'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/logout': {
 		parameters: {
 			query?: never;
@@ -1541,6 +1575,23 @@ export interface components {
 			 * @enum {string}
 			 */
 			platform: 'android' | 'ios' | 'web' | 'unknown';
+		};
+		MobileAppInfoDto: {
+			/**
+			 * @description Сообщение
+			 * @example Доступна новая версия приложения
+			 */
+			message: string;
+			/**
+			 * @description Действие
+			 * @example update_action
+			 */
+			action: string;
+			/**
+			 * @description Версия приложения
+			 * @example 1.0.0
+			 */
+			version: string;
 		};
 		LogoutUserDto: {
 			/**
@@ -2488,7 +2539,7 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['CreateLocationDto'];
+				'application/json': components['schemas']['CreateLocationDto'][];
 			};
 		};
 		responses: {
@@ -3114,6 +3165,71 @@ export interface operations {
 				content?: never;
 			};
 			/** @description Некоректный JWT токен */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	InfoController_addOVersionApp: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': number;
+			};
+		};
+		responses: {
+			/** @description Версия приложения добавлена */
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': string;
+				};
+			};
+			/** @description Неккоректные данные */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	InfoController_getInfo: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Операция прошла успешно. */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['MobileAppInfoDto'];
+				};
+			};
+			/** @description JWT токен не указан в заголовках */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Некоректный JWT токен или роль пользователя */
 			403: {
 				headers: {
 					[name: string]: unknown;

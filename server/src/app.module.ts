@@ -57,6 +57,8 @@ import { DeviceTokensController } from './device-tokens/device-tokens.controller
 import { DeviceTokensModule } from 'src/device-tokens/device-tokens.module';
 import { BullModule } from '@nestjs/bullmq';
 import { InfoModule } from './info/info.module';
+import { Info } from 'src/common/models/info/info.model';
+import { InfoController } from 'src/info/info.controller';
 
 @Module({
     imports: [
@@ -110,6 +112,7 @@ import { InfoModule } from './info/info.module';
                     GroupAdmins,
                     PublicationComments,
                     UserDeviceToken,
+                    Info,
                 ],
                 autoLoadModels: true,
                 // synchronize: true,
@@ -155,6 +158,7 @@ import { InfoModule } from './info/info.module';
         PublicationsController,
         GroupsController,
         DeviceTokensController,
+        InfoController,
     ],
     providers: [TelegramService],
 })
