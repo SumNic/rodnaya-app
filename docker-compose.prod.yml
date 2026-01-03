@@ -54,5 +54,6 @@ networks:
   app_net:
   ry_net:
     external: true
+    name: yarmarka_ry_net
 volumes:
   pgdata:
