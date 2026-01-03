@@ -9,6 +9,7 @@ services:
       - ./data/certbot/www:/var/www/certbot
     networks:
       - app_net
+      - ry_net
 
   server:
     image: sumnic82/rodnaya-server:${IMAGE_TAG}
@@ -51,5 +52,7 @@ services:
 
 networks:
   app_net:
+  ry_net:
+    external: true
 volumes:
   pgdata:
