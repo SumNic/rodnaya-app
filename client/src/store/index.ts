@@ -5,6 +5,7 @@ import GroupStore from './GroupStore';
 import LocationStore from './LocationStore';
 import MessageStore from './MessageStore';
 import PublicationStore from './PublicationStore';
+import VechStore from './VechStore';
 
 class RootStore {
 	authStore: AuthStore;
@@ -14,6 +15,7 @@ class RootStore {
 	filesStore: FilesStore;
 	groupStore: GroupStore;
 	commonStore: CommonStore;
+	vechStore: VechStore;
 
 	constructor() {
 		this.authStore = new AuthStore();
@@ -23,6 +25,7 @@ class RootStore {
 		this.filesStore = new FilesStore();
 		this.groupStore = new GroupStore();
 		this.commonStore = new CommonStore();
+		this.vechStore = new VechStore();
 	}
 }
 

@@ -18,6 +18,7 @@ import {
 	VK_CALLBACK_ROUTE,
 	GROUP_ROUTE,
 	ONE_GROUP_ROUTE,
+	VECHE_ROUTE,
 } from './utils/consts';
 import Home from './pages/Home/Home.tsx';
 import VkCallback from './pages/VkCallback';
@@ -36,6 +37,7 @@ import OnePublication from './pages/OnePublication/OnePublication.tsx';
 import PersonalePage from './pages/PersonalePage/PersonalePage.tsx';
 import OneGroup from './pages/OneGroup/OneGroup.tsx';
 import Rules from './pages/Rules/Rules.tsx';
+import Veches from './pages/Veches/Veches.tsx';
 
 export const adminRoutes = [
 	{
@@ -56,6 +58,10 @@ export const authRoutes = [
 	{
 		path: MAIL_ROUTE,
 		Component: Mail,
+	},
+	{
+		path: VECHE_ROUTE,
+		Component: Veches,
 	},
 ];
 

@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
-import { HOME_ROUTE, GROUP_ROUTE, LOCAL_STORAGE_IS_MY_GROUPS, CHAT, GROUPS } from '../../utils/consts';
+import { HOME_ROUTE, GROUP_ROUTE, LOCAL_STORAGE_IS_MY_GROUPS, GROUP_MESSAGES, GROUPS } from '../../utils/consts';
 import { Button, Modal, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import GroupModal from './components/GroupModal';
@@ -163,7 +163,7 @@ const GroupPage: React.FC = () => {
 							<GroupsList groups={groups} location={location} isLoadingGroup={isLoadingGroup} isMyGroups={isMyGroups} />
 						)}
 						{store.authStore.isAuth && location && isChatGroupVisible[location] && (
-							<Messages location={location} source={CHAT} group={groupForChat[location]} />
+							<Messages location={location} source={GROUP_MESSAGES} group={groupForChat[location]} />
 						)}
 					</div>
 				</div>

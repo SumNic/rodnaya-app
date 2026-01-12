@@ -31,6 +31,7 @@ services:
     - redis
     environment:
       REDIS_HOST: redis
+      NODE_OPTIONS: --dns-result-order=ipv4first
     networks:
       - app_net
     restart: always

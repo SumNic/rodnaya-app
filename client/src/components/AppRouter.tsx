@@ -14,6 +14,7 @@ import { Browser } from '@capacitor/browser';
 const AppRouter: React.FC = () => {
 	const { store } = useStoreContext();
 	const { getInfo, commonInfo, isCommonInfoModal, setIsCommonInfoModal } = store.commonStore;
+	const { getVeches } = store.vechStore;
 	useYandexPageView(YANDEX_COUNTER_ID);
 
 	const actions: Record<string, () => void> = {
@@ -47,6 +48,7 @@ const AppRouter: React.FC = () => {
 		}
 
 		getInfo();
+		getVeches();
 	}, []);
 
 	useEffect(() => {

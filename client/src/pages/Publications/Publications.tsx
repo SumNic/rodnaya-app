@@ -7,7 +7,6 @@ import { useStoreContext } from '../../contexts/StoreContext';
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useThemeContext } from '../../contexts/ThemeContext';
-import { useSocket } from '../../hooks/useSocket';
 import { PublicationWebsocketResponse } from '../../models/response/PublicationWebsocketResponse';
 
 import styles from './Publications.module.css';
@@ -17,6 +16,7 @@ import { observer } from 'mobx-react-lite';
 import SendPublication from '../../components/sendPublications/SendPublication';
 import { LocationUser } from '../../models/LocationUser';
 import { Publication, User } from '../../services/PublicationsService';
+import { useSocketContext } from '../../contexts/SocketContext';
 
 interface PublicationsProps {}
 
@@ -37,7 +37,7 @@ const Publications: React.FC<PublicationsProps> = () => {
 	const { getAllPublications, publictionDataSocket, setPublicationDataSocket } = store.publicationStore;
 
 	const { currentWidth } = useThemeContext();
-	const { socket } = useSocket();
+	const { socket } = useSocketContext();
 	const lastPublicationRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {

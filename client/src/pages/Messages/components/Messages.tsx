@@ -8,7 +8,7 @@ import { useStoreContext } from '../../../contexts/StoreContext';
 import { IPost } from '../../../models/IPost';
 import MessagesService from '../../../services/MessagesService';
 import UserService from '../../../services/UserService';
-import { CHAT, COUNT_RESPONSE_POSTS, MESSAGES } from '../../../utils/consts';
+import { GROUP_MESSAGES, COUNT_RESPONSE_POSTS, CHAT_MESSAGES } from '../../../utils/consts';
 
 import styles from '../MessagesPage.module.css';
 import GroupsService, { Group } from '../../../services/GroupsService';
@@ -186,9 +186,9 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 			};
 
 			let noReadMessagesCount;
-			if (source === MESSAGES)
+			if (source === CHAT_MESSAGES)
 				noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
-			if (source === CHAT)
+			if (source === GROUP_MESSAGES)
 				noReadMessagesCount = arrCountNoReadPostsGroups.find((elem) => elem.idGroup === group?.id)?.count;
 
 			if (
@@ -205,8 +205,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					}
 					return prev;
 				});
-				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-				if (source === CHAT && messageDataSocket.group_id)
+				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
 			}
 
@@ -223,8 +223,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					}
 					return prev;
 				});
-				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
-				if (source === CHAT && messageDataSocket.group_id)
+				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
 			}
 
@@ -241,8 +241,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					}
 					return prev;
 				});
-				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-				if (source === CHAT && messageDataSocket.group_id)
+				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
 			}
 
@@ -253,8 +253,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 				newPost.userId === user.id
 			) {
 				setIsLastMessageLoad(true);
-				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-				if (source === CHAT && messageDataSocket.group_id)
+				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
 			}
 
@@ -265,12 +265,12 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 				newPost.userId !== user.id
 			) {
 				setIsLastMessageLoad(true);
-				if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
-				if (source === CHAT && messageDataSocket.group_id)
+				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
+				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
 			}
 
-			if (source === CHAT && messageDataSocket.group_id === group?.id) {
+			if (source === GROUP_MESSAGES && messageDataSocket.group_id === group?.id) {
 				setPosts((prev) => {
 					if (newPost) {
 						setScrollDownPage(true);
@@ -329,21 +329,21 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	};
 
 	useEffect(() => {
-		if (source === MESSAGES && location && !posts[locationKey].length) {
+		if (source === CHAT_MESSAGES && location && !posts[locationKey].length) {
 			loadMessages(location);
 		}
 	}, [location]);
 
 	useEffect(() => {
-		if (source === CHAT && location && group?.id && !posts[locationKey].length) {
+		if (source === GROUP_MESSAGES && location && group?.id && !posts[locationKey].length) {
 			loadPostsGroup(group.id);
 		}
 	}, [group]);
 
 	useEffect(() => {
 		if (location && isLastMessageLoad && !isLastMessage[locationKey]) {
-			if (source === MESSAGES) loadMessages(location, nextPage[locationKey]);
-			if (source === CHAT && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
+			if (source === CHAT_MESSAGES) loadMessages(location, nextPage[locationKey]);
+			if (source === GROUP_MESSAGES && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
 		} else if (location && isLastMessageLoad && isLastMessage[locationKey]) {
 			setIsLastMessageLoad(false);
 			setScrollDownPage(true);
@@ -355,8 +355,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 
 		if (noReadMessagesCount && nameLocal) {
 			setIsLastMessageLoad(true);
-			if (source === MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-			if (source === CHAT && group?.id) updateArrCountNoReadPostsGroups(group.id, 0);
+			if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
+			if (source === GROUP_MESSAGES && group?.id) updateArrCountNoReadPostsGroups(group.id, 0);
 		} else {
 			setIsLastMessageLoad(false);
 			setScrollDownPage(true);
@@ -364,9 +364,9 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	};
 
 	useEffect(() => {
-		if (source === MESSAGES && isScrollTop && location && posts[locationKey].length)
+		if (source === CHAT_MESSAGES && isScrollTop && location && posts[locationKey].length)
 			loadPreviousMessages(location, prevPage[locationKey]);
-		if (source === CHAT && isScrollTop && group?.id && posts[locationKey].length)
+		if (source === GROUP_MESSAGES && isScrollTop && group?.id && posts[locationKey].length)
 			loadPreviousPostsGroup(group.id, prevPage[locationKey]);
 		setIsScrollTop(false);
 	}, [isScrollTop]);
@@ -378,8 +378,8 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 			if (!location) return;
 			if (entries[0].isIntersecting) {
 				setIsScrollEnd((prev) => ({ ...prev, [location]: true }));
-				if (source === MESSAGES) loadMessages(location, nextPage[locationKey]);
-				if (source === CHAT && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
+				if (source === CHAT_MESSAGES) loadMessages(location, nextPage[locationKey]);
+				if (source === GROUP_MESSAGES && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
 			} else {
 				setIsScrollEnd((prev) => ({ ...prev, [location]: false }));
 			}

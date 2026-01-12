@@ -11,6 +11,9 @@ import * as bcrypt from 'bcryptjs';
 import { VkLoginSdkDto } from 'src/common/dtos/vk-login-sdk.dto';
 import { VkLoginAndroidDto } from 'src/common/dtos/vk-login-android';
 import axios from 'axios';
+import { Token } from 'src/common/models/users/tokens.model';
+import { Residency } from 'src/common/models/users/residency.model';
+import { Role } from 'src/common/models/users/role.model';
 
 @Injectable()
 export class AuthService {
@@ -55,7 +58,7 @@ export class AuthService {
 
     async setRegistration(dto: CreateRegistrationDto): Promise<OutputUserAndTokens> {
         try {
-            const candidate = await this.userService.getUserWithoutMessages(dto.id);
+            const candidate = await this.userService.getUserWithModel(dto.id, [{ model: Token }, { model: Residency }, { model: Role }]);
 
             if (!candidate) {
                 throw new HttpException('Данный пользователь не существует.', HttpStatus.UNAUTHORIZED);
@@ -110,7 +113,7 @@ export class AuthService {
 
     async deleteProfile(id: number, secret: string): Promise<any> {
         try {
-            const user = await this.userService.getUser(id);
+            const user = await this.userService.getUserWithModel(id);
 
             await this.tokenService.removeRefreshToken({
                 id,
@@ -138,7 +141,7 @@ export class AuthService {
     }
 
     async restoreProfile(id: number, secret: string): Promise<boolean> {
-        const user = await this.userService.getUser(id);
+        const user = await this.userService.getUserWithModel(id);
 
         if (secret !== user.secret) {
             throw new HttpException('Нет доступа.', HttpStatus.BAD_REQUEST);
@@ -183,9 +186,6 @@ export class AuthService {
                 },
             });
 
-            // return response.data;
-            console.log(response.data, 'response.data');
-
             const { access_token } = response.data;
 
             if (access_token) {
@@ -194,10 +194,8 @@ export class AuthService {
                 if (!userVk) {
                     throw new HttpException('Во время авторизации произошла ошибка.', HttpStatus.UNAUTHORIZED);
                 }
-                console.log(userVk.user.user_id, 'userVk.user_id');
 
                 const candidate = await this.userService.getUserByVkId(userVk.user.user_id); // Проверяем, есть ли пользователь с данным ID в базе данных
-                console.log(candidate, 'candidate');
 
                 if (candidate && !candidate.isDelProfile) return candidate;
 
@@ -242,7 +240,6 @@ export class AuthService {
         if (response.status !== 200) {
             throw new Error('Failed to fetch user data from VK');
         }
-        console.log(response.data, 'response.data');
         return response.data;
     }
 

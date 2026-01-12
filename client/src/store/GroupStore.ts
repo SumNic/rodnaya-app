@@ -136,7 +136,7 @@ export default class GroupStore {
 		}
 	}
 
-	async sendPostToChat(dto: CreatePostToChatDto) {
+	async sendPostToGroup(dto: CreatePostToChatDto) {
 		try {
 			const response = await GroupsService.sendPost(dto);
 			return { data: response.data };

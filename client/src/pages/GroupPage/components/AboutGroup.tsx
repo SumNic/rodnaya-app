@@ -9,7 +9,7 @@ import { CloseOutlined, EditOutlined, EnvironmentOutlined, LoginOutlined, Logout
 import CustomAvatar from '../../../components/CustomAvatar';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import FoundersList from '../../../components/FoundersList';
-import { CHAT } from '../../../utils/consts';
+import { GROUP_MESSAGES } from '../../../utils/consts';
 import { deepCopy } from 'deep-copy-ts';
 import { Group } from '../../../services/GroupsService';
 
@@ -44,7 +44,7 @@ const AboutGroup: React.FC<AboutGroupProps> = ({ group, location }) => {
 	}, [group, user]);
 
 	const handleCloseAboutButton = () => {
-		if (source[location] === CHAT) {
+		if (source[location] === GROUP_MESSAGES) {
 			setIsChatGroupVisible(location, true);
 			setSource(location, '');
 		}

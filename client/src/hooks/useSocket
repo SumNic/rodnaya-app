@@ -2,12 +2,20 @@ import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { HOST } from '../utils/consts';
 
-export const useSocket = () => {
+type SocketData = {
+	userId?: number;
+	groupIds?: number[];
+	residency?: { country?: string; region?: string; locality?: string };
+};
+
+export const useSocketS = (authData: SocketData) => {
 	const socketRef = useRef<null | Socket>(null);
 
 	useEffect(() => {
 		// Инициализация соединения
-		socketRef.current = io(HOST);
+		socketRef.current = io(HOST, {
+			auth: authData,
+		});
 
 		socketRef.current.on('connect', () => {
 			console.log('Socket.IO connection established');
@@ -19,9 +27,9 @@ export const useSocket = () => {
 
 		// Очистка соединения при размонтировании компонента
 		return () => {
-			if (socketRef.current) {
-				socketRef.current.disconnect();
-			}
+			// if (socketRef.current) {
+			// 	socketRef.current.disconnect();
+			// }
 		};
 	}, []);
 

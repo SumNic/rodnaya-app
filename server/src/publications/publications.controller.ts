@@ -68,7 +68,6 @@ export class PublicationsController {
     @Roles(ROLES.USER, ROLES.ADMIN)
     @Delete('/delete-publication')
     async deleteMessage(@Req() req: AuthenticatedRequest, @Body() dto: DeletePublicationDto) {
-        console.log(dto, 'dto 666');
         return this.publicationsService.deleteMessage(req.user, dto);
     }
 

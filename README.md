@@ -27,7 +27,11 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 # Генерация
 ```npx sequelize-cli migration:generate --name this-name```
 # Применение
-```docker compose exec server yarn migrate```
+```
+docker compose exec server \
+npx sequelize-cli db:migrate \
+--config /app/sequelize.config.js
+```
 
 ## Генерация типов api
 ```npx openapi-typescript ./server/swagger.json --output ./client/src/utils/api.ts```

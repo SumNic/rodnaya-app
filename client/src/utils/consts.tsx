@@ -24,6 +24,8 @@ export const DONATIONS_ROUTE = '/donations';
 export const PUBLICATION_ROUTE = '/publications';
 export const PUBLICATION_ID_ROUTE = '/get-publication';
 
+export const VECHE_ROUTE = '/veches';
+
 export const BLOCKED_ROUTE = '/blocked';
 
 // export const HOST = 'https://prosaically-permanent-wheatear.cloudpub.ru';
@@ -84,11 +86,11 @@ export enum Punishment {
 
 export const COUNT_RESPONSE_POSTS = 20;
 
-export const MESSAGES = 'messages';
+export const CHAT_MESSAGES = 'messages';
 export const PUBLICATIONS = 'publications';
 export const GROUPS = 'groups';
 export const GROUP = 'group';
-export const CHAT = 'chat';
+export const GROUP_MESSAGES = 'chat';
 
 export const YANDEX_COUNTER_ID = import.meta.env.DEV ? 104827200 : 104841811;
 

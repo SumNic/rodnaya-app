@@ -5,7 +5,7 @@ import NavRegions from '../../components/Nav_header/NavRegions.tsx';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
-import { HOME_ROUTE, MESSAGES, MESSAGES_ROUTE } from '../../utils/consts.tsx';
+import { HOME_ROUTE, CHAT_MESSAGES, MESSAGES_ROUTE } from '../../utils/consts.tsx';
 import { Modal, Typography } from 'antd';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc.tsx';
 import Messages from './components/Messages.tsx';
@@ -72,7 +72,7 @@ const MessagePage: React.FC = () => {
 				<div className="header__wrapper">
 					<HeaderLogoPc />
 					<HeaderLogoMobile />
-					{location && <NavRegions location={location} source={MESSAGES} route={MESSAGES_ROUTE} />}
+					{location && <NavRegions location={location} source={CHAT_MESSAGES} route={MESSAGES_ROUTE} />}
 				</div>
 			</header>
 			<div className="middle">
@@ -84,7 +84,7 @@ const MessagePage: React.FC = () => {
 								{nameLocal}
 							</h2>
 						</div>
-						{store.authStore.isAuth && location && <Messages location={location} source={MESSAGES} />}
+						{store.authStore.isAuth && location && <Messages location={location} source={CHAT_MESSAGES} />}
 					</div>
 				</div>
 			</div>

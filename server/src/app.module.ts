@@ -59,6 +59,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { InfoModule } from './info/info.module';
 import { Info } from 'src/common/models/info/info.model';
 import { InfoController } from 'src/info/info.controller';
+import { ZoomModule } from './zoom/zoom.module';
 
 @Module({
     imports: [
@@ -144,6 +145,7 @@ import { InfoController } from 'src/info/info.controller';
         TelegramModule,
         DeviceTokensModule,
         InfoModule,
+        ZoomModule,
     ],
     controllers: [
         AdminController,

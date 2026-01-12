@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { API_URL, FOUL_MESSAGES, GROUP, MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
+import { API_URL, FOUL_MESSAGES, GROUP, CHAT_MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
 
 import { message, Carousel, Image, Modal } from 'antd';
 
@@ -231,7 +231,7 @@ const PostInChatGroup: React.FC<PostProps> = ({ post, deletePost }) => {
 					post={post}
 					handleDeletePost={handleDeleteMessage}
 					userId={selectedMessage?.user.id}
-					source={MESSAGES}
+					source={CHAT_MESSAGES}
 					message={selectedMessage?.message}
 				/>
 			</div>

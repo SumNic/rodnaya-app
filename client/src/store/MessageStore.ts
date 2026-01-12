@@ -18,7 +18,7 @@ export default class MessageStore {
 		makeAutoObservable(this);
 	}
 
-	async sendMessage(dto: CreateMessageDto) {
+	async sendPostToChat(dto: CreateMessageDto) {
 		try {
 			const response = await MessagesService.sendMessage(dto);
 			return { data: response.data };

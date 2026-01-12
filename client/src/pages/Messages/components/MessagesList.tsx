@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { Page } from './Messages.tsx';
 import PostInMessage from '../../../components/Post/PostInMessages.tsx';
 import { IMessages } from '../../../models/IMessages.ts';
-import { CHAT, MESSAGES } from '../../../utils/consts.tsx';
+import { GROUP_MESSAGES, CHAT_MESSAGES } from '../../../utils/consts.tsx';
 import PostInChatGroup from '../../../components/Post/PostInChatGroup.tsx';
 
 interface Props {
@@ -188,8 +188,8 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 								)
 							)}
 
-							{source === MESSAGES && <PostInMessage post={post} deletePost={deletePost} />}
-							{source === CHAT && <PostInChatGroup post={post} deletePost={deletePost} />}
+							{source === CHAT_MESSAGES && <PostInMessage post={post} deletePost={deletePost} />}
+							{source === GROUP_MESSAGES && <PostInChatGroup post={post} deletePost={deletePost} />}
 						</div>
 					);
 				})}

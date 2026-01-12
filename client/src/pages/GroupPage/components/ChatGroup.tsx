@@ -6,7 +6,7 @@ import styles from '../GroupPage.module.css';
 import CustomAvatar from '../../../components/CustomAvatar';
 import { Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
-import { CHAT } from '../../../utils/consts';
+import { GROUP_MESSAGES } from '../../../utils/consts';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import { Group } from '../../../services/GroupsService';
 
@@ -25,7 +25,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ group, location }) => {
 		setAboutGroup(location, group);
 		setIsAboutGroupVisible(location, true);
 		setIsChatGroupVisible(location, false);
-		setSource(location, CHAT);
+		setSource(location, GROUP_MESSAGES);
 	};
 
 	// const options: MenuProps['items'] = [

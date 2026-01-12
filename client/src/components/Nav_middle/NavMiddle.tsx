@@ -7,8 +7,20 @@ import {
 	PERSONALE_ROUTE,
 	PUBLICATION_ROUTE,
 	GROUP_ROUTE,
+	MAIL_ROUTE,
+	VECHE_ROUTE,
 } from '../../utils/consts';
 import { Badge, Menu } from 'antd';
+import {
+	HomeOutlined,
+	ReadOutlined,
+	MessageOutlined,
+	TeamOutlined,
+	PhoneOutlined,
+	MailOutlined,
+	UserOutlined,
+	LogoutOutlined,
+} from '@ant-design/icons';
 
 import { useThemeContext } from '../../contexts/ThemeContext';
 
@@ -35,20 +47,31 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 
 	menuItems.push({
 		key: HOME_ROUTE,
-		label: <Link to={HOME_ROUTE}>Главная</Link>,
+		label: (
+			<Link to={HOME_ROUTE}>
+				<HomeOutlined style={{ marginRight: 8 }} />
+				Главная
+			</Link>
+		),
 	});
 
 	menuItems.push({
 		key: PUBLICATION_ROUTE,
-		label: <Link to={PUBLICATION_ROUTE}>Публикации</Link>,
+		label: (
+			<Link to={PUBLICATION_ROUTE}>
+				<ReadOutlined style={{ marginRight: 8 }} />
+				Публикации
+			</Link>
+		),
 	});
 
 	menuItems.push({
 		key: MESSAGES_ROUTE,
 		label: (
 			<Link to={`${MESSAGES_ROUTE}/locality`} className={styles['middle__link']}>
-				Сообщения
-				{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot></Badge> : ''}
+				<MessageOutlined style={{ marginRight: 8 }} />
+				Чаты
+				{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot /> : ''}
 			</Link>
 		),
 	});
@@ -57,31 +80,43 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 		key: GROUP_ROUTE,
 		label: (
 			<Link to={`${GROUP_ROUTE}/locality`} className="middle__link">
+				<TeamOutlined style={{ marginRight: 8 }} />
 				Группы
-				{/* {!allCountAreZero ? (
-	                <Badge style={{ boxShadow: "none" }} dot></Badge>
-	            ) : (
-	                ""
-	            )} */}
 			</Link>
 		),
 	});
 
 	if (store.authStore.isAuth) {
 		menuItems.push({
-			key: PERSONALE_ROUTE,
-			label: <Link to={`${PERSONALE_ROUTE}/${store.authStore.user.id}`}>Учредитель</Link>,
+			key: VECHE_ROUTE,
+			label: (
+				<Link to={VECHE_ROUTE} className={styles['middle__link']}>
+					<PhoneOutlined style={{ marginRight: 8 }} />
+					Веча
+					{store.vechStore.unreadCount ? <Badge style={{ boxShadow: 'none' }} dot /> : ''}
+				</Link>
+			),
 		});
 
-		// menuItems.push({
-		// 	key: MESSAGES_ROUTE,
-		// 	label: (
-		// 		<Link to={`${MESSAGES_ROUTE}/locality`} className={styles['middle__link']}>
-		// 			Сообщения
-		// 			{!allCountAreZero ? <Badge style={{ boxShadow: 'none' }} dot></Badge> : ''}
-		// 		</Link>
-		// 	),
-		// });
+		menuItems.push({
+			key: MAIL_ROUTE,
+			label: (
+				<Link to={MAIL_ROUTE} className={styles['middle__link']}>
+					<MailOutlined style={{ marginRight: 8 }} />
+					Сообщения
+				</Link>
+			),
+		});
+
+		menuItems.push({
+			key: PERSONALE_ROUTE,
+			label: (
+				<Link to={`${PERSONALE_ROUTE}/${store.authStore.user.id}`}>
+					<UserOutlined style={{ marginRight: 8 }} />
+					Учредитель
+				</Link>
+			),
+		});
 
 		// menuItems.push({
 		// 	key: MESSAGES_ROUTE,
@@ -108,6 +143,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 			key: EXIT_ROUTE,
 			label: (
 				<Link to={EXIT_ROUTE} className="middle__link">
+					<LogoutOutlined style={{ marginRight: 8 }} />
 					Выйти
 				</Link>
 			),

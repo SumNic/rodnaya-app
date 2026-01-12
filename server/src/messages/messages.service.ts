@@ -16,11 +16,12 @@ import { RespCountNoReadMessagesDto } from 'src/common/dtos/resp-count-no-read-m
 import { RespIdNoReadMessagesDto } from 'src/common/dtos/resp-id-no-read-messages.dto';
 import { NewMessage } from 'src/common/dtos/new-message.dto';
 import { Residency } from 'src/common/models/users/residency.model';
-import { AuthenticatedRequest } from 'src/common/types/types';
+import { AuthenticatedRequest, LocationType } from 'src/common/types/types';
 import { DeleteMessageDto } from 'src/common/dtos/delete-message.dto';
 import { ROLES } from 'src/common/constants/roles';
 import { UpdateMessageDto } from 'src/common/dtos/update-message.dto';
 import { NotificationsService } from 'src/queue/notifications.service';
+import { NotificationMessage } from 'src/queue/notifications.processor';
 
 @Injectable()
 export class MessagesService {
@@ -40,7 +41,7 @@ export class MessagesService {
             const { message, files, video } = form;
 
             if (user) {
-                const locationUser = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+                const locationUser = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : LocationType.GLOBAL;
                 const newMessage = await this.messagesRepository.create({
                     location: locationUser,
                     message,
@@ -56,7 +57,12 @@ export class MessagesService {
                 this.setEndReadMessagesId(user.id, { id_message: newMessage.id, location: locationUser });
 
                 const users = await this.usersService.getUsersByResidence(locationUser);
-                await this.notificationsService.addNotifications(users, newMessage.message, locationUser);
+                const notificationMessage: NotificationMessage = {
+                    senderId: newMessage.userId,
+                    title: 'Сообщение',
+                    body: newMessage.message,
+                };
+                await this.notificationsService.addNotifications(users, notificationMessage, locationUser);
 
                 return { message: newMessage, first_name: user.first_name, last_name: user.last_name, photo_50: user.photo_50 };
             }
@@ -109,7 +115,7 @@ export class MessagesService {
     async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
         try {
             const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
-            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : 'Земля';
+            const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : LocationType.GLOBAL;
 
             const endReadMessagesId = await this.getEndReadMessagesId({
                 id: `${dto.id}`,

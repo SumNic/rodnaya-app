@@ -7,11 +7,13 @@ import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.mode
 import { GroupsController } from 'src/groups/groups.controller';
 import { GroupsGateway } from 'src/groups/groups.gateway';
 import { GroupsService } from 'src/groups/groups.service';
+import { QueueModule } from 'src/queue/queue.module';
+import { TelegramModule } from 'src/telegram/telegram.module';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
     providers: [GroupsService, GroupsGateway],
-    imports: [SequelizeModule.forFeature([Group, GroupMessage, LastReadPostChat]), UsersModule, AuthModule],
+    imports: [SequelizeModule.forFeature([Group, GroupMessage, LastReadPostChat]), UsersModule, AuthModule, TelegramModule, QueueModule],
     controllers: [GroupsController],
     exports: [GroupsService, GroupsGateway],
 })

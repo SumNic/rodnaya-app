@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
+import { FindOptions, Op } from 'sequelize';
 import { Roles } from 'src/auth/guards/roles-auth.decorator';
 import { ROLES } from 'src/common/constants/roles';
 import { AddRoleDto } from 'src/common/dtos/add-role.dto';
@@ -9,13 +10,14 @@ import { CreateDeclarationDto } from 'src/common/dtos/create-declaration.dto';
 import { CreateResidencyDto } from 'src/common/dtos/create-residency.dto';
 import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { GetDeclarationDto } from 'src/common/dtos/get-declaration.dto';
+import { Group } from 'src/common/models/groups/groups.model';
 import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { Role } from 'src/common/models/users/role.model';
 import { Token } from 'src/common/models/users/tokens.model';
 import { User } from 'src/common/models/users/user.model';
 import { UserDeviceToken } from 'src/common/models/users/userDeviceToken.model';
-import { AuthenticatedRequest } from 'src/common/types/types';
+import { AuthenticatedRequest, LocationType } from 'src/common/types/types';
 import { DeclarationService } from 'src/declaration/declaration.service';
 import { EndReadMessageService } from 'src/end-read-message/end-read-message.service';
 import { FilesService } from 'src/files/files.service';
@@ -47,7 +49,7 @@ export class UsersService {
             await user.$set('roles', [role.id]);
             user.roles = [role];
 
-            const newUser = await this.getUserCleer(user.id);
+            const newUser = await this.getUserWithModel(user.id);
             return newUser;
         } catch (err) {
             throw new HttpException(`Ошибка в createUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -74,7 +76,7 @@ export class UsersService {
             user.roles = [role];
             await user.save();
 
-            const newUser = await this.getUserCleer(user.id);
+            const newUser = await this.getUserWithModel(user.id);
             return newUser;
         } catch (err) {
             throw new HttpException(`Ошибка в updateUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -98,6 +100,7 @@ export class UsersService {
         }
     }
 
+    //TODO сделать пагинацию, чтобы не было перегрузки
     async getAllUsers(): Promise<User[]> {
         try {
             const users = await this.usersRepository.findAll({
@@ -110,79 +113,54 @@ export class UsersService {
     }
 
     async getUsersByResidence(residency: string): Promise<User[]> {
-        try {
-            const users = await this.usersRepository.findAll({
-                include: [{ model: Residency }, { model: UserDeviceToken }],
+        // 🌍 Глобальная локация
+        if (residency === LocationType.GLOBAL) {
+            return this.usersRepository.findAll({
+                include: [{ model: UserDeviceToken }],
             });
+        }
 
-            const usersFilterResidency = users.filter((user) => {
-                if (!user.residency) return false;
-                return user.residency.locality === residency || user.residency.region === residency || user.residency.country === residency;
+        // 📍 Конкретная локация
+        return this.usersRepository.findAll({
+            include: [
+                {
+                    model: Residency,
+                    where: {
+                        [Op.or]: [{ locality: residency }, { region: residency }, { country: residency }],
+                    },
+                    required: true,
+                },
+                {
+                    model: UserDeviceToken,
+                },
+            ],
+        });
+    }
+
+    async getUsersByGroupId(groupId: number): Promise<User[]> {
+        try {
+            return await this.usersRepository.findAll({
+                include: [
+                    {
+                        model: Group,
+                        as: 'userGroups',
+                        where: { id: groupId },
+                        through: { attributes: [] }, // если M:N
+                        required: true, // INNER JOIN
+                    },
+                ],
             });
-            return usersFilterResidency.length ? usersFilterResidency : users;
         } catch (err) {
-            console.error(err, 'Ошибка в getUsersByResidence');
-            throw new HttpException(`Ошибка в getUsersByResidence: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
+            console.error(err, 'Ошибка в getUsersByGroupId');
+            throw new HttpException(`Ошибка в getUsersByGroupId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async getUser(id: number): Promise<User> {
-        try {
-            const user = await this.usersRepository.findByPk(id);
-
-            if (!user) return;
-            return user;
-        } catch (err) {
-            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    async getUserWithModel(id: number, models: any[]): Promise<User> {
+    async getUserWithModel(id: number, models: any[] = []): Promise<User> {
         try {
             const user = await this.usersRepository.findOne({
                 where: { id },
                 include: models,
-            });
-
-            if (!user) return;
-            return user;
-        } catch (err) {
-            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    async getUserWihtDeclaration(id: number): Promise<User> {
-        try {
-            const user = await this.usersRepository.findOne({
-                where: { id },
-                include: [{ model: Declaration }],
-            });
-
-            if (!user) return;
-            return user;
-        } catch (err) {
-            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    async getUserWithoutMessages(id: number): Promise<User> {
-        try {
-            const user = await this.usersRepository.findOne({
-                where: { id },
-                include: [{ model: Token }, { model: Residency }, { model: Role }],
-            });
-
-            if (!user) return;
-            return user;
-        } catch (err) {
-            throw new HttpException(`Ошибка в getUser: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    async getUserCleer(id: number): Promise<User> {
-        try {
-            const user = await this.usersRepository.findOne({
-                where: { id },
             });
 
             if (!user) return;
@@ -216,7 +194,7 @@ export class UsersService {
 
     async addRole(dto: AddRoleDto): Promise<AddRoleDto> {
         try {
-            const user = await this.getUser(dto.userId);
+            const user = await this.getUserWithModel(dto.userId);
             const role = await this.roleService.getRoleByValue(dto.value);
 
             if (role && user) {
@@ -232,7 +210,7 @@ export class UsersService {
 
     async removeRole(dto: AddRoleDto): Promise<AddRoleDto> {
         try {
-            const user = await this.getUser(dto.userId);
+            const user = await this.getUserWithModel(dto.userId);
             const role = await this.roleService.getRoleByValue(dto.value);
 
             if (role && user) {
@@ -248,7 +226,7 @@ export class UsersService {
 
     async blockedUser(dto: BlockedUserDto): Promise<string> {
         try {
-            const user = await this.getUser(dto.userId);
+            const user = await this.getUserWithModel(dto.userId);
 
             let timeBlocked: string;
             switch (dto.selectedPunishmentIndex) {
@@ -306,7 +284,7 @@ export class UsersService {
 
     async checkBlocked(userId: number): Promise<Date> {
         try {
-            const user = await this.getUserCleer(userId);
+            const user = await this.getUserWithModel(userId);
             if (user && user.blockeduntil) return user.blockeduntil;
             return null;
         } catch (err) {
@@ -316,7 +294,7 @@ export class UsersService {
 
     async createResidencyForUser(dto: CreateResidencyDto): Promise<User> {
         try {
-            const user = await this.getUserCleer(dto.id);
+            const user = await this.getUserWithModel(dto.id);
 
             if (dto.secret !== user.secret) {
                 throw new HttpException('Нет доступа', HttpStatus.FORBIDDEN);
@@ -328,7 +306,7 @@ export class UsersService {
 
             if (!user.dateEditResidency || new Date() > newDateEditResidency) {
                 // Заменить < на >
-                const arrResidencyUser = ['Земля', dto.country, dto.region, dto.locality];
+                const arrResidencyUser = [LocationType.GLOBAL, dto.country, dto.region, dto.locality];
                 // Удалить все строки, которые не соответсвуют arrResidencyUser для данного user
                 await this.endReadMessageService.deleteOldLocations(dto.id, arrResidencyUser);
 
@@ -347,7 +325,7 @@ export class UsersService {
                     }),
                 );
 
-                const userNew = await this.getUserCleer(dto.id);
+                const userNew = await this.getUserWithModel(dto.id);
 
                 return userNew;
             } else {
@@ -361,7 +339,7 @@ export class UsersService {
 
     async addDeclaration(dto: CreateDeclarationDto): Promise<User> {
         try {
-            const user = await this.getUserWihtDeclaration(dto.id);
+            const user = await this.getUserWithModel(dto.id, [{ model: Declaration }]);
 
             if (dto.secret !== user.secret) {
                 throw new HttpException('Нет доступа', HttpStatus.FORBIDDEN);
@@ -375,7 +353,7 @@ export class UsersService {
             } else {
                 await this.declarationService.updateDeclaration(dto);
             }
-            const userFromDeclaration = await this.getUserWihtDeclaration(dto.id);
+            const userFromDeclaration = await this.getUserWithModel(dto.id, [{ model: Declaration }]);
 
             return userFromDeclaration;
         } catch (err) {
@@ -385,11 +363,10 @@ export class UsersService {
 
     async getDeclaration(id: number): Promise<GetDeclarationDto> {
         try {
-            const user = await this.getUser(id);
+            const user = await this.getUserWithModel(id);
 
-            if (user.declaration.declaration) return user.declaration;
-
-            return;
+            if (!user?.declaration) return null;
+            return user.declaration;
         } catch (err) {
             throw new HttpException(`Ошибка в getDeclaration: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -398,7 +375,7 @@ export class UsersService {
     async saveAvatar(file: Express.Multer.File, userId: string): Promise<User> {
         try {
             const avatar = await this.filesService.saveFile(file);
-            const user = await this.getUser(+userId);
+            const user = await this.getUserWithModel(+userId);
 
             if (!avatar || !user) {
                 throw new HttpException('Не удалось сменить аватар', HttpStatus.FORBIDDEN);
@@ -408,7 +385,6 @@ export class UsersService {
                 photo_50: `${this.configService.get<string>('DOMEN')}/${avatar.dataValues.fileNameUuid}`,
                 photo_max: `${this.configService.get<string>('DOMEN')}/${avatar.dataValues.fileNameUuid}`,
             });
-            user.save();
 
             return user;
         } catch (err) {
@@ -417,7 +393,7 @@ export class UsersService {
     }
 
     async updatePersonaleData(user: AuthenticatedRequest['user'], dto: UpdateUserDto): Promise<User> {
-        const updatingUser = await this.getUserCleer(dto.id);
+        const updatingUser = await this.getUserWithModel(dto.id);
 
         if (!updatingUser) {
             throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);

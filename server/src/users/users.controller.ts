@@ -24,7 +24,6 @@ import { BlockedUserDto } from 'src/common/dtos/blocked-user.dto';
 import { CreateDeclarationDto } from 'src/common/dtos/create-declaration.dto';
 import { CreateResidencyDto } from 'src/common/dtos/create-residency.dto';
 import { GetDeclarationDto } from 'src/common/dtos/get-declaration.dto';
-import { UpdatePersonaleDto } from 'src/common/dtos/update-personale.dto';
 import { Group } from 'src/common/models/groups/groups.model';
 import { Declaration } from 'src/common/models/users/declaration.model';
 import { Residency } from 'src/common/models/users/residency.model';

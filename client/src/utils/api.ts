@@ -1073,6 +1073,54 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/create-meeting': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['ZoomController_createMeeting'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/get-meeting': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['ZoomController_getMeeting'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/meeting/{id}/view': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['ZoomController_markViewed'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1655,6 +1703,69 @@ export interface components {
 			 * @example Q-w-rLTxyi02R206ST3..
 			 */
 			code_verifier: string;
+		};
+		CreateMeetingDto: {
+			/**
+			 * @description Тема Веча
+			 * @example Найти ошибку ООП
+			 */
+			topic: string;
+			/**
+			 * @description Описание
+			 * @example Обуждение по поиску ООП
+			 */
+			description: string;
+			/**
+			 * Format: date-time
+			 * @description Дата и время начала Веча (ISO 8601)
+			 * @example 2026-01-07T18:00:00
+			 */
+			startTime: string;
+			/**
+			 * @description Страна
+			 * @example country
+			 */
+			location: string;
+			/**
+			 * @description ID группы
+			 * @example 5
+			 */
+			groupId: number;
+		};
+		ZoomView: Record<string, never>;
+		Zoom: {
+			id: number;
+			topic: string;
+			description: string;
+			/** Format: date-time */
+			startTime: string;
+			country: string;
+			region: string;
+			locality: string;
+			groupId: number;
+			userId: number;
+			fullName: string;
+			zoomMeetingId: string;
+			joinUrl: string;
+			views: components['schemas']['ZoomView'][];
+		};
+		ZoomWithUnreadDto: {
+			id: number;
+			topic: string;
+			description: string;
+			/** Format: date-time */
+			startTime: string;
+			country: string;
+			region: string;
+			locality: string;
+			groupId: number;
+			userId: number;
+			fullName: string;
+			zoomMeetingId: string;
+			joinUrl: string;
+			views: components['schemas']['ZoomView'][];
+			/** @description Флаг непрочитанной встречи */
+			isUnread?: boolean;
 		};
 	};
 	responses: never;
@@ -3483,6 +3594,69 @@ export interface operations {
 			query?: never;
 			header?: never;
 			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	ZoomController_createMeeting: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['CreateMeetingDto'];
+			};
+		};
+		responses: {
+			/** @description Вече успешно создано */
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['Zoom'];
+				};
+			};
+		};
+	};
+	ZoomController_getMeeting: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Список доступных Веч */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ZoomWithUnreadDto'][];
+				};
+			};
+		};
+	};
+	ZoomController_markViewed: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
 			cookie?: never;
 		};
 		requestBody?: never;

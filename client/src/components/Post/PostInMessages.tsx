@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { API_URL, EDIT_MESSAGES, FOUL_MESSAGES, MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
+import { API_URL, EDIT_MESSAGES, FOUL_MESSAGES, CHAT_MESSAGES, PERSONALE_ROUTE } from '../../utils/consts';
 
 import { message, Carousel, Image, Modal } from 'antd';
 
@@ -94,7 +94,7 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 					selectedRules,
 					selectedActionWithFoul,
 					selectedPunishment,
-					source: MESSAGES,
+					source: CHAT_MESSAGES,
 				});
 
 				if (sendFoulMessage) message.success(`${sendFoulMessage.data}`);
@@ -239,7 +239,7 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 					post={post}
 					handleDeletePost={handleDeleteMessage}
 					userId={selectedMessage?.user.id}
-					source={MESSAGES}
+					source={CHAT_MESSAGES}
 					message={selectedMessage?.message}
 				/>
 			</div>

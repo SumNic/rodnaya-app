@@ -5,7 +5,7 @@ import AdminService from '../services/AdminService';
 import { IPost } from '../models/IPost';
 import MessagesService from '../services/MessagesService';
 import UserService from '../services/UserService';
-import { GROUP, MESSAGES, PUBLICATIONS } from '../utils/consts';
+import { GROUP, CHAT_MESSAGES, PUBLICATIONS } from '../utils/consts';
 import PublicationsService from '../services/PublicationsService';
 import GroupsService from '../services/GroupsService';
 import store from '../store';
@@ -70,7 +70,7 @@ const Admin: React.FC = () => {
 					return message;
 				});
 				const promises = arrIdFoulMessages.map(async (message) => {
-					if (message.source === MESSAGES) {
+					if (message.source === CHAT_MESSAGES) {
 						const dataPlus = await MessagesService.getMessageFromId(message.id_foul_message);
 						return dataPlus.data;
 					}
@@ -131,7 +131,7 @@ const Admin: React.FC = () => {
 			const selectedPunishmentIndex = punishmentOptions.indexOf(`${selectedPunishment}`);
 			if (selectedFoulMessage) {
 				if (selectedActionIndex > 0) {
-					if (selectedFoulMessage.source === MESSAGES) {
+					if (selectedFoulMessage.source === CHAT_MESSAGES) {
 						const isDeletedMessages = await MessagesService.blockedMessages(
 							selectedFoulMessage.foul_message.id,
 							selectedActionIndex

@@ -16,7 +16,9 @@ import { Group } from 'src/common/models/groups/groups.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { User } from 'src/common/models/users/user.model';
-import { AuthenticatedRequest } from 'src/common/types/types';
+import { AuthenticatedRequest, LocationType } from 'src/common/types/types';
+import { NotificationMessage } from 'src/queue/notifications.processor';
+import { NotificationsService } from 'src/queue/notifications.service';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -25,7 +27,7 @@ export class GroupsService {
         @InjectModel(Group) private readonly groupsRepository: typeof Group,
         @InjectModel(GroupMessage) private readonly groupMessagesRepository: typeof GroupMessage,
         private usersService: UsersService,
-        // private readonly configService: ConfigService,
+        private notificationsService: NotificationsService,
     ) {}
 
     async createGroup(req: AuthenticatedRequest, dto: CreateGroupDto): Promise<Group> {
@@ -42,7 +44,7 @@ export class GroupsService {
                     name: dto.groupName,
                     task: dto.groupTask,
                     userId: req.user.id,
-                    [dto.location]: user.residency[dto.location] || 'Земля',
+                    [dto.location]: user.residency[dto.location] || LocationType.GLOBAL,
                 });
 
                 await group.$add('users', [user.id]);
@@ -75,7 +77,7 @@ export class GroupsService {
             if (user) {
                 const groups = await this.groupsRepository.findAll({
                     where: {
-                        [dto.location]: user.residency[dto.location] || 'Земля',
+                        [dto.location]: user.residency[dto.location] || LocationType.GLOBAL,
                         blocked: false,
                     },
                     include: { all: true },
@@ -128,7 +130,6 @@ export class GroupsService {
                     offset: offset < 0 ? 0 : offset,
                     limit,
                 });
-                console.log(rows, 'rows 123');
                 return rows;
             }
             // return [new Messages()];
@@ -180,35 +181,14 @@ export class GroupsService {
                         messagesChat.$add('file', file.id);
                     });
 
-                // const DATA = {
-                //     v: this.configService.get<string>('VK_VERSION'),
-                //     access_token: this.configService.get<string>('VK_ACCESS_TOKEN'),
-                //     client_url: this.configService.get<string>('CLIENT_URL'),
-                // };
-
-                // const usersByResidence = this.usersService.getUsersByResidence(locationUser);
-                // const peer_ids = (await usersByResidence).map((user) => user.vk_id);
-
-                // const params = new URLSearchParams();
-                // params.append('v', DATA.v);
-                // params.append('access_token', DATA.access_token);
-                // params.append('peer_ids', `${peer_ids.join(',')}`);
-                // params.append('random_id', '0');
-                // params.append(
-                //     'message',
-                //     `Отправитель: ${user.first_name} ${user.last_name} \nСообщение: ${message.message} \nПерейти к сообщениям: ${DATA.client_url}/messages/${dto.location}`,
-                // );
-
-                // const response = await fetch('https://api.vk.ru/method/messages.send', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/x-www-form-urlencoded',
-                //     },
-                //     body: params.toString(),
-                // });
-
-                // const data = await response.json();
-                // console.log('Успешно отправлено', data);
+                const users = await this.usersService.getUsersByGroupId(dto.groupId);
+                const group = await this.getGroupFromId(dto.groupId);
+                const notificationMessage: NotificationMessage = {
+                    senderId: messagesChat.userId,
+                    title: 'Группа',
+                    body: messagesChat.message,
+                };
+                await this.notificationsService.addNotifications(users, notificationMessage, group.name);
 
                 return {
                     groupId: dto.groupId,
@@ -277,7 +257,6 @@ export class GroupsService {
             const group = await this.groupsRepository.findByPk(id, {
                 include: [{ model: User, as: 'users' }],
             });
-            console.log(group, 'group 123');
 
             await group.$add('users', [req.user.id]);
         } catch (err) {
@@ -290,7 +269,6 @@ export class GroupsService {
             const group = await this.groupsRepository.findByPk(id, {
                 include: [{ model: User, as: 'users' }],
             });
-            console.log(group, 'group 123');
 
             await group.$remove('users', [req.user.id]);
         } catch (err) {

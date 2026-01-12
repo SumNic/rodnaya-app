@@ -158,8 +158,6 @@ export class GroupsController {
     })
     @UseGuards(JwtAuthGuard)
     async joinTheGroup(@Req() req: AuthenticatedRequest, @Body('id') id: any) {
-        console.log(id, 'id 555');
-        //: Promise<number>
         return await this.groupsService.joinTheGroup(req, id);
     }
 
@@ -177,8 +175,6 @@ export class GroupsController {
     })
     @UseGuards(JwtAuthGuard)
     async leaveTheGroup(@Req() req: AuthenticatedRequest, @Body('id') id: number) {
-        console.log(id, 'id 555');
-        //: Promise<number>
         return await this.groupsService.leaveTheGroup(req, id);
     }
 

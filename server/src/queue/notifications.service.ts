@@ -2,6 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { User } from 'src/common/models/users/user.model';
+import { NotificationMessage } from 'src/queue/notifications.processor';
 
 @Injectable()
 export class NotificationsService {
@@ -10,7 +11,7 @@ export class NotificationsService {
         private readonly notificationsQueue: Queue,
     ) {}
 
-    async addNotifications(users: User[], message: string, location: string) {
+    async addNotifications(users: User[], message: NotificationMessage, location: string) {
         await this.notificationsQueue.add(
             'send_notifications',
             { users, message, location },

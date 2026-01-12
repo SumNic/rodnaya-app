@@ -16,3 +16,21 @@
 /* padding: 0 !important; */
 /* margin: 0 !important; */
 /* } */
+
+/* Запрещаем перенос текста в пунктах меню */
+.selected-menu-item :global(.ant-menu-title-content) {
+	white-space: nowrap !important;
+	overflow: visible; /* чтобы не обрезало */
+	text-overflow: clip; /* без троеточия */
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Чтобы иконка и текст корректно переносились */
+.selected-menu-item :global(.ant-menu-title-content) {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	white-space: normal;
+}

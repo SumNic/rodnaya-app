@@ -4,12 +4,12 @@ import { IFiles } from '../../models/IFiles.ts';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
 import { message, Spin } from 'antd';
 import { useMessageContext } from '../../contexts/MessageContext.ts';
-import { useSocket } from '../../hooks/useSocket.ts';
 import { MessageWebsocketResponse } from '../../models/response/MessageWebsocketResponse.ts';
 
 import styles from './SendMessage.module.css';
 import { LoadingOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
+import { useSocketContext } from '../../contexts/SocketContext.ts';
 
 interface SendMessageProps {
 	location: string;
@@ -23,11 +23,11 @@ const SendMessage: React.FC<SendMessageProps> = ({ location, groupId, videoUrls,
 	const [messageSent, setMessageSent] = useState<string>('');
 	const [isSendMessage, setIsSendMessage] = useState(false);
 
-	const { socket } = useSocket();
+	const { socket } = useSocketContext();
 
 	const { store } = useStoreContext();
-	const { sendMessage } = store.messageStore;
-	const { sendPostToChat } = store.groupStore;
+	const { sendPostToChat } = store.messageStore;
+	const { sendPostToGroup } = store.groupStore;
 
 	const { setMessageDataSocket } = useMessageContext();
 
@@ -62,7 +62,7 @@ const SendMessage: React.FC<SendMessageProps> = ({ location, groupId, videoUrls,
 			}));
 
 			const resp_id = groupId
-				? await sendPostToChat({
+				? await sendPostToGroup({
 						groupId,
 						location,
 						form: {
@@ -71,7 +71,7 @@ const SendMessage: React.FC<SendMessageProps> = ({ location, groupId, videoUrls,
 							video: videoUrls.length ? videoUrls : undefined, // видео может быть необязательным
 						},
 					})
-				: await sendMessage({
+				: await sendPostToChat({
 						location,
 						form: {
 							message: messageSent.trim(),

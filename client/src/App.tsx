@@ -5,6 +5,7 @@ import { useTheme } from './hooks/useTheme.hook';
 import { ThemeContext } from './contexts/ThemeContext';
 import { useStore } from './hooks/useStore.hook';
 import { StoreContext } from './contexts/StoreContext';
+import { SocketContext } from './contexts/SocketContext';
 import { observer } from 'mobx-react-lite';
 import { useMessage } from './hooks/useMessage.hook.ts';
 import { MessageContext } from './contexts/MessageContext.ts';
@@ -15,17 +16,43 @@ import { YANDEX_COUNTER_ID } from './utils/consts.tsx';
 import { YandexMetrika } from './components/YandexMetrika.tsx';
 import VkAppUrlHandler from './components/VkAppUrlHandler.tsx';
 import { PushInit } from './components/PushInit.tsx';
+import { useSocket } from './hooks/useSocket.hook.ts';
 
 function App() {
 	const rodnayaTheme = useTheme();
 	const storeState = useStore();
 	const message = useMessage();
 
+	const { user } = storeState.store.authStore;
+	const { vechStore } = storeState.store;
+	const isSocketReady = !!user?.id && !!user?.residency && Array.isArray(user?.userGroups);
+
+	const socketObj = useSocket(
+		isSocketReady
+			? {
+					userId: user.id,
+					groupIds: user.userGroups.map((g) => g.id),
+					residency: user.residency,
+				}
+			: null
+	);
+
 	useEffect(() => {
 		WebApp.ready(); // важно — сообщает Telegram, что Mini App загрузилась
 		WebApp.expand(); // разворачивает Mini App на весь экран
 		WebApp.disableVerticalSwipes(); // запрещает свайпы вверх и вниз
 	}, []);
+
+	useEffect(() => {
+		const { socket } = socketObj;
+		if (!socket) return;
+
+		vechStore.bindSocket(socket);
+
+		return () => {
+			socket.off('newVech');
+		};
+	}, [socketObj]);
 
 	return (
 		<BrowserRouter>
@@ -39,12 +66,14 @@ function App() {
 			>
 				<MessageContext.Provider value={message}>
 					<StoreContext.Provider value={storeState}>
-						<ThemeContext.Provider value={rodnayaTheme}>
-							<VkAppUrlHandler />
-							<PushInit />
-							<YandexMetrika counterId={YANDEX_COUNTER_ID} />
-							<AppRouter />
-						</ThemeContext.Provider>
+						<SocketContext.Provider value={socketObj}>
+							<ThemeContext.Provider value={rodnayaTheme}>
+								<VkAppUrlHandler />
+								<PushInit />
+								<YandexMetrika counterId={YANDEX_COUNTER_ID} />
+								<AppRouter />
+							</ThemeContext.Provider>
+						</SocketContext.Provider>
 					</StoreContext.Provider>
 				</MessageContext.Provider>
 			</ConfigProvider>

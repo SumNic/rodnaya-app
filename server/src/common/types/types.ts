@@ -14,3 +14,7 @@ export enum DevicePlatform {
     WEB = 'web',
     UNKNOWN = 'unknown',
 }
+
+export enum LocationType {
+    GLOBAL = 'Земля',
+}
