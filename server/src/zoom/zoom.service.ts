@@ -188,9 +188,17 @@ export class ZoomService {
 
         const groupIds = groups.map((g) => g.id);
 
+        const now = new Date();
+
+        // MSK = UTC + 3
+        const oneHourAgoMsk = new Date(now.getTime() + 3 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000);
+
+        // обратно в UTC
+        const oneHourAgoUtc = new Date(oneHourAgoMsk.getTime() - 3 * 60 * 60 * 1000);
+
         const veches = await this.zoomRepository.findAll({
             where: {
-                startTime: { [Op.gt]: new Date() }, // ❗ старые веча вообще не отдаём
+                startTime: { [Op.gt]: oneHourAgoUtc }, // ❗ старые веча вообще не отдаём
                 [Op.or]: [
                     {
                         country: null,

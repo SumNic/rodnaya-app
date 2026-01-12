@@ -37,7 +37,7 @@ const VecheCard: React.FC<{ vech: components['schemas']['Zoom'] }> = ({ vech }) 
 				title={<Typography.Text strong>{vech.topic}</Typography.Text>}
 				extra={
 					<Space size={6}>
-						<Tag color="blue">{dayjs(vech.startTime).format('DD.MM.YYYY HH:mm')}</Tag>
+						<Tag color="blue">{dayjs(vech.startTime).format('DD.MM.YYYY HH:mm')} (МСК)</Tag>
 						{status === 'active' && <Tag color="green">Идёт</Tag>}
 						{status === 'notStarted' && <Tag color="blue">Скоро</Tag>}
 					</Space>

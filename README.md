@@ -35,3 +35,10 @@ npx sequelize-cli db:migrate \
 
 ## Генерация типов api
 ```npx openapi-typescript ./server/swagger.json --output ./client/src/utils/api.ts```
+
+## Генерация мобильного приложения
+```
+cd client
+export CAPACITOR_ANDROID_STUDIO_PATH="/snap/android-studio/209/bin/studio.sh"
+yarn build && yarn cap sync && yarn cap open android
+```
