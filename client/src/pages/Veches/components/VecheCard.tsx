@@ -29,20 +29,31 @@ const VecheCard: React.FC<{ vech: components['schemas']['Zoom'] }> = ({ vech }) 
 
 	return (
 		<div ref={ref}>
-			<Card
-				key={vech.id}
-				hoverable
-				style={{ marginBottom: 12 }}
-				styles={{ body: { padding: '12px 16px' } }}
-				title={<Typography.Text strong>{vech.topic}</Typography.Text>}
-				extra={
-					<Space size={6}>
+			<Card key={vech.id} hoverable style={{ marginBottom: 12 }} styles={{ body: { padding: '12px 16px' } }}>
+				{/* HEADER */}
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: 4,
+						marginBottom: 8,
+					}}
+				>
+					{/* Время + статус */}
+					<Space size={6} wrap>
 						<Tag color="blue">{dayjs(vech.startTime).format('DD.MM.YYYY HH:mm')} (МСК)</Tag>
+
 						{status === 'active' && <Tag color="green">Идёт</Tag>}
 						{status === 'notStarted' && <Tag color="blue">Скоро</Tag>}
 					</Space>
-				}
-			>
+
+					{/* Название */}
+					<Typography.Text strong style={{ fontSize: 16, lineHeight: 1.3 }}>
+						{vech.topic}
+					</Typography.Text>
+				</div>
+
+				{/* BODY */}
 				<Space direction="vertical" style={{ width: '100%' }} size={6}>
 					{/* Описание */}
 					{vech.description && (
@@ -84,10 +95,7 @@ const VecheCard: React.FC<{ vech: components['schemas']['Zoom'] }> = ({ vech }) 
 									message.info(`Вече начнётся ${dayjs(vech.startTime).format('DD.MM.YYYY в HH:mm')} (МСК)`);
 									return;
 								}
-
-								if (vech.joinUrl) {
-									window.open(vech.joinUrl, '_blank');
-								}
+								window.open(vech.joinUrl, '_blank');
 							}}
 						>
 							{status === 'notStarted' ? 'Ещё не началось' : 'Подключиться к Вечу'}
