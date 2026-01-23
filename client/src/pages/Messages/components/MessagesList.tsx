@@ -42,6 +42,8 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 
 	const lastReadMessageIdRef = useRef<typeof initialValue>(initialValue);
 
+	const postsRefs = useRef<HTMLDivElement[]>([]);
+
 	const nameLocalRef = useRef<string>('');
 
 	const { store } = useStoreContext();
@@ -90,7 +92,6 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 
 	const handleScroll = () => {
 		const lastReadMessagesId = arrLastReadMessagesId[indexLocation[location as keyof Page]]?.id;
-
 		if (document.getElementById('div__messages')?.scrollTop === 0) {
 			setIsScrollTop(true);
 		}
@@ -110,6 +111,10 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 
 	// Intersection Observer для отслеживания видимости сообщений
 	useEffect(() => {
+		if (!postsRefs.current.length) return;
+
+		const container = document.getElementById('div__messages');
+
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
@@ -125,17 +130,14 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 				});
 			},
 			{
+				root: container,
 				threshold: 0.5, // Сообщение считается видимым, если 50% его площади в зоне видимости
 			}
 		);
 
-		// Наблюдаем за всеми сообщениями
-		const messageElements = document.querySelectorAll('.posts');
-		messageElements.forEach((element) => observer.observe(element));
+		postsRefs.current.forEach((el) => observer.observe(el));
 
-		return () => {
-			observer.disconnect();
-		};
+		return () => observer.disconnect();
 	}, [postsFromLocation, location]);
 
 	useEffect(() => {
@@ -171,7 +173,13 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 							className={styles.posts}
 							key={post.id}
 							post-id={`${post.id}`}
-							ref={index === postsFromLocation.length - 1 && lastMessageRef ? lastMessageRef : null}
+							ref={(el) => {
+								if (!el) return; // элемент может быть null при размонтировании
+								postsRefs.current[index] = el; // сохраняем в массив всех сообщений
+								if (index === postsFromLocation.length - 1 && lastMessageRef) {
+									(lastMessageRef as React.MutableRefObject<HTMLDivElement>).current = el; // сохраняем последний
+								}
+							}}
 						>
 							{index === 0 ? (
 								<div className="date__wrapper">

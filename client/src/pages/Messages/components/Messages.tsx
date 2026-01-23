@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import MessagesList from './MessagesList';
+import MessagesList from './MessagesList.tsx';
 import { ArrowDownOutlined, PaperClipOutlined } from '@ant-design/icons';
 import { Button, Dropdown, FloatButton, MenuProps } from 'antd';
-import SendMessage from '../../../components/SendMessage/SendMessage';
-import { useMessageContext } from '../../../contexts/MessageContext';
-import { useStoreContext } from '../../../contexts/StoreContext';
-import { IPost } from '../../../models/IPost';
-import MessagesService from '../../../services/MessagesService';
-import UserService from '../../../services/UserService';
-import { GROUP_MESSAGES, COUNT_RESPONSE_POSTS, CHAT_MESSAGES } from '../../../utils/consts';
+import SendMessage from '../../../components/SendMessage/SendMessage.tsx';
+import { useMessageContext } from '../../../contexts/MessageContext.ts';
+import { useStoreContext } from '../../../contexts/StoreContext.ts';
+import { IPost } from '../../../models/IPost.ts';
+import MessagesService from '../../../services/MessagesService.ts';
+import UserService from '../../../services/UserService.ts';
+import { GROUP_MESSAGES, COUNT_RESPONSE_POSTS, CHAT_MESSAGES } from '../../../utils/consts.tsx';
 
 import styles from '../MessagesPage.module.css';
-import GroupsService, { Group } from '../../../services/GroupsService';
-import UploadAntdFiles from '../../../components/UploadAntdFiles/UploadAntdFiles';
-import AddVideoLink from '../../../components/AddVideoLink';
+import GroupsService, { Group } from '../../../services/GroupsService.ts';
+import UploadAntdFiles from '../../../components/UploadAntdFiles/UploadAntdFiles.tsx';
+import AddVideoLink from '../../../components/AddVideoLink.tsx';
 import { IMessages } from '../../../models/IMessages.ts';
 
 const initialPosts: IMessages = {
@@ -269,6 +269,32 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
 					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
 			}
+
+			if (
+				nameLocal !== messageDataSocket.resydency &&
+				(user.residency.country === messageDataSocket.resydency ||
+					user.residency.region === messageDataSocket.resydency ||
+					user.residency.country === messageDataSocket.resydency ||
+					'Земля' === messageDataSocket.resydency) &&
+				noReadMessagesCount !== undefined &&
+				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
+				newPost.userId !== user.id
+			) {
+				setPosts((prev) => {
+					if (newPost && prev[messageDataSocket.location as keyof IMessages].length > 0) {
+						return {
+							...prev,
+							[messageDataSocket.location]: [...prev[messageDataSocket.location as keyof IMessages], newPost],
+						};
+					}
+					return prev;
+				});
+			}
+			console.log(
+				user.residency.country,
+				messageDataSocket.location,
+				'user.residency.country, messageDataSocket.location'
+			);
 
 			if (source === GROUP_MESSAGES && messageDataSocket.group_id === group?.id) {
 				setPosts((prev) => {

@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import NavMiddle from '../../components/Nav_middle/NavMiddle';
 import HeaderLogoMobile from '../../components/HeaderLogo/HeaderLogoMobile';
 import HeaderLogoRegistr from '../../components/HeaderLogo/HeaderLogoRegistr';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { useThemeContext } from '../../contexts/ThemeContext';
 import {
@@ -22,7 +22,7 @@ import Declaration from '../../components/Declaration';
 import EditProfile from '../../components/EditProfile';
 import OnChangeForm from '../../components/OnChangeForm';
 import PersonaleData from '../../components/PersonaleData';
-import { API_URL, PERSONALE_ROUTE } from '../../utils/consts';
+import { API_URL, HOME_ROUTE, PERSONALE_ROUTE } from '../../utils/consts';
 import { PublicationWithPartialUser } from '../Publications/Publications';
 import { Publication } from '../../services/PublicationsService';
 import UploadAntdFiles from '../../components/UploadAntdFiles/UploadAntdFiles';
@@ -43,6 +43,7 @@ const PersonalePage: React.FC = () => {
 	const [profile, setProfile] = useState<User | null>(null);
 
 	const { id } = useParams();
+	const navigate = useNavigate();
 
 	const { currentWidth, currentColorScheme } = useThemeContext();
 
@@ -66,6 +67,7 @@ const PersonalePage: React.FC = () => {
 	}, [id]);
 
 	useEffect(() => {
+		if (!user.id) return navigate(HOME_ROUTE);
 		setProfile(user);
 	}, [user]);
 

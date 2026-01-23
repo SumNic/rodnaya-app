@@ -268,16 +268,16 @@ export class AuthService {
 
                 if (candidate && !candidate.isDelProfile) return candidate;
 
-                // if (candidate && candidate.isDelProfile) {
-                //     // Восстановление профиля
-                //     return await this.userService.updateUser({
-                //         vk_id: userVk.id,
-                //         first_name: userVk.first_name,
-                //         last_name: userVk.last_name,
-                //         photo_50: userVk.photo_50,
-                //         photo_max: userVk.photo_max,
-                //     });
-                // }
+                if (candidate && candidate.isDelProfile) {
+                    // Восстановление профиля
+                    return await this.userService.updateUser({
+                        vk_id: userVk.id,
+                        first_name: userVk.first_name,
+                        last_name: userVk.last_name,
+                        photo_50: userVk.photo_50,
+                        photo_max: userVk.photo_max,
+                    });
+                }
 
                 const newUser = await this.userService.createUser({
                     vk_id: userVk.id,

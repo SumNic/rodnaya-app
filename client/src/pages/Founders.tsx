@@ -16,6 +16,22 @@ function Founders() {
 		store.locationStore.getAllResidencys();
 	}, [store]);
 
+	// Фильтруем пользователей, которые не удалены
+	const residencies = store.locationStore.isResidency
+		.map((res: any) => ({
+			...res,
+			users: res.users.filter((user: any) => !user.isDelProfile),
+		}))
+		.filter((res: any) => res.users.length > 0);
+
+	// Группируем по странам и регионам
+	const grouped = residencies.reduce((acc: any, res: any) => {
+		if (!acc[res.country]) acc[res.country] = {};
+		if (!acc[res.country][res.region]) acc[res.country][res.region] = [];
+		acc[res.country][res.region].push(...res.users);
+		return acc;
+	}, {});
+
 	return (
 		<div>
 			<header className="header">
@@ -32,31 +48,17 @@ function Founders() {
 					<div className="main__screen main__screen_home">
 						<div id="list_founders">
 							<div className="scroll_bar">
-								{store.locationStore.isResidency
-									.map((item: any) => item.users.length !== 0 && item.country)
-									.filter((item, index, arr) => arr.indexOf(item) === index)
-									.map((item_country: any, index: any) => (
-										<ul key={index} className="ul_founders">
-											<h2 className="name__local_founders" id="name">
-												{item_country}
-											</h2>
-											{store.locationStore.isResidency
-												.map((item: any) => item.users.length !== 0 && item.country === item_country && item.region)
-												.filter((item, index, arr) => arr.indexOf(item) === index)
-												.map((item_region: any, index: any) => (
-													<ul key={index} className="ul_founders">
-														<h2 className="name__local_founders" id="name">
-															{item_region}
-														</h2>
-														{store.locationStore.isResidency.map(
-															(item: any, index: number) =>
-																item.country === item_country &&
-																item.region === item_region && <FoundersList key={index} founders={item.users} />
-														)}
-													</ul>
-												))}
-										</ul>
-									))}
+								{Object.entries(grouped).map(([country, regions]: any, index) => (
+									<ul key={index} className="ul_founders">
+										<h2 className="name__local_founders">{country}</h2>
+										{Object.entries(regions).map(([region, users]: any, idx) => (
+											<ul key={idx} className="ul_founders">
+												<h2 className="name__local_founders">{region}</h2>
+												<FoundersList founders={users} />
+											</ul>
+										))}
+									</ul>
+								))}
 							</div>
 						</div>
 
