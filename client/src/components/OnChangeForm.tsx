@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_END_READ_MESSAGE_ID, PERSONALE_ROUTE } from '../utils/consts';
 import { useStoreContext } from '../contexts/StoreContext';
 import { Button, message, Select, Typography } from 'antd';
+import { components } from '../utils/api';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -94,7 +95,7 @@ const OnChangeForm: React.FC<Props> = ({ id, secret }) => {
 					localStorage.removeItem(LOCAL_STORAGE_END_READ_MESSAGE_ID);
 					const userWithoutResidency = {
 						...store.authStore.user,
-						residency: {},
+						residency: {} as components['schemas']['Residency'],
 					};
 					store.authStore.setUser(userWithoutResidency);
 					store.authStore.loginVk(dto.id, dto.secret).then(() => navigate(PERSONALE_ROUTE));
