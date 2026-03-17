@@ -24,7 +24,7 @@ import EditingPost from './EditingPost';
 
 interface PostProps {
 	post: MessageWithPartialUser;
-	deletePost: (id: number, location: string) => void;
+	deletePost: (id: number) => void;
 }
 
 const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
@@ -161,7 +161,7 @@ const PostInMessages: React.FC<PostProps> = ({ post, deletePost }) => {
 				const location = getLocationOfPathname(parts.at(-1));
 				if (!location) return;
 				message.success('Сообщение удалено');
-				deletePost(selectedMessage.id, location);
+				deletePost(selectedMessage.id);
 			} else if (result.error) {
 				message.error(result.error);
 			}

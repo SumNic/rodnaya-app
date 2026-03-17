@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
+import { GROUP_ROUTE, LocationEnum, MESSAGES_ROUTE } from '../../utils/consts';
 import { Badge } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
@@ -17,6 +17,13 @@ const NavRegions: React.FC<Props> = ({ location, route, source }) => {
 	const { messagesContainerRef } = useMessageContext();
 
 	const { arrCountNoReadMessages } = store.messageStore;
+	const { arrCountNoReadPostsGroups } = store.groupStore;
+
+	const groupUnreadByLocation = arrCountNoReadPostsGroups.reduce<Record<string, number>>((acc, item) => {
+		acc[item.location] = Number(acc[item.location] ?? 0) + Number(item.count);
+		return acc;
+	}, {});
+
 	let style1 = {};
 	let style2 = {};
 	let style3 = {};
@@ -112,6 +119,13 @@ const NavRegions: React.FC<Props> = ({ location, route, source }) => {
 
 			{route === MESSAGES_ROUTE && arrCountNoReadMessages && arrCountNoReadMessages[index]?.count > 0 ? (
 				<Badge count={arrCountNoReadMessages[index]?.count} style={{ boxShadow: 'none' }}>
+					<div style={{ minWidth: 12, minHeight: 15 }}></div>
+				</Badge>
+			) : (
+				''
+			)}
+			{route === GROUP_ROUTE && groupUnreadByLocation[elem] > 0 ? (
+				<Badge count={groupUnreadByLocation[elem]} style={{ boxShadow: 'none' }}>
 					<div style={{ minWidth: 12, minHeight: 15 }}></div>
 				</Badge>
 			) : (

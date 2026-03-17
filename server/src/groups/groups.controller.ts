@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles-auth.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -10,7 +10,9 @@ import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
 import { DeleteGroupMessageDto } from 'src/common/dtos/delete-group-message.dto';
 import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
 import { GetPostsGroupDto } from 'src/common/dtos/get-posts-group.dto';
+import { GroupUnreadInfoDto } from 'src/common/dtos/group-unread-info.dto';
 import { UpdateGroupMessageDto } from 'src/common/dtos/update-group-message.dto';
+import { UpdateLastReadDto } from 'src/common/dtos/update-last-read.dto';
 import { GroupMessage } from 'src/common/models/groups/groupMessage';
 import { Group } from 'src/common/models/groups/groups.model';
 import { Messages } from 'src/common/models/messages/messages.model';
@@ -19,7 +21,7 @@ import { GroupsGateway } from 'src/groups/groups.gateway';
 import { GroupsService } from 'src/groups/groups.service';
 
 @ApiTags('Группы')
-@Controller('api')
+@Controller('api/groups')
 export class GroupsController {
     constructor(
         private readonly groupsService: GroupsService,
@@ -83,21 +85,22 @@ export class GroupsController {
     @ApiOperation({
         summary: 'Получение всех сообщений для определенной группы',
     })
-    @Get('/get-all-posts-group')
+    @Post('/get-all-posts-group')
+    @ApiBody({ type: GetPostsGroupDto })
     @ApiResponse({
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getAllChatPosts(@Req() req: AuthenticatedRequest, @Query() query: GetPostsGroupDto): Promise<GroupMessage[]> {
-        return await this.groupsService.getAllChatPosts(req, query);
+    async getAllChatPosts(@Req() req: AuthenticatedRequest, @Body() dto: GetPostsGroupDto): Promise<GroupMessage[]> {
+        return await this.groupsService.getAllChatPosts(req.user.id, dto);
     }
 
     @ApiOperation({ summary: 'Добавление нового сообщения' })
-    @Post('/send-post-to-chat')
+    @Post('/post-group')
     @ApiBody({ type: CreatePostToChatDto })
     @ApiResponse({
         status: HttpStatus.CREATED,
@@ -111,8 +114,9 @@ export class GroupsController {
     async addMessage(@Req() req: AuthenticatedRequest, @Body() dto: CreatePostToChatDto) {
         const response = await this.groupsService.addMessage(req, dto);
         if (response) {
-            this.groupsGateway.sendMessageWebSocket('new_message', {
+            this.groupsGateway.sendMessageWebSocket('new_post_in_group', {
                 ...dto,
+                id_user: req.user.id,
                 group_id: response.groupId,
                 id_message: response.messagesChat.id,
                 resydency: response.messagesChat.location,
@@ -129,7 +133,7 @@ export class GroupsController {
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(ROLES.USER, ROLES.ADMIN)
-    @Patch('/edit-group-message')
+    @Patch('/post-group')
     async editMessage(@Req() req: AuthenticatedRequest, @Body() dto: UpdateGroupMessageDto) {
         return this.groupsService.editMessage(req.user, dto);
     }
@@ -139,7 +143,7 @@ export class GroupsController {
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Нет прав' })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(ROLES.USER, ROLES.ADMIN)
-    @Delete('/delete-group-message')
+    @Delete('/post-group')
     async deleteMessage(@Req() req: AuthenticatedRequest, @Body() dto: DeleteGroupMessageDto) {
         return this.groupsService.deleteMessage(req.user, dto);
     }
@@ -157,8 +161,8 @@ export class GroupsController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async joinTheGroup(@Req() req: AuthenticatedRequest, @Body('id') id: any) {
-        return await this.groupsService.joinTheGroup(req, id);
+    async joinTheGroup(@Req() req: AuthenticatedRequest, @Body('id') id: number) {
+        return await this.groupsService.joinTheGroup(req.user.id, id);
     }
 
     @ApiOperation({
@@ -182,7 +186,7 @@ export class GroupsController {
         summary: 'Получение сообщения по его Id',
     })
     @Get('/get-post-group-from-id')
-    @ApiBody({ type: Number })
+    @ApiQuery({ type: Number })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Данные получены',
@@ -213,5 +217,28 @@ export class GroupsController {
     @UseGuards(JwtAuthGuard)
     async blockedPostGroup(@Body() dto: BlockedMessagesDto): Promise<string> {
         return await this.groupsService.blockedPostGroup(dto);
+    }
+
+    @ApiOperation({ summary: 'Установка последнего прочитанного сообщения' })
+    @ApiBody({ type: UpdateLastReadDto })
+    @ApiResponse({ status: 200, description: 'Последнее прочитанное сообщение обновлено' })
+    @ApiResponse({ status: 403, description: 'Пользователь не авторизован' })
+    @UseGuards(JwtAuthGuard)
+    @Post('last-read')
+    async updateLastRead(@Req() req: AuthenticatedRequest, @Body() dto: UpdateLastReadDto) {
+        return this.groupsService.updateLastRead(req.user.id, dto.groupId, dto.lastReadPostId);
+    }
+
+    @ApiOperation({ summary: 'Получение количества непрочитанных сообщений для всех групп пользователя' })
+    @ApiResponse({
+        status: 200,
+        description: 'Список групп с последним прочитанным сообщением и количеством непрочитанных сообщений',
+        type: [GroupUnreadInfoDto],
+    })
+    @ApiResponse({ status: 403, description: 'Пользователь не авторизован' })
+    @UseGuards(JwtAuthGuard)
+    @Get('unread-info')
+    async getUnreadInfo(@Req() req: AuthenticatedRequest): Promise<GroupUnreadInfoDto[]> {
+        return this.groupsService.getUnreadInfoForUser(req.user.id);
     }
 }

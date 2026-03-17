@@ -8,6 +8,7 @@ interface GroupsCreationAttrs {
     name: string;
     task: string;
     userId: number;
+    location: string;
 }
 
 @Table({ tableName: `groups` })
@@ -48,6 +49,10 @@ export class Group extends Model<Group, GroupsCreationAttrs> {
     @ApiProperty({ type: String })
     @Column({ type: DataType.STRING, allowNull: true })
     locality: string;
+
+    @ApiProperty({ type: String })
+    @Column({ type: DataType.STRING })
+    location: string;
 
     @ApiProperty({ type: Boolean })
     @Column({ type: DataType.BOOLEAN, defaultValue: false })

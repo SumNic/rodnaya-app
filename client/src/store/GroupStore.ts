@@ -53,32 +53,47 @@ export default class GroupStore {
 		this.groupForChat[location] = group;
 	};
 
-	updateArrCountNoReadPostsGroups = (idGroup: number, count: number) => {
-		const existingEntry = this.arrCountNoReadPostsGroups.find((item) => item.idGroup === idGroup);
+	updateArrCountNoReadPostsGroups = (groupId: number, count: number, location: string) => {
+		const existingEntry = this.arrCountNoReadPostsGroups.find((item) => item.groupId === groupId);
 		if (existingEntry) {
 			existingEntry.count = count;
 		} else {
 			// Если записи нет, добавляем новую
-			this.arrCountNoReadPostsGroups.push({ idGroup, count });
+			this.arrCountNoReadPostsGroups.push({ groupId, count, location });
 		}
 	};
 
-	updateArrLastReadPostsGroupsId(idGroup: number, idLastReadPost: number) {
-		const existingEntry = this.arrLastReadPostsGroupsId.find((item) => item.idGroup === idGroup);
+	updateArrLastReadPostsGroupsId(groupId: number, lastReadPostId: number) {
+		const existingEntry = this.arrLastReadPostsGroupsId.find((item) => item.groupId === groupId);
 		if (existingEntry) {
-			existingEntry.idLastReadPost = idLastReadPost;
+			existingEntry.lastReadPostId = lastReadPostId;
 		} else {
 			// Если записи нет, добавляем новую
-			this.arrLastReadPostsGroupsId.push({ idGroup, idLastReadPost });
+			this.arrLastReadPostsGroupsId.push({ groupId, lastReadPostId });
 		}
 	}
 
-	getCountNoReadPostsGroups = async () => {
+	//getCountNoReadPostsGroups = async () => {
+	//	try {
+	//		const result = await GroupsService.getCountNoReadPostsGroups();
+	//		if (result.data) {
+	//			result.data.forEach((elem) => {
+	//				this.updateArrCountNoReadPostsGroups(elem.idGroup, elem.count);
+	//			});
+	//		}
+	//	} catch (e: any) {
+	//		console.log(`Ошибка в getCountNoReadPostsGroup: ${e}`);
+	//		// return { data: e.response?.data?.message };
+	//	}
+	//};
+
+	userGroupsUnreadInfo = async () => {
 		try {
-			const result = await GroupsService.getCountNoReadPostsGroups();
+			const result = await GroupsService.getUserGroupsUnreadInfo();
 			if (result.data) {
-				result.data.forEach((elem) => {
-					this.updateArrCountNoReadPostsGroups(elem.idGroup, elem.count);
+				result.data.map((elem) => {
+					this.updateArrCountNoReadPostsGroups(elem.groupId, elem.unreadCount, elem.location);
+					this.updateArrLastReadPostsGroupsId(elem.groupId, elem.lastReadPostId || 0);
 				});
 			}
 		} catch (e: any) {
@@ -92,7 +107,7 @@ export default class GroupStore {
 			const result = await GroupsService.getLastReadPostsGroupsId();
 			if (result.data) {
 				result.data.map((elem) => {
-					this.updateArrLastReadPostsGroupsId(elem.idGroup, elem.idLastReadPost);
+					this.updateArrLastReadPostsGroupsId(elem.groupId, elem.lastReadPostId);
 				});
 			}
 		} catch (e: any) {
@@ -101,9 +116,9 @@ export default class GroupStore {
 		}
 	};
 
-	async updateEndReadPostsGroupsIdInBackEnd(idGroup: number, idLastReadPost: number) {
+	async updateEndReadPostsGroupsIdInBackEnd(groupId: number, lastReadPostId: number) {
 		try {
-			await GroupsService.setLastReadPostsGroupsId(idGroup, idLastReadPost);
+			await GroupsService.setLastReadPostsGroupsId(groupId, lastReadPostId);
 		} catch (error) {
 			console.error(`Ошибка в updateEndReadMessagesIdInBackEnd: ${error}`);
 		}

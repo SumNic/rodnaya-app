@@ -4,20 +4,23 @@ import { useMessageContext } from '../../../contexts/MessageContext.ts';
 import { Spin } from 'antd';
 import styles from './MessagesList.module.css';
 import { observer } from 'mobx-react-lite';
-import { Page } from './Messages.tsx';
 import PostInMessage from '../../../components/Post/PostInMessages.tsx';
-import { IMessages } from '../../../models/IMessages.ts';
-import { GROUP_MESSAGES, CHAT_MESSAGES } from '../../../utils/consts.tsx';
-import PostInChatGroup from '../../../components/Post/PostInChatGroup.tsx';
+import { MessageWithPartialUser } from '../../../models/IMessages.ts';
 
 interface Props {
-	posts: IMessages & { createdAt?: Date };
+	posts: MessageWithPartialUser[];
 	location: string;
 	lastMessageRef?: React.Ref<HTMLDivElement>;
 	messagesRef?: React.Ref<HTMLDivElement>;
 	groupId?: number;
-	deletePost: (id: number, location: string) => void;
-	source?: string;
+	deletePost: (id: number) => void;
+}
+
+interface Page {
+	locality: number;
+	region: number;
+	country: number;
+	world: number;
 }
 
 const indexLocation: Page = {
@@ -27,24 +30,13 @@ const indexLocation: Page = {
 	world: 3,
 };
 
-const initialValue: Page = {
-	locality: 0,
-	region: 0,
-	country: 0,
-	world: 0,
-};
-
-const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef, deletePost, source }) => {
-	const [count, setCount] = useState<typeof initialValue>(initialValue);
-	const [prevCount, setPrevCount] = useState<typeof initialValue>(initialValue);
-
+const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessageRef, deletePost }) => {
+	const [lastReadMessagesId, setLastReadMessagesId] = useState<number>();
 	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Таймер для остановки прокрутки
-
-	const lastReadMessageIdRef = useRef<typeof initialValue>(initialValue);
-
+	const lastReadMessageIdRef = useRef<number>(0);
 	const postsRefs = useRef<HTMLDivElement[]>([]);
-
 	const nameLocalRef = useRef<string>('');
+	const seenMessageIdsRef = useRef<Set<number>>(new Set());
 
 	const { store } = useStoreContext();
 	const {
@@ -56,12 +48,6 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 	const { user } = store.authStore;
 
 	const { isLoadMessages, setIsScrollTop, messagesContainerRef } = useMessageContext();
-
-	let locationKey: keyof IMessages = location as keyof IMessages;
-
-	const postsFromLocation = posts[locationKey];
-
-	const noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]]?.count;
 
 	switch (location) {
 		case 'locality':
@@ -79,19 +65,11 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 	}
 
 	useEffect(() => {
-		if (noReadMessagesCount !== undefined) {
-			const fixCount = noReadMessagesCount + prevCount[locationKey];
-			updateArrCountNoReadMessages(nameLocalRef.current, fixCount - count[locationKey]);
-			setPrevCount((prev) => ({ ...prev, [locationKey]: count[locationKey] }));
-		}
-	}, [count]);
-
-	useEffect(() => {}, [noReadMessagesCount]);
-
-	const lastReadMessagesId = arrLastReadMessagesId[indexLocation[location as keyof Page]]?.id;
+		lastReadMessageIdRef.current = 0;
+		if (posts && location) setLastReadMessagesId(arrLastReadMessagesId[indexLocation[location as keyof Page]]?.id);
+	}, [location, posts]);
 
 	const handleScroll = () => {
-		const lastReadMessagesId = arrLastReadMessagesId[indexLocation[location as keyof Page]]?.id;
 		if (document.getElementById('div__messages')?.scrollTop === 0) {
 			setIsScrollTop(true);
 		}
@@ -103,8 +81,8 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 
 		// Устанавливаем таймер для определения остановки прокрутки
 		scrollTimeoutRef.current = setTimeout(() => {
-			if (lastReadMessageIdRef.current[locationKey] > lastReadMessagesId) {
-				updateEndReadMessagesIdInBackEnd(lastReadMessageIdRef.current[locationKey], nameLocalRef.current);
+			if (lastReadMessagesId && lastReadMessageIdRef.current > lastReadMessagesId) {
+				updateEndReadMessagesIdInBackEnd(lastReadMessageIdRef.current, nameLocalRef.current);
 			}
 		}, 500); // Задержка в 500 мс
 	};
@@ -113,32 +91,47 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 	useEffect(() => {
 		if (!postsRefs.current.length) return;
 
-		const container = document.getElementById('div__messages');
+		const container = messagesContainerRef.current;
+		if (!container) return;
 
 		const observer = new IntersectionObserver(
 			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						const messageId = Number(entry.target.getAttribute('post-id'));
+				let decremented = 0;
 
-						// Если сообщение видно и его ID больше последнего прочитанного
-						if (messageId > lastReadMessageIdRef.current[locationKey] && messageId > lastReadMessagesId) {
-							lastReadMessageIdRef.current[locationKey] = messageId; // Обновляем ref
-							setCount((prevCount) => ({ ...prevCount, [locationKey]: prevCount[locationKey] + 1 }));
-						}
+				entries.forEach((entry) => {
+					if (!entry.isIntersecting) return;
+
+					const messageId = Number(entry.target.getAttribute('post-id'));
+					if (!messageId) return;
+
+					// ❗ уже учитывали — пропускаем
+					if (seenMessageIdsRef.current.has(messageId)) return;
+
+					// ❗ сообщение реально новое
+					if (lastReadMessagesId && messageId > lastReadMessagesId && messageId > lastReadMessageIdRef.current) {
+						seenMessageIdsRef.current.add(messageId);
+						lastReadMessageIdRef.current = messageId;
+						decremented++;
 					}
 				});
+
+				const noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]]?.count;
+
+				// ⬇ уменьшаем счётчик ОДИН раз
+				if (decremented > 0) {
+					updateArrCountNoReadMessages(nameLocalRef.current, Math.max(0, noReadMessagesCount - decremented));
+				}
 			},
 			{
 				root: container,
-				threshold: 0.5, // Сообщение считается видимым, если 50% его площади в зоне видимости
+				threshold: 0.5,
 			}
 		);
 
 		postsRefs.current.forEach((el) => observer.observe(el));
 
 		return () => observer.disconnect();
-	}, [postsFromLocation, location]);
+	}, [posts.length, location]);
 
 	useEffect(() => {
 		document.getElementById('div__messages')?.addEventListener('scroll', handleScroll);
@@ -166,7 +159,7 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 			)}
 
 			<div id="message__ajax" ref={messagesRef}>
-				{postsFromLocation?.map((post, index, arr) => {
+				{posts.map((post, index, arr) => {
 					const prevCreateAt = arr[index === 0 ? index : index - 1].createdAt!;
 					return (
 						<div
@@ -176,7 +169,7 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 							ref={(el) => {
 								if (!el) return; // элемент может быть null при размонтировании
 								postsRefs.current[index] = el; // сохраняем в массив всех сообщений
-								if (index === postsFromLocation.length - 1 && lastMessageRef) {
+								if (index === posts.length - 1 && lastMessageRef) {
 									(lastMessageRef as React.MutableRefObject<HTMLDivElement>).current = el; // сохраняем последний
 								}
 							}}
@@ -196,8 +189,7 @@ const MessagesList: React.FC<Props> = ({ posts, location, messagesRef, lastMessa
 								)
 							)}
 
-							{source === CHAT_MESSAGES && <PostInMessage post={post} deletePost={deletePost} />}
-							{source === GROUP_MESSAGES && <PostInChatGroup post={post} deletePost={deletePost} />}
+							<PostInMessage post={post} deletePost={deletePost} />
 						</div>
 					);
 				})}

@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 import $api from '../api_http/index.ts';
 import { IPost } from '../models/IPost.ts';
-import { GetCountNoReadMessagesDto } from '../models/GetCounNoReadMessages.dto.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
 import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
 import { components } from '../utils/api.ts';
@@ -26,14 +25,9 @@ export default class MessagesService {
 		return $api.delete<string>('/delete-message', { data: dto });
 	}
 
-	static async getAllMessages(
-		id: number,
-		pageNumber: number,
-		secret: string,
-		location: string | undefined
-	): Promise<AxiosResponse<Message[]>> {
+	static async getAllMessages(pageNumber: number, location: string | undefined): Promise<AxiosResponse<Message[]>> {
 		return $api.get<Message[]>('/get-all-messages', {
-			params: { id, pageNumber, secret, location },
+			params: { pageNumber, location },
 		});
 	}
 
@@ -65,7 +59,7 @@ export default class MessagesService {
 		});
 	}
 
-	static async getLastReadMessageId(dto: GetCountNoReadMessagesDto): Promise<AxiosResponse<EndReadMessagesId[]>> {
+	static async getLastReadMessageId(dto: CreateLocationDto): Promise<AxiosResponse<EndReadMessagesId[]>> {
 		return $api.get<EndReadMessagesId[]>('/get-end-read-messages-id', {
 			params: dto,
 		});

@@ -17,11 +17,12 @@ import { YandexMetrika } from './components/YandexMetrika.tsx';
 import VkAppUrlHandler from './components/VkAppUrlHandler.tsx';
 import { PushInit } from './components/PushInit.tsx';
 import { useSocket } from './hooks/useSocket.hook.ts';
+import { useGroup } from './hooks/useGroup.hook.ts';
+import { GroupContext } from './contexts/GroupContext.ts';
 
 function App() {
 	const rodnayaTheme = useTheme();
 	const storeState = useStore();
-	const message = useMessage();
 
 	const { user } = storeState.store.authStore;
 	const { vechStore } = storeState.store;
@@ -36,6 +37,10 @@ function App() {
 				}
 			: null
 	);
+	const { socket } = socketObj;
+
+	const message = useMessage(socket);
+	const group = useGroup(socket);
 
 	useEffect(() => {
 		WebApp.ready(); // важно — сообщает Telegram, что Mini App загрузилась
@@ -44,7 +49,6 @@ function App() {
 	}, []);
 
 	useEffect(() => {
-		const { socket } = socketObj;
 		if (!socket) return;
 
 		vechStore.bindSocket(socket);
@@ -65,16 +69,18 @@ function App() {
 				}}
 			>
 				<MessageContext.Provider value={message}>
-					<StoreContext.Provider value={storeState}>
-						<SocketContext.Provider value={socketObj}>
-							<ThemeContext.Provider value={rodnayaTheme}>
-								<VkAppUrlHandler />
-								<PushInit />
-								<YandexMetrika counterId={YANDEX_COUNTER_ID} />
-								<AppRouter />
-							</ThemeContext.Provider>
-						</SocketContext.Provider>
-					</StoreContext.Provider>
+					<GroupContext.Provider value={group}>
+						<StoreContext.Provider value={storeState}>
+							<SocketContext.Provider value={socketObj}>
+								<ThemeContext.Provider value={rodnayaTheme}>
+									<VkAppUrlHandler />
+									<PushInit />
+									<YandexMetrika counterId={YANDEX_COUNTER_ID} />
+									<AppRouter />
+								</ThemeContext.Provider>
+							</SocketContext.Provider>
+						</StoreContext.Provider>
+					</GroupContext.Provider>
 				</MessageContext.Provider>
 			</ConfigProvider>
 		</BrowserRouter>

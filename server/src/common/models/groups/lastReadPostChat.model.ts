@@ -3,6 +3,8 @@ import { User } from '../users/user.model';
 
 interface LastReadPostChatCreationAttrs {
     group_id: number;
+    userId: number;
+    lastReadPostId: number;
 }
 
 @Table({ tableName: 'lastReadPostChat' })

@@ -61,20 +61,19 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ group, location }) => {
 	}
 
 	return (
-		<div>
-			<div className={styles.chatHeaderWrapper} key={group.id}>
-				<Button type="text" icon={<CloseOutlined />} onClick={() => setIsChatGroupVisible(location, false)} />
-				<div style={{ width: '100%', paddingRight: '10px' }}>
-					<div onClick={() => handleGroupClick(group)} style={{ cursor: 'pointer' }}>
-						<CustomAvatar photoUrl={group.avatar} size={35} names={[group.name]} />
+		<div className={styles.chatHeaderWrapper} key={group.id}>
+			<Button type="text" icon={<CloseOutlined />} onClick={() => setIsChatGroupVisible(location, false)} />
+			<div style={{ width: '100%', paddingRight: '10px' }}>
+				<div onClick={() => handleGroupClick(group)} style={{ cursor: 'pointer' }}>
+					<CustomAvatar photoUrl={group.avatar} size={35} names={[group.name]} />
+				</div>
+				<div className={styles.groupNameBlock}>
+					<div onClick={() => handleGroupClick(group)} className={styles.groupChatName} style={{ cursor: 'pointer' }}>
+						{group.name}
 					</div>
-					<div className={styles.groupNameBlock}>
-						<div onClick={() => handleGroupClick(group)} className={styles.groupChatName} style={{ cursor: 'pointer' }}>
-							{group.name}
-						</div>
 
-						{/* TODO пока убрать */}
-						{/* <div className={styles.menuGroup}>
+					{/* TODO пока убрать */}
+					{/* <div className={styles.menuGroup}>
 							<Dropdown
 								menu={{ items: options, onClick: handleSelect }}
 								onOpenChange={handleVisibleChange}
@@ -86,14 +85,13 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ group, location }) => {
 								</Button>
 							</Dropdown>
 						</div> */}
-					</div>
-					<div
-						onClick={() => handleGroupClick(group)}
-						className="mes_message"
-						style={{ cursor: 'pointer', fontSize: '15px' }}
-					>
-						{getParticipantsWord(group.users.length)}
-					</div>
+				</div>
+				<div
+					onClick={() => handleGroupClick(group)}
+					className="mes_message"
+					style={{ cursor: 'pointer', fontSize: '15px' }}
+				>
+					{getParticipantsWord(group.users.length)}
 				</div>
 			</div>
 		</div>

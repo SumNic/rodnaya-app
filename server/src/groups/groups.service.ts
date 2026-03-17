@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { Order } from 'src/common/constants/order';
 import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
@@ -9,6 +9,7 @@ import { CreatePostToChatDto } from 'src/common/dtos/create-post-to-chat.dto';
 import { DeleteGroupMessageDto } from 'src/common/dtos/delete-group-message.dto';
 import { GetGroupsDto } from 'src/common/dtos/get-groups.dto';
 import { GetPostsGroupDto } from 'src/common/dtos/get-posts-group.dto';
+import { GroupUnreadInfoDto } from 'src/common/dtos/group-unread-info.dto';
 import { NewGroupMessage } from 'src/common/dtos/new-post-to-chat.dto';
 import { UpdateGroupMessageDto } from 'src/common/dtos/update-group-message.dto';
 import { GroupMessage } from 'src/common/models/groups/groupMessage';
@@ -16,7 +17,7 @@ import { Group } from 'src/common/models/groups/groups.model';
 import { LastReadPostChat } from 'src/common/models/groups/lastReadPostChat.model';
 import { Residency } from 'src/common/models/users/residency.model';
 import { User } from 'src/common/models/users/user.model';
-import { AuthenticatedRequest, LocationType } from 'src/common/types/types';
+import { AuthenticatedRequest, Direction, LocationType } from 'src/common/types/types';
 import { NotificationMessage } from 'src/queue/notifications.processor';
 import { NotificationsService } from 'src/queue/notifications.service';
 import { UsersService } from 'src/users/users.service';
@@ -26,8 +27,10 @@ export class GroupsService {
     constructor(
         @InjectModel(Group) private readonly groupsRepository: typeof Group,
         @InjectModel(GroupMessage) private readonly groupMessagesRepository: typeof GroupMessage,
+        @InjectModel(LastReadPostChat) private readonly lastReadPostChatRepository: typeof LastReadPostChat,
         private usersService: UsersService,
         private notificationsService: NotificationsService,
+        // private readonly sequelize: Sequelize,
     ) {}
 
     async createGroup(req: AuthenticatedRequest, dto: CreateGroupDto): Promise<Group> {
@@ -45,6 +48,7 @@ export class GroupsService {
                     task: dto.groupTask,
                     userId: req.user.id,
                     [dto.location]: user.residency[dto.location] || LocationType.GLOBAL,
+                    location: dto.location,
                 });
 
                 await group.$add('users', [user.id]);
@@ -100,39 +104,76 @@ export class GroupsService {
         }
     }
 
-    async getAllChatPosts(req: AuthenticatedRequest, dto: GetPostsGroupDto): Promise<GroupMessage[]> {
+    async getAllChatPosts(userId: number, dto: GetPostsGroupDto): Promise<GroupMessage[]> {
         try {
-            const user = await this.usersService.getUserWithModel(req.user.id, [{ model: LastReadPostChat }]);
+            const groupId = dto.groupId;
+            const limit = dto.limit ?? 20;
 
-            const endReadPostId = user.lastReadPostChat.find((elem) => elem.group_id === +dto.groupId)?.lastReadPostId;
-            // if (!endReadPostId) {
+            const user = await this.usersService.getUserWithModel(userId, [{ model: LastReadPostChat }]);
 
-            // }
+            const lastRead = user.lastReadPostChat.find((r) => r.group_id === groupId);
 
-            const countMessage = await this.getCountPosts(+dto.groupId, endReadPostId);
+            // 1️⃣ считаем ВСЕ сообщения в чате
+            const totalCount = await this.groupMessagesRepository.count({
+                where: {
+                    groupId,
+                    blocked: false,
+                },
+            });
 
-            const standartLimit = 20; // Количество записей на страницу
-            const offset =
-                +dto.pageNumber > 0
-                    ? countMessage - standartLimit + (+dto.pageNumber - 1) * standartLimit
-                    : countMessage - standartLimit + +dto.pageNumber * standartLimit; // Пропускаем записи для нужной страницы
+            // 2️⃣ базовый where
+            const where: any = {
+                groupId,
+                blocked: false,
+            };
 
-            const limit = offset < 0 ? offset + standartLimit : standartLimit;
+            // 🔹 ПЕРВАЯ ЗАГРУЗКА
+            if (!dto.cursor) {
+                const totalCount = await this.groupMessagesRepository.count({
+                    where,
+                });
 
-            if (user && offset + standartLimit >= 0 && countMessage) {
-                const { rows } = await this.groupMessagesRepository.findAndCountAll({
-                    where: {
-                        groupId: +dto.groupId,
-                        blocked: false,
-                    },
+                if (totalCount > limit && lastRead?.lastReadPostId) {
+                    where.id = { [Op.lte]: lastRead.lastReadPostId };
+                }
+
+                const messages = await this.groupMessagesRepository.findAll({
+                    where,
                     include: { all: true },
-                    order: [['id', Order.ASC]],
-                    offset: offset < 0 ? 0 : offset,
+                    order: [['id', 'DESC']],
                     limit,
                 });
-                return rows;
+
+                return messages.reverse();
             }
-            // return [new Messages()];
+
+            // 🔹 ЗАГРУЗКА ВВЕРХ (старые)
+            if (dto.direction === Direction.BEFORE) {
+                where.id = { [Op.lt]: dto.cursor };
+
+                const messages = await this.groupMessagesRepository.findAll({
+                    where,
+                    include: { all: true },
+                    order: [['id', 'DESC']],
+                    limit,
+                });
+
+                return messages.reverse();
+            }
+
+            // 🔹 ЗАГРУЗКА ВНИЗ (новые)
+            if (dto.direction === Direction.AFTER) {
+                where.id = { [Op.gt]: dto.cursor };
+
+                return await this.groupMessagesRepository.findAll({
+                    where,
+                    include: { all: true },
+                    order: [['id', 'ASC']],
+                    limit,
+                });
+            }
+
+            return [];
         } catch (err) {
             throw new HttpException(`Ошибка в getAllChatPosts: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -252,13 +293,17 @@ export class GroupsService {
         }
     }
 
-    async joinTheGroup(req: AuthenticatedRequest, id: number) {
+    async joinTheGroup(userId: number, id: number) {
         try {
             const group = await this.groupsRepository.findByPk(id, {
                 include: [{ model: User, as: 'users' }],
             });
 
-            await group.$add('users', [req.user.id]);
+            if (!group) {
+                throw new HttpException('Группа не найдена', HttpStatus.NOT_FOUND);
+            }
+
+            await group.$add('users', [userId]);
         } catch (err) {
             throw new HttpException(`Ошибка в getCountNoReadMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -311,5 +356,63 @@ export class GroupsService {
         } catch (err) {
             throw new HttpException(`Ошибка в blockedMessages: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    async updateLastRead(userId: number, groupId: number, lastReadPostId: number) {
+        const record = await this.lastReadPostChatRepository.findOne({
+            where: { userId, group_id: groupId },
+        });
+
+        if (!record) {
+            await this.lastReadPostChatRepository.create({
+                userId,
+                group_id: groupId,
+                lastReadPostId,
+            });
+            return;
+        }
+
+        if (record.lastReadPostId < lastReadPostId) {
+            record.lastReadPostId = lastReadPostId;
+            await record.save();
+        }
+    }
+
+    async getUnreadInfoForUser(userId: number): Promise<GroupUnreadInfoDto[]> {
+        const results = await this.groupsRepository.sequelize.query<{
+            groupId: number;
+            lastReadPostId: number | null;
+            unreadCount: number;
+            location: string;
+        }>(
+            `
+                SELECT
+                    g.location AS "location",
+                    ug."groupId" AS "groupId",
+                    lrp."lastReadPostId" AS "lastReadPostId",
+                COUNT(gm.id) AS "unreadCount"
+                FROM user_groups ug
+                LEFT JOIN groups g
+                ON g.id = ug."groupId"
+                LEFT JOIN "lastReadPostChat" lrp
+                ON lrp."userId" = ug."userId"
+                AND lrp.group_id = ug."groupId"
+                LEFT JOIN "groupMessages" gm
+                ON gm."groupId" = ug."groupId"
+                AND gm.blocked = false
+                AND (
+                    lrp."lastReadPostId" IS NULL
+                    OR gm.id > lrp."lastReadPostId"
+                )
+                WHERE ug."userId" = :userId
+                GROUP BY ug."groupId", lrp."lastReadPostId", g.location;
+            `,
+            {
+                replacements: { userId },
+                type: QueryTypes.SELECT,
+            },
+        );
+
+        return results;
     }
 }

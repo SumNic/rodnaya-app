@@ -3,13 +3,9 @@ import { observer } from 'mobx-react-lite';
 import { IFiles } from '../../models/IFiles.ts';
 import { useStoreContext } from '../../contexts/StoreContext.ts';
 import { message, Spin } from 'antd';
-import { useMessageContext } from '../../contexts/MessageContext.ts';
-import { MessageWebsocketResponse } from '../../models/response/MessageWebsocketResponse.ts';
-
-import styles from './SendMessage.module.css';
 import { LoadingOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
-import { useSocketContext } from '../../contexts/SocketContext.ts';
+import styles from './SendMessage.module.css';
 
 interface SendMessageProps {
 	location: string;
@@ -23,27 +19,9 @@ const SendMessage: React.FC<SendMessageProps> = ({ location, groupId, videoUrls,
 	const [messageSent, setMessageSent] = useState<string>('');
 	const [isSendMessage, setIsSendMessage] = useState(false);
 
-	const { socket } = useSocketContext();
-
 	const { store } = useStoreContext();
 	const { sendPostToChat } = store.messageStore;
 	const { sendPostToGroup } = store.groupStore;
-
-	const { setMessageDataSocket } = useMessageContext();
-
-	useEffect(() => {
-		const handleNewMessage = (data: MessageWebsocketResponse) => {
-			if (!data) return;
-			setMessageDataSocket(data);
-		};
-
-		socket?.on('new_message', handleNewMessage);
-
-		// Очистка при размонтировании
-		return () => {
-			socket?.off('new_message', handleNewMessage);
-		};
-	}, [socket]);
 
 	useEffect(() => {
 		setMessageSent('');

@@ -84,7 +84,7 @@ const MessagePage: React.FC = () => {
 								{nameLocal}
 							</h2>
 						</div>
-						{store.authStore.isAuth && location && <Messages location={location} source={CHAT_MESSAGES} />}
+						{store.authStore.isAuth && location && <Messages location={location} />}
 					</div>
 				</div>
 			</div>

@@ -112,16 +112,12 @@ export class MessagesService {
         return { message: 'Сообщение удалено' };
     }
 
-    async getAllMessage(dto: GetMessagesDto): Promise<Messages[]> {
+    async getAllMessage(userId: number, dto: GetMessagesDto): Promise<Messages[]> {
         try {
-            const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
+            const user = await this.usersService.getUserWithModel(userId, [{ model: Residency }]);
             const location = user.residency[`${dto.location}`] ? user.residency[`${dto.location}`] : LocationType.GLOBAL;
 
-            const endReadMessagesId = await this.getEndReadMessagesId({
-                id: `${dto.id}`,
-                secret: dto.secret,
-                residency: { [dto.location]: location },
-            });
+            const endReadMessagesId = await this.getEndReadMessagesId(userId, { [dto.location]: location });
 
             const endReadMessagesIdForLocation = endReadMessagesId.filter((elem) => elem.location === location);
 
@@ -137,7 +133,7 @@ export class MessagesService {
 
             const limit = offset < 0 ? offset + standartLimit : standartLimit;
 
-            if (user && user.secret === dto.secret && offset + standartLimit >= 0 && countMessage) {
+            if (user && offset + standartLimit >= 0 && countMessage) {
                 const { rows } = await this.messagesRepository.findAndCountAll({
                     where: {
                         location,
@@ -155,11 +151,11 @@ export class MessagesService {
         }
     }
 
-    async getCountNoReadMessages(dto: EndMessageDto): Promise<RespCountNoReadMessagesDto[]> {
+    async getCountNoReadMessages(userId: number, dto: EndMessageDto): Promise<RespCountNoReadMessagesDto[]> {
         try {
-            const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
+            const user = await this.usersService.getUserWithModel(userId, [{ model: Residency }]);
 
-            if (user && user.secret === dto.secret) {
+            if (user) {
                 const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
                 // Итерация по ключам объекта LocationUser
                 const messageCountsPromises = residencyKeys.map(async (key) => {
@@ -183,15 +179,15 @@ export class MessagesService {
         }
     }
 
-    async getEndReadMessagesId(dto: EndMessageDto): Promise<RespIdNoReadMessagesDto[]> {
+    async getEndReadMessagesId(userId: number, residency: CreateLocationDto): Promise<RespIdNoReadMessagesDto[]> {
         try {
-            const user = await this.usersService.getUserWithModel(+dto.id, [{ model: Residency }]);
+            const user = await this.usersService.getUserWithModel(userId, [{ model: Residency }]);
 
-            if (user && user.secret === dto.secret) {
-                const residencyKeys = Object.keys(dto.residency) as (keyof CreateLocationDto)[];
+            if (user) {
+                const residencyKeys = Object.keys(residency) as (keyof CreateLocationDto)[];
                 // Итерация по ключам объекта LocationUser
                 const messageEndReadIdPromises = residencyKeys.map(async (key) => {
-                    const value = dto.residency[key];
+                    const value = residency[key];
                     const endReadMessagesId = await this.endReadMessageRepository.findOne({
                         where: {
                             user_id: user.id,
@@ -204,15 +200,6 @@ export class MessagesService {
                 // Ждем завершения всех операций
                 const result = await Promise.all(messageEndReadIdPromises);
                 return result.reverse();
-
-                // const endReadMessagesId = await this.endReadMessageRepository.findOne({
-                //     where: {
-                //         user_id: user.id,
-                //         location: dto.location,
-                //     },
-                // });
-
-                // return endReadMessagesId.endMessageId;
             }
         } catch (err) {
             throw new HttpException(`Ошибка в getEndReadMessagesId: ${err}`, HttpStatus.INTERNAL_SERVER_ERROR);

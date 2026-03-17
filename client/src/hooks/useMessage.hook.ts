@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './useStore.hook';
 import { MessageWebsocketResponse } from '../models/response/MessageWebsocketResponse';
+import { Socket } from 'socket.io-client';
 
-export const useMessage = () => {
+export const useMessage = (socket: Socket | null) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [isLoadMessages, setIsLoadMessages] = useState(false);
@@ -21,18 +22,32 @@ export const useMessage = () => {
 
 	useEffect(() => {
 		if (isAuth) {
-			getCountNoReadMessages(user.id, user.secret, user.residency);
-			getLastReadMessageId(user.id, user.secret, user.residency);
+			getCountNoReadMessages(user.residency);
+			getLastReadMessageId(user.residency);
 		}
 	}, [store.authStore.isAuth, getCountNoReadMessages, getLastReadMessageId]);
 
 	useEffect(() => {
+		const handleNewMessage = (data: MessageWebsocketResponse) => {
+			if (!data) return;
+			setMessageDataSocket(data);
+		};
+
+		socket?.on('new_message', handleNewMessage);
+
+		// Очистка при размонтировании
+		return () => {
+			socket?.off('new_message', handleNewMessage);
+		};
+	}, [socket]);
+
+	useEffect(() => {
 		if (arrCountNoReadMessages?.length && messageDataSocket) {
-			const prevCountNoReadMessages = arrCountNoReadMessages.filter(
+			const prevCountNoReadMessages = arrCountNoReadMessages.find(
 				(elem) => elem.location === messageDataSocket.resydency
 			);
-			if (prevCountNoReadMessages[0] && store.authStore.user.id !== messageDataSocket.id_user) {
-				updateArrCountNoReadMessages(messageDataSocket.resydency, prevCountNoReadMessages[0].count + 1);
+			if (prevCountNoReadMessages && store.authStore.user.id !== messageDataSocket.id_user) {
+				updateArrCountNoReadMessages(messageDataSocket.resydency, prevCountNoReadMessages.count + 1);
 			}
 		}
 	}, [messageDataSocket, arrCountNoReadMessages]);

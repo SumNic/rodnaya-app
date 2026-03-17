@@ -1,104 +1,24 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MessagesList from './MessagesList.tsx';
 import { ArrowDownOutlined, PaperClipOutlined } from '@ant-design/icons';
 import { Button, Dropdown, FloatButton, MenuProps } from 'antd';
 import SendMessage from '../../../components/SendMessage/SendMessage.tsx';
 import { useMessageContext } from '../../../contexts/MessageContext.ts';
 import { useStoreContext } from '../../../contexts/StoreContext.ts';
-import { IPost } from '../../../models/IPost.ts';
 import MessagesService from '../../../services/MessagesService.ts';
-import UserService from '../../../services/UserService.ts';
-import { GROUP_MESSAGES, COUNT_RESPONSE_POSTS, CHAT_MESSAGES } from '../../../utils/consts.tsx';
-
-import styles from '../MessagesPage.module.css';
-import GroupsService, { Group } from '../../../services/GroupsService.ts';
+import UserService, { Residency } from '../../../services/UserService.ts';
 import UploadAntdFiles from '../../../components/UploadAntdFiles/UploadAntdFiles.tsx';
 import AddVideoLink from '../../../components/AddVideoLink.tsx';
-import { IMessages } from '../../../models/IMessages.ts';
-
-const initialPosts: IMessages = {
-	locality: [],
-	region: [],
-	country: [],
-	world: [],
-};
-
-export interface Page {
-	locality: number;
-	region: number;
-	country: number;
-	world: number;
-}
-
-const initialNextPape: Page = {
-	locality: 1,
-	region: 1,
-	country: 1,
-	world: 1,
-};
-
-const initialPrevPape: Page = {
-	locality: -1,
-	region: -1,
-	country: -1,
-	world: -1,
-};
-
-interface FirstLoad {
-	locality: boolean;
-	region: boolean;
-	country: boolean;
-	world: boolean;
-}
-
-const initialFirstLoad: FirstLoad = {
-	locality: true,
-	region: true,
-	country: true,
-	world: true,
-};
-
-const indexLocation: Page = {
-	locality: 0,
-	region: 1,
-	country: 2,
-	world: 3,
-};
+import { MessageWithPartialUser } from '../../../models/IMessages.ts';
+import styles from '../MessagesPage.module.css';
 
 interface MessagesProps {
 	location: string;
-	source: string;
-	group?: Group;
 }
 
-const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
-	const [posts, setPosts] = useState<IMessages>(initialPosts);
-
-	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
-	const [nextPage, setNextPage] = useState<Page>(initialNextPape);
-	const [prevPage, setPrevPage] = useState<Page>(initialPrevPape);
-	const [isFirstLoad, setIsFirstLoad] = useState<FirstLoad>(initialFirstLoad);
-	const [previousScrollHeight, setPreviousScrollHeight] = useState(0);
-	const [isScrollEnd, setIsScrollEnd] = useState<Record<string, boolean>>({});
-	const [scrollDownPage, setScrollDownPage] = useState(false);
-	const [isLastMessageLoad, setIsLastMessageLoad] = useState(false);
-	const [isLastMessage, setIsLastMessage] = useState<Record<string, boolean>>({});
-
-	const [showVideoInput, setShowVideoInput] = useState(false);
-	const [menuVisible, setMenuVisible] = useState(false);
-	const [width, setWidth] = useState<number>();
-	const [videoUrls, setVideoUrls] = useState<string[]>([]);
-	const [videoError, setVideoError] = useState<string | null>(null);
-
-	const lastMessageRef = useRef<HTMLDivElement | null>(null);
-	const messagesRef = useRef<HTMLDivElement | null>(null);
-	const widthRef = useRef<HTMLDivElement | null>(null);
-
+const Messages: React.FC<MessagesProps> = ({ location }) => {
 	const { store } = useStoreContext();
-
-	const { arrCountNoReadMessages, updateArrCountNoReadMessages } = store.messageStore;
-	const { arrCountNoReadPostsGroups, updateArrCountNoReadPostsGroups } = store.groupStore;
-	const { user } = store.authStore;
+	const { messageStore, authStore } = store;
 
 	const {
 		setIsLoadMessages,
@@ -109,461 +29,258 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 		messagesContainerRef,
 	} = useMessageContext();
 
-	const uploadRef = useRef<any>(null);
+	/* UI state (НЕ данные сообщений) */
+	const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+	const [showVideoInput, setShowVideoInput] = useState(false);
+	const [menuVisible, setMenuVisible] = useState(false);
+	const [width, setWidth] = useState<number>();
+	const [videoUrls, setVideoUrls] = useState<string[]>([]);
+	const [videoError, setVideoError] = useState<string | null>(null);
+	const [isScrollEnd, setIsScrollEnd] = useState(false);
 
-	let locationKey: keyof IMessages = location as keyof IMessages;
+	/* refs */
+	const uploadRef = useRef<any>(null);
+	const lastMessageRef = useRef<HTMLDivElement | null>(null);
+	const messagesRef = useRef<HTMLDivElement | null>(null);
+	const widthRef = useRef<HTMLDivElement | null>(null);
+	const locationRef = useRef(location);
+
+	/* кеш */
+	const cache = messageStore.get(location);
+	const posts = cache.posts;
+
+	/* ========================= */
+	/* location sync */
+	/* ========================= */
 
 	useEffect(() => {
-		setVideoUrls([]);
-		setVideoError(null);
-	}, [locationKey]);
-
-	const nameLocal = useMemo(() => {
-		let name = '';
-		switch (location) {
-			case 'locality':
-				name = user.residency.locality || '';
-				break;
-			case 'region':
-				name = user.residency.region || '';
-				break;
-			case 'country':
-				name = user.residency.country || '';
-				break;
-			case 'world':
-				name = 'Земля';
-				break;
-		}
-		return name;
+		locationRef.current = location;
 	}, [location]);
 
-	useEffect(() => {
-		if (widthRef.current) {
-			setWidth(widthRef.current.offsetWidth);
-		}
+	/* ========================= */
+	/* blocked check */
+	/* ========================= */
 
-		// обновляем при изменении размера окна
-		const handleResize = () => {
-			if (widthRef.current) {
-				setWidth(widthRef.current.offsetWidth);
+	useEffect(() => {
+		const checkingTheLock = async () => {
+			try {
+				const response = await UserService.checkBlocked(authStore.user.id);
+
+				if (response.status === 200 && response.data) {
+					const blockingEndTimeString = response.data;
+					const options: {} = {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric',
+						timezone: 'UTC',
+						hour: 'numeric',
+						minute: 'numeric',
+					};
+					let blockingEndTime = new Date(blockingEndTimeString).toLocaleString('ru', options);
+					setTimeRemaining(blockingEndTime);
+				}
+			} catch {
+				setTimeRemaining(null);
 			}
+		};
+
+		checkingTheLock();
+	}, []);
+
+	/* ========================= */
+	/* width */
+	/* ========================= */
+
+	useEffect(() => {
+		if (widthRef.current) setWidth(widthRef.current.offsetWidth);
+
+		const handleResize = () => {
+			if (widthRef.current) setWidth(widthRef.current.offsetWidth);
 		};
 
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
-	useEffect(() => {
-		const savedScrollTop = localStorage.getItem(`scrollTop-${source}-${locationKey}`);
-		if (savedScrollTop && messagesContainerRef.current) {
-			messagesContainerRef.current.scrollTop = parseInt(savedScrollTop, 10);
-		}
-	}, [locationKey]);
+	/* ========================= */
+	/* initial load */
+	/* ========================= */
 
 	useEffect(() => {
-		setPosts(initialPosts);
-	}, [source]);
-
-	useEffect(() => {
-		if (messageDataSocket && location) {
-			const arrFileId = messageDataSocket.form.files;
-			const newPost: IPost = {
-				id: messageDataSocket.id_message,
-				groupId: messageDataSocket.group_id || -1,
-				message: messageDataSocket.form.message,
-				video: messageDataSocket.form.video || [],
-				location: messageDataSocket.resydency,
-				blocked: false,
-				userId: messageDataSocket.id_user,
-				files: arrFileId,
-				user: {
-					id: messageDataSocket.id_user,
-					first_name: messageDataSocket.first_name,
-					last_name: messageDataSocket.last_name,
-					photo_50: messageDataSocket.photo_50,
-				},
-				createdAt: messageDataSocket.createdAt,
-			};
-
-			let noReadMessagesCount;
-			if (source === CHAT_MESSAGES)
-				noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
-			if (source === GROUP_MESSAGES)
-				noReadMessagesCount = arrCountNoReadPostsGroups.find((elem) => elem.idGroup === group?.id)?.count;
-
-			if (
-				nameLocal === messageDataSocket.resydency &&
-				isScrollEnd[location] &&
-				noReadMessagesCount !== undefined &&
-				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
-				newPost.userId !== user.id
-			) {
-				setPosts((prev) => {
-					if (newPost) {
-						setScrollDownPage(true);
-						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
-					}
-					return prev;
-				});
-				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
-					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
-			}
-
-			if (
-				nameLocal === messageDataSocket.resydency &&
-				!isScrollEnd[location] &&
-				noReadMessagesCount !== undefined &&
-				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
-				newPost.userId !== user.id
-			) {
-				setPosts((prev) => {
-					if (newPost) {
-						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
-					}
-					return prev;
-				});
-				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
-				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
-					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
-			}
-
-			if (
-				nameLocal === messageDataSocket.resydency &&
-				noReadMessagesCount !== undefined &&
-				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
-				newPost.userId === user.id
-			) {
-				setPosts((prev) => {
-					if (newPost) {
-						setScrollDownPage(true);
-						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
-					}
-					return prev;
-				});
-				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
-					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
-			}
-
-			if (
-				nameLocal === messageDataSocket.resydency &&
-				noReadMessagesCount !== undefined &&
-				noReadMessagesCount >= COUNT_RESPONSE_POSTS &&
-				newPost.userId === user.id
-			) {
-				setIsLastMessageLoad(true);
-				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
-					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, 0);
-			}
-
-			if (
-				nameLocal === messageDataSocket.resydency &&
-				noReadMessagesCount !== undefined &&
-				noReadMessagesCount >= COUNT_RESPONSE_POSTS &&
-				newPost.userId !== user.id
-			) {
-				setIsLastMessageLoad(true);
-				if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, noReadMessagesCount + 1);
-				if (source === GROUP_MESSAGES && messageDataSocket.group_id)
-					updateArrCountNoReadPostsGroups(messageDataSocket.group_id, noReadMessagesCount + 1);
-			}
-
-			if (
-				nameLocal !== messageDataSocket.resydency &&
-				(user.residency.country === messageDataSocket.resydency ||
-					user.residency.region === messageDataSocket.resydency ||
-					user.residency.country === messageDataSocket.resydency ||
-					'Земля' === messageDataSocket.resydency) &&
-				noReadMessagesCount !== undefined &&
-				noReadMessagesCount < COUNT_RESPONSE_POSTS &&
-				newPost.userId !== user.id
-			) {
-				setPosts((prev) => {
-					if (newPost && prev[messageDataSocket.location as keyof IMessages].length > 0) {
-						return {
-							...prev,
-							[messageDataSocket.location]: [...prev[messageDataSocket.location as keyof IMessages], newPost],
-						};
-					}
-					return prev;
-				});
-			}
-			console.log(
-				user.residency.country,
-				messageDataSocket.location,
-				'user.residency.country, messageDataSocket.location'
-			);
-
-			if (source === GROUP_MESSAGES && messageDataSocket.group_id === group?.id) {
-				setPosts((prev) => {
-					if (newPost) {
-						setScrollDownPage(true);
-						return { ...prev, [locationKey]: [...prev[locationKey], newPost] };
-					}
-					return prev;
-				});
-			}
-
-			setMessageDataSocket(undefined);
-		}
-	}, [messageDataSocket, location]);
-
-	// Прокрутка в конец контейнера после загрузки сообщения из сокета
-	useEffect(() => {
-		if (messagesContainerRef.current && scrollDownPage) {
-			const container = messagesContainerRef.current;
-
-			// Устанавливаем прокрутку в самый низ
-			requestAnimationFrame(() => {
-				container.scrollTop = container.scrollHeight;
-			});
-
-			setScrollDownPage(false);
-		}
-	}, [scrollDownPage]); // Выполнится после загрузки сообщений
-
-	useEffect(() => {
-		checkingTheLock();
-	}, []);
-
-	const checkingTheLock = async () => {
-		try {
-			// 1. Получаем данные времени до которого будет действовать блокировка
-			const response = await UserService.checkBlocked(store.authStore.user.id);
-
-			if (response.status === 200 && response.data) {
-				const blockingEndTimeString = response.data;
-
-				const options: {} = {
-					year: 'numeric',
-					month: 'long',
-					day: 'numeric',
-					timezone: 'UTC',
-					hour: 'numeric',
-					minute: 'numeric',
-				};
-				let blockingEndTime = new Date(blockingEndTimeString).toLocaleString('ru', options);
-
-				setTimeRemaining(blockingEndTime);
-			}
-		} catch (error) {
-			console.error('Ошибка checkingTheLock:', error);
-			setTimeRemaining(null);
-		}
-	};
-
-	useEffect(() => {
-		if (source === CHAT_MESSAGES && location && !posts[locationKey].length) {
-			loadMessages(location);
-		}
+		if (!location) return;
+		if (cache.hasLoaded && cache.posts.length > 0) return;
+		loadMessages(location, cache.nextPage);
 	}, [location]);
 
-	useEffect(() => {
-		if (source === GROUP_MESSAGES && location && group?.id && !posts[locationKey].length) {
-			loadPostsGroup(group.id);
-		}
-	}, [group]);
+	/* ========================= */
+	/* socket */
+	/* ========================= */
 
 	useEffect(() => {
-		if (location && isLastMessageLoad && !isLastMessage[locationKey]) {
-			if (source === CHAT_MESSAGES) loadMessages(location, nextPage[locationKey]);
-			if (source === GROUP_MESSAGES && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
-		} else if (location && isLastMessageLoad && isLastMessage[locationKey]) {
-			setIsLastMessageLoad(false);
-			setScrollDownPage(true);
-		}
-	}, [isLastMessageLoad, nextPage[locationKey], isLastMessage[locationKey]]);
+		if (!messageDataSocket) return;
 
-	const scrollToLastMessage = () => {
-		const noReadMessagesCount = arrCountNoReadMessages[indexLocation[location as keyof Page]].count;
+		const { location: locKey, resydency } = messageDataSocket;
 
-		if (noReadMessagesCount && nameLocal) {
-			setIsLastMessageLoad(true);
-			if (source === CHAT_MESSAGES) updateArrCountNoReadMessages(nameLocal, 0);
-			if (source === GROUP_MESSAGES && group?.id) updateArrCountNoReadPostsGroups(group.id, 0);
-		} else {
-			setIsLastMessageLoad(false);
-			setScrollDownPage(true);
+		/* 1. Проверка принадлежности к residency */
+		if (store.authStore.user.residency[locKey as keyof Residency] !== resydency) {
+			setMessageDataSocket(undefined);
+			return;
 		}
-	};
+
+		const cache = messageStore.get(locKey);
+
+		/* 2. Если есть непрочитанный разрыв — НЕ добавляем */
+		if (!cache.isLastMessage) {
+			// счётчик непрочитанных сообщений увеличивается в useMessgae.hook
+			setMessageDataSocket(undefined);
+			return;
+		}
+
+		/* 3. Маппинг */
+		const msg: MessageWithPartialUser = {
+			id: messageDataSocket.id_message,
+			message: messageDataSocket.form.message,
+			video: messageDataSocket.form.video || [],
+			location: messageDataSocket.resydency,
+			blocked: false,
+			userId: messageDataSocket.id_user,
+			files: messageDataSocket.form.files,
+			user: {
+				id: messageDataSocket.id_user,
+				first_name: messageDataSocket.first_name,
+				last_name: messageDataSocket.last_name,
+				photo_50: messageDataSocket.photo_50,
+			},
+			createdAt: messageDataSocket.createdAt.toString(),
+			updatedAt: messageDataSocket.createdAt.toString(),
+		};
+
+		messageStore.addMessages(locKey, [msg]);
+
+		const my = msg.userId === authStore.user.id;
+		if (my) scrollToLastMessage();
+		setMessageDataSocket(undefined);
+	}, [messageDataSocket]);
+
+	/* ========================= */
+	/* scroll cache */
+	/* ========================= */
 
 	useEffect(() => {
-		if (source === CHAT_MESSAGES && isScrollTop && location && posts[locationKey].length)
-			loadPreviousMessages(location, prevPage[locationKey]);
-		if (source === GROUP_MESSAGES && isScrollTop && group?.id && posts[locationKey].length)
-			loadPreviousPostsGroup(group.id, prevPage[locationKey]);
-		setIsScrollTop(false);
-	}, [isScrollTop]);
+		const container = messagesContainerRef.current;
+		if (!container || !location) return;
+
+		const handleScroll = () => {
+			messageStore.set(location, {
+				scrollTop: container.scrollTop,
+			});
+		};
+
+		container.addEventListener('scroll', handleScroll);
+		return () => container.removeEventListener('scroll', handleScroll);
+	}, [location]);
+
+	/* ========================= */
+	/* restore scroll */
+	/* ========================= */
+
+	useEffect(() => {
+		if (!messagesContainerRef.current) return;
+		if (cache.scrollTop == null) return;
+
+		requestAnimationFrame(() => {
+			if (messagesContainerRef.current) {
+				messagesContainerRef.current.scrollTop = cache.scrollTop ?? 0;
+			}
+		});
+	}, [location]);
+
+	/* ========================= */
+	/* infinite scroll down */
+	/* ========================= */
 
 	useEffect(() => {
 		if (!lastMessageRef.current) return;
 
 		const observer = new IntersectionObserver((entries) => {
-			if (!location) return;
-			if (entries[0].isIntersecting) {
-				setIsScrollEnd((prev) => ({ ...prev, [location]: true }));
-				if (source === CHAT_MESSAGES) loadMessages(location, nextPage[locationKey]);
-				if (source === GROUP_MESSAGES && group?.id) loadPostsGroup(group.id, nextPage[locationKey]);
+			if (entries[0].isIntersecting && !cache.isLastMessage) {
+				loadMessages(location, cache.nextPage);
 			} else {
-				setIsScrollEnd((prev) => ({ ...prev, [location]: false }));
+				setIsScrollEnd(false);
 			}
 		});
 
 		observer.observe(lastMessageRef.current);
-
 		return () => observer.disconnect();
-	}, [posts[locationKey]]);
+	}, [location, cache.nextPage, cache.isLastMessage]);
 
-	const loadMessages = async (location: string, pageNumber: number = 1) => {
-		if (isLastMessage[location]) return;
-		try {
-			setIsLoadMessages(true);
-			const allMessages = await MessagesService.getAllMessages(
-				store.authStore.user.id,
-				pageNumber,
-				store.authStore.user.secret,
-				location
-			);
+	/* ========================= */
+	/* infinite scroll up */
+	/* ========================= */
 
-			if (allMessages.data && allMessages.data.length > 0) {
-				if (posts[locationKey].includes(allMessages.data[0])) return;
-				setPosts((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], ...allMessages.data] }));
-				setNextPage((prev) => ({ ...prev, [locationKey]: pageNumber + 1 }));
-			} else {
-				setIsLastMessage((prev) => ({ ...prev, [locationKey]: true }));
-			}
-			setIsLoadMessages(false);
-		} catch (err) {
-			setIsLoadMessages(false);
-			console.error(`Ошибка в loadMessages: ${err}`);
-		}
-	};
-
-	const loadPostsGroup = async (groupId: number, pageNumber: number = 1) => {
-		if (isLastMessage[location]) return;
-		try {
-			setIsLoadMessages(true);
-			const allMessages = await GroupsService.getAllPosts(groupId, pageNumber);
-			if (allMessages.data && allMessages.data.length > 0) {
-				if (posts[locationKey].includes(allMessages.data[0])) return;
-				setPosts((prev) => ({ ...prev, [locationKey]: [...prev[locationKey], ...allMessages.data] }));
-				setNextPage((prev) => ({ ...prev, [locationKey]: pageNumber + 1 }));
-			} else {
-				setIsLastMessage((prev) => ({ ...prev, [locationKey]: true }));
-			}
-			setIsLoadMessages(false);
-		} catch (err) {
-			setIsLoadMessages(false);
-			console.error(`Ошибка в loadMessages: ${err}`);
-		}
-	};
-
-	// Прокрутка в конец контейнера после загрузки сообщений
 	useEffect(() => {
-		if (isFirstLoad[locationKey] && messagesContainerRef.current && posts[locationKey].length) {
-			const container = messagesContainerRef.current;
+		if (!isScrollTop) return;
+		loadPreviousMessages(location, cache.prevPage);
+		setIsScrollTop(false);
+	}, [isScrollTop]);
 
-			// Отключаем анимацию скролла
-			container.style.scrollBehavior = 'auto';
+	/* ========================= */
+	/* loaders */
+	/* ========================= */
 
-			// Устанавливаем прокрутку в самый низ
-			requestAnimationFrame(() => {
-				container.scrollTop = container.scrollHeight;
+	const loadMessages = async (loc: string, page = 1) => {
+		if (messageStore.get(loc).isLastMessage) return;
 
-				// Включаем плавную прокрутку снова
-				requestAnimationFrame(() => {
-					container.style.scrollBehavior = 'smooth';
+		try {
+			setIsLoadMessages(true);
+			const res = await MessagesService.getAllMessages(page, loc);
+			if (locationRef.current !== loc) return;
+
+			if (res.data?.length) {
+				messageStore.addMessages(loc, res.data);
+				messageStore.set(loc, {
+					nextPage: page + 1,
+					hasLoaded: true,
 				});
-			});
-
-			setIsFirstLoad((prev) => ({ ...prev, [locationKey]: false }));
-		}
-	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
-
-	const loadPreviousPostsGroup = async (groupId: number, pageNumber: number) => {
-		if (!messagesContainerRef.current || !messagesRef.current) return;
-
-		const container = messagesRef.current;
-		const currentScrollHeight = container.scrollHeight; // Сохраняем высоту перед добавлением
-
-		try {
-			setIsLoadMessages(true);
-
-			const allMessages = await GroupsService.getAllPosts(groupId, pageNumber);
-			if (allMessages.data && allMessages.data.length > 0) {
-				setPosts((prev) => ({
-					...prev,
-					[locationKey]: [...allMessages.data, ...prev[locationKey]], // Добавляем в начало
-				}));
-
-				setPrevPage((prev) => ({ ...prev, [locationKey]: pageNumber - 1 })); // Двигаемся назад
-				setPreviousScrollHeight(currentScrollHeight);
+			} else {
+				messageStore.set(loc, {
+					isLastMessage: true,
+					hasLoaded: true,
+				});
 			}
-
+		} finally {
 			setIsLoadMessages(false);
-		} catch (err) {
-			setIsLoadMessages(false);
-			console.error(`Ошибка в loadPreviousMessages: ${err}`);
 		}
 	};
 
-	const loadPreviousMessages = async (location: string, pageNumber: number) => {
+	const loadPreviousMessages = async (loc: string, page: number) => {
 		if (!messagesContainerRef.current || !messagesRef.current) return;
 
 		const container = messagesRef.current;
-		const currentScrollHeight = container.scrollHeight; // Сохраняем высоту перед добавлением
+		const prevHeight = container.scrollHeight;
 
 		try {
 			setIsLoadMessages(true);
+			const res = await MessagesService.getAllMessages(page, loc);
+			if (locationRef.current !== loc) return;
 
-			const allMessages = await MessagesService.getAllMessages(
-				store.authStore.user.id,
-				pageNumber,
-				store.authStore.user.secret,
-				location
-			);
+			if (res.data?.length) {
+				messageStore.prependMessages(loc, res.data);
+				messageStore.set(loc, { prevPage: page - 1 });
 
-			if (allMessages.data && allMessages.data.length > 0) {
-				setPosts((prev) => ({
-					...prev,
-					[locationKey]: [...allMessages.data, ...prev[locationKey]], // Добавляем в начало
-				}));
-
-				setPrevPage((prev) => ({ ...prev, [locationKey]: pageNumber - 1 })); // Двигаемся назад
-				setPreviousScrollHeight(currentScrollHeight);
+				requestAnimationFrame(() => {
+					const newHeight = container.scrollHeight;
+					messagesContainerRef.current!.scrollTop += newHeight - prevHeight;
+				});
 			}
-
+		} finally {
 			setIsLoadMessages(false);
-		} catch (err) {
-			setIsLoadMessages(false);
-			console.error(`Ошибка в loadPreviousMessages: ${err}`);
 		}
 	};
 
-	useEffect(() => {
-		if (messagesContainerRef.current && messagesRef.current && previousScrollHeight !== 0) {
-			// Отключаем плавный скролл перед изменением
-			messagesContainerRef.current.style.scrollBehavior = 'auto';
-
-			// Восстанавливаем позицию скролла
-			requestAnimationFrame(() => {
-				if (messagesContainerRef.current && messagesRef.current) {
-					const newScrollHeight = messagesRef.current.scrollHeight;
-					messagesContainerRef.current.scrollTop += newScrollHeight - previousScrollHeight;
-
-					// Включаем плавный скролл снова
-					requestAnimationFrame(() => {
-						if (messagesContainerRef.current) {
-							messagesContainerRef.current.style.scrollBehavior = 'smooth';
-						}
-					});
-				}
-			});
-			setPreviousScrollHeight(0);
-		}
-	}, [posts[locationKey]]); // Выполнится после загрузки сообщений
+	/* ========================= */
+	/* UI handlers */
+	/* ========================= */
 
 	const handleClick = () => {
 		const input = uploadRef.current?.upload?.uploader?.fileInput;
@@ -571,31 +288,33 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 	};
 
 	const menuItems: MenuProps['items'] = [
-		{
-			key: 'uploadFile',
-			label: <span onClick={handleClick}>Добавить файл</span>,
-		},
-		{
-			key: 'addVideo',
-			label: 'Добавить видео',
-		},
+		{ key: 'uploadFile', label: <span onClick={handleClick}>Добавить файл</span> },
+		{ key: 'addVideo', label: 'Добавить видео' },
 	];
 
 	const handleMenuClick = ({ key }: { key: string }) => {
 		if (key === 'uploadFile') {
 			if (!videoUrls.length) setShowVideoInput(false);
-		} else if (key === 'addVideo') {
-			setShowVideoInput(true);
 		}
+		if (key === 'addVideo') setShowVideoInput(true);
 		setMenuVisible(false);
 	};
 
-	const deletePost = (id: number, location: string) => {
-		setPosts((prev) => ({
-			...prev,
-			[location as keyof IMessages]: prev[location as keyof IMessages].filter((post) => post.id !== id),
-		}));
+	const deletePost = (id: number) => {
+		const filtered = posts.filter((p) => p.id !== id);
+		messageStore.set(location, { posts: filtered });
 	};
+
+	const scrollToLastMessage = () => {
+		if (!messagesContainerRef.current) return;
+		requestAnimationFrame(() => {
+			messagesContainerRef.current!.scrollTop = messagesContainerRef.current!.scrollHeight;
+		});
+	};
+
+	/* ========================= */
+	/* render */
+	/* ========================= */
 
 	return (
 		<>
@@ -605,19 +324,19 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 					location={location}
 					messagesRef={messagesRef}
 					lastMessageRef={lastMessageRef}
-					groupId={group?.id}
 					deletePost={deletePost}
-					source={source}
 				/>
 			)}
-			{!isScrollEnd[locationKey] && (
+
+			{!isScrollEnd && (
 				<FloatButton
 					icon={<ArrowDownOutlined />}
 					type="default"
-					style={{ position: 'absolute', right: 20, bottom: 74 }} // Позиционирование внизу справа
+					style={{ position: 'absolute', right: 20, bottom: 74 }}
 					onClick={scrollToLastMessage}
 				/>
 			)}
+
 			<div id={styles.messages} ref={widthRef}>
 				{timeRemaining !== null ? (
 					<div className={styles['blocked_text']}>
@@ -640,15 +359,16 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 						<div style={{ paddingLeft: '10px' }}>
 							<UploadAntdFiles isHiddenButton={true} uploadRef={uploadRef} width={width} />
 						</div>
+
 						<div id="forms">
 							<div className="clip">
 								<div className="label-clip">
-									<label htmlFor="fileToUpload">
+									<label>
 										<Dropdown
 											menu={{ items: menuItems, onClick: handleMenuClick }}
 											trigger={['click']}
 											open={menuVisible}
-											onOpenChange={(flag) => setMenuVisible(flag)}
+											onOpenChange={setMenuVisible}
 										>
 											<Button type="text" icon={<PaperClipOutlined style={{ color: '#b1b3b1', fontSize: '35px' }} />} />
 										</Dropdown>
@@ -659,7 +379,6 @@ const Messages: React.FC<MessagesProps> = ({ location, source, group }) => {
 							{location && (
 								<SendMessage
 									location={location}
-									groupId={group?.id}
 									videoUrls={videoUrls}
 									setVideoUrls={setVideoUrls}
 									setShowVideoInput={setShowVideoInput}

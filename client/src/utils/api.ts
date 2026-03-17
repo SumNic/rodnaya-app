@@ -700,7 +700,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/create-group': {
+	'/api/groups/create-group': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -717,7 +717,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/get-all-group': {
+	'/api/groups/get-all-group': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -734,7 +734,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/get-group/{id}': {
+	'/api/groups/get-group/{id}': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -751,24 +751,24 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/get-all-posts-group': {
+	'/api/groups/get-all-posts-group': {
 		parameters: {
 			query?: never;
 			header?: never;
 			path?: never;
 			cookie?: never;
 		};
-		/** Получение всех сообщений для определенной группы */
-		get: operations['GroupsController_getAllChatPosts'];
+		get?: never;
 		put?: never;
-		post?: never;
+		/** Получение всех сообщений для определенной группы */
+		post: operations['GroupsController_getAllChatPosts'];
 		delete?: never;
 		options?: never;
 		head?: never;
 		patch?: never;
 		trace?: never;
 	};
-	'/api/send-post-to-chat': {
+	'/api/groups/post-group': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -779,47 +779,15 @@ export interface paths {
 		put?: never;
 		/** Добавление нового сообщения */
 		post: operations['GroupsController_addMessage'];
-		delete?: never;
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/edit-group-message': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get?: never;
-		put?: never;
-		post?: never;
-		delete?: never;
+		/** Удаление своего сообщения (или админом) */
+		delete: operations['GroupsController_deleteMessage'];
 		options?: never;
 		head?: never;
 		/** Редактирование своего сообщения (или админом) */
 		patch: operations['GroupsController_editMessage'];
 		trace?: never;
 	};
-	'/api/delete-group-message': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get?: never;
-		put?: never;
-		post?: never;
-		/** Удаление своего сообщения (или админом) */
-		delete: operations['GroupsController_deleteMessage'];
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/join-the-group': {
+	'/api/groups/join-the-group': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -836,7 +804,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/leave-the-group': {
+	'/api/groups/leave-the-group': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -853,7 +821,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/get-post-group-from-id': {
+	'/api/groups/get-post-group-from-id': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -870,7 +838,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/blocked-post-group': {
+	'/api/groups/blocked-post-group': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -881,6 +849,40 @@ export interface paths {
 		put?: never;
 		/** Блокировка сообщений */
 		post: operations['GroupsController_blockedPostGroup'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/groups/last-read': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Установка последнего прочитанного сообщения */
+		post: operations['GroupsController_updateLastRead'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/groups/unread-info': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Получение количества непрочитанных сообщений для всех групп пользователя */
+		get: operations['GroupsController_getUnreadInfo'];
+		put?: never;
+		post?: never;
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1184,34 +1186,24 @@ export interface components {
 			 * @description Название планеты
 			 * @example Мир
 			 */
-			world: string;
+			world?: string;
 			/**
 			 * @description Название страны
 			 * @example Россия
 			 */
-			country: string;
+			country?: string;
 			/**
 			 * @description Название региона
 			 * @example Чувашия
 			 */
-			region: string;
+			region?: string;
 			/**
 			 * @description Название района
 			 * @example Алатырский
 			 */
-			locality: string;
+			locality?: string;
 		};
 		EndMessageDto: {
-			/**
-			 * @description id пользователя
-			 * @example 1
-			 */
-			id: string;
-			/**
-			 * @description Проверка состояния
-			 * @example sdfsfsdgggg
-			 */
-			secret: string;
 			residency: components['schemas']['CreateLocationDto'];
 		};
 		EndReadMessageDto: {
@@ -1250,24 +1242,16 @@ export interface components {
 			 */
 			selectedActionIndex: number;
 		};
-		Residency: Record<string, never>;
-		CreateRoleDto: {
-			/**
-			 * @description Название существующей роли
-			 * @example admin
-			 */
-			value: string;
-		};
-		UuidDevice: {
-			/**
-			 * @description uuid device
-			 * @example sdfsdfsd
-			 */
-			uuid: string;
-		};
 		Role: {
 			id: number;
 			value: string;
+			users: components['schemas']['User'][];
+		};
+		Residency: {
+			id: number;
+			country: string;
+			region: string;
+			locality: string;
 			users: components['schemas']['User'][];
 		};
 		Token: Record<string, never>;
@@ -1354,6 +1338,7 @@ export interface components {
 			country: string;
 			region: string;
 			locality: string;
+			location: string;
 			blocked: boolean;
 			userId: number;
 			users: components['schemas']['User'][];
@@ -1400,6 +1385,20 @@ export interface components {
 			createdAt: string;
 			/** Format: date-time */
 			updatedAt: string;
+		};
+		CreateRoleDto: {
+			/**
+			 * @description Название существующей роли
+			 * @example admin
+			 */
+			value: string;
+		};
+		UuidDevice: {
+			/**
+			 * @description uuid device
+			 * @example sdfsdfsd
+			 */
+			uuid: string;
 		};
 		OutputUserAndTokens: {
 			/**
@@ -1585,6 +1584,29 @@ export interface components {
 			 */
 			location: string;
 		};
+		GetPostsGroupDto: {
+			/**
+			 * @description ID группы
+			 * @example 1
+			 */
+			groupId: number;
+			/**
+			 * @description id сообщения, от которого грузим
+			 * @example 25
+			 */
+			cursor?: number;
+			/**
+			 * @description Направление прокрутки
+			 * @example before
+			 * @enum {string}
+			 */
+			direction?: 'before' | 'after';
+			/**
+			 * @description Лимит сообщений при загруке
+			 * @example 25
+			 */
+			limit?: number;
+		};
 		CreatePostToChatDto: {
 			/**
 			 * @description ID чата
@@ -1605,6 +1627,40 @@ export interface components {
 		DeleteGroupMessageDto: {
 			/** @description ID удаляемого сообщения */
 			id_message: number;
+		};
+		UpdateLastReadDto: {
+			/**
+			 * @description ID группы
+			 * @example 1
+			 */
+			groupId: number;
+			/**
+			 * @description ID последнего прочитанного сообщения
+			 * @example 123
+			 */
+			lastReadPostId: number;
+		};
+		GroupUnreadInfoDto: {
+			/**
+			 * @description ID группы
+			 * @example 1
+			 */
+			groupId: number;
+			/**
+			 * @description ID последнего прочитанного сообщения
+			 * @example 123
+			 */
+			lastReadPostId: number | null;
+			/**
+			 * @description Количество непрочитанных сообщений
+			 * @example 5
+			 */
+			unreadCount: number;
+			/**
+			 * @description Локаци
+			 * @example world
+			 */
+			location: string;
 		};
 		AddFcmDeviceTokenDto: {
 			/**
@@ -1941,12 +1997,8 @@ export interface operations {
 	MessagesController_getAllMessage: {
 		parameters: {
 			query: {
-				/** @description ID учредителя */
-				id: string;
 				/** @description ID первого сообщения */
 				pageNumber: string;
-				/** @description Секретное слово */
-				secret: string;
 				/** @description Радиус проживания */
 				location: string;
 			};
@@ -1973,19 +2025,15 @@ export interface operations {
 	};
 	MessagesController_getCountNoReadMessages: {
 		parameters: {
-			query: {
-				/** @description id пользователя */
-				id: string;
-				/** @description Проверка состояния */
-				secret: string;
+			query?: {
 				/** @description Название планеты */
-				world: string;
+				world?: string;
 				/** @description Название страны */
-				country: string;
+				country?: string;
 				/** @description Название региона */
-				region: string;
+				region?: string;
 				/** @description Название района */
-				locality: string;
+				locality?: string;
 			};
 			header?: never;
 			path?: never;
@@ -2015,19 +2063,15 @@ export interface operations {
 	};
 	MessagesController_getEndReadMessagesId: {
 		parameters: {
-			query: {
-				/** @description id пользователя */
-				id: string;
-				/** @description Проверка состояния */
-				secret: string;
+			query?: {
 				/** @description Название планеты */
-				world: string;
+				world?: string;
 				/** @description Название страны */
-				country: string;
+				country?: string;
 				/** @description Название региона */
-				region: string;
+				region?: string;
 				/** @description Название района */
-				locality: string;
+				locality?: string;
 			};
 			header?: never;
 			path?: never;
@@ -2035,7 +2079,7 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['EndMessageDto'];
+				'application/json': components['schemas']['CreateLocationDto'];
 			};
 		};
 		responses: {
@@ -3026,19 +3070,18 @@ export interface operations {
 	};
 	GroupsController_getAllChatPosts: {
 		parameters: {
-			query: {
-				/** @description ID группы */
-				groupId: string;
-				/** @description Номер страницы */
-				pageNumber: string;
-			};
+			query?: never;
 			header?: never;
 			path?: never;
 			cookie?: never;
 		};
-		requestBody?: never;
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['GetPostsGroupDto'];
+			};
+		};
 		responses: {
-			201: {
+			200: {
 				headers: {
 					[name: string]: unknown;
 				};
@@ -3082,7 +3125,7 @@ export interface operations {
 			};
 		};
 	};
-	GroupsController_editMessage: {
+	GroupsController_deleteMessage: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3091,11 +3134,11 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['UpdateGroupMessageDto'];
+				'application/json': components['schemas']['DeleteGroupMessageDto'];
 			};
 		};
 		responses: {
-			/** @description Сообщение обновлено */
+			/** @description Сообщение удалено */
 			200: {
 				headers: {
 					[name: string]: unknown;
@@ -3111,7 +3154,7 @@ export interface operations {
 			};
 		};
 	};
-	GroupsController_deleteMessage: {
+	GroupsController_editMessage: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3120,11 +3163,11 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['DeleteGroupMessageDto'];
+				'application/json': components['schemas']['UpdateGroupMessageDto'];
 			};
 		};
 		responses: {
-			/** @description Сообщение удалено */
+			/** @description Сообщение обновлено */
 			200: {
 				headers: {
 					[name: string]: unknown;
@@ -3192,16 +3235,14 @@ export interface operations {
 	};
 	GroupsController_getPostGroupFromId: {
 		parameters: {
-			query?: never;
+			query: {
+				'': number;
+			};
 			header?: never;
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
-			content: {
-				'application/json': number;
-			};
-		};
+		requestBody?: never;
 		responses: {
 			/** @description Данные получены */
 			200: {
@@ -3241,6 +3282,62 @@ export interface operations {
 			};
 			/** @description Неккоректные данные */
 			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	GroupsController_updateLastRead: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['UpdateLastReadDto'];
+			};
+		};
+		responses: {
+			/** @description Последнее прочитанное сообщение обновлено */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Пользователь не авторизован */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	GroupsController_getUnreadInfo: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Список групп с последним прочитанным сообщением и количеством непрочитанных сообщений */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['GroupUnreadInfoDto'][];
+				};
+			};
+			/** @description Пользователь не авторизован */
+			403: {
 				headers: {
 					[name: string]: unknown;
 				};

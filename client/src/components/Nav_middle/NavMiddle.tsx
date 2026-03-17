@@ -40,8 +40,10 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 
 	const { store } = useStoreContext();
 	const { arrCountNoReadMessages } = store.messageStore;
+	const { arrCountNoReadPostsGroups } = store.groupStore;
 
 	const allCountAreZero = arrCountNoReadMessages?.every((item) => item.count <= 0);
+	const isNoReadPostToGroups = arrCountNoReadPostsGroups?.every((item) => item.count <= 0);
 
 	const menuItems = [];
 
@@ -82,6 +84,7 @@ const NavMiddle: React.FC<Item> = ({ item = '' }) => {
 			<Link to={`${GROUP_ROUTE}/locality`} className="middle__link">
 				<TeamOutlined style={{ marginRight: 8 }} />
 				Группы
+				{!isNoReadPostToGroups ? <Badge style={{ boxShadow: 'none' }} dot /> : ''}
 			</Link>
 		),
 	});

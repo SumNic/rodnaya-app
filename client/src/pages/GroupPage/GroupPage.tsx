@@ -6,18 +6,18 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStoreContext } from '../../contexts/StoreContext';
 import HeaderLogoPc from '../../components/HeaderLogo/HeaderLogoPc';
-import { HOME_ROUTE, GROUP_ROUTE, LOCAL_STORAGE_IS_MY_GROUPS, GROUP_MESSAGES, GROUPS } from '../../utils/consts';
+import { HOME_ROUTE, GROUP_ROUTE, LOCAL_STORAGE_IS_MY_GROUPS, GROUPS } from '../../utils/consts';
 import { Button, Modal, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import GroupModal from './components/GroupModal';
 
 import styles from './GroupPage.module.css';
 import GroupsList from './components/GroupsList';
-import Messages from '../Messages/components/Messages';
 import { Group } from '../../services/GroupsService';
 import AuthVkButton from '../../components/AuthVkButton';
 import { Capacitor } from '@capacitor/core';
 import MyButton from '../../components/MyButton/MyButton';
+import GroupPosts from './components/GroupPosts';
 
 const { Text } = Typography;
 
@@ -163,7 +163,7 @@ const GroupPage: React.FC = () => {
 							<GroupsList groups={groups} location={location} isLoadingGroup={isLoadingGroup} isMyGroups={isMyGroups} />
 						)}
 						{store.authStore.isAuth && location && isChatGroupVisible[location] && (
-							<Messages location={location} source={GROUP_MESSAGES} group={groupForChat[location]} />
+							<GroupPosts location={location} group={groupForChat[location]} />
 						)}
 					</div>
 				</div>

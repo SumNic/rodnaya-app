@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 import styles from '../GroupPage.module.css';
 import CustomAvatar from '../../../components/CustomAvatar';
-import { Button, Dropdown, MenuProps, message } from 'antd';
+import { Badge, Button, Dropdown, MenuProps, message } from 'antd';
 import { useStoreContext } from '../../../contexts/StoreContext';
 import { FOUL_MESSAGES, GO, GROUPS, ONE_GROUP_ROUTE } from '../../../utils/consts';
 import { DangerIcon } from '../../../UI/icons/DangerIcon';
@@ -25,7 +25,8 @@ const OneGroup: React.FC<GroupProps> = ({ group, location }) => {
 
 	const { store } = useStoreContext();
 	const { user } = store.authStore;
-	const { setIsAboutGroupVisible, setIsChatGroupVisible, setAboutGroup, setGroupForChat } = store.groupStore;
+	const { setIsAboutGroupVisible, setIsChatGroupVisible, setAboutGroup, setGroupForChat, arrCountNoReadPostsGroups } =
+		store.groupStore;
 
 	const handleMenuClick = (e: any) => {
 		if (e.key === 'share') {
@@ -100,6 +101,16 @@ const OneGroup: React.FC<GroupProps> = ({ group, location }) => {
 				<div className={styles.groupNameBlock}>
 					<div onClick={() => handleGroupClick(group)} className={styles.groupName} style={{ cursor: 'pointer' }}>
 						{group.name}
+						{arrCountNoReadPostsGroups ? (
+							<Badge
+								count={arrCountNoReadPostsGroups.find((g) => g.groupId === group.id)?.count}
+								style={{ boxShadow: 'none' }}
+							>
+								<div style={{ minWidth: 12, minHeight: 15 }}></div>
+							</Badge>
+						) : (
+							''
+						)}
 					</div>
 
 					<div className={styles.foul}>

@@ -5,14 +5,30 @@ import MessagesService, {
 	UpdateMessageDto,
 	DeleteMessageDto,
 } from '../services/MessagesService.ts';
-import { LocationUser } from '../models/LocationUser.ts';
 import { CountNoReadMessages } from '../models/CountNoReadMessages.ts';
 import { EndReadMessagesId } from '../models/EndReadMessagesId.ts';
 import { Residency } from '../services/UserService.ts';
+import { MessageWithPartialUser } from '../models/IMessages.ts';
+
+export interface MessageCacheItem {
+	posts: MessageWithPartialUser[];
+	nextPage: number;
+	prevPage: number;
+	isLastMessage: boolean;
+	updatedAt: number;
+	scrollTop?: number;
+	hasLoaded?: boolean;
+	isSynced: boolean; // история синхронизирована
+	hasUnreadGap: boolean; // есть непрочитанные, которые не загружены
+	lastReadMessageId?: number; // id последнего прочитанного
+}
+
+type MessageCache = Record<string, MessageCacheItem>;
 
 export default class MessageStore {
 	arrCountNoReadMessages = observable.array<CountNoReadMessages>([]);
 	arrLastReadMessagesId = observable.array<EndReadMessagesId>([]);
+	cache: MessageCache = {};
 
 	constructor() {
 		makeAutoObservable(this);
@@ -63,18 +79,61 @@ export default class MessageStore {
 		}
 	}
 
-	getCountNoReadMessages = async (id: number, secret: string, residency: Residency) => {
-		try {
-			const { country, region, locality } = residency;
-			const residencyUser: CreateLocationDto = { world: 'Земля', country, region, locality };
-
-			const dto = {
-				id: id.toString(),
-				secret,
-				residency: residencyUser,
+	get = (location: string): MessageCacheItem => {
+		if (!this.cache[location]) {
+			this.cache[location] = {
+				posts: [],
+				nextPage: 1,
+				prevPage: -1,
+				isLastMessage: false,
+				hasLoaded: false,
+				scrollTop: 0,
+				updatedAt: Date.now(),
+				isSynced: false,
+				hasUnreadGap: false,
+				lastReadMessageId: undefined,
 			};
+		}
+		return this.cache[location];
+	};
 
-			const result = await MessagesService.getCountNoReadMessages(dto);
+	set = (location: string, data: Partial<MessageCacheItem>) => {
+		if (!location) return;
+		this.cache[location] = {
+			...this.get(location),
+			...data,
+			updatedAt: Date.now(),
+		};
+	};
+
+	addMessages(location: string, messages: MessageWithPartialUser[]) {
+		const item = this.get(location);
+		const ids = new Set(item.posts.map((m) => m.id));
+		const filtered = messages.filter((m) => !ids.has(m.id));
+
+		item.posts = [...item.posts, ...filtered];
+		item.updatedAt = Date.now();
+	}
+
+	prependMessages(location: string, messages: MessageWithPartialUser[]) {
+		const item = this.get(location);
+		const ids = new Set(item.posts.map((m) => m.id));
+		const filtered = messages.filter((m) => !ids.has(m.id));
+
+		item.posts = [...filtered, ...item.posts];
+		item.updatedAt = Date.now();
+	}
+
+	clear(location: string) {
+		delete this.cache[location];
+	}
+
+	getCountNoReadMessages = async (residencyUser: Residency) => {
+		try {
+			const { country, region, locality } = residencyUser;
+			const residency: CreateLocationDto = { world: 'Земля', country, region, locality };
+
+			const result = await MessagesService.getCountNoReadMessages({ residency });
 			if (result.data) {
 				result.data.forEach((elem) => {
 					this.updateArrCountNoReadMessages(elem.location, elem.count);
@@ -85,18 +144,12 @@ export default class MessageStore {
 		}
 	};
 
-	getLastReadMessageId = async (id: number, secret: string, residency: LocationUser) => {
+	getLastReadMessageId = async (residency: CreateLocationDto) => {
 		try {
 			const { country, region, locality } = residency;
-			const residencyUser: LocationUser = { world: 'Земля', country, region, locality };
+			const residencyUser: CreateLocationDto = { world: 'Земля', country, region, locality };
 
-			const dto = {
-				id,
-				secret,
-				residency: residencyUser,
-			};
-
-			const result = await MessagesService.getLastReadMessageId(dto);
+			const result = await MessagesService.getLastReadMessageId(residencyUser);
 			if (result.data) {
 				result.data.forEach((elem) => {
 					this.updateArrLastReadMessagesId(elem.location, elem.id);

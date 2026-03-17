@@ -5,6 +5,7 @@ import { Roles } from 'src/auth/guards/roles-auth.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ROLES } from 'src/common/constants/roles';
 import { BlockedMessagesDto } from 'src/common/dtos/blocked-messages.dto';
+import { CreateLocationDto } from 'src/common/dtos/create-location.dto';
 import { CreateMessageDto } from 'src/common/dtos/create-message.dto';
 import { DeleteMessageDto } from 'src/common/dtos/delete-message.dto';
 import { EndMessageDto } from 'src/common/dtos/end-message.dto';
@@ -64,43 +65,9 @@ export class MessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getAllMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
-        return await this.messagesService.getAllMessage(query);
+    async getAllMessage(@Req() req: AuthenticatedRequest, @Query() query: GetMessagesDto): Promise<Messages[]> {
+        return await this.messagesService.getAllMessage(req.user.id, query);
     }
-
-    // @ApiOperation({
-    //     summary: 'Получение последующих сообщений для определенного location',
-    // })
-    // @Get('/get-next-messages')
-    // @ApiBody({ type: CreateMessageDto })
-    // @ApiResponse({
-    //     status: HttpStatus.CREATED,
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     description: 'Неккоректные данные',
-    // })
-    // @UseGuards(JwtAuthGuard)
-    // async getNextMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
-    //     return await this.messagesService.getNextMessage(query);
-    // }
-
-    // @ApiOperation({
-    //     summary: 'Получение предыдущие для определенного location',
-    // })
-    // @Get('/get-previous-messages')
-    // @ApiBody({ type: CreateMessageDto })
-    // @ApiResponse({
-    //     status: HttpStatus.CREATED,
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     description: 'Неккоректные данные',
-    // })
-    // @UseGuards(JwtAuthGuard)
-    // async getPreviousMessage(@Query() query: GetMessagesDto): Promise<Messages[]> {
-    //     return await this.messagesService.getPreviousMessage(query);
-    // }
 
     @ApiOperation({
         summary: 'Получение количества всех сообщений для определенного location',
@@ -116,15 +83,15 @@ export class MessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getCountNoReadMessages(@Query() query: EndMessageDto) {
-        return await this.messagesService.getCountNoReadMessages(query);
+    async getCountNoReadMessages(@Req() req: AuthenticatedRequest, @Query() query: EndMessageDto) {
+        return await this.messagesService.getCountNoReadMessages(req.user.id, query);
     }
 
     @ApiOperation({
         summary: 'Получение id последнего прочитанного сообщения для определенного location',
     })
     @Get('/get-end-read-messages-id')
-    @ApiBody({ type: EndMessageDto })
+    @ApiBody({ type: CreateLocationDto })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Данные получены',
@@ -134,8 +101,8 @@ export class MessagesController {
         description: 'Неккоректные данные',
     })
     @UseGuards(JwtAuthGuard)
-    async getEndReadMessagesId(@Query() query: EndMessageDto) {
-        return await this.messagesService.getEndReadMessagesId(query);
+    async getEndReadMessagesId(@Req() req: AuthenticatedRequest, @Query() query: CreateLocationDto) {
+        return await this.messagesService.getEndReadMessagesId(req.user.id, query);
     }
 
     @ApiOperation({

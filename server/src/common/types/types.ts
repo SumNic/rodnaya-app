@@ -18,3 +18,8 @@ export enum DevicePlatform {
 export enum LocationType {
     GLOBAL = 'Земля',
 }
+
+export enum Direction {
+    BEFORE = 'before',
+    AFTER = 'after',
+}

@@ -1,4 +1,4 @@
 export interface EndReadPostsGroupsId {
-	idGroup: number;
-	idLastReadPost: number;
+	groupId: number;
+	lastReadPostId: number;
 }
