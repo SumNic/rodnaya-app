@@ -58,6 +58,33 @@ const Home: React.FC = () => {
 								</h1>
 							</div>
 
+							{!store.authStore.isAuth && (
+								<div className={styles.wrapper_p}>
+									<p className={styles['founders-description']}>
+										&nbsp;Чтобы присоединиться к нашему сообществу и общаться с единомышленниками, войдите через VK ID.
+									</p>
+								</div>
+							)}
+
+							{!store.authStore.isAuth && (
+								<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+									{Capacitor.isNativePlatform() ? (
+										<div style={{ maxWidth: '237px', width: '100%', marginRight: '10px' }}>
+											<MyButton text="Войти с VK ID" onClick={() => setMobileLogin(true)} />
+										</div>
+									) : (
+										<div style={{ minWidth: '237px' }}>
+											<AuthVkButton />
+										</div>
+									)}
+								</div>
+							)}
+							{!store.authStore.isAuth && (
+								<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+									<small className={styles['vk-login-note']}>Для входа использовать уведомление ВКонтакте</small>
+								</div>
+							)}
+
 							<div className={styles.wrapper_p}>
 								<div className={styles['founders-section']}>
 									<p className={styles['founders-description']}>
@@ -156,25 +183,6 @@ const Home: React.FC = () => {
 									</li>
 								</ul>
 							</div>
-
-							<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-								{Capacitor.isNativePlatform()
-									? !store.authStore.isAuth && (
-											<div style={{ maxWidth: '237px', width: '100%', marginRight: '10px' }}>
-												<MyButton text="Войти с VK ID" onClick={() => setMobileLogin(true)} />
-											</div>
-										)
-									: !store.authStore.isAuth && (
-											<div style={{ minWidth: '237px' }}>
-												<AuthVkButton />
-											</div>
-										)}
-							</div>
-							{!store.authStore.isAuth && (
-								<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-									<small className={styles['vk-login-note']}>Для входа использовать уведомление ВКонтакте</small>
-								</div>
-							)}
 
 							{!Capacitor.isNativePlatform() && !isTelegram && (
 								<>
