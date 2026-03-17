@@ -40,7 +40,6 @@ export class UsersController {
 
     @ApiTags('Пользователи')
     @ApiOperation({ summary: 'Получить всех пользователей' })
-    // @UseGuards(JwtAuthGuard)
     @Roles(ROLES.ADMIN)
     @UseGuards(RolesGuard)
     @Get('/users')

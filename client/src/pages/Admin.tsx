@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Modal, Radio, Button, message, Input } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import AdminService from '../services/AdminService';
+import AdminService, { CreateLocationDto } from '../services/AdminService';
 import { IPost } from '../models/IPost';
 import MessagesService from '../services/MessagesService';
 import UserService from '../services/UserService';
@@ -30,6 +30,7 @@ const Admin: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isChangeListFoulMessages, setIsChangeListFoulMessages] = useState(false);
 	const [versionApp, setVersionApp] = useState('');
+	const [locationJson, setLocationJson] = useState('');
 
 	const { commonStore } = store;
 
@@ -122,6 +123,42 @@ const Admin: React.FC = () => {
 			setVersionApp('');
 		} catch (e) {
 			message.error('Не удалось добавить версию приложения');
+		}
+	};
+
+	const handleAddLocation = async () => {
+		const raw = locationJson.trim();
+		if (!raw) {
+			return message.warning('Введите JSON');
+		}
+
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(raw);
+		} catch (e) {
+			return message.error('Некорректный JSON');
+		}
+
+		const dtos = Array.isArray(parsed) ? parsed : [parsed];
+		const hasInvalid = dtos.some(
+			(item) =>
+				!item ||
+				typeof item !== 'object' ||
+				!('country' in item) ||
+				!('region' in item) ||
+				typeof (item as CreateLocationDto).country !== 'string' ||
+				typeof (item as CreateLocationDto).region !== 'string'
+		);
+		if (hasInvalid) {
+			return message.warning('Каждый объект должен содержать строки country и region');
+		}
+
+		try {
+			await AdminService.addLocations(dtos as CreateLocationDto[]);
+			message.success('Локация добавлена');
+			setLocationJson('');
+		} catch (e) {
+			message.error('Не удалось добавить локацию');
 		}
 	};
 
@@ -285,6 +322,19 @@ const Admin: React.FC = () => {
 					/>
 					<Button type="primary" onClick={handleAddVersionApp}>
 						Добавить версию приложения
+					</Button>
+				</div>
+
+				<div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+					<Input.TextArea
+						placeholder='{"country":"Россия","region":"Чувашия","locality":"Алатырский"}'
+						value={locationJson}
+						onChange={(e) => setLocationJson(e.target.value)}
+						autoSize={{ minRows: 2, maxRows: 6 }}
+						style={{ maxWidth: 520 }}
+					/>
+					<Button type="primary" onClick={handleAddLocation}>
+						Добавить локацию
 					</Button>
 				</div>
 			</div>
