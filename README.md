@@ -3,11 +3,18 @@
 ## Разработка
 
 ```
-# Автоматически использует docker-compose.override.yml
+# Бэкэнд. Автоматически использует docker-compose.override.yml
 docker compose up
 
 # Или явно
 MODE=dev docker compose up
+
+# Фронтенд.
+yarn install
+yarn dev
+
+# Открытие приложения
+Открывать в браузере по адресу http://localhost
 ```
 
 ## Развёртывание
