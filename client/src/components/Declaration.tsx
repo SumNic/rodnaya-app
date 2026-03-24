@@ -12,7 +12,7 @@ interface FormValues {
 	declaration: string; // Предполагается, что это поле обязательно
 }
 
-const MAX_LENGTH = 2000;
+const MAX_LENGTH = 20000;
 
 function Declaration() {
 	const [isLoading, setIsLoading] = useState(false);
