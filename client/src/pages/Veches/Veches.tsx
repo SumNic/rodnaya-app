@@ -25,10 +25,8 @@ export type PublicationWithPartialUser = Omit<Publication, 'user'> & {
 	location: string;
 } & { createdAt?: string };
 const Veches: React.FC<VechesProps> = () => {
-	// const [isUpcomingVeches, setIsUpcomingVeches] = useState(true);
 	const [open, setOpen] = useState(false);
 	const [targetType, setTargetType] = useState<'chats' | 'groups'>('chats');
-	// const [veches, setVeches] = useState<components['schemas']['Zoom'][]>();
 	const [loading, setLoading] = useState(false);
 
 	const [form] = Form.useForm();
@@ -46,7 +44,6 @@ const Veches: React.FC<VechesProps> = () => {
 	const handleGetVeches = async () => {
 		const veches = await getVeches();
 
-		// if (veches.data) return setVeches(veches.data);
 		if (veches.error) message.error(veches.error);
 	};
 
